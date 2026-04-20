@@ -1524,22 +1524,27 @@
   function init() {
     document.querySelectorAll('.stat-viz, .stat-calc').forEach(el => {
       if (el.dataset.rendered) return;
-      el.dataset.rendered = 'true';
       try {
-        if (el.dataset.type === 'normal') renderNormalDistribution(el);
-        else if (el.dataset.type === 'tcompare') renderTCompare(el);
-        else if (el.dataset.type === 'pvalue') renderPValue(el);
-        else if (el.dataset.type === 'scatter') renderScatterPlot(el);
-        else if (el.dataset.type === 'ttest') renderTTest(el);
-        else if (el.dataset.type === 'chisq') renderChiSq(el);
-        else if (el.dataset.type === 'pca') renderScreePlot(el);
-        else if (el.dataset.type === 'anova') renderANOVA(el);
-        else if (el.dataset.type === 'fdist') renderFDist(el);
-        else if (el.dataset.type === 'binom') renderBinomial(el);
-        else if (el.dataset.type === 'poisson') renderPoisson(el);
-        else if (el.dataset.type === 'km') renderKM(el);
+        renderComponent(el);
+        el.dataset.rendered = 'true';
       } catch(e) { console.error('stats-viz error:', e); }
     });
+  }
+
+  function renderComponent(el) {
+    const type = el.dataset.type;
+    if (type === 'normal') renderNormalDistribution(el);
+    else if (type === 'tcompare') renderTCompare(el);
+    else if (type === 'pvalue') renderPValue(el);
+    else if (type === 'scatter') renderScatterPlot(el);
+    else if (type === 'ttest') renderTTest(el);
+    else if (type === 'chisq') renderChiSq(el);
+    else if (type === 'pca') renderScreePlot(el);
+    else if (type === 'anova') renderANOVA(el);
+    else if (type === 'fdist') renderFDist(el);
+    else if (type === 'binom') renderBinomial(el);
+    else if (type === 'poisson') renderPoisson(el);
+    else if (type === 'km') renderKM(el);
   }
 
   // DOMContentLoaded 之后运行（但章节内容是 fetch 后才注入，需要用 MutationObserver）
@@ -1550,20 +1555,9 @@
           if (node.nodeType === 1) {
             node.querySelectorAll && node.querySelectorAll('.stat-viz, .stat-calc').forEach(el => {
               if (!el.dataset.rendered) {
-                el.dataset.rendered = 'true';
                 try {
-                  if (el.dataset.type === 'normal') renderNormalDistribution(el);
-                  else if (el.dataset.type === 'tcompare') renderTCompare(el);
-                  else if (el.dataset.type === 'pvalue') renderPValue(el);
-                  else if (el.dataset.type === 'scatter') renderScatterPlot(el);
-                  else if (el.dataset.type === 'ttest') renderTTest(el);
-                  else if (el.dataset.type === 'chisq') renderChiSq(el);
-                  else if (el.dataset.type === 'pca') renderScreePlot(el);
-                  else if (el.dataset.type === 'anova') renderANOVA(el);
-                  else if (el.dataset.type === 'fdist') renderFDist(el);
-                  else if (el.dataset.type === 'binom') renderBinomial(el);
-                  else if (el.dataset.type === 'poisson') renderPoisson(el);
-                  else if (el.dataset.type === 'km') renderKM(el);
+                  renderComponent(el);
+                  el.dataset.rendered = 'true';
                 } catch(e) { console.error('stats-viz error:', e); }
               }
             });
