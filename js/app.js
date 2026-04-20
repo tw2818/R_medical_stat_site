@@ -65,7 +65,7 @@ function buildNav() {
     list.forEach((ch, i) => {
       const a = document.createElement('a');
       a.className = 'chapter-link';
-      a.href = '#';
+      a.href = '#' + ch.id;
       a.dataset.group = key;
       a.dataset.index = i;
       a.textContent = ch.title;
@@ -134,9 +134,19 @@ function navigateToChapter(groupKey, index) {
   const list = CHAPTERS[groupKey] || [];
   if (!list[index]) return;
 
+  const chapter = list[index];
+
+  // 避免重复加载同一章节
+  if (window.location.hash === '#' + chapter.id) {
+    updateActiveLink(groupKey, index);
+    return;
+  }
+
+  // 更新 URL hash（用于书签/分享）
+  history.replaceState(null, '', '#' + chapter.id);
+
   // Track visited chapter
   const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
-  const chapter = list[index];
   if (!visited.includes(chapter.id)) {
     visited.push(chapter.id);
     localStorage.setItem('rstat_visited', JSON.stringify(visited));
@@ -147,9 +157,7 @@ function navigateToChapter(groupKey, index) {
   currentIndex = index;
 
   // 更新侧边栏激活状态
-  document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));
-  const activeLink = document.querySelector(`.chapter-link[data-group="${groupKey}"][data-index="${index}"]`);
-  if (activeLink) activeLink.classList.add('active');
+  updateActiveLink(groupKey, index);
 
   // 更新顶部标题
   const titleEl = $('current-chapter-title');
@@ -162,6 +170,12 @@ function navigateToChapter(groupKey, index) {
   const sidebar = $('sidebar');
   if (sidebar) sidebar.classList.remove('open');
   updateProgress();
+}
+
+function updateActiveLink(groupKey, index) {
+  document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));
+  const activeLink = document.querySelector(`.chapter-link[data-group="${groupKey}"][data-index="${index}"]`);
+  if (activeLink) activeLink.classList.add('active');
 }
 
 async function loadChapter(filename) {
@@ -403,4 +417,35 @@ document.addEventListener('DOMContentLoaded', () => {
       if (target) target.classList.add('active');
     });
   });
+
+  // ===== Hash 路由 =====
+  // 根据 URL hash 加载章节（书签/直接链接/浏览器后退前进）
+  function navigateByHash() {
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+    // 查找对应章节
+    for (const [groupKey, list] of Object.entries(CHAPTERS)) {
+      const idx = list.findIndex(ch => ch.id === hash);
+      if (idx !== -1) {
+        // 仅更新激活状态和标题，不重复加载
+        if (currentGroup === groupKey && currentIndex === idx) return;
+        currentGroup = groupKey;
+        currentIndex = idx;
+        updateActiveLink(groupKey, idx);
+        const titleEl = $('current-chapter-title');
+        if (titleEl) titleEl.textContent = list[idx].title;
+        loadChapter(list[idx].file);
+        updateNavGroupExpansion();
+        return;
+      }
+    }
+  }
+
+  // 监听 hash 变化（浏览器后退前进）
+  window.addEventListener('hashchange', navigateByHash);
+
+  // 页面加载时检查 hash
+  if (window.location.hash) {
+    navigateByHash();
+  }
 });
