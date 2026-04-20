@@ -9,7 +9,7 @@ let currentChapterData = null;
 const GROUP_CONFIG = [
   { key: 'basic', el: 'basic-chapters', label: '基础统计分析' },
   { key: 'advanced', el: 'advanced-chapters', label: '高级统计分析' },
-  { key: 'literature', el: 'other-chapters', label: '文献常见统计分析' },
+  { key: 'literature', el: 'literature-chapters', label: '文献常见统计分析' },
   { key: 'other', el: 'other-chapters', label: '其他合集' },
 ];
 
@@ -175,7 +175,7 @@ function updateNavGroupExpansion() {
 // ===== 代码复制 =====
 window.copyCodeBlock = function(btn) {
   const pre = btn.nextElementSibling;
-  if (!pre || !pre.tagName === 'PRE') return;
+  if (!pre || pre.tagName !== 'PRE') return;
   const code = pre.querySelector('code');
   const text = code ? code.textContent : pre.textContent;
   navigator.clipboard.writeText(text).then(() => {
@@ -266,11 +266,7 @@ function initSearch() {
 
 // ===== 进度 =====
 function updateProgress() {
-  const total = getTotalChapterCount();
-  const text = $('progress-text');
-  if (text) text.textContent = `0/${total}`;
-  const fill = $('progress-fill');
-  if (fill) fill.style.width = '0%';
+  updateProgressBar();
 }
 
 // ===== Toast =====
