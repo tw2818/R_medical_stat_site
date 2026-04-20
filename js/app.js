@@ -156,6 +156,17 @@ async function loadChapter(filename) {
     contentHtml = injectCopyButtons(contentHtml);
     wrapper.innerHTML = contentHtml;
 
+    // 追踪已访问章节
+    const allChapters = Object.values(CHAPTERS).flat();
+    const chapterInfo = allChapters.find(ch => ch.file === filename);
+    if (chapterInfo) {
+      const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
+      if (!visited.includes(chapterInfo.id)) {
+        visited.push(chapterInfo.id);
+        localStorage.setItem('rstat_visited', JSON.stringify(visited));
+      }
+    }
+
     // 渲染完成后注入交互
     Prism.highlightAll();
     setupChapterInteractions(wrapper);
