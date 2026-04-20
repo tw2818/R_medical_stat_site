@@ -731,7 +731,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="配对四格表资料的卡方检验" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="配对四格表资料的卡方检验"><span class="header-section-number">4.3</span> 配对四格表资料的卡方检验</h2>
-<div class="stat-viz" data-type="scatter" data-title="配对四格表：两种检测方法一致性" data-xlabel="免疫荧光" data-ylabel="乳胶凝集" data-xs="阳性,阳性,阴性,阴性" data-ys="阳性,阴性,阳性,阴性" data-grouplabels="" data-groupx="" data-groupy=""></div>
+<div class="stat-viz" data-type="scatter" data-title="配对四格表：两种检测方法一致性" data-xlabel="免疫荧光(1=阳性,0=阴性)" data-ylabel="乳胶凝集(1=阳性,0=阴性)" data-xs="1,1,0,0" data-ys="1,0,1,0" data-regression="false" data-grouplabels="一致格" data-groupx="0.5,0.5,1.5,1.5" data-groupy="0.5,1.5,0.5,1.5"></div>
 <p>使用课本<strong>例7-3</strong>的数据。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ana <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">11</span>,<span class="dv">12</span>,<span class="dv">2</span>,<span class="dv">33</span>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> T,</span>
@@ -759,7 +759,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="四格表资料的fisher确切概率法" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="四格表资料的fisher确切概率法"><span class="header-section-number">4.4</span> Fisher确切概率法</h2>
-<div class="stat-viz" data-type="scatter" data-title="Fisher精确检验：乙肝预防效果" data-xlabel="预防注射组" data-ylabel="非预防组" data-xs="阳性,阳性,阴性,阴性" data-ys="阳性,阴性,阳性,阴性" data-grouplabels="" data-groupx="" data-groupy=""></div>
+<div class="stat-viz" data-type="scatter" data-title="Fisher精确检验：乙肝预防效果" data-xlabel="预防注射组(1=阳性,0=阴性)" data-ylabel="非预防组(1=阳性,0=阴性)" data-xs="1,1,0,0" data-ys="1,0,1,0" data-regression="false" data-grouplabels="一致格" data-groupx="0.5,0.5,1.5,1.5" data-groupy="0.5,1.5,0.5,1.5"></div>
 <p>使用课本<strong>例7-4</strong>的数据。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>hbv <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">18</span>,<span class="dv">5</span>,<span class="dv">6</span>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> T,</span>
@@ -1093,7 +1093,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cochran-mantel-haenszel卡方统计量检验" class="level2" data-number="4.7">
 <h2 data-number="4.7" class="anchored" data-anchor-id="cochran-mantel-haenszel卡方统计量检验"><span class="header-section-number">4.7</span> Cochran-Mantel-Haenszel卡方统计量检验</h2>
-<div class="stat-viz" data-type="scatter" data-title="分层分析：年龄层×心肌梗死×口服避孕药" data-xlabel="年龄层" data-ylabel="事件率" data-xs="高层(25-39岁),低层(40-49岁),高层(25-39岁),低层(40-49岁)" data-ys="0.266,0.107,0.049,0.007" data-grouplabels="口服避孕药,是,是,否,否" data-groupx="" data-groupy=""></div>
+<div class="stat-viz" data-type="scatter" data-title="分层分析：年龄层×心肌梗死×口服避孕药" data-xlabel="分层组别(1=高层服药,2=高层未服,3=低层服药,4=低层未服)" data-ylabel="事件率" data-xs="1,2,3,4" data-ys="0.266,0.049,0.107,0.007" data-regression="false" data-grouplabels="高层服药,高层未服,低层服药,低层未服" data-groupx="1,2,3,4" data-groupy="0.266,0.049,0.107,0.007"></div>
 <p>有一个叫Mantel-Haenszel卡方统计量的方法是用来检验两个有序分类变量是否存在线性相关的，Cochran-Mantel-Haenszel卡方统计量是在其基础上提出的，用于高维列联表的分析，即控制了某一个或几个混杂因素（分层变量）之后，检验二维列联表的行变量和列变量是否存在统计学关联。Cochran-Mantel-Haenszel检验属于分层卡方检验方法。</p>
 <p>根据行变量X和列变量Y的类型不同，Cochran-Mantel-Haenszel卡方统计量包括以下几种：</p>
 <ol type="1">
