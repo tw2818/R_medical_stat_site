@@ -125,12 +125,26 @@ async function loadChapter(filename) {
   try {
     const resp = await fetch(`data/${filename}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    let html = await resp.text();
+    const html = await resp.text();
 
-    // 注入复制按钮到代码块
-    html = injectCopyButtons(html);
+    // 解析完整文档，只提取主要章节内容（避开 Quarto 的 head/nav/footer）
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const main = doc.getElementById('quarto-document-content');
+    if (!main) throw new Error('无法解析章节内容');
 
-    wrapper.innerHTML = html;
+    // 注入 onclick 复制功能（替换 Quarto 原有的 clipboard.js 依赖）
+    main.querySelectorAll('.code-copy-button').forEach(btn => {
+      btn.setAttribute('onclick', 'copyCodeBlock(this)');
+      btn.removeAttribute('data-code');
+    });
+
+    // 移除所有内联脚本，避免污染全局命名空间
+    main.querySelectorAll('script').forEach(s => s.remove());
+
+    let contentHtml = main.innerHTML;
+    contentHtml = injectCopyButtons(contentHtml);
+    wrapper.innerHTML = contentHtml;
 
     // 渲染完成后注入交互
     Prism.highlightAll();
@@ -158,13 +172,14 @@ function updateNavGroupExpansion() {
   });
 }
 
+// 注入/替换代码复制按钮
+// Quarto 已有 <button class="code-copy-button">，这里把它替换成带 inline onclick 的版本
 function injectCopyButtons(html) {
-  // 为每个 pre.sourceCode 注入复制按钮（用内联 style，不依赖额外 CSS）
-  return html.replace(/<pre class="sourceCode[^>]*>([\s\S]*?)<\/pre>/g, (match, code) => {
-    return `<div style="position:relative;display:inline-block;width:100%;">
-<button onclick="copyCodeBlock(this)" style="position:absolute;top:6px;right:8px;background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;opacity:0;transition:opacity 0.2s;z-index:5;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0" title="复制代码">📋 复制</button>
-<pre class="sourceCode">${code}</pre></div>`;
-  });
+  // 替换 Quarto 的复制按钮为我们的版本（带 hover 效果和 onclick）
+  return html.replace(
+    /<button([^>]*)class="code-copy-button"([^>]*)>[\s\S]*?<\/button>/g,
+    `<button$1class="code-copy-button"$2onclick="copyCodeBlock(this)" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" style="position:absolute;top:6px;right:8px;background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;opacity:0.7;transition:opacity 0.2s;z-index:5;" title="复制代码">📋</button>`
+  );
 }
 
 // ===== 代码复制 =====

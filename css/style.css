@@ -535,6 +535,7 @@ pre.sourceCode {
   font-size: 0.82rem;
   line-height: 1.6;
   margin-bottom: 16px;
+  position: relative;
 }
 [data-theme="dark"] pre.sourceCode {
   background: #111827 !important;
