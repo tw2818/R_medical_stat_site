@@ -912,6 +912,8 @@
 
       // 回归线（5+点）
       if (points.length >= 5) {
+        const xs = points.map(p=>p.x);
+        const ys = points.map(p=>p.y);
         const n = xs.length;
         const sumX = xs.reduce((a,b)=>a+b,0);
         const sumY = ys.reduce((a,b)=>a+b,0);
