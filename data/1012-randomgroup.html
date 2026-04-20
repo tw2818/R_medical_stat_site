@@ -522,6 +522,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>假如需要收100个受试者，随机分为试验组和对照组，那么可以根据患者入组顺序，每人给一个编号，然后从随机数字表任意的某一行某一列开始，抽取随机数字，100个受试者有100个随机数，把这100个随机数按照从小到大排序，前50个进入试验组，后50个进入对照组（还有按照余数，奇偶数等，都可以）。</p>
 <p>上述方法通过SPSS可以实现，大家可以参考这篇文章：<a href="https://mp.weixin.qq.com/s/oODSdOK2ebMQrXvi2PXJWg">SPSS实现简单随机分组</a></p>
 <p>根据这个思路，R语言也是可以实现的。R语言在临床研究设计中的使用非常成熟，在<code>cran task views</code>中有两个专题都是关于研究设计的，大家感兴趣的可以自己去看一看哦。</p>
+<p>在临床试验中，序贯分析（Sequential Analysis）是一种在数据收集过程中进行中期分析的方法，可以在达到预设的显著性水平时提前终止试验：</p>
+<div class="stat-viz" data-type="sequential" data-title="临床试验序贯分析图" data-z1="[1.2,1.8,2.1,2.5,2.8]" data-z2="[0.5,0.9,1.2,1.5,1.8]" data-n="[20,40,60,80,100]"></div>
 <section id="简单随机" class="level2" data-number="11.1">
 <h2 data-number="11.1" class="anchored" data-anchor-id="简单随机"><span class="header-section-number">11.1</span> 简单随机</h2>
 <div class="stat-viz" data-type="samplesizecalc" data-title="样本量计算器" data-typecalc="ttest"></div>
