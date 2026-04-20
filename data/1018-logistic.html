@@ -681,6 +681,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="do">## x81         1.666190e+00  148.0206875</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>这里x12的OR值是2.346329320，代表：45~55岁的人群患冠心病的风险是小于45岁人群的2.346329320倍，但是这个结果并没有统计学意义！</p>
+<div class="stat-viz" data-type="logistic"
+  data-title="Logistic 回归 OR 森林图（例21-3）"
+  data-values="2.35,1.61,31.26,3.16,2.36,2.09,50.43,0.97,0.68,11.74"
+  data-labels="x12,x13,x14,x21,x31,x41,x51,x61,x72,x73,x81"
+  data-lower="0.13,0.08,0.79,0.52,0.58,0.19,0.31,3.78,0.09,0.02,1.67"
+  data-upper="81.86,59.46,4201.19,22.19,67.03,44.76,15.26,9.25,15.26,148.02"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wald值</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(f)<span class="sc">$</span>coefficients[,<span class="dv">3</span>]<span class="sc">^</span><span class="dv">2</span></span>

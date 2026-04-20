@@ -1571,6 +1571,228 @@
     else if (type === 'binom') renderBinomial(el);
     else if (type === 'poisson') renderPoisson(el);
     else if (type === 'km') renderKM(el);
+    else if (type === 'logistic') renderLogisticOR(el);
+    else if (type === 'roc') renderROC(el);
+  }
+
+  // ============================================================
+  // Logistic Regression OR Forest Plot
+  // ============================================================
+  function renderLogisticOR(el) {
+    const id = 'logistic-or-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Logistic 回归 OR 森林图';
+    const rawData = el.dataset.values || '2.35,1.61,31.26,3.16,2.36,2.09,50.43,0.97,0.68,11.74';
+    const rawLabels = el.dataset.labels || 'x12,x13,x14,x21,x31,x41,x51,x61,x72,x73,x81';
+    const rawLower = el.dataset.lower || '0.13,0.08,0.79,0.52,0.58,0.19,0.31,3.78,0.09,0.02,1.67';
+    const rawUpper = el.dataset.upper || '81.86,59.46,4201.19,22.19,67.03,44.76,15.26,9.25,15.26,148.02';
+
+    const values = rawData.split(',').map(Number);
+    const labels = rawLabels.split(',');
+    const lower = rawLower.split(',').map(Number);
+    const upper = rawUpper.split(',').map(Number);
+
+    const n = values.length;
+    const barH = 36, padL = 120, padR = 60, padT = 50, padB = 30;
+    const rowH = barH + 8;
+    const W = 560, H = padT + n * rowH + padB + 20;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+        垂直虚线 OR=1 表示无效线 | 误差线为 95% CI
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // OR=1 reference line
+    const refX = padL + (padL * 0.6);
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(refX, padT); ctx.lineTo(refX, H - padB); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // X scale: log scale from min(lower) to max(upper)
+    const logVals = values.concat(lower).concat(upper).map(v => Math.log(v));
+    const minLog = Math.min(...logVals) - 0.5;
+    const maxLog = Math.max(...logVals) + 0.5;
+    const scaleX = v => padL + ((Math.log(v) - minLog) / (maxLog - minLog)) * (W - padL - padR);
+
+    // Draw rows
+    values.forEach((or, i) => {
+      const y = padT + i * rowH + barH / 2;
+      const x = scaleX(or);
+      const xLow = scaleX(Math.max(lower[i], Math.pow(10, minLog)));
+      const xHigh = scaleX(Math.min(upper[i], Math.pow(10, maxLog)));
+
+      // Label
+      ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(labels[i] || ('V' + (i + 1)), padL - 8, y + 4);
+
+      // CI line
+      ctx.strokeStyle = '#666'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(xLow, y); ctx.lineTo(xHigh, y); ctx.stroke();
+
+      // CI caps
+      ctx.beginPath(); ctx.moveTo(xLow, y - 5); ctx.lineTo(xLow, y + 5); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xHigh, y - 5); ctx.lineTo(xHigh, y + 5); ctx.stroke();
+
+      // OR point
+      const sig = lower[i] > 1 || upper[i] < 1 ? '#e74c3c' : '#3498db';
+      ctx.fillStyle = sig;
+      ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+
+      // OR value text
+      ctx.fillStyle = '#333'; ctx.font = '12px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(or.toFixed(2), x + 8, y + 4);
+    });
+
+    // X axis labels (log scale)
+    const logTicks = [0.1, 0.5, 1, 5, 10, 50, 500];
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    logTicks.filter(v => v >= Math.pow(10, minLog) && v <= Math.pow(10, maxLog)).forEach(v => {
+      ctx.fillText(v.toString(), scaleX(v), H - 10);
+      ctx.beginPath(); ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5;
+      ctx.moveTo(scaleX(v), padT); ctx.lineTo(scaleX(v), H - padB); ctx.stroke();
+    });
+
+    // "OR" label
+    ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Odds Ratio (log scale)', 0, 0); ctx.restore();
+  }
+
+  // ============================================================
+  // ROC Curve Interactive
+  // ============================================================
+  function renderROC(el) {
+    const id = 'roc-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'ROC 曲线 & AUC';
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📈 ${title}</div>
+      <canvas id="${id}" width="560" height="340" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:8px;">
+        <span style="font-size:14px;color:#333;">AUC = <strong id="${id}-auc">0.00</strong></span>
+        <span style="margin-left:16px;font-size:13px;color:#555;">灵敏度 = <strong id="${id}-sens">--</strong></span>
+        <span style="margin-left:16px;font-size:13px;color:#555;">特异度 = <strong id="${id}-spec">--</strong></span>
+      </div>
+      <div style="text-align:center;margin-top:6px;">
+        <span style="font-size:12px;color:#888;">点击曲线查看对应 cutoff 点的灵敏度和特异度</span>
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 560, H = 340;
+
+    // Generate realistic ROC data (using jStat for normal distributions)
+    // Simulated: healthy group N(0.4, 0.15), disease group N(0.7, 0.18)
+    const disease = [], healthy = [];
+    for (let i = 0; i < 60; i++) {
+      disease.push(jStat.normal.inv(Math.random(), 0.7, 0.18));
+      healthy.push(jStat.normal.inv(Math.random(), 0.4, 0.15));
+    }
+    const allVals = [...disease, ...healthy].sort((a, b) => a - b);
+    const labels = [...Array(60).fill(1), ...Array(60).fill(0)];
+
+    // Compute ROC curve
+    const rocPoints = [];
+    for (let i = 0; i < allVals.length; i++) {
+      const cutoff = allVals[i];
+      let tp = 0, fp = 0, tn = 0, fn = 0;
+      for (let j = 0; j < allVals.length; j++) {
+        if (labels[j] === 1) { if (allVals[j] >= cutoff) tp++; else fn++; }
+        else { if (allVals[j] >= cutoff) fp++; else tn++; }
+      }
+      const sens = tp / (tp + fn);
+      const spec = tn / (tn + fp);
+      rocPoints.push({ fpr: fp / (fp + tn), tpr: sens, cutoff });
+    }
+    rocPoints.unshift({ fpr: 0, tpr: 0 });
+    rocPoints.push({ fpr: 1, tpr: 1 });
+
+    // Compute AUC
+    let auc = 0;
+    for (let i = 1; i < rocPoints.length; i++) {
+      auc += (rocPoints[i].fpr - rocPoints[i - 1].fpr) * (rocPoints[i].tpr + rocPoints[i - 1].tpr) / 2;
+    }
+    document.getElementById(id + '-auc').textContent = auc.toFixed(3);
+
+    const padL = 55, padR = 15, padT = 20, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    // Draw
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Diagonal reference
+    ctx.setLineDash([5, 5]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // ROC curve
+    ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    rocPoints.forEach((p, i) => {
+      const x = padL + p.fpr * plotW, y = padT + (1 - p.tpr) * plotH;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Fill under curve
+    ctx.lineTo(padL + plotW, padT + plotH); ctx.lineTo(padL, padT + plotH); ctx.closePath();
+    ctx.fillStyle = 'rgba(41,128,185,0.1)'; ctx.fill();
+
+    // Axis labels
+    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('1 - 特异度 (False Positive Rate)', W / 2, H - 6);
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('灵敏度 (True Positive Rate)', 0, 0); ctx.restore();
+
+    // Tick labels
+    ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    for (let i = 0; i <= 5; i++) {
+      ctx.fillText((i / 5).toFixed(1), padL + (i / 5) * plotW, padT + plotH + 16);
+      ctx.textAlign = 'right';
+      ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4);
+    }
+
+    // AUC text
+    ctx.fillStyle = '#2980b9'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('AUC = ' + auc.toFixed(3), W / 2, padT + 16);
+
+    // Click interaction
+    canvas.onclick = function(e) {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) * (W / rect.width);
+      const my = (e.clientY - rect.top) * (H / rect.height);
+      const fpr = (mx - padL) / plotW;
+      const tpr = 1 - (my - padT) / plotH;
+      // Find closest point
+      let best = rocPoints[0], bestD = Infinity;
+      rocPoints.forEach(p => {
+        const d = Math.hypot(p.fpr - fpr, p.tpr - tpr);
+        if (d < bestD) { bestD = d; best = p; }
+      });
+      if (best.cutoff !== undefined) {
+        document.getElementById(id + '-sens').textContent = best.tpr.toFixed(3);
+        document.getElementById(id + '-spec').textContent = (1 - best.fpr).toFixed(3);
+      }
+    };
   }
 
   // DOMContentLoaded 之后运行（但章节内容是 fetch 后才注入，需要用 MutationObserver）
