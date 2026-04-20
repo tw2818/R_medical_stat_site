@@ -764,6 +764,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-192"><a href="#cb4-192" aria-hidden="true" tabindex="-1"></a><span class="do">## 186 1022      1       0        1 0.05034557 0.453824434 0.1225342 0.02068546</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>画出生存曲线，横坐标是生存时间，纵坐标是生存率。</p>
+<div class="stat-viz" data-type="km" data-title="Kaplan-Meier 生存曲线示例" data-times="[31,46,101,21,88,102,31,36,22,17,17,65,73,7,57,14,61,71,6,9,30,8,72,10,48,16,35,38,26,45]" data-status="[1,1,0,1,0,1,1,1,1,1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0]"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(fit,</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="co"># 可信区间</span></span>

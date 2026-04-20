@@ -1210,6 +1210,316 @@
     });
   }
 
+  // ── 二项分布可视化 ──────────────────────────────────
+  // <div class="stat-viz" data-type="binom" data-n="20" data-p="0.5" data-title="二项分布 B(n,p)"></div>
+  function renderBinomial(el) {
+    const n = parseInt(el.dataset.n || '20');
+    const p = parseFloat(el.dataset.p || '0.5');
+    const title = el.dataset.title || `二项分布 B(${n}, ${p})`;
+
+    el.innerHTML = `
+      <div class="viz-card">
+        <div class="viz-header">📊 ${title}</div>
+        <div class="viz-body">
+          <canvas class="viz-canvas" style="width:100%;max-width:640px;height:280px;display:block;margin:0 auto;"></canvas>
+        </div>
+        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:#f8f9fa;border-top:1px solid #eee;">
+          <label>n = <span class="val-label">${n}</span>
+            <input type="range" class="binom-n" min="1" max="50" value="${n}" style="width:120px;">
+          </label>
+          <label>p = <span class="val-label">${p}</span>
+            <input type="range" class="binom-p" min="0.01" max="0.99" step="0.01" value="${p}" style="width:120px;">
+          </label>
+        </div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:4px;color:#555;"></div>
+      </div>
+    `;
+
+    const canvas = el.querySelector('canvas');
+    const nInput = el.querySelector('.binom-n');
+    const pInput = el.querySelector('.binom-p');
+    const nLabel = el.querySelector('.viz-controls .val-label');
+    const pLabel = el.querySelectorAll('.viz-controls .val-label')[1];
+    const resultDiv = el.querySelector('.viz-result');
+
+    function draw() {
+      const dn = parseInt(nInput.value);
+      const dp = parseFloat(pInput.value);
+      nLabel.textContent = dn;
+      pLabel.textContent = dp.toFixed(2);
+      const ctx = canvas.getContext('2d');
+      const W = canvas.offsetWidth * 2, H = 560;
+      canvas.width = W; canvas.height = H;
+      const pad = { l: 50, r: 20, t: 20, b: 50 };
+      const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+
+      // Find max P(X=k)
+      const probs = [];
+      for (let k = 0; k <= dn; k++) {
+        try { probs.push(jStat.combination(dn, k) * Math.pow(dp, k) * Math.pow(1-dp, dn-k)); }
+        catch(e) { probs.push(0); }
+      }
+      const maxP = Math.max(...probs);
+
+      // Axes
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.fillStyle = '#333';
+      ctx.beginPath();
+      ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b);
+      ctx.stroke();
+      // X axis label
+      ctx.fillStyle = '#555'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('X = k', W/2, H-8);
+      // Y axis label
+      ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2); ctx.fillText('P(X=k)', 0, 0); ctx.restore();
+
+      // Grid lines
+      ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+      for (let k = 0; k <= dn; k++) {
+        const x = pad.l + (k / dn) * iw;
+        ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H-pad.b); ctx.stroke();
+      }
+
+      // Bars
+      for (let k = 0; k <= dn; k++) {
+        const x = pad.l + (k / dn) * iw - (iw/(dn*2));
+        const barW = Math.max(2, (iw/dn) * 0.85);
+        const barH = (probs[k] / maxP) * ih;
+        const barY = H - pad.b - barH;
+        const mean = dn * dp;
+        const isMean = Math.abs(k - mean) < 0.5;
+        ctx.fillStyle = isMean ? '#e74c3c' : '#3498db';
+        ctx.fillRect(x, barY, barW, barH);
+      }
+
+      // Mean line
+      const meanX = pad.l + (mean / dn) * iw;
+      ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(meanX, pad.t); ctx.lineTo(meanX, H-pad.b); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(`μ=${mean.toFixed(1)}`, meanX, pad.t + 18);
+
+      // Stats
+      const variance = dn * dp * (1 - dp);
+      resultDiv.innerHTML = `μ = ${mean.toFixed(2)} &nbsp;|&nbsp; σ² = ${variance.toFixed(2)} &nbsp;|&nbsp; P(X=⌊np⌋) = ${probs[Math.round(mean)].toFixed(4)}`;
+    }
+
+    nInput.addEventListener('input', draw);
+    pInput.addEventListener('input', draw);
+    draw();
+  }
+
+  // ── Kaplan-Meier 生存曲线 ────────────────────────────
+  // <div class="stat-viz" data-type="km" data-times="[3,5,8,12,15,20,25]" data-status="[1,1,0,1,0,1,0]" data-title="Kaplan-Meier 生存曲线"></div>
+  // times: 生存时间，status: 1=事件发生(死亡)，0=截尾
+  function renderKM(el) {
+    const times = JSON.parse(el.dataset.times || '[3,5,8,12,15,20,25]');
+    const status = JSON.parse(el.dataset.status || '[1,1,0,1,0,1,0]');
+    const title = el.dataset.title || 'Kaplan-Meier 生存曲线';
+
+    el.innerHTML = `
+      <div class="viz-card">
+        <div class="viz-header">📊 ${title}</div>
+        <div class="viz-body">
+          <canvas class="viz-canvas" style="width:100%;max-width:640px;height:300px;display:block;margin:0 auto;"></canvas>
+        </div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:6px;color:#555;background:#f8f9fa;border-top:1px solid #eee;"></div>
+      </div>
+    `;
+
+    const canvas = el.querySelector('canvas');
+    const resultDiv = el.querySelector('.viz-result');
+
+    function draw() {
+      const ctx = canvas.getContext('2d');
+      const W = canvas.offsetWidth * 2, H = 600;
+      canvas.width = W; canvas.height = H;
+      const pad = { l: 60, r: 30, t: 30, b: 55 };
+      const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Compute KM curve
+      const n = times.length;
+      let surv = 1.0;
+      const steps = [{ t: 0, s: 1 }];
+      for (let i = 0; i < n; i++) {
+        if (status[i] === 1) {
+          const d = status.slice(0, i + 1).filter(s => s === 1).length;
+          const atRisk = n - i;
+          surv *= (atRisk - 1) / atRisk;
+        }
+        steps.push({ t: times[i], s: surv });
+      }
+      const lastS = steps[steps.length - 1].s;
+
+      // Axes
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b);
+      ctx.stroke();
+      ctx.fillStyle = '#555'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('生存时间', W / 2, H - 6);
+      ctx.save(); ctx.translate(16, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('生存概率 S(t)', 0, 0); ctx.restore();
+
+      // Grid
+      ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.t + (i / 4) * ih;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+        ctx.fillStyle = '#666'; ctx.font = '18px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText((1 - i * 0.25).toFixed(2), pad.l - 6, y + 6);
+      }
+
+      // Step function
+      ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, pad.t + ih * (1 - steps[0].s));
+      for (let i = 1; i < steps.length; i++) {
+        const x = pad.l + (steps[i].t / times[n - 1]) * iw;
+        const prevY = pad.t + ih * (1 - steps[i - 1].s);
+        ctx.lineTo(x, prevY);
+        const currY = pad.t + ih * (1 - steps[i].s);
+        ctx.lineTo(x, currY);
+      }
+      ctx.stroke();
+
+      // Censored marks (vertical ticks on the step)
+      for (let i = 0; i < n; i++) {
+        if (status[i] === 0) {
+          const tIdx = steps.findIndex(s => s.t === times[i]);
+          const x = pad.l + (times[i] / times[n - 1]) * iw;
+          const y = pad.t + ih * (1 - steps[tIdx].s);
+          ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x, y + 8); ctx.stroke();
+        }
+      }
+
+      // Median survival (S=0.5 line)
+      const medianY = pad.t + ih * 0.5;
+      ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
+      ctx.beginPath(); ctx.moveTo(pad.l, medianY); ctx.lineTo(W - pad.r, medianY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#27ae60'; ctx.font = '18px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('S=0.5', W - pad.r - 50, medianY - 4);
+
+      // Legend
+      ctx.fillStyle = '#2980b9'; ctx.fillRect(pad.l + 10, pad.t + 8, 20, 3);
+      ctx.fillStyle = '#555'; ctx.font = '18px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('生存曲线', pad.l + 38, pad.t + 12);
+      ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(pad.l + 10, pad.t + 24); ctx.lineTo(pad.l + 30, pad.t + 24); ctx.stroke();
+      ctx.fillStyle = '#555';
+      ctx.fillText('截尾', pad.l + 38, pad.t + 28);
+
+      // Result text
+      const events = status.filter(s => s === 1).length;
+      const censored = n - events;
+      // Median survival time: find when S(t) <= 0.5 first
+      let medianSurv = 'N/A';
+      let accSurv = 1.0;
+      for (let i = 0; i < n; i++) {
+        if (status[i] === 1) {
+          const d = status.slice(0, i + 1).filter(s => s === 1).length;
+          const atRisk = n - i;
+          accSurv *= (atRisk - 1) / atRisk;
+        }
+        if (accSurv <= 0.5) { medianSurv = times[i]; break; }
+      }
+      resultDiv.innerHTML = `n=${n} &nbsp;|&nbsp; 事件数=${events} &nbsp;|&nbsp; 截尾数=${censored} &nbsp;|&nbsp; 中位生存时间=${medianSurv}`;
+    }
+
+    draw();
+  }
+
+  // ── 泊松分布可视化 ──────────────────────────────────
+  // <div class="stat-viz" data-type="poisson" data-lambda="5" data-title="泊松分布 P(λ)"></div>
+  function renderPoisson(el) {
+    const lambda = parseFloat(el.dataset.lambda || '5');
+    const title = el.dataset.title || `泊松分布 P(${lambda})`;
+
+    el.innerHTML = `
+      <div class="viz-card">
+        <div class="viz-header">📊 ${title}</div>
+        <div class="viz-body">
+          <canvas class="viz-canvas" style="width:100%;max-width:640px;height:280px;display:block;margin:0 auto;"></canvas>
+        </div>
+        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:#f8f9fa;border-top:1px solid #eee;">
+          <label>λ = <span class="val-label">${lambda}</span>
+            <input type="range" class="poisson-lambda" min="0.5" max="30" step="0.5" value="${lambda}" style="width:140px;">
+          </label>
+        </div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:4px;color:#555;"></div>
+      </div>
+    `;
+
+    const canvas = el.querySelector('canvas');
+    const lambdaInput = el.querySelector('.poisson-lambda');
+    const lambdaLabel = el.querySelector('.val-label');
+    const resultDiv = el.querySelector('.viz-result');
+
+    function draw() {
+      const dl = parseFloat(lambdaInput.value);
+      lambdaLabel.textContent = dl.toFixed(dl < 10 ? 1 : 0);
+      const ctx = canvas.getContext('2d');
+      const W = canvas.offsetWidth * 2, H = 560;
+      canvas.width = W; canvas.height = H;
+      const pad = { l: 50, r: 20, t: 20, b: 50 };
+      const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+
+      // Range: show from 0 to ~λ+4√λ
+      const maxK = Math.max(20, Math.ceil(dl + 4 * Math.sqrt(dl)));
+      const probs = [];
+      for (let k = 0; k <= maxK; k++) {
+        try { probs.push(jStat.poisson.pdf(k, dl)); } catch(e) { probs.push(0); }
+      }
+      const maxP = Math.max(...probs);
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b);
+      ctx.stroke();
+      ctx.fillStyle = '#555'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('X = k', W/2, H-8);
+      ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2); ctx.fillText('P(X=k)', 0, 0); ctx.restore();
+
+      // Grid
+      ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+      for (let k = 0; k <= maxK; k++) {
+        const x = pad.l + (k / maxK) * iw;
+        ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H-pad.b); ctx.stroke();
+      }
+
+      // Bars
+      for (let k = 0; k <= maxK; k++) {
+        const x = pad.l + (k / maxK) * iw - (iw/(maxK*2));
+        const barW = Math.max(3, (iw/maxK) * 0.8);
+        const barH = (probs[k] / maxP) * ih;
+        const barY = H - pad.b - barH;
+        const isMean = Math.abs(k - dl) < 0.5;
+        ctx.fillStyle = isMean ? '#e74c3c' : '#9b59b6';
+        ctx.fillRect(x, barY, barW, barH);
+      }
+
+      // Mean line
+      const meanX = pad.l + (dl / maxK) * iw;
+      ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(meanX, pad.t); ctx.lineTo(meanX, H-pad.b); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(`λ=${dl.toFixed(1)}`, meanX, pad.t + 18);
+
+      // P(X=λ)
+      const pAtLambda = jStat.poisson.pdf(Math.round(dl), dl);
+      resultDiv.innerHTML = `μ = λ = ${dl.toFixed(2)} &nbsp;|&nbsp; σ² = λ = ${dl.toFixed(2)} &nbsp;|&nbsp; P(X=⌊λ⌋) = ${pAtLambda.toFixed(4)}`;
+    }
+
+    lambdaInput.addEventListener('input', draw);
+    draw();
+  }
+
   // ── 主入口 ─────────────────────────────────────────
   function init() {
     document.querySelectorAll('.stat-viz, .stat-calc').forEach(el => {
@@ -1225,6 +1535,9 @@
         else if (el.dataset.type === 'pca') renderScreePlot(el);
         else if (el.dataset.type === 'anova') renderANOVA(el);
         else if (el.dataset.type === 'fdist') renderFDist(el);
+        else if (el.dataset.type === 'binom') renderBinomial(el);
+        else if (el.dataset.type === 'poisson') renderPoisson(el);
+        else if (el.dataset.type === 'km') renderKM(el);
       } catch(e) { console.error('stats-viz error:', e); }
     });
   }
@@ -1248,6 +1561,9 @@
                   else if (el.dataset.type === 'pca') renderScreePlot(el);
                   else if (el.dataset.type === 'anova') renderANOVA(el);
                   else if (el.dataset.type === 'fdist') renderFDist(el);
+                  else if (el.dataset.type === 'binom') renderBinomial(el);
+                  else if (el.dataset.type === 'poisson') renderPoisson(el);
+                  else if (el.dataset.type === 'km') renderKM(el);
                 } catch(e) { console.error('stats-viz error:', e); }
               }
             });
