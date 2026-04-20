@@ -398,6 +398,161 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
 }
 .footer-ack a { color: var(--primary); text-decoration: none; }
 .footer-ack a:hover { text-decoration: underline; }
+.footer-author {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+.footer-author a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+/* ===== 侧边栏进度增强 ===== */
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-ring-container {
+  flex-shrink: 0;
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+.progress-ring { transform: rotate(-90deg); }
+.progress-ring-track {
+  fill: none;
+  stroke: rgba(255,255,255,0.12);
+  stroke-width: 4;
+}
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+.progress-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.progress-pct {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+}
+.progress-meta { flex: 1; min-width: 0; }
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 4px;
+}
+.progress-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+#progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  width: 0%;
+  transition: width 0.5s ease;
+  border-radius: 2px;
+}
+.last-chapter {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.btn-continue {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+.btn-continue:hover { background: var(--primary-dark); }
+
+/* ===== 学习路线 ===== */
+.learning-paths { margin-bottom: 32px; }
+.learning-paths h2 { font-size: 1.05rem; margin-bottom: 14px; }
+.path-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.path-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.path-tab.active, .path-tab:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+.path-content { display: none; }
+.path-content.active { display: block; }
+.path-list { list-style: none; padding: 0; margin: 0; }
+.path-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  color: var(--text);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.path-list li:hover { background: var(--surface); }
+.path-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.path-title { flex: 1; }
+.path-tag {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-muted);
+}
+.path-tag.basic { background: rgba(16,185,129,0.15); color: #10b981; }
+.path-tag.adv { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+.path-tag.lit { background: rgba(245,158,11,0.15); color: #f59e0b; }
 
 /* ===== 章节内容 ===== */
 .chapter-header {

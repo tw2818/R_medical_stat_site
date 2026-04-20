@@ -83,15 +83,50 @@ function updateChapterCount() {
   const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
   const totalVisited = visited.length;
   const totalChapters = Object.values(CHAPTERS).flat().length;
+  const pct = totalChapters > 0 ? Math.round((totalVisited / totalChapters) * 100) : 0;
   const progressText = document.getElementById('progress-text');
   if (progressText) progressText.textContent = `${totalVisited}/${totalChapters}`;
   const progressFill = document.getElementById('progress-fill');
-  if (progressFill) progressFill.style.width = `${(totalVisited / totalChapters) * 100}%`;
+  if (progressFill) progressFill.style.width = `${pct}%`;
+
+  // SVG ring
+  const ring = document.getElementById('progress-ring-fill');
+  const pctEl = document.getElementById('progress-pct');
+  if (ring) {
+    const r = 22, circ = 2 * Math.PI * r;
+    ring.style.strokeDasharray = `${circ}`;
+    ring.style.strokeDashoffset = `${circ - (pct / 100) * circ}`;
+  }
+  if (pctEl) pctEl.textContent = `${pct}%`;
+
+  // Last visited chapter
+  const lastId = visited[visited.length - 1] || null;
+  const lastEl = document.getElementById('last-chapter');
+  const btnCont = document.getElementById('btn-continue');
+  if (lastId && lastEl) {
+    let chapterName = '';
+    Object.values(CHAPTERS).flat().forEach(ch => { if (ch.id === lastId) chapterName = ch.title; });
+    lastEl.textContent = chapterName ? `最近：${chapterName}` : '';
+  } else if (lastEl) {
+    lastEl.textContent = '';
+  }
+  if (btnCont) btnCont.style.display = lastId ? 'inline-block' : 'none';
+  window._lastChapterId = lastId;
+
   GROUP_CONFIG.forEach(({ key }) => {
     const list = CHAPTERS[key] || [];
     const visitedCount = list.filter(ch => visited.includes(ch.id)).length;
     const countEl = $(`${key}-count`);
     if (countEl) countEl.textContent = `${visitedCount}/${list.length}`;
+  });
+}
+
+function continueLearning() {
+  const lastId = window._lastChapterId;
+  if (!lastId) return;
+  Object.entries(CHAPTERS).forEach(([groupKey, list]) => {
+    const idx = list.findIndex(ch => ch.id === lastId);
+    if (idx !== -1) navigateToChapter(groupKey, idx);
   });
 }
 
@@ -357,4 +392,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateProgress();
   updateStaticCounts();
+
+  // 学习路线 tab 切换
+  document.querySelectorAll('.path-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.path-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.path-content').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      const target = document.getElementById('path-' + this.dataset.path);
+      if (target) target.classList.add('active');
+    });
+  });
 });

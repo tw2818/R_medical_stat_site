@@ -59,11 +59,26 @@
         </div>
       </nav>
       <div class="sidebar-footer">
-        <div class="progress-info">
-          <span>学习进度</span>
-          <span id="progress-text">0/46</span>
+        <div class="progress-ring-container" id="progress-ring-container">
+          <svg class="progress-ring" width="52" height="52" viewBox="0 0 52 52">
+            <circle class="progress-ring-track" cx="26" cy="26" r="22"/>
+            <circle class="progress-ring-fill" id="progress-ring-fill" cx="26" cy="26" r="22"/>
+          </svg>
+          <div class="progress-ring-text">
+            <span class="progress-pct" id="progress-pct">0%</span>
+          </div>
         </div>
-        <div class="progress-bar"><div id="progress-fill"></div></div>
+        <div class="progress-meta">
+          <div class="progress-info">
+            <span>学习进度</span>
+            <span id="progress-text">0/46</span>
+          </div>
+          <div class="progress-bar"><div id="progress-fill"></div></div>
+          <div class="last-chapter" id="last-chapter"></div>
+          <button class="btn-continue" id="btn-continue" onclick="continueLearning()" style="display:none">
+            ▶ 继续学习
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -232,10 +247,51 @@
             </div>
           </div>
 
+          <!-- 学习路线 -->
+          <div class="learning-paths" id="learning-paths">
+            <h2>🎯 推荐学习路线</h2>
+            <div class="path-tabs">
+              <button class="path-tab active" data-path="basic">📗 零基础入门</button>
+              <button class="path-tab" data-path="paper">📙 论文复现</button>
+              <button class="path-tab" data-path="clinical">📕 临床建模</button>
+            </div>
+            <div id="path-basic" class="path-content active">
+              <ul class="path-list">
+                <li onclick="navigateToChapter('basic', 0)"><span class="path-num">1</span><span class="path-title">t检验</span><span class="path-tag basic">基础</span></li>
+                <li onclick="navigateToChapter('basic', 1)"><span class="path-num">2</span><span class="path-title">方差分析</span><span class="path-tag basic">基础</span></li>
+                <li onclick="navigateToChapter('basic', 3)"><span class="path-num">3</span><span class="path-title">卡方检验</span><span class="path-tag basic">基础</span></li>
+                <li onclick="navigateToChapter('basic', 5)"><span class="path-num">4</span><span class="path-title">秩和检验</span><span class="path-tag basic">基础</span></li>
+                <li onclick="navigateToChapter('basic', 6)"><span class="path-num">5</span><span class="path-title">回归与相关</span><span class="path-tag basic">基础</span></li>
+                <li onclick="navigateToChapter('basic', 11)"><span class="path-num">6</span><span class="path-title">样本量计算</span><span class="path-tag basic">基础</span></li>
+              </ul>
+            </div>
+            <div id="path-paper" class="path-content">
+              <ul class="path-list">
+                <li onclick="navigateToChapter('basic', 7)"><span class="path-num">1</span><span class="path-title">三线表绘制</span><span class="path-tag basic">基础</span></li>
+                <li onclick="navigateToChapter('basic', 8)"><span class="path-num">2</span><span class="path-title">统计绘图</span><span class="path-tag basic">基础</span></li>
+                <li onclick="navigateToChapter('literature', 1)"><span class="path-num">3</span><span class="path-title">倾向评分匹配（PSM）</span><span class="path-tag lit">文献</span></li>
+                <li onclick="navigateToChapter('literature', 0)"><span class="path-num">4</span><span class="path-title">竞争风险模型</span><span class="path-tag lit">文献</span></li>
+                <li onclick="navigateToChapter('advanced', 11)"><span class="path-num">5</span><span class="path-title">Cox回归</span><span class="path-tag adv">进阶</span></li>
+                <li onclick="navigateToChapter('literature', 7)"><span class="path-num">6</span><span class="path-title">亚组分析森林图</span><span class="path-tag lit">文献</span></li>
+              </ul>
+            </div>
+            <div id="path-clinical" class="path-content">
+              <ul class="path-list">
+                <li onclick="navigateToChapter('advanced', 7)"><span class="path-num">1</span><span class="path-title">Logistic回归</span><span class="path-tag adv">进阶</span></li>
+                <li onclick="navigateToChapter('advanced', 6)"><span class="path-num">2</span><span class="path-title">多因素方差分析</span><span class="path-tag adv">进阶</span></li>
+                <li onclick="navigateToChapter('advanced', 11)"><span class="path-num">3</span><span class="path-title">生存分析 / Cox回归</span><span class="path-tag adv">进阶</span></li>
+                <li onclick="navigateToChapter('literature', 2)"><span class="path-num">4</span><span class="path-title">倾向评分回归调整</span><span class="path-tag lit">文献</span></li>
+                <li onclick="navigateToChapter('literature', 6)"><span class="path-num">5</span><span class="path-title">样条回归（RCS）</span><span class="path-tag lit">文献</span></li>
+                <li onclick="navigateToChapter('literature', 5)"><span class="path-num">6</span><span class="path-title">非线性多项式拟合</span><span class="path-tag lit">文献</span></li>
+              </ul>
+            </div>
+          </div>
+
           <footer id="site-footer">
             <div class="footer-ack">
               <p>📢 本内容改编自 <strong>阿越就是我</strong> 的《<a href="https://ayueme.github.io/R_medical_stat/" target="_blank">R语言实战医学统计</a>》，采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a> 许可证发布</p>
               <p>📖 教材：孙振球主编《医学统计学》第5版（颜艳、王彤 主编）</p>
+              <p class="footer-author">维护者：<a href="https://github.com/tw2818" target="_blank">@tw2818</a> · <a href="https://github.com/tw2818/R_medical_stat_site" target="_blank">GitHub</a></p>
             </div>
           </footer>
         </section>
@@ -244,7 +300,6 @@
         <section id="chapter-content" class="chapter-section"></section>
       </div>
     </main>
-
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
