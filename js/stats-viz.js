@@ -998,7 +998,7 @@
     const Fstat = msBetween / msWithin;
     let pVal = NaN;
     if (window.jStat && window.jStat.ftest) {
-      pVal = 1 - jStat.ftest.cdf(Fstat, k-1, dfWithin);
+      pVal = jStat.ftest(Fstat, k-1, dfWithin);
     }
 
     const card = document.createElement('div');
@@ -1119,7 +1119,7 @@
     const ctx = canvas.getContext('2d');
 
     function fPdf(x, d1, d2) {
-      if (window.jStat && window.jStat.ftest) return window.jStat.ftest.pdf(x, d1, d2);
+      if (window.jStat && window.jStat.centralF && window.jStat.centralF.pdf) return window.jStat.centralF.pdf(x, d1, d2);
       // Fallback approximation
       if (x <= 0) return 0;
       const c = d1 > 0 && d2 > 0 ? (d1*x)**d1 * d2**d2 / (d1*x + d2)**(d1+d2) : 0;
@@ -1134,7 +1134,7 @@
       // 计算 F 临界值
       let fCrit = 3.0;
       if (window.jStat && window.jStat.ftest) {
-        fCrit = jStat.ftest.inv(1 - alpha, d1, d2);
+        fCrit = jStat.centralF.inv(1 - alpha, d1, d2);
       }
       card.querySelector('[data-fcrit]').textContent = fCrit.toFixed(3);
 
