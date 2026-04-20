@@ -176,6 +176,23 @@ img { max-width: 100%; display: block; }
 .nav-item.active { background: var(--sidebar-active); color: #fff; border-radius: 4px; margin: 0 8px; width: calc(100% - 16px); }
 .nav-item .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
 
+/* 章节链接（nav-item 和 chapter-link 共享样式）*/
+a.chapter-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 16px 6px 28px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all var(--transition);
+  gap: 6px;
+  text-decoration: none;
+}
+a.chapter-link:hover { background: var(--sidebar-hover); color: #fff; }
+a.chapter-link.active { background: var(--sidebar-active); color: #fff; border-radius: 4px; margin: 0 8px; width: calc(100% - 16px); }
+a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
+
 /* ===== 侧边栏底部进度 ===== */
 .sidebar-footer {
   padding: 12px 16px;
@@ -492,3 +509,78 @@ th {
   pointer-events: none;
 }
 .toast.show { opacity: 1; }
+
+/* ===== 加载和错误状态 ===== */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.error {
+  text-align: center;
+  padding: 40px;
+  color: var(--danger, #ef4444);
+  font-size: 0.9rem;
+}
+
+/* ===== 代码块基础样式（Quarto 生成的 pre.sourceCode）===== */
+pre.sourceCode {
+  background: #1e1e1e !important;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+[data-theme="dark"] pre.sourceCode {
+  background: #111827 !important;
+}
+code.sourceCode {
+  font-family: inherit;
+  background: none !important;
+}
+
+/* 行内代码 */
+:not(pre) > code {
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: monospace;
+  color: var(--danger, #dc2626);
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] :not(pre) > code {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+/* ===== 提示框（callout）===== */
+.callout {
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.callout[data-callout="note"] { border-color: #3b82f6; background: #eff6ff; }
+.callout[data-callout="warning"] { border-color: #f59e0b; background: #fffbeb; }
+.callout[data-callout="tip"] { border-color: #10b981; background: #f0fdf4; }
+.callout-header {
+  padding: 8px 14px;
+  background: rgba(0,0,0,0.05);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.callout-toggle { color: var(--text-muted); font-size: 0.75rem; }
+.callout-collapsed .callout-header { border-bottom: none; }
+.callout-collapsed > *:not(.callout-header) { display: none; }
+.callout > *:not(.callout-header) { padding: 12px 14px; }

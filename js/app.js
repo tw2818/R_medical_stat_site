@@ -144,20 +144,6 @@ async function loadChapter(filename) {
   }
 }
 
-function injectCopyButtons(html) {
-  // 为每个 pre.sourceCode 注入复制按钮
-  return html.replace(
-    /(<pre class="sourceCode[^"]*">)/g,
-    '<div class="code-block-wrapper">$1'
-  ).replace(
-    /(<pre class="sourceCode[^">]*">)/g,
-    '<div class="code-block-wrapper"><button class="code-copy-btn" title="复制代码" onclick="copyCodeBlock(this)">📋 复制</button>$1'
-  ).replace(
-    /<\/pre>/g,
-    '</pre></div>'
-  );
-}
-
 function updateNavGroupExpansion() {
   if (!currentGroup) return;
   // 自动展开当前分组
@@ -172,22 +158,28 @@ function updateNavGroupExpansion() {
   });
 }
 
+function injectCopyButtons(html) {
+  // 为每个 pre.sourceCode 注入复制按钮（用内联 style，不依赖额外 CSS）
+  return html.replace(/<pre class="sourceCode[^>]*>([\s\S]*?)<\/pre>/g, (match, code) => {
+    return `<div style="position:relative;display:inline-block;width:100%;">
+<button onclick="copyCodeBlock(this)" style="position:absolute;top:6px;right:8px;background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;opacity:0;transition:opacity 0.2s;z-index:5;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0" title="复制代码">📋 复制</button>
+<pre class="sourceCode">${code}</pre></div>`;
+  });
+}
+
 // ===== 代码复制 =====
 window.copyCodeBlock = function(btn) {
-  const pre = btn.nextElementSibling;
+  // 兼容 injectCopyButtons 生成的结构：btn 在 div 内部，pre 也在 div 内部
+  const wrapper = btn.closest('div');
+  const pre = wrapper ? wrapper.querySelector('pre') : btn.nextElementSibling;
   if (!pre || pre.tagName !== 'PRE') return;
   const code = pre.querySelector('code');
   const text = code ? code.textContent : pre.textContent;
   navigator.clipboard.writeText(text).then(() => {
     const original = btn.textContent;
     btn.textContent = '✅ 已复制';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = original;
-      btn.classList.remove('copied');
-    }, 1500);
+    setTimeout(() => { btn.textContent = original; }, 1500);
   }).catch(() => {
-    // fallback
     const ta = document.createElement('textarea');
     ta.value = text;
     ta.style.cssText = 'position:fixed;opacity:0';
