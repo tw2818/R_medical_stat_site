@@ -516,6 +516,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="fisher判别分析" class="level2" data-number="27.1">
 <h2 data-number="27.1" class="anchored" data-anchor-id="fisher判别分析"><span class="header-section-number">27.1</span> Fisher判别分析</h2>
 <div class="stat-viz" data-type="lda"></div>
+<p>📊 交互式LDA散点图演示（模拟两类判别边界）：</p>
+<div class="stat-viz" data-type="ldascatter" data-title="线性判别分析二类分类散点图（例20-1模拟数据）" data-x1="1.2,2.1,1.8,2.5,3.2,1.5,2.8,1.9,2.3,1.7,3.5,2.0" data-y1="2.3,3.1,2.8,3.9,4.5,2.5,3.8,2.7,3.2,2.4,4.1,2.9" data-x2="6.1,5.8,6.5,7.2,6.8,5.5,7.0,6.3,5.9,7.5,6.2,6.9" data-y2="5.2,6.1,5.5,6.8,7.2,5.0,6.5,5.8,6.0,7.3,5.7,6.4" data-label1="早期肝硬化" data-label2="晚期肝硬化"></div>
 <p>Fisher判别又称为典型判别（canonical discriminant）分析，适用于两类和多分类判别。</p>
 <p>Fisher判别使用贝叶斯定理确定每个观测属于某个类别的概率。如果你有两个类别，比如良性和恶性，判别分析会分别计算属于两个类别的概率，然后选择概率大的类别作为正确的类别。</p>
 <p>线性判别分析假设每个类中的观测服从多元正态分布，并且不同类别之间的协方差相等。二次判别假设观测服从正态分布，每种类别都有自己的协方差。</p>
