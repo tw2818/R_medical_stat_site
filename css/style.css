@@ -323,17 +323,81 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
 .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow); text-decoration: none; }
 .btn-large { padding: 14px 36px; font-size: 1.05rem; }
 
-.welcome-ack {
+/* ===== 欢迎页增强 ===== */
+.welcome-cta {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.btn-secondary {
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.btn-ghost {
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
+
+.task-nav { margin-bottom: 32px; }
+.task-nav h2 { font-size: 1.1rem; margin-bottom: 14px; color: var(--text); }
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.task-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 12px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
-  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+}
+.task-item:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow); }
+.task-icon { font-size: 1.3rem; }
+.task-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.task-meta { font-size: 0.72rem; color: var(--text-muted); }
+
+.welcome-card .card-desc { font-size: 0.8rem; color: var(--primary); font-weight: 500; margin-bottom: 4px; }
+.welcome-card .card-scenes { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+.welcome-card .card-methods { font-size: 0.75rem; color: var(--text-muted); }
+
+#site-footer {
+  margin-top: 48px;
+  padding: 24px 0 8px;
+  border-top: 1px solid var(--border);
+}
+.footer-ack {
+  font-size: 0.78rem;
   color: var(--text-muted);
   line-height: 1.8;
+  text-align: center;
 }
-.welcome-ack h4 { margin-bottom: 8px; color: var(--text); }
-.welcome-ack .ack-book { margin-top: 6px; font-style: italic; }
+.footer-ack a { color: var(--primary); text-decoration: none; }
+.footer-ack a:hover { text-decoration: underline; }
 
 /* ===== 章节内容 ===== */
 .chapter-header {
