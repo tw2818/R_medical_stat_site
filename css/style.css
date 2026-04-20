@@ -608,4 +608,227 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }               
 .callout-toggle { color: var(--text-muted); font-size: 0.75rem; }
 .callout-collapsed .callout-header { border-bottom: none; }
 .callout-collapsed > *:not(.callout-header) { display: none; }
+
+/* ===== 统计可视化与计算器 ===== */
+.viz-card, .calc-card {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  margin: 24px 0;
+  overflow: hidden;
+  background: var(--card-bg, #f8fafc);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+[data-theme="dark"] .viz-card, [data-theme="dark"] .calc-card {
+  background: #1e2535;
+  border-color: #2d3748;
+}
+.viz-header, .calc-header {
+  padding: 12px 16px;
+  background: var(--nav-bg, #f1f5f9);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+[data-theme="dark"] .viz-header, [data-theme="dark"] .calc-header {
+  background: #111827;
+  border-color: #2d3748;
+}
+.viz-reset {
+  background: none;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  color: var(--text-muted, #64748b);
+}
+.viz-reset:hover { background: var(--border, #e2e8f0); }
+
+.viz-sliders {
+  padding: 12px 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.viz-sliders label {
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.viz-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--text, #1e293b);
+  min-width: 32px;
+}
+[data-theme="dark"] .viz-val { color: #e2e8f0; }
+
+.viz-slider {
+  flex: 1;
+  accent-color: #569cd6;
+  margin-left: 8px;
+  cursor: pointer;
+}
+.viz-stats {
+  padding: 8px 16px 12px;
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  flex-wrap: wrap;
+}
+.viz-stats strong { color: #569cd6; }
+
+.viz-legend {
+  padding: 6px 16px 12px;
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted, #64748b);
+}
+.legend-item::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+/* P 值显示 */
+.viz-pvalue-display {
+  padding: 10px 16px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: baseline;
+}
+.pvalue-result { display: flex; align-items: baseline; gap: 6px; }
+.pvalue-label { font-size: 0.82rem; color: var(--text-muted, #64748b); }
+.pvalue-num, .pvalue-num-side {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #569cd6;
+}
+.pvalue-interpretation {
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: 100%;
+  padding-top: 4px;
+  border-top: 1px solid var(--border, #e2e8f0);
+  color: var(--text, #1e293b);
+}
+[data-theme="dark"] .pvalue-interpretation { color: #e2e8f0; }
+
+/* 计算器 */
+.calc-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+.calc-tab {
+  flex: 1;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.calc-tab:hover { color: var(--text, #1e293b); background: rgba(0,0,0,0.03); }
+.calc-tab.active {
+  color: #569cd6;
+  border-bottom-color: #569cd6;
+  font-weight: 600;
+}
+.calc-body { padding: 14px 16px 0; }
+.calc-panel { display: none; }
+.calc-panel.active { display: block; }
+.calc-field {
+  margin-bottom: 12px;
+}
+.calc-field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 4px;
+}
+.calc-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  background: var(--bg, #fff);
+  color: var(--text, #1e293b);
+  resize: vertical;
+}
+.calc-input:focus { outline: none; border-color: #569cd6; box-shadow: 0 0 0 2px rgba(86,156,214,0.2); }
+.calc-check { margin-right: 6px; accent-color: #569cd6; }
+.calc-run {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 0 16px 12px;
+  padding: 9px;
+  background: #569cd6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.calc-run:hover { background: #3b82f6; }
+
+/* 计算结果 */
+.calc-result { padding: 0 16px 14px; }
+.result-table {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.82rem;
+}
+.result-row {
+  display: flex;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+.result-row:last-child { border-bottom: none; }
+.result-row.header {
+  background: var(--nav-bg, #f1f5f9);
+  font-weight: 600;
+  color: var(--text, #1e293b);
+}
+[data-theme="dark"] .result-row.header { background: #111827; }
+.result-row span:first-child { flex: 0 0 130px; color: var(--text-muted, #64748b); }
+.result-row span:last-child { flex: 1; font-family: 'JetBrains Mono', monospace; color: var(--text, #1e293b); }
+[data-theme="dark"] .result-row span:last-child { color: #e2e8f0; }
+.result-sig { color: #ef4444; font-weight: 700; }
+.result-ns { color: var(--text-muted, #64748b); }
+.calc-note {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  color: #92400e;
+}
+[data-theme="dark"] .calc-note { background: #292524; border-color: #78716c; color: #fde68a; }
 .callout > *:not(.callout-header) { padding: 12px 14px; }
