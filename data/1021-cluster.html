@@ -654,8 +654,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="聚类分析可视化" class="level2" data-number="28.2">
 <h2 data-number="28.2" class="anchored" data-anchor-id="聚类分析可视化"><span class="header-section-number">28.2</span> 聚类分析可视化</h2>
+<div class="stat-viz" data-type="scatter" data-title="聚类可视化：二维投影示意" data-xlabel="主成分1" data-ylabel="主成分2" data-xs="1.5,2.1,2.8,3.2,3.9,4.5,5.1,5.8,6.2,6.9,7.5,8.1,1.8,2.5,3.0,3.8,4.2,4.9,5.5,6.3" data-ys="2.3,3.1,2.8,3.9,4.5,3.8,4.9,5.2,4.8,5.5,6.1,5.8,6.2,7.1,6.8,7.5,8.2,7.9,8.6,9.1" data-grouplabels="簇1,簇2,簇3" data-groupx="" data-groupy=""></div>
 <p>上面使用默认的<code>plot</code>函数进行聚类树的可视化，下面继续扩展聚类树的可视化。</p>
-<p>默认的聚类树可视化函数已经非常好用，有非常多的自定义设置，可以轻松实现好看的聚类树可视化。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>op <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">bg =</span> <span class="st">"grey90"</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -774,6 +774,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="28.3" class="anchored" data-anchor-id="快速聚类划分聚类partitioning-clustering"><span class="header-section-number">28.3</span> 快速聚类（划分聚类,partitioning clustering）</h2>
 <section id="k-means聚类" class="level3" data-number="28.3.1">
 <h3 data-number="28.3.1" class="anchored" data-anchor-id="k-means聚类"><span class="header-section-number">28.3.1</span> K-means聚类</h3>
+<div class="stat-viz" data-type="scatter" data-title="K-means聚类结果示意" data-xlabel="主成分1" data-ylabel="主成分2" data-xs="1.5,2.1,2.8,3.2,3.9,4.5,5.1,5.8,6.2,6.9,7.5,8.1,1.8,2.5,3.0,3.8,4.2,4.9,5.5,6.3" data-ys="2.3,3.1,2.8,3.9,4.5,3.8,4.9,5.2,4.8,5.5,6.1,5.8,6.2,7.1,6.8,7.5,8.2,7.9,8.6,9.1" data-grouplabels="簇1,簇2" data-groupx="" data-groupy=""></div>
 <p>K-means聚类，K均值聚类，是快速聚类的一种。比层次聚类更适合大样本的数据。在R语言中可以通过<code>kmeans()</code>实现K均值聚类。</p>
 <p>使用K均值聚类处理178种葡萄酒中13种化学成分的数据集。</p>
 <div class="cell">
