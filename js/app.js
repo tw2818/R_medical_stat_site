@@ -130,7 +130,7 @@ async function loadChapter(group, index) {
       html = await resp.text();
     }
 
-    const content = parseChapterHTML(html, ch);
+    const content = parseChapterHTML(html, ch, group);
     $('chapter-content').innerHTML = content;
     currentChapterData = content;
     saveProgress(ch.id);
@@ -157,8 +157,8 @@ async function loadChapter(group, index) {
   $('sidebar').classList.remove('open');
 }
 
-// ===== HTML 解析（核心）=====
-function parseChapterHTML(html, ch) {
+// ===== HTML 解析（核心）====
+function parseChapterHTML(html, ch, group) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
@@ -169,7 +169,7 @@ function parseChapterHTML(html, ch) {
   const h1 = doc.querySelector('h1') || doc.querySelector('h2') || doc.querySelector('h3');
   const title = h1 ? h1.textContent.trim() : ch.title;
   const categoryMap = { basic: '📈 基础统计分析', advanced: '🔬 高级统计分析', literature: '📚 文献常见统计分析', other: '📎 其他合集' };
-  const category = categoryMap[ch.group] || '其他';
+  const category = categoryMap[group] || '其他';
 
   // 构建输出
   let body = '';
@@ -248,9 +248,9 @@ function parseChapterHTML(html, ch) {
   }
 
   // 组装完整页面
-  const prevCh = currentIndex > 0 ? CHAPTERS[ch.group][currentIndex - 1] : null;
-  const nextCh = currentIndex < CHAPTERS[ch.group].length - 1 ? CHAPTERS[ch.group][currentIndex + 1] : null;
-  const groupNum = { basic: 13, advanced: 23, literature: 11, other: 1 }[ch.group] || 1;
+  const prevCh = currentIndex > 0 ? CHAPTERS[group][currentIndex - 1] : null;
+  const nextCh = currentIndex < CHAPTERS[group].length - 1 ? CHAPTERS[group][currentIndex + 1] : null;
+  const groupNum = { basic: 13, advanced: 23, literature: 11, other: 1 }[group] || 1;
   const done = getProgress();
   const doneCount = Object.keys(done).length;
 
@@ -261,13 +261,13 @@ function parseChapterHTML(html, ch) {
   <div class="chapter-meta">第${ch.num}章 · 共${groupNum}章 · 已学习 ${doneCount} 章</div>
 </div>
 <div class="chapter-nav-btns">
-  ${prevCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${ch.group}',${currentIndex-1})">← 上一章：${prevCh.num}. ${prevCh.title}</button>` : '<span></span>'}
-  ${nextCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${ch.group}',${currentIndex+1})">下一章：${nextCh.num}. ${nextCh.title} →</button>` : '<span></span>'}
+  ${prevCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex-1})">← 上一章：${prevCh.num}. ${prevCh.title}</button>` : '<span></span>'}
+  ${nextCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex+1})">下一章：${nextCh.num}. ${nextCh.title} →</button>` : '<span></span>'}
 </div>
 ${body}
 <div class="chapter-nav-btns" style="margin-top:32px">
-  ${prevCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${ch.group}',${currentIndex-1})">← 上一章：${prevCh.num}. ${prevCh.title}</button>` : '<span></span>'}
-  ${nextCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${ch.group}',${currentIndex+1})">下一章：${nextCh.num}. ${nextCh.title} →</button>` : '<span></span>'}
+  ${prevCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex-1})">← 上一章：${prevCh.num}. ${prevCh.title}</button>` : '<span></span>'}
+  ${nextCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex+1})">下一章：${nextCh.num}. ${nextCh.title} →</button>` : '<span></span>'}
 </div>
 <div style="text-align:center;margin-top:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
   <p style="font-size:0.82rem;color:var(--text-muted)">📢 本内容改编自 <strong>阿越就是我</strong> 的《R语言实战医学统计》，采用 CC BY-SA 4.0 许可证发布。</p>
