@@ -2177,6 +2177,11 @@
     else if (type === 'sankey') renderSankey(el);
     else if (type === 'spine') renderSpinePlot(el);
     else if (type === 'errorbar') renderErrorBar(el);
+    else if (type === 'area') renderAreaChart(el);
+    else if (type === 'heatmap') renderHeatmap(el);
+    else if (type === 'ridgeline') renderRidgeline(el);
+    else if (type === 'ldascatter') renderLDAScatter(el);
+    else if (type === 'radar') renderRadarChart(el);
   }
 
   // ============================================================
@@ -5309,6 +5314,414 @@
       // X label
       ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(label, x, padT + plotH + 18);
+    });
+  }
+
+  // ============================================================
+  // Area Chart (堆叠面积图 / Stacked Area)
+  // ============================================================
+  // <div class="stat-viz" data-type="area" data-title="患者状态变化趋势" data-labels="1月,2月,3月,4月,5月,6月" data-series="治愈,好转,住院中" data-values="120,135,150,140,160,175:80,95,110,105,120,130:45,50,55,60,58,62"></div>
+  function renderAreaChart(el) {
+    const id = 'area-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '堆叠面积图';
+    const rawLabels = el.dataset.labels || '1月,2月,3月,4月,5月,6月';
+    const rawSeries = el.dataset.series || '系列1,系列2,系列3';
+    const rawValues = el.dataset.values || '30,40,50,35,45,55:20,25,30,28,32,38:10,12,15,14,16,18';
+    const labels = rawLabels.split(',');
+    const seriesNames = rawSeries.split(',');
+    const seriesValues = rawValues.split(':').map(s => s.split(',').map(Number));
+    const n = labels.length;
+    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+    const W = 560, H = 300;
+    const padL = 50, padR = 20, padT = 40, padB = 40;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📈 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:11px;color:#555;flex-wrap:wrap;"></div>
+    </div>`;
+
+    // Legend
+    const legendDiv = el.querySelector('div:last-child');
+    seriesNames.forEach((s, i) => {
+      legendDiv.innerHTML += `<span style="display:inline-flex;align-items:center;gap:4px;margin:0 6px;"><span style="width:12px;height:12px;background:${colors[i%colors.length]};border-radius:2px;display:inline-block;"></span>${s}</span>`;
+    });
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const plotW = W - padL - padR;
+    const plotH = H - padT - padB;
+
+    // Compute cumulative sums per time point
+    const cumSums = [];
+    for (let i = 0; i < n; i++) {
+      let sum = 0;
+      for (let j = 0; j < seriesValues.length; j++) sum += seriesValues[j][i];
+      cumSums.push(sum);
+    }
+    const yMax = Math.max(...cumSums) * 1.1;
+    const sx = v => padL + (v / n) * plotW;
+    const sy = v => padT + plotH - (v / yMax) * plotH;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // Draw each series as a filled area
+    for (let si = seriesValues.length - 1; si >= 0; si--) {
+      const vals = seriesValues[si];
+      const color = colors[si % colors.length];
+
+      ctx.beginPath();
+      // Bottom edge of this band
+      let prev = [];
+      for (let i = 0; i < n; i++) {
+        let lower = 0;
+        for (let k = 0; k < si; k++) lower += seriesValues[k][i];
+        prev.push({ x: sx(i), y: sy(lower) });
+      }
+      // Top edge of this band
+      let curr = [];
+      for (let i = 0; i < n; i++) {
+        let upper = 0;
+        for (let k = 0; k <= si; k++) upper += seriesValues[k][i];
+        curr.push({ x: sx(i), y: sy(upper) });
+      }
+
+      // Fill from bottom to top, then back
+      ctx.moveTo(prev[0].x, prev[0].y);
+      for (let i = 1; i < n; i++) ctx.lineTo(prev[i].x, prev[i].y);
+      for (let i = n - 1; i >= 0; i--) ctx.lineTo(curr[i].x, curr[i].y);
+      ctx.closePath();
+      ctx.fillStyle = color + 'cc'; // semi-transparent
+      ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // X axis labels
+    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    labels.forEach((l, i) => ctx.fillText(l, sx(i), H - 10));
+    // Y axis
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.stroke();
+    // Y ticks
+    [0, yMax * 0.25, yMax * 0.5, yMax * 0.75, yMax].forEach(v => {
+      const y = sy(v);
+      ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+      ctx.fillStyle = '#555'; ctx.textAlign = 'right';
+      ctx.fillText(Math.round(v), padL - 5, y + 4);
+    });
+  }
+
+  // ============================================================
+  // Heatmap (热图)
+  // ============================================================
+  // <div class="stat-viz" data-type="heatmap" data-title="基因表达热图" data-rows="Gene A,Gene B,Gene C,Gene D,Gene E" data-cols="样本1,样本2,样本3,样本4,样本5,样本6" data-values="2.1,1.5,3.2,0.8,1.2,2.8:0.5,2.8,1.1,3.5,2.0,0.9:3.8,0.6,2.4,1.3,3.9,1.7:1.2,3.3,0.7,2.6,1.8,3.1:2.7,1.9,3.5,0.4,2.3,1.6"></div>
+  function renderHeatmap(el) {
+    const id = 'heatmap-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '热图';
+    const rawRows = el.dataset.rows || '行1,行2,行3,行4,行5';
+    const rawCols = el.dataset.cols || '列1,列2,列3,列4';
+    const rawVals = el.dataset.values || '2,4,3,5,1:3,5,4,2,6:1,3,2,6,4:5,2,6,3,1:4,6,5,1,3';
+    const rowNames = rawRows.split(',');
+    const colNames = rawCols.split(',');
+    const values = rawVals.split(':').map(r => r.split(',').map(Number));
+    const nr = rowNames.length, nc = colNames.length;
+
+    const cellW = Math.min(50, Math.floor(480 / nc));
+    const cellH = Math.min(30, Math.floor(300 / nr));
+    const labelW = 70, labelH = 30;
+    const W = labelW + nc * cellW + 20;
+    const H = labelH + nr * cellH + 20;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">🗺️ ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;font-size:11px;color:#666;margin-top:6px;">表达水平: <span style="color:#2166ac">低▼</span> → <span style="color:#f5f5f5">中</span> → <span style="color:#b2182b">高▲</span></div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+
+    // Compute color scale (blue-white-red)
+    const allVals = values.flat();
+    const minV = Math.min(...allVals), maxV = Math.max(...allVals);
+    function colorScale(v) {
+      const t = (v - minV) / (maxV - minV);
+      // Blue (#2166ac) → White (#f5f5f5) → Red (#b2182b)
+      if (t < 0.5) {
+        const r = Math.round(33 + (245 - 33) * (t * 2));
+        const g = Math.round(102 + (245 - 102) * (t * 2));
+        const b = Math.round(172 + (245 - 172) * (t * 2));
+        return `rgb(${r},${g},${b})`;
+      } else {
+        const t2 = (t - 0.5) * 2;
+        const r = Math.round(245 + (178 - 245) * t2);
+        const g = Math.round(245 + (24 - 245) * t2);
+        const b = Math.round(245 + (43 - 245) * t2);
+        return `rgb(${r},${g},${b})`;
+      }
+    }
+
+    // Row labels
+    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    rowNames.forEach((r, i) => {
+      ctx.fillText(r, labelW - 5, labelH + i * cellH + cellH / 2 + 4);
+    });
+
+    // Col labels
+    ctx.textAlign = 'center';
+    colNames.forEach((c, j) => {
+      ctx.save();
+      ctx.translate(labelW + j * cellW + cellW / 2, labelH - 5);
+      ctx.fillText(c, 0, 0);
+      ctx.restore();
+    });
+
+    // Cells
+    values.forEach((row, i) => {
+      row.forEach((val, j) => {
+        ctx.fillStyle = colorScale(val);
+        ctx.fillRect(labelW + j * cellW, labelH + i * cellH, cellW - 1, cellH - 1);
+        ctx.fillStyle = Math.abs(val - (minV + maxV) / 2) > (maxV - minV) * 0.3 ? '#fff' : '#333';
+        ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+        const txt = Number.isInteger(val) ? val.toString() : val.toFixed(1);
+        ctx.fillText(txt, labelW + j * cellW + cellW / 2, labelH + i * cellH + cellH / 2 + 3);
+      });
+    });
+  }
+
+  // ============================================================
+  // Ridgeline Plot (峰峦图 / Joy Plot)
+  // ============================================================
+  // <div class="stat-viz" data-type="ridgeline" data-title="不同年龄段体温分布" data-labels="儿童,青少年,青年,中年,老年" data-dists="12,13,12.5,13.2,12.8,13.5,13.1,12.9,13.3,12.7:22,23,22.5,23.2,22.8,23.5,23.1,22.9,23.3,22.7,23.4,22.6,23.0:36.2,36.5,36.3,36.6,36.4,36.7,36.3,36.5,36.2,36.8,36.4,36.6:37.1,37.3,37.2,37.4,37.0,37.5,37.1,37.3,37.2,37.4,37.0,37.6,37.1:36.8,36.9,36.7,37.0,36.8,37.1,36.9,36.8,37.0,36.7,37.1"></div>
+  function renderRidgeline(el) {
+    const id = 'ridgeline-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '峰峦图';
+    const rawLabels = el.dataset.labels || '组1,组2,组3';
+    const rawDists = el.dataset.dists || '10,12,14,12,10:15,17,19,17,15:20,22,24,22,20';
+    const labels = rawLabels.split(',');
+    const dists = rawDists.split(':').map(s => s.split(',').map(Number));
+    const n = labels.length;
+    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+    const W = 560, H = 60 + n * 55 + 30;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">🏔️ ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    const padL = 40, padR = 15, padT = 35, padB = 25;
+    const bandH = 50;
+    const plotW = W - padL - padR;
+
+    dists.forEach((data, i) => {
+      const yBase = padT + i * 55 + bandH;
+      const color = colors[i % colors.length];
+      const m = mean(data), s = sd(data);
+      const xMin = m - 3.5 * s, xMax = m + 3.5 * s;
+
+      // Draw filled density shape
+      ctx.beginPath();
+      const steps = 60;
+      const pts = [];
+      for (let k = 0; k <= steps; k++) {
+        const xFrac = k / steps;
+        const xVal = xMin + xFrac * (xMax - xMin);
+        // Simple Gaussian approximation for display
+        const density = Math.exp(-0.5 * ((xVal - m) / s) ** 2);
+        const px = padL + xFrac * plotW;
+        const py = yBase - density * bandH * 0.85;
+        pts.push({ x: px, y: py });
+      }
+      // Build closed path
+      ctx.moveTo(padL, yBase);
+      pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(padL + plotW, yBase);
+      ctx.closePath();
+
+      const grad = ctx.createLinearGradient(0, yBase - bandH, 0, yBase);
+      grad.addColorStop(0, color + 'aa');
+      grad.addColorStop(1, color + '22');
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(labels[i], padL - 5, yBase - bandH / 2 + 4);
+    });
+  }
+
+  // ============================================================
+  // LDA Scatter Plot (判别分析散点图)
+  // ============================================================
+  // <div class="stat-viz" data-type="ldascatter" data-title="LDA二类分类边界" data-x1="1.2,2.1,1.8,2.5,3.2,1.5,2.8,1.9,2.3,1.7,3.5,2.0" data-y1="2.3,3.1,2.8,3.9,4.5,2.5,3.8,2.7,3.2,2.4,4.1,2.9" data-x2="6.1,5.8,6.5,7.2,6.8,5.5,7.0,6.3,5.9,7.5,6.2,6.9" data-y2="5.2,6.1,5.5,6.8,7.2,5.0,6.5,5.8,6.0,7.3,5.7,6.4" data-label1="早期肝硬化" data-label2="晚期肝硬化"></div>
+  function renderLDAScatter(el) {
+    const id = 'lda-scatter-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '线性判别分析 (LDA) 散点图';
+    const rawX1 = el.dataset.x1 || '1.2,2.1,1.8,2.5,3.2,1.5,2.8,1.9,2.3,1.7,3.5,2.0';
+    const rawY1 = el.dataset.y1 || '2.3,3.1,2.8,3.9,4.5,2.5,3.8,2.7,3.2,2.4,4.1,2.9';
+    const rawX2 = el.dataset.x2 || '6.1,5.8,6.5,7.2,6.8,5.5,7.0,6.3,5.9,7.5,6.2,6.9';
+    const rawY2 = el.dataset.y2 || '5.2,6.1,5.5,6.8,7.2,5.0,6.5,5.8,6.0,7.3,5.7,6.4';
+    const label1 = el.dataset.label1 || '类别1';
+    const label2 = el.dataset.label2 || '类别2';
+    const x1 = rawX1.split(',').map(Number), y1 = rawY1.split(',').map(Number);
+    const x2 = rawX2.split(',').map(Number), y2 = rawY2.split(',').map(Number);
+
+    const W = 500, H = 360, padL = 50, padR = 20, padT = 40, padB = 45;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="display:flex;justify-content:center;gap:20px;margin-top:8px;font-size:12px;">
+        <span style="color:#e74c3c;">● ${label1} (n=${x1.length})</span>
+        <span style="color:#2ecc71;">● ${label2} (n=${x2.length})</span>
+        <span style="color:#555;">— 判别边界线</span>
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const allX = x1.concat(x2), allY = y1.concat(y2);
+    const xMin = Math.min(...allX) - 0.5, xMax = Math.max(...allX) + 0.5;
+    const yMin = Math.min(...allY) - 0.5, yMax = Math.max(...allY) + 0.5;
+    const sx = v => padL + ((v - xMin) / (xMax - xMin)) * (W - padL - padR);
+    const sy = v => H - padB - ((v - yMin) / (yMax - yMin)) * (H - padT - padB);
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.5;
+    for (let v = Math.ceil(xMin); v <= Math.floor(xMax); v++) {
+      ctx.beginPath(); ctx.moveTo(sx(v), padT); ctx.lineTo(sx(v), H - padB); ctx.stroke();
+    }
+    for (let v = Math.ceil(yMin); v <= Math.floor(yMax); v++) {
+      ctx.beginPath(); ctx.moveTo(padL, sy(v)); ctx.lineTo(W - padR, sy(v)); ctx.stroke();
+    }
+
+    // Draw LDA decision boundary (simple linear approximation)
+    // Compute group means
+    const mX1 = mean(x1), mY1 = mean(y1), mX2 = mean(x2), mY2 = mean(y2);
+    // Decision boundary: perpendicular bisector of the line connecting means
+    const mx = (mX1 + mX2) / 2, my = (mY1 + mY2) / 2;
+    const slope = -(mX2 - mX1) / (mY2 - mY1 + 0.0001);
+    // Draw the boundary line across the plot area
+    ctx.setLineDash([6, 4]); ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5;
+    const xExt = [xMin, xMax];
+    const yExt = xExt.map(x => my + slope * (x - mx));
+    ctx.beginPath();
+    ctx.moveTo(sx(xExt[0]), sy(yExt[0]));
+    ctx.lineTo(sx(xExt[1]), sy(yExt[1]));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw class 1 points
+    x1.forEach((xi, i) => {
+      ctx.fillStyle = '#e74c3c'; ctx.beginPath();
+      ctx.arc(sx(xi), sy(y1[i]), 6, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    // Draw class 2 points
+    x2.forEach((xi, i) => {
+      ctx.fillStyle = '#2ecc71'; ctx.beginPath();
+      ctx.arc(sx(xi), sy(y2[i]), 6, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Mark group means
+    ctx.fillStyle = '#c0392b'; ctx.beginPath(); ctx.arc(sx(mX1), sy(mY1), 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#27ae60'; ctx.beginPath(); ctx.arc(sx(mX2), sy(mY2), 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#333'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('★', sx(mX1), sy(mY1) + 3);
+    ctx.fillText('★', sx(mX2), sy(mY2) + 3);
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB); ctx.stroke();
+    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('判别函数1 (LD1)', W / 2, H - 5);
+    ctx.save(); ctx.translate(12, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('判别函数2 (LD2)', 0, 0); ctx.restore();
+  }
+
+  // ============================================================
+  // Radar / Spider Chart (雷达图)
+  // ============================================================
+  // <div class="stat-viz" data-type="radar" data-title="患者指标雷达图" data-labels="血压,血糖,血脂,肺功能,肾功能,心功能" data-values="75,60,80,70,85,65" data-max="100"></div>
+  function renderRadarChart(el) {
+    const id = 'radar-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '雷达图';
+    const rawLabels = el.dataset.labels || '指标1,指标2,指标3,指标4,指标5';
+    const rawVals = el.dataset.values || '80,60,75,90,55';
+    const maxVal = parseFloat(el.dataset.max || '100');
+    const labels = rawLabels.split(',');
+    const values = rawVals.split(',').map(Number);
+    const n = labels.length;
+    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6'];
+    const cx = 200, cy = 180, r = 130;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">🕸️ ${title}</div>
+      <canvas id="${id}" width="400" height="360" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+
+    // Draw grid circles
+    [0.25, 0.5, 0.75, 1].forEach(frac => {
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+        const px = cx + Math.cos(angle) * r * frac, py = cy + Math.sin(angle) * r * frac;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = frac === 1 ? '#aaa' : '#ddd'; ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#777'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText((maxVal * frac).toFixed(0), cx, cy - r * frac + 10);
+    });
+
+    // Draw axes and labels
+    labels.forEach((l, i) => {
+      const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+      const px = cx + Math.cos(angle) * (r + 18), py = cy + Math.sin(angle) * (r + 18);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+      ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(l, px, py + 4);
+    });
+
+    // Draw data polygon
+    ctx.beginPath();
+    values.forEach((v, i) => {
+      const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+      const frac = Math.min(v / maxVal, 1);
+      const px = cx + Math.cos(angle) * r * frac, py = cy + Math.sin(angle) * r * frac;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.closePath();
+    ctx.fillStyle = colors[0] + '44'; ctx.fill();
+    ctx.strokeStyle = colors[0]; ctx.lineWidth = 2; ctx.stroke();
+
+    // Data points
+    values.forEach((v, i) => {
+      const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+      const frac = Math.min(v / maxVal, 1);
+      const px = cx + Math.cos(angle) * r * frac, py = cy + Math.sin(angle) * r * frac;
+      ctx.fillStyle = colors[0]; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
     });
   }
 })();
