@@ -2057,6 +2057,7 @@
     else if (type === 'subgroupforest') renderSubgroupForest(el);
     else if (type === 'samplesizecalc') renderSampleSizeCalc(el);
     else if (type === 'normtest') renderNormTest(el);
+    else if (type === 'interaction') renderFactorialInteraction(el);
   }
 
   // ============================================================
@@ -3637,6 +3638,87 @@
     init();
     setupObserver();
   });
+
+  // ── 析因设计交互效应图 ──────────────────────────────────
+  // <div class="stat-viz" data-type="interaction" data-title="析因设计交互效应" data-factor1="缝合方法" data-factor2="时间" data-levels1="外膜缝合,束膜缝合" data-levels2="1个月,2个月" data-means="[10,30],[40,70]"></div>
+  function renderFactorialInteraction(el) {
+    const id = 'fact-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '析因设计交互效应图';
+    const factor1 = el.dataset.factor1 ? el.dataset.factor1.split(',') : ['因素A', '因素B'];
+    const factor2 = el.dataset.factor2 ? el.dataset.factor2.split(',') : ['水平1', '水平2'];
+    let means = el.dataset.means ? JSON.parse(el.dataset.means) : [[10, 30], [40, 70]];
+    const W = 560, H = 320;
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas></div>';
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const pad = {t: 40, r: 120, b: 60, l: 60};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    // Flatten means
+    const allVals = means.flat();
+    const yMin = Math.min(...allVals) * 0.8;
+    const yMax = Math.max(...allVals) * 1.15;
+    const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
+    // Y grid
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 20);
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const yVal = yMin + (yMax - yMin) * i / 4;
+      const yPx = yOf(yVal);
+      ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W - pad.r, yPx); ctx.stroke();
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(yVal.toFixed(0), pad.l - 5, yPx + 4);
+    }
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+    // X axis: factor1 levels, each group has factor2 levels
+    const n1 = factor1.length;
+    const groupW = iW / n1;
+    factor1.forEach((f1, fi) => {
+      const groupCenterX = pad.l + (fi + 0.5) * groupW;
+      // X labels (factor1)
+      ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(f1, groupCenterX, H - pad.b + 20);
+      // Factor2 levels as offset from group center
+      const n2 = factor2.length;
+      const offsetStep = groupW * 0.2;
+      const f2OffsetStart = -(n2 - 1) * offsetStep / 2;
+      means[fi].forEach((mv, fi2) => {
+        const x = groupCenterX + f2OffsetStart + fi2 * offsetStep;
+        const y = yOf(mv);
+        ctx.fillStyle = fi2 === 0 ? '#2980b9' : '#e67e22';
+        ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+        if (fi === 0) {
+          // Draw line connecting same factor2 level across factor1
+          const xNext = pad.l + (fi + 0.5 + 1) * groupW + f2OffsetStart + fi2 * offsetStep;
+          const yNext = yOf(means[fi + 1][fi2]);
+          ctx.strokeStyle = fi2 === 0 ? '#2980b9' : '#e67e22';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 3]);
+          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(xNext, yNext); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      });
+    });
+    // Legend
+    factor2.forEach((label, i) => {
+      const lx = W - pad.r + 10;
+      const ly = pad.t + i * 22;
+      ctx.fillStyle = i === 0 ? '#2980b9' : '#e67e22';
+      ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(label, lx + 12, ly + 4);
+    });
+    // Y axis label
+    ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('均值', 0, 0); ctx.restore();
+  }
 
   // 暴露给外部调用（app.js 在 loadChapter 完成后调用）
   window.initStatViz = init;
