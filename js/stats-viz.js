@@ -2164,6 +2164,7 @@
     else if (type === 'funnel') renderFunnel(el);
     else if (type === 'sem') renderSEM(el);
     else if (type === 'autocorrelation') renderAutocorrelation(el);
+    else if (type === 'nomogram') renderNomogram(el);
   }
 
   // ============================================================
@@ -2274,6 +2275,98 @@
         </svg>
         <div style="margin-top:8px;font-size:11px;color:#666;text-align:center">
           蓝色条形表示正自相关，红色表示负自相关；虚线为95%置信区间
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ============================================================
+  // Predictive Nomogram
+  // ============================================================
+  function renderNomogram(el) {
+    const id = 'nom-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '列线图 (Nomogram) 示例';
+    const svgW = 540, svgH = 260;
+    const pointsMax = 100;
+    const padL = 60, padR = 60, padT = 30, padB = 20;
+    const varBoxW = 70, scaleH = 180;
+
+    // 三个预测变量的刻度: 年龄(20-80), 血压(90-200), 胆固醇(3-8)
+    const vars = [
+      { name: '年龄', unit: '岁', min: 20, max: 80, points: pointsMax, label: '20──────────────80', tickStep: 20 },
+      { name: '血压', unit: 'mmHg', min: 90, max: 200, points: pointsMax, label: '90─────────────200', tickStep: 22 },
+      { name: '胆固醇', unit: 'mmol/L', min: 3, max: 8, points: pointsMax, label: '3────────────────8', tickStep: 1 }
+    ];
+
+    // 计算每个变量对应的像素位置
+    const totalWidth = svgW - padL - padR;
+    const varWidth = totalWidth / vars.length;
+    const scaleTop = padT + 30;
+    const scaleBottom = scaleTop + scaleH;
+
+    const varPositions = vars.map((v, i) => padL + i * varWidth + varWidth / 2);
+
+    el.innerHTML = `<div style="font-family:sans-serif">
+      <div style="background:#f8f9fa;border-radius:8px;padding:12px">
+        <div style="font-size:13px;font-weight:bold;color:#333;margin-bottom:8px">${title}</div>
+        <svg width="${svgW}" height="${svgH}" style="display:block;margin:0 auto">
+          <style>
+            .nom-text { font-size:11px fill:#333 }
+            .nom-label { font-size:10px fill:#666 }
+            .nom-tick { font-size:9px fill:#999 }
+          </style>
+          <!-- 变量名称 -->
+          ${vars.map((v, i) => `
+            <text x="${varPositions[i]}" y="${scaleTop - 10}" text-anchor="middle" class="nom-text" font-weight="bold">${v.name}</text>
+            <text x="${varPositions[i]}" y="${scaleTop - 22}" text-anchor="middle" class="nom-label">(${v.unit})</text>
+          `).join('')}
+
+          <!-- 总分刻度尺 -->
+          <line x1="${padL}" y1="${scaleTop}" x2="${padL}" y2="${scaleBottom}" stroke="#333" stroke-width="2"/>
+          <line x1="${padL - 5}" y1="${scaleTop}" x2="${padL + 5}" y2="${scaleTop}" stroke="#333" stroke-width="1.5"/>
+          <line x1="${padL - 5}" y1="${scaleBottom}" x2="${padL + 5}" y2="${scaleBottom}" stroke="#333" stroke-width="1.5"/>
+          <line x1="${padL - 5}" y1="${scaleTop + scaleH/2}" x2="${padL + 5}" y2="${scaleTop + scaleH/2}" stroke="#333" stroke-width="1"/>
+          <text x="${padL - 8}" y="${scaleTop + 4}" text-anchor="end" class="nom-tick">0</text>
+          <text x="${padL - 8}" y="${scaleBottom + 4}" text-anchor="end" class="nom-tick">${pointsMax * 3}</text>
+          <text x="${padL - 8}" y="${scaleTop + scaleH/2 + 4}" text-anchor="end" class="nom-tick">${pointsMax * 1.5}</text>
+          <text x="${padL + 10}" y="${scaleTop - 5}" class="nom-label">总分</text>
+
+          <!-- 变量刻度尺 -->
+          ${vars.map((v, i) => {
+            const x = varPositions[i];
+            const ticks = [];
+            for (let val = v.min; val <= v.max; val += v.tickStep) {
+              const ratio = (val - v.min) / (v.max - v.min);
+              const y = scaleBottom - ratio * scaleH;
+              const isMajor = val === v.min || val === v.max || val === (v.min + v.max) / 2;
+              ticks.push(`<line x1="${x - (isMajor ? 8 : 5)}" y1="${y}" x2="${x + (isMajor ? 8 : 5)}" y2="${y}" stroke="#666" stroke-width="${isMajor ? 1.5 : 1}"/>
+                <text x="${x + 12}" y="${y + 4}" class="nom-tick">${val}</text>`);
+            }
+            return `<line x1="${x}" y1="${scaleTop}" x2="${x}" y2="${scaleBottom}" stroke="#666" stroke-width="1"/>
+              ${ticks.join('')}`;
+          }).join('')}
+
+          <!-- 连接线和点标记 -->
+          <line x1="${varPositions[0]}" y1="${scaleTop + scaleH * 0.6}" x2="${varPositions[1]}" y2="${scaleTop + scaleH * 0.4}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="${varPositions[1]}" y1="${scaleTop + scaleH * 0.4}" x2="${varPositions[2]}" y2="${scaleTop + scaleH * 0.5}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="${varPositions[2]}" y1="${scaleTop + scaleH * 0.5}" x2="${padL}" y2="${scaleTop + scaleH * 0.8}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/>
+
+          <!-- 风险刻度 -->
+          <line x1="${svgW - padR}" y1="${scaleTop}" x2="${svgW - padR}" y2="${scaleBottom}" stroke="#333" stroke-width="2"/>
+          <text x="${svgW - padR + 8}" y="${scaleTop - 5}" class="nom-label">风险概率</text>
+          <text x="${svgW - padR + 8}" y="${scaleTop + 4}" class="nom-tick">0.1</text>
+          <text x="${svgW - padR + 8}" y="${scaleTop + scaleH * 0.33 + 4}" class="nom-tick">0.3</text>
+          <text x="${svgW - padR + 8}" y="${scaleTop + scaleH * 0.67 + 4}" class="nom-tick">0.6</text>
+          <text x="${svgW - padR + 8}" y="${scaleBottom + 4}" class="nom-tick">0.9</text>
+          <line x1="${svgW - padR - 5}" y1="${scaleTop}" x2="${svgW - padR + 5}" y2="${scaleTop}" stroke="#333"/>
+          <line x1="${svgW - padR - 5}" y1="${scaleBottom}" x2="${svgW - padR + 5}" y2="${scaleBottom}" stroke="#333"/>
+          <line x1="${svgW - padR - 5}" y1="${scaleTop + scaleH/2}" x2="${svgW - padR + 5}" y2="${scaleTop + scaleH/2}" stroke="#333"/>
+
+          <!-- 风险预测线 -->
+          <line x1="${padL}" y1="${scaleTop + scaleH * 0.5}" x2="${svgW - padR}" y2="${scaleTop + scaleH * 0.33}" stroke="#d32f2f" stroke-width="2"/>
+        </svg>
+        <div style="margin-top:8px;font-size:11px;color:#666;text-align:center">
+          示意列线图：各变量取值映射到顶部总分尺，通过总分在风险尺上读取预测概率
         </div>
       </div>
     </div>`;
