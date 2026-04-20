@@ -539,11 +539,14 @@
   }
 
   function displayTTestResult(el, r) {
-    const pNum = parseFloat(r.pTwo);
+    // Handle pTwo strings like '< 0.001' which are always significant
+    const pTwoStr = r.pTwo;
+    const isPlt001 = typeof pTwoStr === 'string' && pTwoStr.trim().startsWith('<');
+    const pNum = isPlt001 ? 0.0005 : parseFloat(pTwoStr);
     const pVal = isNaN(pNum) ? null : pNum;
-    const significant = pVal !== null && pVal < 0.05;
+    const significant = isPlt001 || (pVal !== null && pVal < 0.05);
     const pTag = significant
-      ? `<span class="result-sig">显著 ${pVal < 0.01 ? '**' : '*'}</span>`
+      ? `<span class="result-sig">显著 ${(isPlt001 || pVal < 0.01) ? '**' : '*'}</span>`
       : '<span class="result-ns">不显著</span>';
 
     let html = `<div class="result-table"><div class="result-row header"><span>项目</span><span>值</span></div>`;
