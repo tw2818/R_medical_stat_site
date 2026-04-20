@@ -2160,7 +2160,8 @@
     else if (type === 'samplesizecalc') renderSampleSizeCalc(el);
     else if (type === 'normtest') renderNormTest(el);
     else if (type === 'interaction') renderFactorialInteraction(el);
-    else if (type === 'sem') renderSEMPath(el);
+    else if (type === 'blandaltman') renderBlandAltman(el);
+    else if (type === 'funnel') renderFunnel(el);
   }
 
   // ============================================================
@@ -3934,6 +3935,166 @@
     // Label below
     ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('ξ = 外生潜变量  |  η = 内生潜变量', W/2, H - 10);
+  }
+
+  // ── Bland-Altman 方法比较图 ──────────────────────────────
+  // <div class="stat-viz" data-type="blandaltman" data-title="Bland-Altman 一致性分析" data-method1="新方法" data-method2="金标准" data-delta="[10,15,12,8,18,11,14,9,13,16]" data-mean="[55,58,52,60,48,56,53,59,54,57]"></div>
+  function renderBlandAltman(el) {
+    const id = 'ba-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Bland-Altman 一致性分析';
+    const method1 = el.dataset.method1 || '方法A';
+    const method2 = el.dataset.method2 || '方法B';
+    let delta = el.dataset.delta ? JSON.parse(el.dataset.delta) : [10,15,12,8,18,11,14,9,13,16,7,20,5,17,14];
+    let mean = el.dataset.mean ? JSON.parse(el.dataset.mean) : [55,58,52,60,48,56,53,59,54,57,50,62,45,58,54];
+    const W = 520, H = 340;
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div id="' + id + '-stats" style="text-align:center;font-size:12px;color:#555;margin-top:4px;"></div></div>';
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const pad = {t: 30, r: 25, b: 45, l: 55};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    const meanVal = delta.reduce((a, b) => a + b, 0) / delta.length;
+    const sd = Math.sqrt(delta.reduce((s, d) => s + (d - meanVal) ** 2, 0) / (delta.length - 1));
+    const xMin = Math.min(...mean) * 0.95;
+    const xMax = Math.max(...mean) * 1.05;
+    const yMin = Math.min(...delta) - Math.abs(meanVal) * 0.3;
+    const yMax = Math.max(...delta) + Math.abs(meanVal) * 0.3;
+    const xOf = v => pad.l + ((v - xMin) / (xMax - xMin)) * iW;
+    const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 20);
+    // Zero reference line
+    const zeroY = yOf(0);
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.l, zeroY); ctx.lineTo(pad.l + iW, zeroY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('零差值线', pad.l + iW / 2, zeroY - 5);
+    // Mean line
+    const meanY = yOf(meanVal);
+    ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.l, meanY); ctx.lineTo(pad.l + iW, meanY); ctx.stroke();
+    ctx.fillStyle = '#27ae60'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('mean=' + meanVal.toFixed(2), pad.l + 5, meanY - 5);
+    // ±1.96SD lines
+    [meanVal + 1.96 * sd, meanVal - 1.96 * sd].forEach((v, i) => {
+      const ly = yOf(v);
+      ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(pad.l + iW, ly); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#e74c3c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      const label = i === 0 ? '+1.96SD' : '-1.96SD';
+      ctx.fillText(label + '=' + v.toFixed(2), pad.l + 5, ly - 4);
+    });
+    // Grid
+    ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const yv = yMin + (yMax - yMin) * i / 4;
+      ctx.beginPath(); ctx.moveTo(pad.l, yOf(yv)); ctx.lineTo(pad.l + iW, yOf(yv)); ctx.stroke();
+    }
+    for (let i = 0; i <= 4; i++) {
+      const xv = xMin + (xMax - xMin) * i / 4;
+      ctx.beginPath(); ctx.moveTo(xOf(xv), pad.t); ctx.lineTo(xOf(xv), pad.t + iH); ctx.stroke();
+    }
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    for (let i = 0; i <= 4; i++) {
+      const yv = yMin + (yMax - yMin) * i / 4;
+      ctx.textAlign = 'right'; ctx.fillText(yv.toFixed(0), pad.l - 5, yOf(yv) + 4);
+    }
+    for (let i = 0; i <= 4; i++) {
+      const xv = xMin + (xMax - xMin) * i / 4;
+      ctx.textAlign = 'center'; ctx.fillText(xv.toFixed(0), xOf(xv), pad.t + iH + 15);
+    }
+    // Axis labels
+    ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('差值 (A - B)', 0, 0); ctx.restore();
+    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('两方法均值', pad.l + iW / 2, H - 4);
+    // Points
+    delta.forEach((d, i) => {
+      const x = xOf(mean[i]);
+      const y = yOf(d);
+      ctx.fillStyle = Math.abs(d) > 1.96 * sd ? '#e74c3c' : '#3498db';
+      ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+    });
+    // Stats
+    document.getElementById(id + '-stats').textContent =
+      'mean=' + meanVal.toFixed(2) + '  |  SD=' + sd.toFixed(2) + '  |  95%LoA: [' +
+      (meanVal - 1.96 * sd).toFixed(2) + ', ' + (meanVal + 1.96 * sd).toFixed(2) + ']';
+  }
+
+  // ── 漏斗图（Meta 分析发表偏倚） ─────────────────────────
+  // <div class="stat-viz" data-type="funnel" data-title="漏斗图" data-effects="[0.65,1.12,0.88,1.33,0.95,1.05,0.78,1.20,0.91,1.08]" data-se="[0.18,0.15,0.22,0.12,0.19,0.16,0.24,0.14,0.20,0.17]" data-labels="['研究1','研究2','研究3']"></div>
+  function renderFunnel(el) {
+    const id = 'funnel-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '漏斗图 (发表偏倚检测)';
+    let effects = el.dataset.effects ? JSON.parse(el.dataset.effects) : [0.65, 1.12, 0.88, 1.33, 0.95, 1.05, 0.78, 1.20, 0.91, 1.08, 0.72, 1.15];
+    let ses = el.dataset.se ? JSON.parse(el.dataset.se) : [0.18, 0.15, 0.22, 0.12, 0.19, 0.16, 0.24, 0.14, 0.20, 0.17, 0.21, 0.13];
+    const W = 500, H = 380;
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas></div>';
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const pad = {t: 35, r: 25, b: 50, l: 55};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    // Sort by SE (precision) for funnel shape
+    const combined = effects.map((e, i) => ({ e, se: ses[i] })).sort((a, b) => a.se - b.se);
+    const maxSE = Math.max(...ses) * 1.1;
+    const minSE = Math.min(...ses) * 0.9;
+    const xMin = -0.8, xMax = 2.0;
+    const yMin = 0, yMax = maxSE;
+    const xOf = v => pad.l + ((v - xMin) / (xMax - xMin)) * iW;
+    const yOf = v => pad.t + ((v - yMin) / (yMax - yMin)) * iH;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+    // 95% CI funnel boundaries (pseudo-significance threshold)
+    const topSE = maxSE;
+    const slope = 1.96 / topSE;
+    // Draw funnel area
+    ctx.fillStyle = 'rgba(52, 152, 219, 0.08)';
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(0));
+    ctx.lineTo(xOf(1.96 * topSE), yOf(topSE));
+    ctx.lineTo(xOf(-1.96 * topSE), yOf(topSE));
+    ctx.closePath(); ctx.fill();
+    // Mean effect line
+    const meanEffect = effects.reduce((a, b) => a + b, 0) / effects.length;
+    ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(xOf(meanEffect), pad.t); ctx.lineTo(xOf(meanEffect), pad.t + iH); ctx.stroke();
+    ctx.fillStyle = '#27ae60'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('合并效应', xOf(meanEffect), pad.t - 8);
+    // Pseudo-confidence limits
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
+    for (const mult of [1, 1.5, 2]) {
+      const seRef = topSE / mult;
+      const left = meanEffect - 1.96 * seRef;
+      const right = meanEffect + 1.96 * seRef;
+      ctx.beginPath(); ctx.moveTo(xOf(left), yOf(seRef)); ctx.lineTo(xOf(right), yOf(seRef)); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('效应量 (OR/RR)', pad.l + iW / 2, H - 4);
+    ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('标准误 (精度↑)', 0, 0); ctx.restore();
+    for (let i = 0; i <= 4; i++) {
+      const vv = xMin + (xMax - xMin) * i / 4;
+      ctx.textAlign = 'center'; ctx.fillText(vv.toFixed(1), xOf(vv), pad.t + iH + 15);
+    }
+    // Points
+    combined.forEach(({ e, se }) => {
+      const px = xOf(e), py = yOf(se);
+      const inCI = Math.abs(e - meanEffect) < 1.96 * se;
+      ctx.fillStyle = inCI ? '#3498db' : '#e74c3c';
+      ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
+    });
   }
 
   // 暴露给外部调用（app.js 在 loadChapter 完成后调用）
