@@ -658,6 +658,7 @@ PC1=0.521*Sepal.Length-0.269*Sepal.Width+0.580*Petal.Length+0.565*Petal.Width
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 2.91849782 0.91403047 0.14675688 0.02071484</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>特征值</strong>反映了每个主成分所包含的信息量，特征值越大，说明对应的主成分能解释原始数据的方差越多，也就越重要。在选择主成分时，通常会根据特征值的大小，选取特征值大于1或者累积方差贡献率达到一定阈值（如80%或90%）的主成分，以实现数据降维的目的。</p>
+<div class="stat-viz" data-type="pca" data-title="PCA Scree Plot" data-eigenvalues="[4.23, 2.15, 1.38, 0.85, 0.42, 0.21, 0.18, 0.12, 0.09, 0.07]"></div>
 <p>查看主成分得分，主成分的得分是将原始数据投影到主成分上得到的值。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 样本得分score</span></span>

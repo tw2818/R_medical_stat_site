@@ -837,6 +837,379 @@
     draw();
   }
 
+  // ── PCA 碎石图 ─────────────────────────────────────
+  // <div class="stat-viz" data-type="pca" data-eigenvalues="[4.2, 2.1, 1.3, 0.8, 0.4, 0.2]"></div>
+  function renderScreePlot(el) {
+    let eigenvalues = [];
+    try {
+      eigenvalues = JSON.parse(el.dataset.eigenvalues || '[]');
+    } catch(e) { eigenvalues = []; }
+    
+    if (!eigenvalues.length) {
+      el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 PCA 碎石图</span></div><p style="padding:20px;color:#666;">请提供特征值数据 (data-eigenvalues)</p></div>';
+      return;
+    }
+
+    const W = 600, H = 300;
+    const totalVar = eigenvalues.reduce((a,b)=>a+b,0);
+    const cumulative = [];
+    eigenvalues.reduce((sum, v) => { sum += v; cumulative.push(sum); return sum; }, 0);
+    const cumPct = cumulative.map(s => s / totalVar * 100);
+    const kaiserCount = eigenvalues.filter(v => v > 1).length;
+
+    const card = document.createElement('div');
+    card.className = 'viz-card';
+    card.innerHTML = `
+      <div class="viz-header"><span>📊 PCA 碎石图 (Kaiser: ${kaiserCount}个主成分)</span><button class="viz-reset" title="重置">↺</button></div>
+      <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
+      <div class="viz-legend">
+        <span class="legend-item" style="border-color:#569cd6">— 特征值</span>
+        <span class="legend-item" style="border-color:#c586c0">— 累积方差%</span>
+        <span class="legend-item" style="border-color:#f9826c;border-style:dashed">— Kaiser 准则 (λ=1)</span>
+      </div>
+      <div class="viz-subtitle">总方差解释: ${cumPct[cumPct.length-1].toFixed(1)}%</div>
+    `;
+    el.appendChild(card);
+
+    const canvas = card.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(30,30,30,0.03)';
+      ctx.fillRect(0, 0, W, H);
+
+      const pad = { left: 50, right: 20, top: 20, bottom: 40 };
+      const plotW = W - pad.left - pad.right;
+      const plotH = H - pad.top - pad.bottom;
+      const n = eigenvalues.length;
+      const maxEv = Math.max(...eigenvalues, 1);
+      const barW = plotW / n * 0.6;
+      const gap = plotW / n * 0.4;
+
+      const sx = i => pad.left + i * (barW + gap) + gap/2;
+      const syEv = v => pad.top + plotH - (v / (maxEv * 1.15)) * plotH;
+      const syCum = p => pad.top + plotH - (p / 100) * plotH;
+
+      // Kaiser 线
+      const kaiserY = syEv(1);
+      ctx.strokeStyle = '#f9826c';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(pad.left, kaiserY);
+      ctx.lineTo(pad.left + plotW, kaiserY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#f9826c';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('λ=1 (Kaiser)', pad.left + plotW - 75, kaiserY - 5);
+
+      // 绘制柱子和标签
+      ctx.textAlign = 'center';
+      eigenvalues.forEach((ev, i) => {
+        const x = sx(i);
+        const barH = syEv(0) - syEv(ev);
+        const pct = ev / totalVar * 100;
+        const colorIntensity = 0.3 + 0.7 * (cumPct[i] / 100);
+        ctx.fillStyle = `rgba(86, 156, 214, ${colorIntensity})`;
+        ctx.fillRect(x, syEv(ev), barW, barH);
+        
+        // PC 标签
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(`PC${i+1}`, x + barW/2, pad.top + plotH + 18);
+        // 特征值
+        ctx.font = '10px sans-serif';
+        ctx.fillText(ev.toFixed(2), x + barW/2, syEv(ev) - 4);
+        // 累积方差%
+        ctx.fillStyle = '#c586c0';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`${cumPct[i].toFixed(0)}%`, x + barW/2, syCum(cumPct[i]) - 4);
+
+        // Kaiser 标记
+        if (ev > 1) {
+          ctx.fillStyle = '#4ec9b0';
+          ctx.beginPath();
+          ctx.arc(x + barW/2, syEv(ev) - 10, 4, 0, Math.PI*2);
+          ctx.fill();
+        }
+      });
+
+      // 累积方差折线
+      ctx.beginPath();
+      ctx.strokeStyle = '#c586c0';
+      ctx.lineWidth = 2;
+      eigenvalues.forEach((ev, i) => {
+        const x = sx(i) + barW/2;
+        const y = syCum(cumPct[i]);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // 圆点
+      eigenvalues.forEach((ev, i) => {
+        const x = sx(i) + barW/2;
+        const y = syCum(cumPct[i]);
+        ctx.fillStyle = '#c586c0';
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      // Y轴标签
+      ctx.fillStyle = '#569cd6';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('特征值', 15, pad.top + 15);
+      ctx.fillStyle = '#c586c0';
+      ctx.fillText('累积%', 15, pad.top + 30);
+    }
+
+    draw();
+  }
+
+  // ── ANOVA 组间差异比较 ─────────────────────────────
+  // <div class="stat-viz" data-type="anova" data-means="[10.5,13.2,15.8]" data-sds="[2.1,2.4,1.9]" data-ns="[30,30,30]" data-labels='["低剂量","中剂量","高剂量"]'></div>
+  function renderANOVA(el) {
+    let means = [], sds = [], ns = [], labels = [];
+    try { means = JSON.parse(el.dataset.means || '[]'); } catch(e) {}
+    try { sds = JSON.parse(el.dataset.sds || '[]'); } catch(e) {}
+    try { ns = JSON.parse(el.dataset.ns || '[]'); } catch(e) {}
+    try { labels = JSON.parse(el.dataset.labels || '[]'); } catch(e) {}
+    
+    if (!means.length) {
+      el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA 组间差异比较</span></div><p style="padding:20px;color:#666;">请提供组数据</p></div>';
+      return;
+    }
+
+    const W = 600, H = 320;
+    const k = means.length;
+    const se = sds.map((s, i) => s / Math.sqrt(ns[i]));
+    const dfWithin = ns.reduce((a,b)=>a+b,0) - k;
+    const alpha = 0.05;
+
+    // 计算 ANOVA 表
+    const grandMean = means.reduce((s, m, i) => s + m * ns[i], 0) / ns.reduce((a,b)=>a+b, 0);
+    const ssBetween = means.reduce((s, m, i) => s + ns[i] * (m - grandMean)**2, 0);
+    const ssWithin = sds.reduce((s, sd, i) => s + (ns[i]-1) * sd**2, 0);
+    const msBetween = ssBetween / (k - 1);
+    const msWithin = ssWithin / dfWithin;
+    const Fstat = msBetween / msWithin;
+    let pVal = NaN;
+    if (window.jStat && window.jStat.ftest) {
+      pVal = 1 - jStat.ftest.cdf(Fstat, k-1, dfWithin);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'viz-card';
+    card.innerHTML = `
+      <div class="viz-header"><span>📊 ${el.dataset.title || '组间差异比较'}</span></div>
+      <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
+      <div class="viz-table"></div>
+    `;
+    el.appendChild(card);
+
+    const canvas = card.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(30,30,30,0.03)';
+      ctx.fillRect(0, 0, W, H);
+
+      const pad = { left: 60, right: 20, top: 30, bottom: 50 };
+      const plotW = W - pad.left - pad.right;
+      const plotH = H - pad.top - pad.bottom;
+      const barW = plotW / k * 0.5;
+      const gap = plotW / k * 0.5;
+
+      const maxY = Math.max(...means.map((m, i) => m + 1.96 * se[i])) * 1.15;
+      const sx = i => pad.left + i * (barW + gap) + gap/2;
+      const sy = v => pad.top + plotH - (v / maxY) * plotH;
+
+      // 网格
+      ctx.strokeStyle = 'rgba(128,128,128,0.12)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const y = pad.top + (plotH/5)*i;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + plotW, y); ctx.stroke();
+      }
+
+      // 误差棒 (95% CI)
+      means.forEach((m, i) => {
+        const x = sx(i) + barW/2;
+        const ciLow = m - 1.96 * se[i];
+        const ciHigh = m + 1.96 * se[i];
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, sy(ciLow)); ctx.lineTo(x, sy(ciHigh));
+        ctx.moveTo(x - 6, sy(ciLow)); ctx.lineTo(x + 6, sy(ciLow));
+        ctx.moveTo(x - 6, sy(ciHigh)); ctx.lineTo(x + 6, sy(ciHigh));
+        ctx.stroke();
+
+        // 柱子
+        const color = `hsl(${200 + i * 30}, 60%, 55%)`;
+        ctx.fillStyle = color;
+        ctx.fillRect(sx(i), sy(m), barW, sy(0) - sy(m));
+
+        // 均值标签
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`$\\bar{x}=${m.toFixed(2)}$`, sx(i) + barW/2, sy(m) - 10);
+
+        // 组名
+        ctx.font = '11px sans-serif';
+        ctx.fillText(labels[i] || `组${i+1}`, sx(i) + barW/2, pad.top + plotH + 18);
+      });
+
+      // Y轴
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + plotH); ctx.lineTo(pad.left + plotW, pad.top + plotH);
+      ctx.stroke();
+    }
+
+    draw();
+
+    // ANOVA 表
+    const tableEl = card.querySelector('.viz-table');
+    const sig = !isNaN(pVal) && pVal < 0.05;
+    tableEl.innerHTML = `
+      <table class="anova-table">
+        <tr><th>变异来源</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>P</th></tr>
+        <tr><td>组间</td><td>${ssBetween.toFixed(3)}</td><td>${k-1}</td><td>${msBetween.toFixed(3)}</td><td>${Fstat.toFixed(3)}</td><td class="${sig?'sig':'ns'}">${isNaN(pVal)?'—':(pVal < 0.001?'< 0.001':pVal.toFixed(4))}</td></tr>
+        <tr><td>组内</td><td>${ssWithin.toFixed(3)}</td><td>${dfWithin}</td><td>${msWithin.toFixed(3)}</td><td>—</td><td>—</td></tr>
+      </table>
+    `;
+  }
+
+  // ── F 分布探索器 ─────────────────────────────────
+  // <div class="stat-viz" data-type="fdist" data-df1="2" data-df2="87"></div>
+  function renderFDist(el) {
+    const df1 = parseInt(el.dataset.df1 || '2');
+    const df2 = parseInt(el.dataset.df2 || '87');
+    const W = 600, H = 280;
+    const alpha = 0.05;
+
+    const card = document.createElement('div');
+    card.className = 'viz-card';
+    card.innerHTML = `
+      <div class="viz-header"><span>📈 F 分布与 ANOVA (α=0.05)</span><button class="viz-reset" title="重置">↺</button></div>
+      <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
+      <div class="viz-sliders">
+        <label>df1 = <span class="viz-val" data-for="df1">${df1}</span>
+          <input type="range" class="viz-slider" data-param="df1" min="1" max="20" step="1" value="${df1}">
+        </label>
+        <label>df2 = <span class="viz-val" data-for="df2">${df2}</span>
+          <input type="range" class="viz-slider" data-param="df2" min="1" max="100" step="1" value="${df2}">
+        </label>
+      </div>
+      <div class="viz-stats">
+        <span>F临界值 = <strong data-fcrit>—</strong></span>
+        <span>拒绝域面积 = <strong>5%</strong></span>
+      </div>
+    `;
+    el.appendChild(card);
+
+    const canvas = card.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function fPdf(x, d1, d2) {
+      if (window.jStat && window.jStat.ftest) return window.jStat.ftest.pdf(x, d1, d2);
+      // Fallback approximation
+      if (x <= 0) return 0;
+      const c = d1 > 0 && d2 > 0 ? (d1*x)**d1 * d2**d2 / (d1*x + d2)**(d1+d2) : 0;
+      return c / x * (1 / jStat.beta ? jStat.beta.fn(d1/2, d2/2) : 1);
+    }
+
+    function draw(d1, d2) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(30,30,30,0.03)';
+      ctx.fillRect(0, 0, W, H);
+
+      // 计算 F 临界值
+      let fCrit = 3.0;
+      if (window.jStat && window.jStat.ftest) {
+        fCrit = jStat.ftest.inv(1 - alpha, d1, d2);
+      }
+      card.querySelector('[data-fcrit]').textContent = fCrit.toFixed(3);
+
+      const xMin = 0, xMax = Math.max(5, fCrit * 2.5);
+      const maxY = fPdf(0.5, d1, d2) * 1.3;
+      const sx = x => (x - xMin) / (xMax - xMin) * W;
+      const sy = y => H - (y / maxY) * H * 0.8 - 15;
+
+      // 画曲线
+      ctx.beginPath();
+      ctx.strokeStyle = '#569cd6';
+      ctx.lineWidth = 2.5;
+      for (let px = 0; px <= W; px++) {
+        const x = xMin + (px/W)*(xMax-xMin);
+        const y = fPdf(x, d1, d2);
+        const cx = px, cy = sy(y);
+        px === 0 ? ctx.moveTo(cx,cy) : ctx.lineTo(cx,cy);
+      }
+      ctx.stroke();
+
+      // 填充拒绝域
+      ctx.beginPath();
+      let started = false;
+      for (let px = 0; px <= W; px++) {
+        const x = xMin + (px/W)*(xMax-xMin);
+        if (x < fCrit) continue;
+        const y = fPdf(x, d1, d2);
+        if (!started) { ctx.moveTo(px, sy(y)); started = true; }
+        else ctx.lineTo(px, sy(y));
+      }
+      ctx.lineTo(W, H); ctx.lineTo(sx(fCrit), H); ctx.closePath();
+      ctx.fillStyle = 'rgba(214, 105, 105, 0.35)';
+      ctx.fill();
+
+      // F 临界线
+      const cxCrit = sx(fCrit);
+      ctx.strokeStyle = '#f9826c';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(cxCrit, 0); ctx.lineTo(cxCrit, H); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#f9826c';
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(`F* = ${fCrit.toFixed(2)}`, Math.min(cxCrit + 6, W - 80), 16);
+
+      // 坐标轴
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(pad.left || 0, 0); ctx.lineTo(pad.left || 0, H); ctx.lineTo(W, H);
+      ctx.stroke();
+    }
+
+    draw(df1, df2);
+
+    card.querySelectorAll('.viz-slider').forEach(slider => {
+      slider.addEventListener('input', () => {
+        const param = slider.dataset.param;
+        const val = parseInt(slider.value);
+        card.querySelector(`[data-for="${param}"]`).textContent = val;
+        const d1 = parseInt(card.querySelector('[data-param="df1"]').value);
+        const d2 = parseInt(card.querySelector('[data-param="df2"]').value);
+        draw(d1, d2);
+      });
+    });
+
+    card.querySelector('.viz-reset').addEventListener('click', () => {
+      card.querySelector('[data-param="df1"]').value = df1;
+      card.querySelector('[data-param="df2"]').value = df2;
+      card.querySelector('[data-for="df1"]').textContent = df1;
+      card.querySelector('[data-for="df2"]').textContent = df2;
+      draw(df1, df2);
+    });
+  }
+
   // ── 主入口 ─────────────────────────────────────────
   function init() {
     document.querySelectorAll('.stat-viz, .stat-calc').forEach(el => {
@@ -849,6 +1222,9 @@
         else if (el.dataset.type === 'scatter') renderScatterPlot(el);
         else if (el.dataset.type === 'ttest') renderTTest(el);
         else if (el.dataset.type === 'chisq') renderChiSq(el);
+        else if (el.dataset.type === 'pca') renderScreePlot(el);
+        else if (el.dataset.type === 'anova') renderANOVA(el);
+        else if (el.dataset.type === 'fdist') renderFDist(el);
       } catch(e) { console.error('stats-viz error:', e); }
     });
   }
@@ -869,6 +1245,9 @@
                   else if (el.dataset.type === 'scatter') renderScatterPlot(el);
                   else if (el.dataset.type === 'ttest') renderTTest(el);
                   else if (el.dataset.type === 'chisq') renderChiSq(el);
+                  else if (el.dataset.type === 'pca') renderScreePlot(el);
+                  else if (el.dataset.type === 'anova') renderANOVA(el);
+                  else if (el.dataset.type === 'fdist') renderFDist(el);
                 } catch(e) { console.error('stats-viz error:', e); }
               }
             });

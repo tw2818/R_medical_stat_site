@@ -290,7 +290,7 @@ function updateProgress() {
 }
 
 // ===== Toast =====
-function showToast(msg) {
+window.showToast = function showToast(msg) {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
   const toast = document.createElement('div');
@@ -302,7 +302,7 @@ function showToast(msg) {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 300);
   }, 2000);
-}
+};
 
 // ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
