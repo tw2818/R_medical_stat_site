@@ -2157,6 +2157,7 @@
     else if (type === 'samplesizecalc') renderSampleSizeCalc(el);
     else if (type === 'normtest') renderNormTest(el);
     else if (type === 'interaction') renderFactorialInteraction(el);
+    else if (type === 'sem') renderSEMPath(el);
   }
 
   // ============================================================
@@ -3817,6 +3818,119 @@
     ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
     ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
     ctx.fillText('均值', 0, 0); ctx.restore();
+  }
+
+  // ── SEM 路径图 ─────────────────────────────────────────
+  // <div class="stat-viz" data-type="sem"></div>
+  function renderSEMPath(el) {
+    const id = 'sem-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'SEM 路径分析示意图';
+    const W = 580, H = 340;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">🔷 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">
+        潜变量 X → Y 路径分析 | 圆圈为潜变量，方框为观测变量
+      </div>
+    </div>`;
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    // Layout: X on left, Y on right, three indicators each
+    const lvx = 100, lvy = W - 120;  // latent variable centers
+    const midY = H / 2;
+    const iY = [90, midY, H - 90];   // indicator Y positions
+    const jY = [90, midY, H - 90];
+
+    // Title
+    ctx.fillStyle = '#222'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W/2, 22);
+
+    // Helper to draw oval (latent var)
+    function drawLatent(x, y, label, isY) {
+      ctx.strokeStyle = isY ? '#9b59b6' : '#2980b9';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 32, 22, 0, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.fillStyle = isY ? 'rgba(155,89,182,0.08)' : 'rgba(41,128,185,0.08)';
+      ctx.fill();
+      ctx.fillStyle = isY ? '#9b59b6' : '#2980b9';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y + 5);
+    }
+
+    // Helper to draw box (indicator)
+    function drawIndicator(x, y, label) {
+      const bw = 36, bh = 22;
+      ctx.strokeStyle = '#555';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x - bw/2, y - bh/2, bw, bh);
+      ctx.fillStyle = '#f8f8f8';
+      ctx.fillRect(x - bw/2, y - bh/2, bw, bh);
+      ctx.fillStyle = '#333';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y + 4);
+    }
+
+    // Draw arrows
+    function arrow(x1, y1, x2, y2, label, curved) {
+      const dx = x2 - x1, dy = y2 - y1;
+      const angle = Math.atan2(dy, dx);
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const r1 = 34, r2 = 24; // approximate radii
+      const startX = x1 + Math.cos(angle) * r1, startY = y1 + Math.sin(angle) * r1;
+      const endX = x2 - Math.cos(angle) * (r2 + 6), endY = y2 - Math.sin(angle) * (r2 + 6);
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (curved) {
+        const mx = (startX + endX) / 2, my = (startY + endY) / 2 - 20;
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(mx, my, endX, endY);
+      } else {
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+      }
+      ctx.stroke();
+      // Arrowhead
+      const ah = 8;
+      ctx.beginPath();
+      ctx.moveTo(endX, endY);
+      ctx.lineTo(endX - ah*Math.cos(angle-0.4), endY - ah*Math.sin(angle-0.4));
+      ctx.moveTo(endX, endY);
+      ctx.lineTo(endX - ah*Math.cos(angle+0.4), endY - ah*Math.sin(angle+0.4));
+      ctx.stroke();
+      // Label
+      if (label) {
+        const mx = (startX+endX)/2, my = (startY+endY)/2 - (curved ? 8 : 5);
+        ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(label, mx, my);
+      }
+    }
+
+    // Indicators X (left)
+    const xLabels = ['X₁', 'X₂', 'X₃'];
+    iY.forEach((y, i) => { drawIndicator(lvx - 80, y, xLabels[i]); });
+    // Indicators Y (right)
+    const yLabels = ['Y₁', 'Y₂', 'Y₃'];
+    jY.forEach((y, i) => { drawIndicator(lvy + 80, y, yLabels[i]); });
+
+    // Latent variables
+    drawLatent(lvx, midY, 'ξ', false);  // Xi
+    drawLatent(lvy, midY, 'η', true);   // Eta
+
+    // Arrows: indicators to latent
+    iY.forEach((y, i) => { arrow(lvx - 80, y, lvx, midY, i === 1 ? 'λ' : null, false); });
+    jY.forEach((y, i) => { arrow(lvy, midY, lvy + 80, y, null, false); });
+    // Path: Xi -> Eta
+    arrow(lvx, midY, lvy, midY, 'γ', true);
+
+    // Label below
+    ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('ξ = 外生潜变量  |  η = 内生潜变量', W/2, H - 10);
   }
 
   // 暴露给外部调用（app.js 在 loadChapter 完成后调用）
