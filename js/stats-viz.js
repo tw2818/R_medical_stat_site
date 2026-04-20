@@ -2173,6 +2173,9 @@
     else if (type === 'bar') renderBarChart(el);
     else if (type === 'pie') renderPieChart(el);
     else if (type === 'metaforest') renderMetaForest(el);
+    else if (type === 'gauge') renderGaugeChart(el);
+    else if (type === 'sankey') renderSankey(el);
+    else if (type === 'spine') renderSpinePlot(el);
   }
 
   // ============================================================
@@ -4949,5 +4952,258 @@
     ctx.fillText('需治人数越低，治疗效果越好', padL, H - 10);
     ctx.textAlign = 'right'; ctx.fillStyle = '#e74c3c';
     ctx.fillText('● NNT', W - 10, H - 10);
+  }
+
+  // ============================================================
+  // Gauge Chart (Risk Stratification)
+  // ============================================================
+  function renderGaugeChart(el) {
+    const id = 'gauge-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '风险分层仪表盘';
+    const value = parseFloat(el.dataset.value || '50');
+    const min = parseFloat(el.dataset.min || '0');
+    const max = parseFloat(el.dataset.max || '100');
+    const unit = el.dataset.unit || '%';
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="360" height="220" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 360, H = 220;
+    const cx = W / 2, cy = H - 50;
+    const radius = 100;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 20);
+
+    // Arc segments (green-yellow-red)
+    const startAngle = Math.PI, endAngle = 0;
+    const segs = [
+      { from: Math.PI, to: Math.PI * 0.66, color: '#2ecc71' },
+      { from: Math.PI * 0.66, to: Math.PI * 0.33, color: '#f39c12' },
+      { from: Math.PI * 0.33, to: 0, color: '#e74c3c' }
+    ];
+    segs.forEach(seg => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, seg.from, seg.to, true);
+      ctx.strokeStyle = seg.color;
+      ctx.lineWidth = 18;
+      ctx.lineCap = 'butt';
+      ctx.stroke();
+    });
+
+    // Tick marks
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 10; i++) {
+      const a = Math.PI - (i / 10) * Math.PI;
+      const inner = radius - 12, outer = radius + 6;
+      ctx.beginPath();
+      ctx.moveTo(cx + inner * Math.cos(a), cy + inner * Math.sin(a));
+      ctx.lineTo(cx + outer * Math.cos(a), cy + outer * Math.sin(a));
+      ctx.stroke();
+      // Labels
+      const v = Math.round(min + (i / 10) * (max - min));
+      ctx.fillStyle = '#555'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(v, cx + (outer + 12) * Math.cos(a), cy + (outer + 12) * Math.sin(a));
+    }
+
+    // Needle
+    const norm = Math.max(0, Math.min(1, (value - min) / (max - min)));
+    const needleAngle = Math.PI - norm * Math.PI;
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + (radius - 20) * Math.cos(needleAngle), cy + (radius - 20) * Math.sin(needleAngle));
+    ctx.stroke();
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Value display
+    ctx.fillStyle = '#2980b9'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(value + unit, cx, cy - 30);
+  }
+
+  // ============================================================
+  // Sankey Diagram (Flow / Transition)
+  // ============================================================
+  function renderSankey(el) {
+    const id = 'sankey-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '患者状态转移流向图';
+    // data-nodes: comma-separated labels
+    // data-links: format "source->target:value,source->target:value"
+    const nodes = (el.dataset.nodes || '入院,在院,转院,出院,死亡').split(',');
+    const linksRaw = (el.dataset.links || '入院->在院:120,入院->转院:30,入院->出院:80,入院->死亡:20,在院->出院:80,在院->转院:25,在院->死亡:15,转院->出院:20,转院->死亡:5,出院->在院:10').split(',');
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <svg id="${id}" width="520" height="300" style="display:block;margin:0 auto;"></svg>
+    </div>`;
+
+    const svg = document.getElementById(id);
+    const W = 520, H = 300;
+    const padL = 50, padR = 50, padT = 30, padB = 30;
+    const nodeCount = nodes.length;
+    const nodeH = (H - padT - padB) / nodeCount;
+    const nodeW = 24;
+    const levels = 3; // source | middle | target
+
+    // Assign levels: first 2 = source, middle, last 2 = target
+    const nodeLevels = [];
+    const mid = Math.floor(nodeCount / 2);
+    nodes.forEach((_, i) => {
+      if (i < mid) nodeLevels.push(0);
+      else if (i === mid) nodeLevels.push(1);
+      else nodeLevels.push(2);
+    });
+
+    const xPos = (level) => padL + level * ((W - padL - padR - nodeW) / 2);
+
+    // Draw links (curved paths)
+    const linkData = linksRaw.map(l => {
+      const [fromTo, val] = l.split(':');
+      const [src, tgt] = fromTo.split('->');
+      return { source: parseInt(src), target: parseInt(tgt), value: parseFloat(val) };
+    });
+    const maxVal = Math.max(...linkData.map(d => d.value));
+
+    linkData.forEach(link => {
+      const x1 = xPos(nodeLevels[link.source]) + nodeW;
+      const y1 = padT + nodeH * link.source + nodeH / 2;
+      const x2 = xPos(nodeLevels[link.target]);
+      const y2 = padT + nodeH * link.target + nodeH / 2;
+      const midX = (x1 + x2) / 2;
+      const op = 0.3 + 0.5 * (link.value / maxVal);
+      const color = `rgba(52,152,219,${op})`;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', color);
+      path.setAttribute('stroke-width', Math.max(2, (link.value / maxVal) * 12));
+      svg.appendChild(path);
+
+      // Label on link
+      if (link.value > maxVal * 0.2) {
+        const labelX = midX;
+        const labelY = (y1 + y2) / 2;
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', labelX);
+        text.setAttribute('y', labelY - 4);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '10');
+        text.setAttribute('fill', '#555');
+        text.textContent = link.value;
+        svg.appendChild(text);
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach((node, i) => {
+      const x = xPos(nodeLevels[i]);
+      const y = padT + nodeH * i;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y + 2);
+      rect.setAttribute('width', nodeW);
+      rect.setAttribute('height', nodeH - 4);
+      rect.setAttribute('rx', 4);
+      const colors = ['#3498db', '#f39c12', '#2ecc71'];
+      rect.setAttribute('fill', colors[nodeLevels[i]]);
+      svg.appendChild(rect);
+
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', nodeLevels[i] === 1 ? x + nodeW / 2 : (nodeLevels[i] === 0 ? x + nodeW + 6 : x - 6));
+      text.setAttribute('y', y + nodeH / 2 + 4);
+      text.setAttribute('text-anchor', nodeLevels[i] === 2 ? 'end' : 'start');
+      text.setAttribute('font-size', '12');
+      text.setAttribute('fill', '#333');
+      text.textContent = node;
+      svg.appendChild(text);
+    });
+  }
+
+  // ============================================================
+  // Spine Plot (Ordinal Categorical Data)
+  // ============================================================
+  function renderSpinePlot(el) {
+    const id = 'spine-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '有序分类资料脊形图';
+    // data-categories: comma-separated category labels (ordered)
+    // data-props: comma-separated proportions for each category (sum to 1)
+    const categories = (el.dataset.categories || '痊愈,显效,好转,无效').split(',');
+    const rawProps = (el.dataset.props || '0.25,0.35,0.28,0.12').split(',').map(Number);
+    const props = rawProps.map(p => Math.max(0, Math.min(1, p)));
+    const colors = ['#27ae60', '#3498db', '#f39c12', '#e74c3c'];
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="480" height="260" style="display:block;margin:0 auto;"></canvas>
+      <div id="${id}-legend" style="text-align:center;margin-top:8px;font-size:12px;color:#555;"></div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 480, H = 260;
+    const padL = 60, padR = 20, padT = 40, padB = 50;
+    const plotW = W - padL - padR;
+    const totalH = H - padT - padB;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // Y axis label
+    ctx.save(); ctx.translate(14, padT + totalH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('累积比例', 0, 0); ctx.restore();
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padT + (i / 4) * totalH;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Spine bars (horizontal stacked)
+    const barH = Math.min(36, totalH / categories.length * 0.6);
+    const gap = (totalH - barH * categories.length) / (categories.length + 1);
+
+    categories.forEach((cat, i) => {
+      const barY = padT + gap + i * (barH + gap);
+      const barW = props[i] * plotW * 0.9;
+      const barX = padL + plotW * 0.05;
+
+      // Background track
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fillRect(barX, barY, plotW * 0.9, barH);
+
+      // Filled portion
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillRect(barX, barY, barW, barH);
+
+      // Category label (left)
+      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(cat, padL - 8, barY + barH / 2 + 4);
+
+      // Proportion label
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      if (barW > 30) ctx.fillText((props[i] * 100).toFixed(1) + '%', barX + barW / 2, barY + barH / 2 + 4);
+    });
+
+    // Y axis ticks
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const y = padT + (i / 4) * totalH;
+      ctx.fillText((i / 4 * 100).toFixed(0) + '%', padL - 6, y + 4);
+    }
   }
 })();
