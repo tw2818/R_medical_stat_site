@@ -9,7 +9,7 @@ let codePanelOpen = false;
 const GROUP_CONFIG = [
   { key: 'basic', el: 'basic-chapters', label: '基础统计分析' },
   { key: 'advanced', el: 'advanced-chapters', label: '高级统计分析' },
-  { key: 'literature', el: 'literature-chapters', label: '文献常见统计分析' },
+  { key: 'literature', el: 'other-chapters', label: '文献常见统计分析' },
   { key: 'other', el: 'other-chapters', label: '其他合集' },
 ];
 
@@ -48,490 +48,277 @@ function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   if (isDark) {
     document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('rstat_theme', 'light');
   } else {
     document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('rstat_theme', 'dark');
   }
+  localStorage.setItem('rstat_theme', isDark ? 'light' : 'dark');
   updateThemeToggle();
 }
 
-// ===== 导航构建 =====
+// ===== 导航 =====
 function buildNav() {
-  GROUP_CONFIG.forEach(g => {
-    const countEl = $(g.key + '-count');
-    if (countEl) countEl.textContent = `0/${CHAPTERS[g.key].length}`;
+  GROUP_CONFIG.forEach(({ key, el }) => {
+    const container = $(el);
+    if (!container) return;
+    container.innerHTML = '';
+    const list = CHAPTERS[key] || [];
+    list.forEach((ch, i) => {
+      const a = document.createElement('a');
+      a.className = 'chapter-link';
+      a.href = '#';
+      a.dataset.group = key;
+      a.dataset.index = i;
+      a.textContent = ch.title;
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        navigateToChapter(key, i);
+      });
+      container.appendChild(a);
+    });
+  });
+  updateChapterCount();
+}
 
-    const header = document.querySelector(`[data-group="${g.key}"]`);
-    if (!header) return;
+function updateChapterCount() {
+  GROUP_CONFIG.forEach(({ key }) => {
+    const list = CHAPTERS[key] || [];
+    const countEl = $(`${key}-count`);
+    if (countEl) countEl.textContent = `0/${list.length}`;
+  });
+}
+
+function navigateToChapter(groupKey, index) {
+  const list = CHAPTERS[groupKey] || [];
+  if (!list[index]) return;
+
+  currentGroup = groupKey;
+  currentIndex = index;
+  const chapter = list[index];
+
+  // 更新侧边栏激活状态
+  document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));
+  const activeLink = document.querySelector(`.chapter-link[data-group="${groupKey}"][data-index="${index}"]`);
+  if (activeLink) activeLink.classList.add('active');
+
+  // 更新顶部标题
+  const titleEl = $('current-chapter-title');
+  if (titleEl) titleEl.textContent = chapter.title;
+
+  // 加载章节内容
+  loadChapter(chapter.file);
+
+  // 关闭侧边栏（移动端）
+  const sidebar = $('sidebar');
+  if (sidebar) sidebar.classList.remove('open');
+  updateProgress();
+}
+
+async function loadChapter(filename) {
+  const wrapper = $('chapter-content');
+  const welcome = $('welcome');
+  if (!wrapper) return;
+
+  welcome && welcome.classList.remove('active');
+  wrapper.innerHTML = '<div class="loading">加载中...</div>';
+  wrapper.classList.add('active');
+
+  try {
+    const resp = await fetch(`data/${filename}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    let html = await resp.text();
+
+    // 注入复制按钮到代码块
+    html = injectCopyButtons(html);
+
+    wrapper.innerHTML = html;
+
+    // 渲染完成后注入交互
+    Prism.highlightAll();
+    setupChapterInteractions(wrapper);
+
+    // 更新章节计数
+    updateChapterCount();
+    updateNavGroupExpansion();
+  } catch (err) {
+    wrapper.innerHTML = `<div class="error">加载失败：${err.message}</div>`;
+  }
+}
+
+function injectCopyButtons(html) {
+  // 为每个 pre.sourceCode 注入复制按钮
+  return html.replace(
+    /(<pre class="sourceCode[^"]*">)/g,
+    '<div class="code-block-wrapper">$1'
+  ).replace(
+    /(<pre class="sourceCode[^">]*">)/g,
+    '<div class="code-block-wrapper"><button class="code-copy-btn" title="复制代码" onclick="copyCodeBlock(this)">📋 复制</button>$1'
+  ).replace(
+    /<\/pre>/g,
+    '</pre></div>'
+  );
+}
+
+function updateNavGroupExpansion() {
+  if (!currentGroup) return;
+  // 自动展开当前分组
+  GROUP_CONFIG.forEach(({ key }) => {
+    const btn = document.querySelector(`.nav-group-header[data-group="${key}"]`);
+    const content = document.getElementById(`${key}-chapters`);
+    if (btn && content) {
+      const isExpanded = key === currentGroup;
+      btn.setAttribute('aria-expanded', String(isExpanded));
+      content.style.display = isExpanded ? 'block' : 'none';
+    }
+  });
+}
+
+// ===== 代码复制 =====
+window.copyCodeBlock = function(btn) {
+  const pre = btn.nextElementSibling;
+  if (!pre || !pre.tagName === 'PRE') return;
+  const code = pre.querySelector('code');
+  const text = code ? code.textContent : pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.textContent;
+    btn.textContent = '✅ 已复制';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('copied');
+    }, 1500);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✅ 已复制';
+    setTimeout(() => { btn.textContent = '📋 复制'; }, 1500);
+  });
+};
+
+function copyCode(btn) {
+  const code = decodeURIComponent(btn.dataset.code || '');
+  if (!code) return;
+  navigator.clipboard.writeText(code).then(() => {
+    showToast('代码已复制');
+  });
+}
+
+// ===== 章节内交互（锚点、代码块等）=====
+function setupChapterInteractions(container) {
+  // 展开/折叠章节
+  container.querySelectorAll('.callout[data-callout]').forEach(el => {
+    el.classList.add('callout-collapsed');
+    const header = document.createElement('div');
+    header.className = 'callout-header';
+    const type = el.dataset.callout;
+    header.innerHTML = `<span>${type === 'warning' ? '⚠️' : type === 'note' ? 'ℹ️' : '📌'} ${type}</span><span class="callout-toggle">▶</span>`;
     header.addEventListener('click', () => {
-      const content = header.nextElementSibling;
-      const isOpen = header.classList.toggle('open');
-      content.classList.toggle('open', isOpen);
-      header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      el.classList.toggle('callout-collapsed');
+      const toggle = header.querySelector('.callout-toggle');
+      if (toggle) toggle.textContent = el.classList.contains('callout-collapsed') ? '▶' : '▼';
     });
+    el.insertBefore(header, el.firstChild);
+  });
 
-    const container = $(g.el);
-    CHAPTERS[g.key].forEach((ch, i) => {
-      const item = document.createElement('button');
-      item.type = 'button';
-      item.className = 'nav-item';
-      item.dataset.group = g.key;
-      item.dataset.index = i;
-      item.setAttribute('aria-label', `${ch.num}. ${ch.title}`);
-      item.innerHTML = `<span class="nav-num">${ch.num}</span><span>${ch.title}</span>`;
-      item.addEventListener('click', () => loadChapter(g.key, i));
-      container.appendChild(item);
-    });
+  // 折叠细节标签
+  container.querySelectorAll('details').forEach(d => {
+    if (!d.querySelector('summary')) {
+      const summary = document.createElement('summary');
+      summary.textContent = '详情';
+      d.insertBefore(summary, d.firstChild);
+    }
   });
 }
 
 // ===== 搜索 =====
 function initSearch() {
   const input = $('search-input');
-  const results = $('search-results');
-
-  const selectSearchResult = (item) => {
-    const group = item.dataset.group;
-    const idx = parseInt(item.dataset.index, 10);
-    const actualIdx = CHAPTERS[group].findIndex(c => c.id === ALL_CHAPTERS[idx].id);
-    if (actualIdx >= 0) loadChapter(group, actualIdx);
-    results.classList.remove('show');
-    input.value = '';
-  };
-
+  if (!input) return;
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
-    if (!q) { results.classList.remove('show'); return; }
-    const matches = ALL_CHAPTERS.filter(c =>
-      c.title.toLowerCase().includes(q) ||
-      c.num.toLowerCase().includes(q) ||
-      c.groupName.toLowerCase().includes(q) ||
-      c.id.toLowerCase().includes(q)
-    );
-    if (!matches.length) { results.classList.remove('show'); return; }
-    results.innerHTML = matches.map(m =>
-      `<button type="button" class="search-result-item" role="option" data-group="${m.group}" data-index="${ALL_CHAPTERS.indexOf(m)}">${m.num} · ${m.title} <small style="opacity:.5">— ${m.groupName}</small></button>`
+    const results = $('search-results');
+    if (!results) return;
+    if (!q) { results.innerHTML = ''; return; }
+    const matches = ALL_CHAPTERS.filter(ch =>
+      ch.title.toLowerCase().includes(q)
+    ).slice(0, 8);
+    if (!matches.length) { results.innerHTML = '<div class="search-empty">无结果</div>'; return; }
+    results.innerHTML = matches.map(ch =>
+      `<a href="#" class="search-result" data-group="${ch.group}" data-index="${ch.index}">${ch.title}</a>`
     ).join('');
-    results.classList.add('show');
-    results.querySelectorAll('.search-result-item').forEach(item => {
-      item.addEventListener('click', () => selectSearchResult(item));
-      item.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          selectSearchResult(item);
-        }
+    results.querySelectorAll('.search-result').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const { group, index } = a.dataset;
+        navigateToChapter(group, parseInt(index));
+        input.value = '';
+        results.innerHTML = '';
       });
     });
   });
-  document.addEventListener('click', e => {
-    if (!input.contains(e.target) && !results.contains(e.target)) results.classList.remove('show');
-  });
+  input.addEventListener('blur', () => setTimeout(() => { if (results) results.innerHTML = ''; }, 200));
 }
 
-// ===== 章节加载 =====
-async function loadChapter(group, index) {
-  const chapters = CHAPTERS[group];
-  if (!chapters || index < 0 || index >= chapters.length) return;
-  const ch = chapters[index];
-  currentGroup = group;
-  currentIndex = index;
-  window.location.hash = encodeURIComponent(ch.id);
-
-  // 高亮
-  document.querySelectorAll('.nav-item').forEach(el => {
-    el.classList.remove('active');
-    el.setAttribute('aria-current', 'false');
-  });
-  document.querySelectorAll(`.nav-item[data-group="${group}"][data-index="${index}"]`).forEach(el => {
-    el.classList.add('active');
-    el.setAttribute('aria-current', 'page');
-  });
-
-  // 更新顶部栏
-  $('current-chapter-title').textContent = `${ch.num}. ${ch.title}`;
-
-  // 切换可见章节
-  $('welcome').classList.remove('active');
-  $('chapter-content').classList.add('active');
-
-  // 渲染加载状态
-  $('chapter-content').innerHTML = '<div class="content-block"><div style="text-align:center;padding:40px"><div class="loading-spinner"></div><br>正在加载章节内容...</div></div>';
-
-  try {
-    // 优先从本地缓存读取，否则远程获取
-    let html;
-    const localPath = `data/${ch.id}.html`;
-    try {
-      const resp = await fetch(localPath);
-      if (resp.ok) {
-        html = await resp.text();
-      } else {
-        throw new Error('local not found');
-      }
-    } catch {
-      const resp = await fetch(ch.url);
-      html = await resp.text();
-    }
-
-    const content = parseChapterHTML(html, ch, group);
-    $('chapter-content').innerHTML = content;
-    currentChapterData = content;
-    saveProgress(ch.id);
-
-    // 预填代码到编辑器
-    const firstCode = $('chapter-content').querySelector('pre code');
-    if (firstCode) {
-      $('code-editor').value = firstCode.textContent;
-    }
-
-    // 渲染代码高亮
-    Prism.highlightAll();
-
-    // 绑定代码块按钮
-    bindCodeBlockActions();
-
-    // 滚动到顶部
-    $('content-wrapper').scrollTop = 0;
-  } catch (err) {
-    $('chapter-content').innerHTML = `<div class="content-block"><h3>❌ 加载失败</h3><p>无法加载章节内容：${ch.title}</p><p>错误：${err.message}</p><button class='btn-primary' onclick='loadChapter("${group}",${index})'>重试</button></div>`;
-  }
-
-  // 关闭移动端侧边栏
-  $('sidebar').classList.remove('open');
+// ===== 进度 =====
+function updateProgress() {
+  const total = getTotalChapterCount();
+  const text = $('progress-text');
+  if (text) text.textContent = `0/${total}`;
+  const fill = $('progress-fill');
+  if (fill) fill.style.width = '0%';
 }
-
-// ===== HTML 解析（核心）====
-function parseChapterHTML(html, ch, group) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  // 移除不必要元素
-  doc.querySelectorAll('nav, footer, header, .navbar, .sidebar, script, style, iframe, .related-chapters, .edit-link, .pagination').forEach(el => el.remove());
-
-  // 提取标题
-  const h1 = doc.querySelector('h1') || doc.querySelector('h2') || doc.querySelector('h3');
-  const title = h1 ? h1.textContent.trim() : ch.title;
-  const categoryMap = { basic: '📈 基础统计分析', advanced: '🔬 高级统计分析', literature: '📚 文献常见统计分析', other: '📎 其他合集' };
-  const category = categoryMap[group] || '其他';
-
-  // 构建输出
-  let body = '';
-  const main = doc.querySelector('main') || doc.body;
-  const contentEls = main.children;
-
-  for (const el of contentEls) {
-    const tag = el.tagName.toLowerCase();
-    const text = el.textContent.trim();
-
-    if (!text || text.length < 5) continue;
-
-    // 标题层级
-    if (tag === 'h1' && !text.includes('R语言实战医学统计')) {
-      body += `<h2>${text}</h2>`;
-    } else if (tag === 'h2') {
-      body += `<h3>${text}</h3>`;
-    } else if (tag === 'h3' || tag === 'h4') {
-      body += `<h4>${text}</h4>`;
-    }
-    // 段落
-    else if (tag === 'p') {
-      body += `<p>${processInline(el.innerHTML)}</p>`;
-    }
-    // 列表
-    else if (tag === 'ul' || tag === 'ol') {
-      const items = Array.from(el.querySelectorAll('li')).map(li => `<li>${processInline(li.innerHTML)}</li>`).join('');
-      body += tag === 'ul' ? `<ul>${items}</ul>` : `<ol>${items}</ol>`;
-    }
-    // 预格式化
-    else if (tag === 'pre') {
-      const code = el.querySelector('code') || el;
-      const lang = detectLang(code);
-      const codeText = code.textContent;
-      const escaped = escapeHtml(codeText);
-      body += `
-<div class="code-block">
-  <div class="code-block-header">
-    <span class="code-lang">${lang.toUpperCase()}</span>
-    <div class="code-block-actions">
-      <button onclick="runCode(\`${encodeURIComponent(codeText)}\`)">▶️ 运行</button>
-      <button onclick="copyCode(this)" data-code="${encodeURIComponent(codeText)}">📋 复制</button>
-    </div>
-  </div>
-  <pre class="line-numbers"><code class="language-${lang}">${escaped}</code></pre>
-</div>`;
-    }
-    // 表格
-    else if (tag === 'table') {
-      body += parseTable(el);
-    }
-    // 图片
-    else if (tag === 'img') {
-      const src = el.getAttribute('src') || '';
-      const alt = el.getAttribute('alt') || '';
-      if (src && !src.startsWith('data:')) {
-        const fullSrc = src.startsWith('http') ? src : new URL(src, ch.url).href;
-        body += `<img src="${fullSrc}" alt="${alt}" style="max-width:100%;border-radius:8px;margin:12px 0;">`;
-      }
-    }
-    // 块引用
-    else if (tag === 'blockquote') {
-      body += `<blockquote style="border-left:4px solid var(--primary);padding:8px 16px;margin:12px 0;background:var(--bg);border-radius:0 8px 8px 0">${processInline(el.innerHTML)}</blockquote>`;
-    }
-    // hr
-    else if (tag === 'hr') {
-      body += '<hr style="border:none;border-top:1px solid var(--border);margin:20px 0">';
-    }
-    // 其他块级元素
-    else if (['div', 'section', 'article'].includes(tag)) {
-      const inner = el.innerHTML.trim();
-      if (inner.length > 20) {
-        body += `<div>${processInline(inner)}</div>`;
-      }
-    }
-  }
-
-  // 组装完整页面
-  const prevCh = currentIndex > 0 ? CHAPTERS[group][currentIndex - 1] : null;
-  const nextCh = currentIndex < CHAPTERS[group].length - 1 ? CHAPTERS[group][currentIndex + 1] : null;
-  const groupNum = CHAPTERS[group]?.length || 1;
-  const done = getProgress();
-  const doneCount = Object.keys(done).length;
-
-  return `
-<div class="chapter-header">
-  <div class="chapter-category">${category}</div>
-  <h2>${title}</h2>
-  <div class="chapter-meta">第${ch.num}章 · 共${groupNum}章 · 已学习 ${doneCount} 章</div>
-</div>
-<div class="chapter-nav-btns">
-  ${prevCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex-1})">← 上一章：${prevCh.num}. ${prevCh.title}</button>` : '<span></span>'}
-  ${nextCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex+1})">下一章：${nextCh.num}. ${nextCh.title} →</button>` : '<span></span>'}
-</div>
-${body}
-<div class="chapter-nav-btns" style="margin-top:32px">
-  ${prevCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex-1})">← 上一章：${prevCh.num}. ${prevCh.title}</button>` : '<span></span>'}
-  ${nextCh ? `<button class="chapter-nav-btn" onclick="loadChapter('${group}',${currentIndex+1})">下一章：${nextCh.num}. ${nextCh.title} →</button>` : '<span></span>'}
-</div>
-<div style="text-align:center;margin-top:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
-  <p style="font-size:0.82rem;color:var(--text-muted)">📢 本内容改编自 <strong>阿越就是我</strong> 的《R语言实战医学统计》，采用 CC BY-SA 4.0 许可证发布。</p>
-  <p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px">教材：孙振球主编《医学统计学》第5版</p>
-</div>`;
-}
-
-function processInline(html) {
-  return html
-    .replace(/<code>(.*?)<\/code>/gi, '<code>$1</code>')
-    .replace(/<strong>(.*?)<\/strong>/gi, '<strong>$1</strong>')
-    .replace(/<em>(.*?)<\/em>/gi, '<em>$1</em>')
-    .replace(/<a href="([^"]+)">(.*?)<\/a>/gi, '<a href="$1" target="_blank">$2</a>')
-    .replace(/<br\s*\/?>/gi, '<br>')
-    .trim();
-}
-
-function detectLang(codeEl) {
-  const cls = codeEl.className || '';
-  if (cls.includes('language-r') || cls.includes('lang-r')) return 'r';
-  if (cls.includes('python')) return 'python';
-  if (cls.includes('bash') || cls.includes('shell')) return 'bash';
-  if (cls.includes('css')) return 'css';
-  if (cls.includes('js') || cls.includes('javascript')) return 'javascript';
-  return 'r'; // 默认R语言
-}
-
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-    .replace(/`/g, '&#96;');
-}
-
-function parseTable(table) {
-  const rows = table.querySelectorAll('tr');
-  if (!rows.length) return '';
-  const headers = Array.from(rows[0].querySelectorAll('th, td')).map(h => h.textContent.trim());
-  const dataRows = Array.from(rows).slice(1).map(tr =>
-    Array.from(tr.querySelectorAll('td')).map(d => d.textContent.trim())
-  );
-
-  let html = '<div class="table-wrapper"><table>';
-  html += '<thead><tr>' + headers.map((h, i) => `<th>${i === 0 ? `<strong>${h}</strong>` : h}</th>`).join('') + '</tr></thead>';
-  html += '<tbody>';
-  dataRows.forEach(row => {
-    html += '<tr>' + row.map((d, i) => `<td>${d}</td>`).join('') + '</tr>';
-  });
-  html += '</tbody></table></div>';
-  return html;
-}
-
-// ===== 代码块按钮 =====
-function bindCodeBlockActions() {
-  document.querySelectorAll('.code-block-actions button').forEach(btn => {
-    if (btn.textContent.includes('运行')) {
-      btn.style.display = 'none'; // 隐藏个别运行按钮，统一用底部面板
-    }
-  });
-}
-
-// ===== 运行代码 =====
-async function runCode(encodedCode) {
-  const code = decodeURIComponent(encodedCode);
-  return executeCode(code);
-}
-
-async function executeCode(code) {
-  const output = $('code-output');
-  const runBtn = $('run-code-btn');
-  if (!code.trim()) return;
-
-  $('code-editor').value = code;
-  if (!codePanelOpen) toggleCodePanel();
-  output.innerHTML = '<span style="color:#888">运行中...</span>\n';
-  runBtn.disabled = true;
-
-  try {
-    if (!window.webRReady || !window.webRInstance) {
-      output.innerHTML = '<span class="error">❌ WebR 未就绪，请刷新页面</span>';
-      return;
-    }
-    const webR = window.webRInstance;
-
-    let result = '';
-    let shelter = null;
-    try {
-      shelter = await new webR.Shelter();
-      const resultObj = await shelter.captureR(code, {
-        captureOutput: true,
-        withAutoprint: true
-      });
-      const outputLines = [];
-      for (const line of resultObj.output) {
-        if (line && line.type === 'stdout') {
-          outputLines.push(escapeHtml(line.data || ''));
-        } else if (line && line.type === 'error') {
-          outputLines.push(`<span class="error">❌ ${escapeHtml(line.data || JSON.stringify(line))}</span>`);
-        }
-      }
-      result = outputLines.join('\n');
-      shelter.purge();
-    } catch (e) {
-      if (shelter) { shelter.purge(); }
-      result = `<span class="error">❌ 执行错误：${escapeHtml(e.message)}</span>`;
-    }
-
-    if (result) {
-      output.innerHTML = result;
-    } else {
-      output.innerHTML = '<span class="success">✅ 代码执行完成</span>';
-    }
-  } catch (err) {
-    output.innerHTML = `<span class="error">❌ 执行错误：${escapeHtml(err.message)}</span>`;
-  } finally {
-    runBtn.disabled = false;
-  }
-}
-
-function copyCode(btn) {
-  const code = decodeURIComponent(btn.dataset.code || '');
-  navigator.clipboard.writeText(code).then(() => {
-    showToast('代码已复制');
-  });
-}
-
-$('copy-code-btn')?.addEventListener('click', () => {
-  const code = $('code-editor').value;
-  navigator.clipboard.writeText(code).then(() => showToast('已复制到剪贴板'));
-});
-$('copy-output-btn')?.addEventListener('click', () => {
-  const text = $('code-output').textContent;
-  navigator.clipboard.writeText(text).then(() => showToast('输出已复制'));
-});
-$('clear-output-btn')?.addEventListener('click', () => {
-  $('code-output').innerHTML = '<span style="color:#555">输出区域</span>';
-});
-$('run-code-btn')?.addEventListener('click', () => executeCode($('code-editor').value));
-
-// ===== 代码面板 =====
-function toggleCodePanel() {
-  codePanelOpen = !codePanelOpen;
-  $('code-panel').classList.toggle('hidden', !codePanelOpen);
-  $('toggle-code-panel').textContent = codePanelOpen ? '✕' : '📝';
-  $('toggle-code-panel').setAttribute('aria-label', codePanelOpen ? '关闭代码面板' : '打开代码面板');
-}
-$('toggle-code-panel')?.addEventListener('click', toggleCodePanel);
-$('close-panel-btn')?.addEventListener('click', () => {
-  if (codePanelOpen) toggleCodePanel();
-});
-
-// 快捷键
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
-    executeCode($('code-editor').value);
-  }
-  if (e.key === 'Escape' && codePanelOpen) toggleCodePanel();
-});
-
-// ===== 移动端 =====
-$('menu-toggle')?.addEventListener('click', () => {
-  const sidebar = $('sidebar');
-  sidebar.classList.toggle('open');
-  sidebar.classList.toggle('overlay', sidebar.classList.contains('open'));
-});
 
 // ===== Toast =====
 function showToast(msg) {
-  let toast = document.querySelector('.toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.setAttribute('role', 'status');
-    toast.setAttribute('aria-live', 'polite');
-    document.body.appendChild(toast);
-  }
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
   toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
-}
-
-// ===== 导航到章节（外部调用）=====
-window.navigateToChapter = function(group, index) {
-  // 展开导航组
-  const header = document.querySelector(`[data-group="${group}"]`);
-  if (header) { header.classList.add('open'); header.nextElementSibling?.classList.add('open'); }
-  loadChapter(group, index);
-};
-window.loadChapter = loadChapter;
-window.runCode = runCode;
-window.executeCode = executeCode;
-window.copyCode = copyCode;
-window.toggleCodePanel = toggleCodePanel;
-window.toggleTheme = toggleTheme;
-
-function loadInitialChapterFromHash() {
-  const raw = decodeURIComponent(window.location.hash.replace(/^#/, '').trim());
-  if (!raw) return;
-  const target = ALL_CHAPTERS.find(ch => ch.id === raw);
-  if (!target) return;
-  const targetIndex = CHAPTERS[target.group].findIndex(ch => ch.id === target.id);
-  if (targetIndex >= 0) window.navigateToChapter(target.group, targetIndex);
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
 }
 
 // ===== 初始化 =====
-function init() {
+document.addEventListener('DOMContentLoaded', () => {
   initTheme();
-  updateStaticCounts();
   buildNav();
   initSearch();
-  updateProgressBar();
-  // Sync toggle button with actual panel state
-  $('toggle-code-panel').textContent = '📝';
-  $('toggle-code-panel').setAttribute('aria-label', '打开代码面板');
-  $('theme-toggle')?.addEventListener('click', toggleTheme);
-  loadInitialChapterFromHash();
-}
 
-document.addEventListener('DOMContentLoaded', init);
+  // 主题切换
+  const themeBtn = $('theme-toggle');
+  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
+  // 移动端菜单
+  const menuToggle = $('menu-toggle');
+  const sidebar = $('sidebar');
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    sidebar.addEventListener('click', e => {
+      if (e.target === sidebar) sidebar.classList.remove('open');
+    });
+  }
+
+  // 分组展开/折叠
+  document.querySelectorAll('.nav-group-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.group;
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+      const content = document.getElementById(`${group}-chapters`);
+      if (content) content.style.display = expanded ? 'none' : 'block';
+    });
+  });
+
+  updateProgress();
+  updateStaticCounts();
+});

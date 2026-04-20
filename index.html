@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>R语言实战医学统计 - 交互式教程</title>
-  <meta name="description" content="面向医学科研人员的交互式 R 语言统计教程，完全复现孙振球《医学统计学》第5版例题，支持浏览器内直接运行 R 代码。涵盖 t检验、方差分析、Logistic回归、生存分析等 46 个专题。">
-  <meta property="og:title" content="R语言实战医学统计 - 交互式教程">
-  <meta property="og:description" content="在浏览器中直接运行 R 代码，无需安装任何软件。配套孙振球《医学统计学》第5版，46 个专题全覆盖。">
+  <title>R语言实战医学统计 - R 语言统计教程</title>
+  <meta name="description" content="面向医学科研人员的 R 语言统计教程，完全复现孙振球《医学统计学》第5版例题。涵盖 t检验、方差分析、Logistic回归、生存分析等 46 个专题，配有预渲染输出和可复制代码。">
+  <meta property="og:title" content="R语言实战医学统计">
+  <meta property="og:description" content="配套孙振球《医学统计学》第5版，46 个专题全覆盖，配可复制代码与预渲染结果。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://r-medical-stat-site.vercel.app">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -85,7 +85,7 @@
             <div class="welcome-badges">
               <span class="badge">🎯 <span id="welcome-total-count">46</span> 个专题</span>
               <span class="badge">📖 孙振球《医学统计学》第5版</span>
-              <span class="badge">⚡ 交互式代码运行</span>
+              <span class="badge">📋 代码可复制</span>
               <span class="badge">💾 免费开源</span>
             </div>
           </div>
@@ -121,10 +121,10 @@
             <h2>✨ 教程特色</h2>
             <div class="feature-list">
               <div class="feature-item">
-                <span class="feature-icon">▶️</span>
+                <span class="feature-icon">📋</span>
                 <div>
-                  <h4>交互式代码运行</h4>
-                  <p>在浏览器中直接运行 R 代码，无需安装任何软件</p>
+                  <h4>代码一键复制</h4>
+                  <p>每段 R 代码均可一键复制到剪贴板，在本地 RStudio 中运行</p>
                 </div>
               </div>
               <div class="feature-item">
@@ -170,17 +170,11 @@
       </div>
     </main>
 
-    <!-- 代码运行面板 -->
+    <!-- 代码面板（纯复制模式）-->
     <div id="code-panel" class="hidden">
       <div class="panel-header">
-        <span class="panel-title">📝 R 代码运行区</span>
+        <span class="panel-title">📝 R 代码</span>
         <div class="panel-actions">
-          <button class="btn-run" id="run-code-btn" title="运行代码 (Ctrl+Enter / ⌘+Enter)">
-            ▶️ 运行
-          </button>
-          <button class="btn-clear" id="clear-output-btn" title="清除输出">
-            🗑️ 清除
-          </button>
           <button class="btn-copy" id="copy-code-btn" title="复制代码">
             📋 复制
           </button>
@@ -191,17 +185,15 @@
       </div>
       <div class="panel-body">
         <div id="code-editor-wrapper">
-          <textarea id="code-editor" spellcheck="false" placeholder="在这里输入 R 代码..."></textarea>
+          <textarea id="code-editor" spellcheck="false" placeholder="点击章节中的「📋 复制」按钮复制代码，或在此粘贴代码..."></textarea>
         </div>
         <div class="output-header">
-          <span>📤 输出结果</span>
-          <button class="btn-copy-output" id="copy-output-btn">📋 复制</button>
+          <span>💡 在本地 RStudio 中粘贴运行即可</span>
         </div>
         <div id="code-output"></div>
       </div>
       <div class="panel-footer">
-        <span class="webr-status" id="webr-status">⚙️ 初始化 WebR...</span>
-        <span class="shortcut-hint">Ctrl+Enter / ⌘+Enter 运行</span>
+        <span class="shortcut-hint">代码已预渲染，复制后本地运行</span>
       </div>
     </div>
 
@@ -212,7 +204,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-r.min.js"></script>
-  <script src="js/webr-init.js"></script>
   <script src="js/chapters.js"></script>
   <script src="js/app.js"></script>
 </body>
