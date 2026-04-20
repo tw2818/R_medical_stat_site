@@ -6,54 +6,79 @@ let currentIndex = 0;
 let currentChapterData = null;
 let codePanelOpen = false;
 
+const GROUP_CONFIG = [
+  { key: 'basic', el: 'basic-chapters', label: '基础统计分析' },
+  { key: 'advanced', el: 'advanced-chapters', label: '高级统计分析' },
+  { key: 'literature', el: 'literature-chapters', label: '文献常见统计分析' },
+  { key: 'other', el: 'other-chapters', label: '其他合集' },
+];
+
 // ===== DOM =====
 const $ = id => document.getElementById(id);
+
+function getTotalChapterCount() {
+  return ALL_CHAPTERS.length;
+}
+
+function updateStaticCounts() {
+  GROUP_CONFIG.forEach(({ key }) => {
+    const count = CHAPTERS[key].length;
+    const cardCount = $(`${key}-card-count`);
+    if (cardCount) cardCount.textContent = `${count}章`;
+  });
+
+  const totalEl = $('welcome-total-count');
+  if (totalEl) totalEl.textContent = getTotalChapterCount();
+}
 
 // ===== 主题 =====
 function initTheme() {
   const saved = localStorage.getItem('rstat_theme');
   if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  updateThemeToggle();
+}
+function updateThemeToggle() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const btn = $('theme-toggle');
+  if (!btn) return;
+  btn.textContent = isDark ? '☀️' : '🌙';
+  btn.setAttribute('aria-label', isDark ? '切换浅色模式' : '切换深色模式');
 }
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   if (isDark) {
     document.documentElement.removeAttribute('data-theme');
     localStorage.setItem('rstat_theme', 'light');
-    $('theme-toggle').textContent = '🌙';
   } else {
     document.documentElement.setAttribute('data-theme', 'dark');
     localStorage.setItem('rstat_theme', 'dark');
-    $('theme-toggle').textContent = '☀️';
   }
+  updateThemeToggle();
 }
 
 // ===== 导航构建 =====
 function buildNav() {
-  const groups = [
-    { key: 'basic', el: 'basic-chapters', label: '基础统计分析', count: CHAPTERS.basic.length },
-    { key: 'advanced', el: 'advanced-chapters', label: '高级统计分析', count: CHAPTERS.advanced.length },
-    { key: 'literature', el: 'literature-chapters', label: '文献常见统计分析', count: CHAPTERS.literature.length },
-    { key: 'other', el: 'other-chapters', label: '其他合集', count: CHAPTERS.other.length },
-  ];
-
-  groups.forEach(g => {
+  GROUP_CONFIG.forEach(g => {
     const countEl = $(g.key + '-count');
-    if (countEl) countEl.textContent = `0/${g.count}`;
+    if (countEl) countEl.textContent = `0/${CHAPTERS[g.key].length}`;
 
     const header = document.querySelector(`[data-group="${g.key}"]`);
     if (!header) return;
     header.addEventListener('click', () => {
       const content = header.nextElementSibling;
-      header.classList.toggle('open');
-      content.classList.toggle('open');
+      const isOpen = header.classList.toggle('open');
+      content.classList.toggle('open', isOpen);
+      header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
     const container = $(g.el);
     CHAPTERS[g.key].forEach((ch, i) => {
-      const item = document.createElement('div');
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'nav-item';
       item.dataset.group = g.key;
       item.dataset.index = i;
+      item.setAttribute('aria-label', `${ch.num}. ${ch.title}`);
       item.innerHTML = `<span class="nav-num">${ch.num}</span><span>${ch.title}</span>`;
       item.addEventListener('click', () => loadChapter(g.key, i));
       container.appendChild(item);
@@ -65,25 +90,37 @@ function buildNav() {
 function initSearch() {
   const input = $('search-input');
   const results = $('search-results');
+
+  const selectSearchResult = (item) => {
+    const group = item.dataset.group;
+    const idx = parseInt(item.dataset.index, 10);
+    const actualIdx = CHAPTERS[group].findIndex(c => c.id === ALL_CHAPTERS[idx].id);
+    if (actualIdx >= 0) loadChapter(group, actualIdx);
+    results.classList.remove('show');
+    input.value = '';
+  };
+
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
     if (!q) { results.classList.remove('show'); return; }
     const matches = ALL_CHAPTERS.filter(c =>
-      c.title.toLowerCase().includes(q) || c.num.includes(q)
+      c.title.toLowerCase().includes(q) ||
+      c.num.toLowerCase().includes(q) ||
+      c.groupName.toLowerCase().includes(q) ||
+      c.id.toLowerCase().includes(q)
     );
     if (!matches.length) { results.classList.remove('show'); return; }
     results.innerHTML = matches.map(m =>
-      `<div class="search-result-item" data-group="${m.group}" data-index="${ALL_CHAPTERS.indexOf(m)}">${m.num} · ${m.title} <small style="opacity:.5">— ${m.groupName}</small></div>`
+      `<button type="button" class="search-result-item" role="option" data-group="${m.group}" data-index="${ALL_CHAPTERS.indexOf(m)}">${m.num} · ${m.title} <small style="opacity:.5">— ${m.groupName}</small></button>`
     ).join('');
     results.classList.add('show');
     results.querySelectorAll('.search-result-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const group = item.dataset.group;
-        const idx = parseInt(item.dataset.index);
-        const actualIdx = CHAPTERS[group].findIndex(c => c.id === ALL_CHAPTERS[idx].id);
-        if (actualIdx >= 0) loadChapter(group, actualIdx);
-        results.classList.remove('show');
-        input.value = '';
+      item.addEventListener('click', () => selectSearchResult(item));
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectSearchResult(item);
+        }
       });
     });
   });
@@ -99,10 +136,17 @@ async function loadChapter(group, index) {
   const ch = chapters[index];
   currentGroup = group;
   currentIndex = index;
+  window.location.hash = encodeURIComponent(ch.id);
 
   // 高亮
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll(`.nav-item[data-group="${group}"][data-index="${index}"]`).forEach(el => el.classList.add('active'));
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.remove('active');
+    el.setAttribute('aria-current', 'false');
+  });
+  document.querySelectorAll(`.nav-item[data-group="${group}"][data-index="${index}"]`).forEach(el => {
+    el.classList.add('active');
+    el.setAttribute('aria-current', 'page');
+  });
 
   // 更新顶部栏
   $('current-chapter-title').textContent = `${ch.num}. ${ch.title}`;
@@ -250,7 +294,7 @@ function parseChapterHTML(html, ch, group) {
   // 组装完整页面
   const prevCh = currentIndex > 0 ? CHAPTERS[group][currentIndex - 1] : null;
   const nextCh = currentIndex < CHAPTERS[group].length - 1 ? CHAPTERS[group][currentIndex + 1] : null;
-  const groupNum = { basic: 13, advanced: 23, literature: 11, other: 1 }[group] || 1;
+  const groupNum = CHAPTERS[group]?.length || 1;
   const done = getProgress();
   const doneCount = Object.keys(done).length;
 
@@ -411,6 +455,7 @@ function toggleCodePanel() {
   codePanelOpen = !codePanelOpen;
   $('code-panel').classList.toggle('hidden', !codePanelOpen);
   $('toggle-code-panel').textContent = codePanelOpen ? '✕' : '📝';
+  $('toggle-code-panel').setAttribute('aria-label', codePanelOpen ? '关闭代码面板' : '打开代码面板');
 }
 $('toggle-code-panel')?.addEventListener('click', toggleCodePanel);
 $('close-panel-btn')?.addEventListener('click', () => {
@@ -439,6 +484,8 @@ function showToast(msg) {
   if (!toast) {
     toast = document.createElement('div');
     toast.className = 'toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
@@ -460,13 +507,24 @@ window.copyCode = copyCode;
 window.toggleCodePanel = toggleCodePanel;
 window.toggleTheme = toggleTheme;
 
+function loadInitialChapterFromHash() {
+  const raw = decodeURIComponent(window.location.hash.replace(/^#/, '').trim());
+  if (!raw) return;
+  const target = ALL_CHAPTERS.find(ch => ch.id === raw);
+  if (!target) return;
+  const targetIndex = CHAPTERS[target.group].findIndex(ch => ch.id === target.id);
+  if (targetIndex >= 0) window.navigateToChapter(target.group, targetIndex);
+}
+
 // ===== 初始化 =====
 function init() {
   initTheme();
+  updateStaticCounts();
   buildNav();
   initSearch();
   updateProgressBar();
   $('theme-toggle')?.addEventListener('click', toggleTheme);
+  loadInitialChapterFromHash();
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>R语言实战医学统计 - 交互式教程</title>
-  <meta name="description" content="面向医学科研人员的交互式 R 语言统计教程，完全复现孙振球《医学统计学》第5版例题，支持浏览器内直接运行 R 代码。涵盖 t检验、方差分析、Logistic回归、生存分析等 47 个章节。">
+  <meta name="description" content="面向医学科研人员的交互式 R 语言统计教程，完全复现孙振球《医学统计学》第5版例题，支持浏览器内直接运行 R 代码。涵盖 t检验、方差分析、Logistic回归、生存分析等 46 个专题。">
   <meta property="og:title" content="R语言实战医学统计 - 交互式教程">
-  <meta property="og:description" content="在浏览器中直接运行 R 代码，无需安装任何软件。配套孙振球《医学统计学》第5版，47 个章节全覆盖。">
+  <meta property="og:description" content="在浏览器中直接运行 R 代码，无需安装任何软件。配套孙振球《医学统计学》第5版，46 个专题全覆盖。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://r-medical-stat-site.vercel.app">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -23,35 +23,35 @@
         <h1>📊 R语言实战医学统计</h1>
         <p class="subtitle">交互式教程 · 阿越版</p>
         <div class="search-box">
-          <input type="text" id="search-input" placeholder="搜索章节或关键词..." autocomplete="off">
-          <div id="search-results"></div>
+          <input type="text" id="search-input" placeholder="搜索章节或关键词..." autocomplete="off" aria-label="搜索章节或关键词">
+          <div id="search-results" role="listbox" aria-label="搜索结果"></div>
         </div>
       </div>
       <nav id="chapter-nav">
         <!-- 基础统计分析 -->
         <div class="nav-group">
-          <button class="nav-group-header" data-group="basic">
+          <button class="nav-group-header" data-group="basic" aria-expanded="false" aria-controls="basic-chapters">
             📈 基础统计分析 <span class="chapter-count" id="basic-count">0/13</span>
           </button>
           <div class="nav-group-content" id="basic-chapters"></div>
         </div>
         <!-- 高级统计分析 -->
         <div class="nav-group">
-          <button class="nav-group-header" data-group="advanced">
+          <button class="nav-group-header" data-group="advanced" aria-expanded="false" aria-controls="advanced-chapters">
             🔬 高级统计分析 <span class="chapter-count" id="advanced-count">0/23</span>
           </button>
           <div class="nav-group-content" id="advanced-chapters"></div>
         </div>
         <!-- 文献常见统计分析 -->
         <div class="nav-group">
-          <button class="nav-group-header" data-group="literature">
+          <button class="nav-group-header" data-group="literature" aria-expanded="false" aria-controls="literature-chapters">
             📚 文献常见统计分析 <span class="chapter-count" id="literature-count">0/11</span>
           </button>
           <div class="nav-group-content" id="literature-chapters"></div>
         </div>
         <!-- 其他 -->
         <div class="nav-group">
-          <button class="nav-group-header" data-group="other">
+          <button class="nav-group-header" data-group="other" aria-expanded="false" aria-controls="other-chapters">
             📎 其他合集 <span class="chapter-count" id="other-count">0/1</span>
           </button>
           <div class="nav-group-content" id="other-chapters"></div>
@@ -70,9 +70,9 @@
     <main id="main-content">
       <!-- 顶部导航（移动端） -->
       <header id="topbar">
-        <button id="menu-toggle">☰</button>
+        <button id="menu-toggle" aria-label="打开章节导航">☰</button>
         <span id="current-chapter-title">R语言实战医学统计</span>
-        <button id="theme-toggle">🌙</button>
+        <button id="theme-toggle" aria-label="切换深色模式">🌙</button>
       </header>
 
       <!-- 章节内容 -->
@@ -83,7 +83,7 @@
             <h1>R语言实战医学统计</h1>
             <p class="lead">面向医学科研人员的交互式 R 语言统计教程</p>
             <div class="welcome-badges">
-              <span class="badge">🎯 60+ 章节</span>
+              <span class="badge">🎯 <span id="welcome-total-count">46</span> 个专题</span>
               <span class="badge">📖 孙振球《医学统计学》第5版</span>
               <span class="badge">⚡ 交互式代码运行</span>
               <span class="badge">💾 免费开源</span>
@@ -95,25 +95,25 @@
               <div class="card-icon">📈</div>
               <h3>基础统计分析</h3>
               <p>t检验、方差分析、卡方检验、秩和检验、相关回归等</p>
-              <span class="card-count">13章</span>
+              <span class="card-count" id="basic-card-count">13章</span>
             </div>
             <div class="welcome-card" onclick="navigateToChapter('advanced', 0)">
               <div class="card-icon">🔬</div>
               <h3>高级统计分析</h3>
               <p>多因素方差分析、重复测量、协方差、Logistic回归、生存分析等</p>
-              <span class="card-count">23章</span>
+              <span class="card-count" id="advanced-card-count">23章</span>
             </div>
             <div class="welcome-card" onclick="navigateToChapter('literature', 0)">
               <div class="card-icon">📚</div>
               <h3>文献常见分析</h3>
               <p>倾向评分、竞争风险、亚组分析、森林图、样条回归等</p>
-              <span class="card-count">11章</span>
+              <span class="card-count" id="literature-card-count">11章</span>
             </div>
             <div class="welcome-card" onclick="navigateToChapter('other', 0)">
               <div class="card-icon">📎</div>
               <h3>其他合集</h3>
               <p>更新日志、补充材料</p>
-              <span class="card-count">1章</span>
+              <span class="card-count" id="other-card-count">1章</span>
             </div>
           </div>
 
@@ -175,7 +175,7 @@
       <div class="panel-header">
         <span class="panel-title">📝 R 代码运行区</span>
         <div class="panel-actions">
-          <button class="btn-run" id="run-code-btn" title="运行代码 (Ctrl+Enter)">
+          <button class="btn-run" id="run-code-btn" title="运行代码 (Ctrl+Enter / ⌘+Enter)">
             ▶️ 运行
           </button>
           <button class="btn-clear" id="clear-output-btn" title="清除输出">
@@ -201,12 +201,12 @@
       </div>
       <div class="panel-footer">
         <span class="webr-status" id="webr-status">⚙️ 初始化 WebR...</span>
-        <span class="shortcut-hint">Ctrl+Enter 运行</span>
+        <span class="shortcut-hint">Ctrl+Enter / ⌘+Enter 运行</span>
       </div>
     </div>
 
     <!-- 快捷按钮 -->
-    <button id="toggle-code-panel" title="切换代码面板">📝</button>
+    <button id="toggle-code-panel" title="切换代码面板" aria-label="打开代码面板">📝</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>

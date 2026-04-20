@@ -50,7 +50,6 @@ const CHAPTERS = {
     { id: "1040-rcs", title: "样条回归", url: "https://ayueme.github.io/R_medical_stat/1040-rcs.html", num: "43" },
     { id: "1041-subgroupanalysis", title: "亚组分析及森林图绘制", url: "https://ayueme.github.io/R_medical_stat/1041-subgroupanalysis.html", num: "44" },
     { id: "1042-subgroup1code", title: "亚组分析1行代码实现", url: "https://ayueme.github.io/R_medical_stat/1042-subgroup1code.html", num: "45" },
-    { id: "9999-appendix", title: "其他合集", url: "https://ayueme.github.io/R_medical_stat/9999-appendix.html", num: "46" },
   ],
   other: [
     { id: "9999-appendix", title: "其他合集", url: "https://ayueme.github.io/R_medical_stat/9999-appendix.html", num: "A" },
@@ -83,4 +82,13 @@ function updateProgressBar() {
   const done = Object.keys(p).length;
   document.getElementById('progress-text').textContent = `${done}/${total}`;
   document.getElementById('progress-fill').style.width = `${(done/total*100).toFixed(1)}%`;
+
+  if (typeof GROUP_CONFIG !== 'undefined') {
+    GROUP_CONFIG.forEach(({ key }) => {
+      const groupDone = CHAPTERS[key].filter(ch => p[ch.id]).length;
+      const groupTotal = CHAPTERS[key].length;
+      const countEl = document.getElementById(`${key}-count`);
+      if (countEl) countEl.textContent = `${groupDone}/${groupTotal}`;
+    });
+  }
 }
