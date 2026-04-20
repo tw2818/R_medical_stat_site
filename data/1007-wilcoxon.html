@@ -553,6 +553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">## alternative hypothesis: true location shift is not equal to 0</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果和课本一致！</p>
+<div class="stat-viz" data-type="wilcoxon" data-title="配对样本Wilcoxon符号秩检验（例8-1）"></div>
 <div class="callout callout-style-default callout-warning callout-titled" title="注意">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -620,6 +621,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<div class="stat-viz" data-type="kruskal" data-title="Kruskal-Wallis H 检验（例8-5）"></div>
 <p>进行 Kruskal-Wallis H 检验：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kruskal.test</span>(death_rate <span class="sc">~</span> drug, <span class="at">data =</span> mydata)</span>
@@ -709,6 +711,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<div class="stat-viz" data-type="friedman" data-title="Friedman M 检验示意（例8-9数据结构）"></div>
 <p>进行 Friedman M 检验前先把数据格式转换一下：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(df) <span class="co"># 变成矩阵</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>

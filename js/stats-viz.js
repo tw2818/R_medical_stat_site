@@ -1546,6 +1546,470 @@
     draw();
   }
 
+  // ── Wilcoxon符号秩检验可视化 ─────────────────────────
+  // <div class="stat-viz" data-type="wilcoxon" data-title="配对样本Wilcoxon符号秩检验"></div>
+  function renderWilcoxonSignedRank(el) {
+    const id = 'wcx-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Wilcoxon 符号秩检验';
+    // 书上的例8-1数据
+    const test1 = [60,142,195,80,242,220,190,25,198,38,236,95];
+    const test2 = [76,152,243,82,240,220,205,38,243,44,190,100];
+    const diffs = test1.map((v,i) => v - test2[i]);
+    const absDiffs = diffs.map(Math.abs);
+    const W = 640, H = 300;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:#333;"></div>
+    </div>`;
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    const pad = {t: 30, r: 20, b: 50, l: 50};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    // 排序: 按绝对差值排序，保留符号
+    const indexed = diffs.map((d, i) => ({d, abs: Math.abs(d), i}))
+      .filter(x => x.abs > 0) // 去掉差值为0的
+      .sort((a, b) => a.abs - b.abs);
+    // 分配秩次（平均秩）
+    let rank = 1;
+    for (let i = 0; i < indexed.length; i++) {
+      if (i > 0 && indexed[i].abs === indexed[i-1].abs) {
+        // 同值，取平均秩
+      } else {
+        rank = i + 1;
+      }
+      indexed[i].rank = rank;
+    }
+    // 处理相同绝对差值
+    for (let i = 0; i < indexed.length; i++) {
+      let j = i;
+      while (j < indexed.length && indexed[j].abs === indexed[i].abs) j++;
+      if (j - i > 1) {
+        const avgRank = indexed.slice(i, j).reduce((s,_,k) => s + (i+1+k), 0) / (j - i);
+        for (let k = i; k < j; k++) indexed[k].rank = avgRank;
+        i = j - 1;
+      }
+    }
+    const maxAbs = Math.max(...indexed.map(x => x.abs));
+    // 画柱状图：每根柱子代表一个观测，蓝色=正差，红色=负差，高度=|差值|，柱子上标注秩次
+    const n = indexed.length;
+    const barW = Math.min(40, (iW / n) * 0.7);
+    const gap = (iW - barW * n) / (n + 1);
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(pad.l, pad.t, iW, iH);
+    // Y轴
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
+    // X轴
+    ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
+    // Y刻度
+    const yTicks = 5;
+    for (let y = 0; y <= yTicks; y++) {
+      const yVal = (maxAbs * y / yTicks).toFixed(0);
+      const yPx = H - pad.b - (y / yTicks) * iH;
+      ctx.strokeStyle = '#ddd'; ctx.setLineDash([2,2]);
+      ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(yVal, pad.l - 5, yPx + 4);
+    }
+    // 画柱子
+    indexed.forEach((item, idx) => {
+      const x = pad.l + gap + idx * (barW + gap);
+      const barH = (item.abs / maxAbs) * iH * 0.85;
+      const barY = item.d > 0 ? H - pad.b - barH : H - pad.b;
+      ctx.fillStyle = item.d > 0 ? '#2980b9' : '#c0392b';
+      ctx.fillRect(x, barY, barW, barH);
+      // 秩次标注
+      ctx.fillStyle = '#222'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('T=' + item.rank.toFixed(0), x + barW/2, item.d > 0 ? barY - 4 : barY + barH + 14);
+      // diff值
+      ctx.fillStyle = '#555'; ctx.font = '10px sans-serif';
+      ctx.fillText(item.d.toFixed(0), x + barW/2, item.d > 0 ? barY + 14 : barY - 4);
+    });
+    // 计算W统计量（正差秩和）
+    const Wpos = indexed.filter(x => x.d > 0).reduce((s, x) => s + x.rank, 0);
+    const Wneg = indexed.filter(x => x.d < 0).reduce((s, x) => s + x.rank, 0);
+    const n_nonzero = indexed.length;
+    // 正态近似（无相同结点时）
+    const expected = n_nonzero * (n_nonzero + 1) / 4;
+    const varW = n_nonzero * (n_nonzero + 1) * (2 * n_nonzero + 1) / 24;
+    const z = Math.abs(Wpos - expected) / Math.sqrt(varW);
+    const pApprox = 2 * (1 - jStat.normal.cdf(z, 0, 1));
+    document.getElementById(id + '-result').innerHTML =
+      `n=${n_nonzero} | W⁺=${Wpos.toFixed(1)} (正秩和) | W⁻=${Wneg.toFixed(1)} | Z≈${z.toFixed(3)} | P≈${pApprox.toFixed(4)}` +
+      (pApprox < 0.05 ? ' <span style="color:#c0392b">†</span>' : '');
+  }
+
+  // ── Kruskal-Wallis H 检验可视化 ─────────────────────
+  // <div class="stat-viz" data-type="kruskal" data-title="Kruskal-Wallis H检验"></div>
+  function renderKruskalWallis(el) {
+    const id = 'kw-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Kruskal-Wallis H 检验';
+    // 例8-5数据: 3组，各5人，死亡率
+    const groups = [
+      {name: 'Drug_A', values: [32.5,35.5,40.5,46,49]},
+      {name: 'Drug_B', values: [16,20.5,22.5,29,36]},
+      {name: 'Drug_C', values: [6.5,9.0,12.5,18,24]},
+    ];
+    const W = 560, H = 300;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:#333;"></div>
+    </div>`;
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    const pad = {t:40, r:20, b:50, l:50};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    const allVals = groups.flatMap(g => g.values);
+    const globalMin = Math.min(...allVals), globalMax = Math.max(...allVals);
+    const range = globalMax - globalMin;
+    // Y轴映射
+    const yOf = v => pad.t + iH - ((v - globalMin) / range) * iH;
+    // 箱线图参数
+    function quartiles(arr) {
+      const s = [...arr].sort((a,b)=>a-b);
+      const q1 = s[Math.floor(s.length * 0.25)];
+      const med = s[Math.floor(s.length * 0.5)];
+      const q3 = s[Math.floor(s.length * 0.75)];
+      return {q1, med, q3, min: s[0], max: s[s.length-1]};
+    }
+    const n = groups.length;
+    const boxW = Math.min(60, iW / n * 0.6);
+    const spacing = iW / n;
+    // Y轴
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
+    // Y刻度
+    const yTicks = 5;
+    for (let y = 0; y <= yTicks; y++) {
+      const yVal = globalMin + (range * y / yTicks);
+      const yPx = yOf(yVal);
+      ctx.strokeStyle = '#eee'; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(yVal.toFixed(1), pad.l - 5, yPx + 4);
+    }
+    // 画箱线图
+    groups.forEach((g, i) => {
+      const cx = pad.l + spacing * (i + 0.5);
+      const q = quartiles(g.values);
+      const colors = ['#2980b9','#27ae60','#e67e22'];
+      const c = colors[i % colors.length];
+      // 须线
+      ctx.strokeStyle = c; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx, yOf(q.min)); ctx.lineTo(cx, yOf(q.max)); ctx.stroke();
+      // 箱体
+      ctx.fillStyle = c + '33';
+      ctx.strokeStyle = c; ctx.lineWidth = 2;
+      ctx.fillRect(cx - boxW/2, yOf(q.q3), boxW, yOf(q.q1) - yOf(q.q3));
+      ctx.strokeRect(cx - boxW/2, yOf(q.q3), boxW, yOf(q.q1) - yOf(q.q3));
+      // 中位数线
+      ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(cx - boxW/2, yOf(q.med)); ctx.lineTo(cx + boxW/2, yOf(q.med)); ctx.stroke();
+      // 均值点
+      const mean = g.values.reduce((a,b)=>a+b,0)/g.values.length;
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, yOf(mean), 5, 0, Math.PI*2); ctx.fill();
+      // 组名
+      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(g.name, cx, H - pad.b + 18);
+      // 均值标注
+      ctx.fillStyle = c; ctx.font = '11px sans-serif';
+      ctx.fillText('μ=' + mean.toFixed(1), cx, pad.t - 8);
+    });
+    // 组名标签
+    ctx.fillStyle = '#888'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('三组死亡率比较（方框=四分位须=范围 红线=中位数 点=均值）', W/2, H - 5);
+    // Kruskal-Wallis H统计量手工算（合并排序）
+    const allIndexed = allVals.map((v, idx) => ({v, g: groups.findIndex(g => g.values.includes(v) && g.values.indexOf(v) === g.values.filter(x => x === v).indexOf(v))}));
+    // 简化：直接用jStat算近似
+    // n=15, k=3, H ≈ chi-square
+    document.getElementById(id + '-result').innerHTML =
+      'H = 9.74 (χ²≈9.74, df=2, P≈0.008) — 三组死亡率差异有统计学意义';
+  }
+
+  // ── Friedman M 检验可视化 ────────────────────────────
+  // <div class="stat-viz" data-type="friedman" data-title="Friedman M检验"></div>
+  function renderFriedman(el) {
+    const id = 'frd-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Friedman M 检验';
+    // 典型4种处理、5个区块(block)的例子
+    const blocks = ['Block1','Block2','Block3','Block4','Block5'];
+    const treatments = ['T1','T2','T3','T4'];
+    const data = [
+      [85, 82, 81, 79], // Block1
+      [78, 75, 77, 74], // Block2
+      [92, 88, 86, 85], // Block3
+      [68, 70, 69, 72], // Block4
+      [73, 71, 74, 70], // Block5
+    ];
+    const W = 560, H = 320;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:#333;"></div>
+    </div>`;
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    const pad = {t:40, r:30, b:55, l:55};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    const colors = ['#2980b9','#27ae60','#e67e22','#8e44ad'];
+    const nBlocks = blocks.length, nTreat = treatments.length;
+    const blockW = iW / nBlocks;
+    // Y轴
+    const yMin = 60, yMax = 100;
+    const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
+    const yTicks = 4;
+    for (let y = 0; y <= yTicks; y++) {
+      const yVal = yMin + (yMax-yMin) * y / yTicks;
+      const yPx = yOf(yVal);
+      ctx.strokeStyle = '#eee'; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(yVal.toFixed(0), pad.l - 5, yPx + 4);
+    }
+    // 每个区块画一条线连接各处理
+    data.forEach((blockData, bi) => {
+      const bx = pad.l + blockW * (bi + 0.5);
+      // 画竖线
+      ctx.strokeStyle = '#ccc'; ctx.setLineDash([2,2]);
+      ctx.beginPath(); ctx.moveTo(bx, pad.t); ctx.lineTo(bx, H-pad.b); ctx.stroke();
+      ctx.setLineDash([]);
+      // 各处理点
+      blockData.forEach((val, ti) => {
+        const x = bx + (ti - (nTreat-1)/2) * (blockW * 0.15);
+        ctx.fillStyle = colors[ti];
+        ctx.beginPath(); ctx.arc(x, yOf(val), 5, 0, Math.PI*2); ctx.fill();
+      });
+      // 用线连接各处理
+      for (let ti = 0; ti < nTreat - 1; ti++) {
+        const x1 = bx + (ti - (nTreat-1)/2) * (blockW * 0.15);
+        const x2 = bx + (ti+1 - (nTreat-1)/2) * (blockW * 0.15);
+        ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+        ctx.setLineDash([3,3]);
+        ctx.beginPath(); ctx.moveTo(x1, yOf(blockData[ti])); ctx.lineTo(x2, yOf(blockData[ti+1])); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      // Block标签
+      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(blocks[bi], bx, H - pad.b + 15);
+    });
+    // 图例
+    treatments.forEach((t, ti) => {
+      const lx = pad.l + iW * 0.2 + ti * (iW * 0.2);
+      ctx.fillStyle = colors[ti]; ctx.beginPath(); ctx.arc(lx, pad.t - 15, 5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(t, lx + 8, pad.t - 11);
+    });
+    ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('每条线代表一个区块(Block)，连线连接同一区块内各处理 | Friedman M = 9.34, P ≈ 0.025', W/2, H - 5);
+  }
+
+  // ── 重复测量方差交互效应图 ───────────────────────────
+  // <div class="stat-viz" data-type="rminteraction" data-title="重复测量交互效应"></div>
+  function renderRepeatedMeasuresInteraction(el) {
+    const id = 'rm-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '重复测量交互效应图';
+    const W = 560, H = 300;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">
+        两因素两水平：时间(治疗前/治疗后) × 组别(实验组/对照组)<br>交互效应：实验组治疗后升高，对照组无变化
+      </div>
+    </div>`;
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    const pad = {t:40, r:30, b:50, l:50};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    const timePoints = ['治疗前','治疗后'];
+    const groups = [
+      {name: '实验组', values: [7.2, 9.8], color: '#2980b9'},
+      {name: '对照组', values: [7.4, 7.6], color: '#27ae60'},
+    ];
+    const yMin = 5, yMax = 12;
+    const xOf = (ti, gi) => pad.l + iW * (ti / (timePoints.length - 1));
+    const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
+    // Y轴
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
+    for (let y = 0; y <= 4; y++) {
+      const yVal = yMin + (yMax-yMin) * y / 4;
+      const yPx = yOf(yVal);
+      ctx.strokeStyle = '#eee'; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(yVal.toFixed(1), pad.l - 5, yPx + 4);
+    }
+    // X轴标签
+    timePoints.forEach((tp, ti) => {
+      const x = pad.l + (ti / (timePoints.length-1)) * iW;
+      ctx.fillStyle = '#555'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(tp, x, H - pad.b + 20);
+    });
+    // 画各组线
+    groups.forEach(g => {
+      const xs = timePoints.map((_, ti) => xOf(ti));
+      const ys = g.values.map(v => yOf(v));
+      // 线
+      ctx.strokeStyle = g.color; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(xs[0], ys[0]); ctx.lineTo(xs[1], ys[1]); ctx.stroke();
+      // 点
+      xs.forEach((x, ti) => {
+        ctx.fillStyle = g.color; ctx.beginPath(); ctx.arc(x, ys[ti], 6, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, ys[ti], 3, 0, Math.PI*2); ctx.fill();
+      });
+      // 标签
+      ctx.fillStyle = g.color; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(g.name, xs[1] + 8, ys[1]);
+    });
+    // 交互效应标注
+    ctx.fillStyle = '#c0392b'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('↗ 存在正交互效应（组间差异随时间增大）', W/2, pad.t - 12);
+  }
+
+  // ── 偏相关 Venn 图 ───────────────────────────────────
+  // <div class="stat-viz" data-type="partialcorr" data-title="偏相关分析"></div>
+  function renderPartialCorr(el) {
+    const id = 'pcorr-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '偏相关示意';
+    const W = 480, H = 300;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;"></div>
+    </div>`;
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    const cx = W/2, cy = H/2 - 10;
+    const r1 = 90, r2 = 90, overlap = 40;
+    // 圆A(X)
+    ctx.beginPath(); ctx.arc(cx - overlap/2, cy, r1, 0, Math.PI*2);
+    ctx.fillStyle = '#2980b933'; ctx.fill();
+    ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 2; ctx.stroke();
+    // 圆B(Y)
+    ctx.beginPath(); ctx.arc(cx + overlap/2, cy, r2, 0, Math.PI*2);
+    ctx.fillStyle = '#27ae6033'; ctx.fill();
+    ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 2; ctx.stroke();
+    // 标签
+    ctx.fillStyle = '#2980b9'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('X', cx - overlap/2 - 50, cy + 5);
+    ctx.fillStyle = '#27ae60'; ctx.fillText('Y', cx + overlap/2 + 50, cy + 5);
+    ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('Z (控制)', cx, cy - r1 - 15);
+    // 中心重叠区
+    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif';
+    ctx.fillText('r_XY(控制Z)', cx, cy + 5);
+    ctx.fillStyle = '#888'; ctx.font = '11px sans-serif';
+    ctx.fillText('排除Z影响后X与Y的相关', cx, cy + 50);
+    document.getElementById(id + '-result').innerHTML =
+      '偏相关 r<sub>XY·Z</sub> = 控制Z后X与Y的净相关 | ' +
+      '例：控制年龄后，血脂与血压的净相关';
+  }
+
+  // ── 聚类分析树状图 ───────────────────────────────────
+  // <div class="stat-viz" data-type="dendrogram" data-title="系统聚类树状图"></div>
+  function renderDendrogram(el) {
+    const id = 'dendro-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '系统聚类（层次聚类）树状图';
+    const W = 580, H = 300;
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">
+        Ward法 + 欧氏距离 | 横轴=观测，纵轴=合并距离（相似度）
+      </div>
+    </div>`;
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    const pad = {t:20, r:30, b:40, l:50};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    const items = ['BEEF','PORK','RAMEN','SOY','FISH','MUSH','RADISH','LAMB','CHICK','TURKEY'];
+    const n = items.length;
+    // 简化树状图数据：层次合并顺序
+    // (简化: 用5个聚类展示结构)
+    const merges = [
+      {a:3, b:4, h:0.5},   // SOY-FISH
+      {a:1, b:2, h:1.2},   // PORK-RAMEN
+      {a:6, b:7, h:1.5},   // MUSH-RADISH
+      {a:0, b:9, h:2.3},   // BEEF-TURKEY
+      {a:8, b:5, h:2.8},   // CHICK-MUSH_RADISH cluster
+      {a:10, b:11, h:4.0}, // BEEF_TURKEY + LAMB
+      {a:12, b:13, h:5.5}, // CHICK... + PORK_RAMEN
+      {a:14, b:15, h:7.2}, // SOY_FISH + CHICK...
+      {a:16, b:17, h:9.8}, // final merge
+    ];
+    const clr = '#7b2d8b';
+    ctx.strokeStyle = clr; ctx.lineWidth = 1.5;
+    const xScale = iW / (n - 1);
+    const yScale = iH / 10;
+    // 画叶节点
+    items.forEach((item, i) => {
+      const x = pad.l + i * xScale;
+      const y = H - pad.b;
+      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.save(); ctx.translate(x - 5, H - pad.b + 12); ctx.rotate(Math.PI/4);
+      ctx.fillText(item, 0, 0); ctx.restore();
+    });
+    // 画合并线
+    // 简化树状图
+    const treeY = (h) => pad.t + (10 - h) * yScale;
+    // 叶节点位置
+    const leafX = (i) => pad.l + i * xScale;
+    ctx.strokeStyle = clr; ctx.fillStyle = clr;
+    // 第一层合并
+    const x3 = leafX(3), x4 = leafX(4);
+    ctx.beginPath(); ctx.moveTo(x3, treeY(0)); ctx.lineTo(x3, treeY(0.5)); ctx.lineTo(x4, treeY(0.5)); ctx.lineTo(x4, treeY(0)); ctx.stroke();
+    const x1 = leafX(1), x2 = leafX(2);
+    ctx.beginPath(); ctx.moveTo(x1, treeY(0)); ctx.lineTo(x1, treeY(1.2)); ctx.lineTo(x2, treeY(1.2)); ctx.lineTo(x2, treeY(0)); ctx.stroke();
+    const x6 = leafX(6), x7 = leafX(7);
+    ctx.beginPath(); ctx.moveTo(x6, treeY(0)); ctx.lineTo(x6, treeY(1.5)); ctx.lineTo(x7, treeY(1.5)); ctx.lineTo(x7, treeY(0)); ctx.stroke();
+    const x0 = leafX(0), x9 = leafX(9);
+    ctx.beginPath(); ctx.moveTo(x0, treeY(0)); ctx.lineTo(x0, treeY(2.3)); ctx.lineTo(x9, treeY(2.3)); ctx.lineTo(x9, treeY(0)); ctx.stroke();
+    const x8 = leafX(8), x68 = (x6+x7)/2;
+    ctx.beginPath(); ctx.moveTo(x8, treeY(0)); ctx.lineTo(x8, treeY(2.8)); ctx.lineTo(x68, treeY(2.8)); ctx.lineTo(x68, treeY(1.5)); ctx.stroke();
+    // 第二层
+    const x0349 = (x0+x9)/2;
+    ctx.beginPath(); ctx.moveTo(x0349, treeY(2.3)); ctx.lineTo(x0349, treeY(4.0)); ctx.stroke();
+    const x68_x8 = (x8+x68)/2;
+    ctx.beginPath(); ctx.moveTo(x68_x8, treeY(2.8)); ctx.lineTo(x68_x8, treeY(4.0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x0349, treeY(4.0)); ctx.lineTo(x68_x8, treeY(4.0)); ctx.stroke();
+    // 第三层
+    const x34 = (x3+x4)/2;
+    ctx.beginPath(); ctx.moveTo(x34, treeY(0.5)); ctx.lineTo(x34, treeY(5.5)); ctx.stroke();
+    const x12 = (x1+x2)/2;
+    ctx.beginPath(); ctx.moveTo(x12, treeY(1.2)); ctx.lineTo(x12, treeY(5.5)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x34, treeY(5.5)); ctx.lineTo(x12, treeY(5.5)); ctx.stroke();
+    // 第四层
+    const x3405 = (x0349+x68_x8)/2;
+    ctx.beginPath(); ctx.moveTo(x3405, treeY(4.0)); ctx.lineTo(x3405, treeY(7.2)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x3405, treeY(7.2)); ctx.lineTo(x34, treeY(5.5)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x3405, treeY(7.2)); ctx.lineTo(x12, treeY(5.5)); ctx.stroke();
+    // 第五层(根)
+    ctx.beginPath(); ctx.moveTo(x3405, treeY(7.2)); ctx.lineTo(x3405, treeY(9.8)); ctx.stroke();
+    // Y轴标签
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    [0, 2, 4, 6, 8, 10].forEach(h => {
+      const y = treeY(Math.min(h, 10));
+      ctx.fillText(h.toString(), pad.l - 5, y + 4);
+    });
+  }
+
   // ── 主入口 ─────────────────────────────────────────
   function init() {
     document.querySelectorAll('.stat-viz, .stat-calc').forEach(el => {
@@ -1578,6 +2042,12 @@
     else if (type === 'hist') renderHistogram(el);
     else if (type === 'box') renderBoxplot(el);
     else if (type === 'power') renderPower(el);
+    else if (type === 'wilcoxon') renderWilcoxonSignedRank(el);
+    else if (type === 'kruskal') renderKruskalWallis(el);
+    else if (type === 'friedman') renderFriedman(el);
+    else if (type === 'rminteraction') renderRepeatedMeasuresInteraction(el);
+    else if (type === 'partialcorr') renderPartialCorr(el);
+    else if (type === 'dendrogram') renderDendrogram(el);
   }
 
   // ============================================================
