@@ -2162,7 +2162,9 @@
     else if (type === 'interaction') renderFactorialInteraction(el);
     else if (type === 'blandaltman') renderBlandAltman(el);
     else if (type === 'funnel') renderFunnel(el);
-    else if (type === 'sem') renderSEM(el);
+    else if (type === 'calibration') renderCalibrationCurve(el);
+    else if (type === 'confusionmatrix') renderConfusionMatrix(el);
+    else if (type === 'sequential') renderSequentialAnalysis(el);
     else if (type === 'autocorrelation') renderAutocorrelation(el);
     else if (type === 'nomogram') renderNomogram(el);
   }
@@ -4302,6 +4304,205 @@
       const inCI = Math.abs(e - meanEffect) < 1.96 * se;
       ctx.fillStyle = inCI ? '#3498db' : '#e74c3c';
       ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
+    });
+  }
+
+  // ── 校准曲线（Logistic 回归模型评价） ─────────────────────
+  // <div class="stat-viz" data-type="calibration" data-title="校准曲线" data-pred="[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]" data-obs="[0.12,0.18,0.28,0.38,0.52,0.65,0.72,0.82,0.88]"></div>
+  function renderCalibrationCurve(el) {
+    const id = 'cal-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '校准曲线';
+    let pred = el.dataset.pred ? JSON.parse(el.dataset.pred) : [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+    let obs = el.dataset.obs ? JSON.parse(el.dataset.obs) : [0.12, 0.18, 0.28, 0.38, 0.52, 0.65, 0.72, 0.82, 0.88];
+    const W = 480, H = 380;
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div id="' + id + '-info" style="text-align:center;font-size:12px;color:#555;margin-top:4px;"></div></div>';
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const pad = {t: 35, r: 30, b: 50, l: 55};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+    // Grid
+    ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const xv = pad.l + (i / 5) * iW, yv = pad.t + (i / 5) * iH;
+      ctx.beginPath(); ctx.moveTo(xv, pad.t); ctx.lineTo(xv, pad.t + iH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pad.l, yv); ctx.lineTo(pad.l + iW, yv); ctx.stroke();
+    }
+    // Perfect calibration line (45°)
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('完美校准', pad.l + iW * 0.65, pad.t + iH * 0.3);
+    // LOESS/line of best fit through points
+    const xOf = v => pad.l + v * iW;
+    const yOf = v => pad.t + (1 - v) * iH;
+    // Draw observed points
+    ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    pred.forEach((p, i) => {
+      const x = xOf(p), y = yOf(obs[i]);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    pred.forEach((p, i) => {
+      const x = xOf(p), y = yOf(obs[i]);
+      ctx.fillStyle = '#2980b9'; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+    });
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    for (let i = 0; i <= 5; i++) {
+      const v = i / 5;
+      ctx.fillText(v.toFixed(1), xOf(v), pad.t + iH + 15);
+      ctx.textAlign = 'right'; ctx.fillText(v.toFixed(1), pad.l - 5, yOf(v) + 4);
+    }
+    ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('预测概率', 0, 0); ctx.restore();
+    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('实际发生率', pad.l + iW / 2, H - 4);
+    // Stats: Hosmer-Lemeshow approximation
+    let hlChi2 = 0;
+    pred.forEach((p, i) => { const e = (obs[i] - p); hlChi2 += e * e / (p * (1 - p) + 0.001); });
+    document.getElementById(id + '-info').textContent = '提示：点越接近对角线，模型校准越好';
+  }
+
+  // ── 混淆矩阵热图（分类模型评价） ─────────────────────────
+  // <div class="stat-viz" data-type="confusionmatrix" data-title="混淆矩阵" data-tp="85" data-fp="15" data-fn="10" data-tn="90"></div>
+  function renderConfusionMatrix(el) {
+    const id = 'cm-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '混淆矩阵';
+    const tp = parseInt(el.dataset.tp || '85');
+    const fp = parseInt(el.dataset.fp || '15');
+    const fn = parseInt(el.dataset.fn || '10');
+    const tn = parseInt(el.dataset.tn || '90');
+    const W = 420, H = 360;
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div id="' + id + '-metrics" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:8px;font-size:12px;"></div></div>';
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const mat = [[tp, fp], [fn, tn]];
+    const labels = ['实际阳性', '实际阴性'];
+    const predLabels = ['预测阳性', '预测阴性'];
+    const cellW = 90, cellH = 70, padL = 80, padT = 50;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+    // Draw cells
+    mat.forEach((row, i) => {
+      row.forEach((val, j) => {
+        const cx = padL + j * cellW, cy = padT + i * cellH;
+        const frac = val / (tp + fp + fn + tn);
+        const intensity = Math.floor(frac * 510);
+        ctx.fillStyle = i === j ? `rgb(${Math.min(255, intensity * 2)}, ${Math.max(100, 255 - intensity)}, 100)` : `rgb(${Math.min(255, intensity * 2)}, 100, ${Math.max(100, 255 - intensity)})`;
+        ctx.fillRect(cx, cy, cellW - 4, cellH - 4);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(val, cx + cellW / 2 - 2, cy + cellH / 2 + 6);
+        ctx.font = '10px sans-serif'; ctx.fillStyle = '#ddd';
+        ctx.fillText(((val / (tp + fp + fn + tn)) * 100).toFixed(1) + '%', cx + cellW / 2 - 2, cy + cellH / 2 + 20);
+      });
+    });
+    // Axis labels
+    ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+    predLabels.forEach((l, j) => ctx.fillText(l, padL + j * cellW + cellW / 2, padT - 8));
+    ctx.save(); ctx.translate(padL - 38, padT + cellH);
+    ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('实际', 0, 0); ctx.restore();
+    labels.forEach((l, i) => ctx.fillText(l, 20, padT + i * cellH + cellH / 2 + 5));
+    // Metrics
+    const accuracy = ((tp + tn) / (tp + fp + fn + tn) * 100).toFixed(1);
+    const sensitivity = (tp / (tp + fn) * 100).toFixed(1);
+    const specificity = (tn / (tn + fp) * 100).toFixed(1);
+    const ppv = (tp / (tp + fp) * 100).toFixed(1);
+    const npv = (tn / (tn + fn) * 100).toFixed(1);
+    const m = document.getElementById(id + '-metrics');
+    m.innerHTML = '<span style="color:#27ae60;">准确率:' + accuracy + '%</span><span style="color:#2980b9;">灵敏度:' + sensitivity + '%</span><span>特异度:' + specificity + '%</span><span>PPV:' + ppv + '%</span><span>NPV:' + npv + '%</span>';
+  }
+
+  // ── 序贯分析图（临床试验中期分析） ─────────────────────
+  // <div class="stat-viz" data-type="sequential" data-title="序贯分析图" data-z1="[1.2,1.8,2.1,2.5,2.8]" data-z2="[0.5,0.9,1.2,1.5,1.8]" data-n="[20,40,60,80,100]"></div>
+  function renderSequentialAnalysis(el) {
+    const id = 'seq-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '序贯分析图 ( Whitehead Triangle )';
+    let Z = el.dataset.z1 ? JSON.parse(el.dataset.z1) : [1.2, 1.8, 2.1, 2.5, 2.8];
+    let Z2 = el.dataset.z2 ? JSON.parse(el.dataset.z2) : [0.5, 0.9, 1.2, 1.5, 1.8];
+    let N = el.dataset.n ? JSON.parse(el.dataset.n) : [20, 40, 60, 80, 100];
+    const W = 520, H = 360;
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">箭头越过边界 → 提前终止 | 每点代表一个期中分析</div></div>';
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const pad = {t: 35, r: 30, b: 50, l: 55};
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    const nMin = 0, nMax = Math.max(...N) * 1.1;
+    const zMin = -3, zMax = 4;
+    const xOf = v => pad.l + ((v - nMin) / (nMax - nMin)) * iW;
+    const yOf = v => pad.t + iH - ((v - zMin) / (zMax - zMin)) * iH;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+    // Boundary lines (simplified triangular boundaries)
+    const alpha = 0.05, beta = 0.1;
+    const zAlpha = 1.96, zBeta = 1.28;
+    ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    // Upper boundary (efficacy)
+    ctx.beginPath();
+    for (let n = 1; n <= nMax; n += 1) {
+      const u = zAlpha * Math.sqrt(n);
+      const x = xOf(n), y = yOf(u);
+      if (n === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // Lower boundary (futility) - simplified
+    ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let n = 1; n <= nMax; n += 1) {
+      const l = -zBeta * Math.sqrt(n);
+      const x = xOf(n), y = yOf(l);
+      if (n === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Labels
+    ctx.fillStyle = '#e74c3c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('有效边界 (拒绝H₀)', pad.l + iW * 0.6, yOf(3) + 5);
+    ctx.fillStyle = '#27ae60'; ctx.fillText('无效边界 (接受H₀)', pad.l + iW * 0.6, yOf(-1.5) + 5);
+    // Zero line
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, yOf(0)); ctx.lineTo(pad.l + iW, yOf(0)); ctx.stroke();
+    // Grid
+    ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const zv = zMin + (zMax - zMin) * i / 4;
+      ctx.beginPath(); ctx.moveTo(pad.l, yOf(zv)); ctx.lineTo(pad.l + iW, yOf(zv)); ctx.stroke();
+    }
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    for (let i = 0; i <= 4; i++) {
+      const nv = nMin + (nMax - nMin) * i / 4;
+      ctx.fillText(nv.toFixed(0), xOf(nv), pad.t + iH + 15);
+    }
+    for (let i = 0; i <= 6; i++) {
+      const zv = zMin + (zMax - zMin) * i / 6;
+      ctx.textAlign = 'right'; ctx.fillText(zv.toFixed(1), pad.l - 5, yOf(zv) + 4);
+    }
+    ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.fillText('累计Z值', 0, 0); ctx.restore();
+    ctx.textAlign = 'center'; ctx.fillText('样本量 n', pad.l + iW / 2, H - 4);
+    // Plot points
+    Z.forEach((z, i) => {
+      const px = xOf(N[i] || N[N.length - 1] * (i + 1) / Z.length), py = yOf(z);
+      const crossedU = z > Math.sqrt((N[i] || 50) * 3);
+      ctx.fillStyle = crossedU ? '#e74c3c' : '#3498db';
+      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(i + 1, px, py + 3);
     });
   }
 
