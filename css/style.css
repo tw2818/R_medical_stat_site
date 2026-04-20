@@ -546,6 +546,29 @@ code.sourceCode {
 }
 
 /* 行内代码 */
+/* ===== highlight.js 语法高亮（Quarto 生成的 span class）===== */
+pre.sourceCode .co, pre.sourceCode .comment, pre.sourceCode .hljs-comment { color: #6a9955; }       /* 注释 gray */
+pre.sourceCode .ot, pre.sourceCode .hljs-tag { color: #c586c0; }                                    /* 其他关键字 purple */
+pre.sourceCode .kw, pre.sourceCode .keyword, pre.sourceCode .hljs-keyword { color: #569cd6; }       /* 关键字 blue */
+pre.sourceCode .do, pre.sourceCode .hljs-doctag { color: #608b4e; }                                 /* 文档标签 green */
+pre.sourceCode .dt, pre.sourceCode .hljs-title, pre.sourceCode .hljs-type { color: #4ec9b0; }      /* 数据类型 teal */
+pre.sourceCode .fu, pre.sourceCode .hljs-name, pre.sourceCode .hljs-built_in { color: #dcdcaa; }   /* 函数 yellow */
+pre.sourceCode .st, pre.sourceCode .hljs-string { color: #ce9178; }                                  /* 字符串 orange */
+pre.sourceCode .at, pre.sourceCode .hljs-attr, pre.sourceCode .hljs-attribute { color: #9cdcfe; } /* 属性 light blue */
+pre.sourceCode .dv, pre.sourceCode .hljs-number, pre.sourceCode .hljs-literal { color: #b5cea8; }   /* 数字 light green */
+pre.sourceCode .op, pre.sourceCode .hljs-operator { color: #d4d4d4; }                                /* 操作符 white */
+pre.sourceCode .al, pre.sourceCode .hljs-alert { color: #d16969; }                                   /* 警告 red */
+pre.sourceCode .pp, pre.sourceCode .hljs-preprocessor { color: #9cdcfe; }                            /* 预处理器 cyan */
+pre.sourceCode .sc, pre.sourceCode .hljs-string .sc { color: #d7ba7d; }                              /* 特殊字符串 gold */
+pre.sourceCode .ss, pre.sourceCode .hljs-symbol { color: #d7ba7d; }                                  /* 符号 gold */
+pre.sourceCode .vs, pre.sourceCode .hljs-variable { color: #9cdcfe; }                               /* 变量 light blue */
+pre.sourceCode .wa, pre.sourceCode .instruction { color: #d7ba7d; }                                  /* ARM 指令 gold */
+pre.sourceCode .cn, pre.sourceCode .hljs-constant { color: #4ec9b0; }                               /* 常量 teal */
+pre.sourceCode .ex, pre.sourceCode .hljs-params { color: #dcdcaa; }                                  /* 参数 yellow */
+pre.sourceCode .pd, pre.sourceCode .hljs-property { color: #9cdcfe; }                                /* 属性 light blue */
+pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }                                       /* 字符 orange */
+
+/* 行内代码 */
 :not(pre) > code {
   background: var(--bg);
   padding: 2px 6px;
