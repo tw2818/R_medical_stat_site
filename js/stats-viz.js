@@ -539,9 +539,11 @@
   }
 
   function displayTTestResult(el, r) {
-    const significant = r.pTwo !== '—' && parseFloat(r.pTwo) < 0.05;
+    const pNum = parseFloat(r.pTwo);
+    const pVal = isNaN(pNum) ? null : pNum;
+    const significant = pVal !== null && pVal < 0.05;
     const pTag = significant
-      ? `<span class="result-sig">显著 ${parseFloat(r.pTwo) < 0.01 ? '**' : '*'}</span>`
+      ? `<span class="result-sig">显著 ${pVal < 0.01 ? '**' : '*'}</span>`
       : '<span class="result-ns">不显著</span>';
 
     let html = `<div class="result-table"><div class="result-row header"><span>项目</span><span>值</span></div>`;
@@ -1058,7 +1060,7 @@
         ctx.fillStyle = '#333';
         ctx.font = 'bold 13px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`$\\bar{x}=${m.toFixed(2)}$`, sx(i) + barW/2, sy(m) - 10);
+        ctx.fillText(`\u0078\u0304=${m.toFixed(2)}`, sx(i) + barW/2, sy(m) - 10);
 
         // 组名
         ctx.font = '11px sans-serif';
