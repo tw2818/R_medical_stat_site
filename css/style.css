@@ -590,9 +590,10 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }               
   border: 1px solid var(--border);
   overflow: hidden;
 }
-.callout[data-callout="note"] { border-color: #3b82f6; background: #eff6ff; }
-.callout[data-callout="warning"] { border-color: #f59e0b; background: #fffbeb; }
-.callout[data-callout="tip"] { border-color: #10b981; background: #f0fdf4; }
+.callout.callout-warning { border-color: #f59e0b; background: #fffbeb; }
+.callout.callout-note { border-color: #3b82f6; background: #eff6ff; }
+.callout.callout-tip { border-color: #10b981; background: #f0fdf4; }
+.callout.callout-important { border-color: #ef4444; background: #fef2f2; }
 .callout-header {
   padding: 8px 14px;
   background: rgba(0,0,0,0.05);

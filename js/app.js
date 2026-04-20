@@ -217,19 +217,22 @@ function copyCode(btn) {
 
 // ===== 章节内交互（锚点、代码块等）=====
 function setupChapterInteractions(container) {
-  // 展开/折叠章节
-  container.querySelectorAll('.callout[data-callout]').forEach(el => {
+  // 展开/折叠 callout（Quarto 用 class="callout-warning/note/tip"，不用 data-callout）
+  container.querySelectorAll('.callout-warning, .callout-note, .callout-tip, .callout-important').forEach(el => {
     el.classList.add('callout-collapsed');
-    const header = document.createElement('div');
-    header.className = 'callout-header';
-    const type = el.dataset.callout;
-    header.innerHTML = `<span>${type === 'warning' ? '⚠️' : type === 'note' ? 'ℹ️' : '📌'} ${type}</span><span class="callout-toggle">▶</span>`;
-    header.addEventListener('click', () => {
-      el.classList.toggle('callout-collapsed');
-      const toggle = header.querySelector('.callout-toggle');
-      if (toggle) toggle.textContent = el.classList.contains('callout-collapsed') ? '▶' : '▼';
-    });
-    el.insertBefore(header, el.firstChild);
+    // 找到已有的 .callout-header，追加 toggle 按钮并绑定点击
+    const header = el.querySelector('.callout-header');
+    if (header) {
+      const toggle = document.createElement('span');
+      toggle.className = 'callout-toggle';
+      toggle.textContent = '▶';
+      toggle.style.cursor = 'pointer';
+      header.appendChild(toggle);
+      header.addEventListener('click', () => {
+        el.classList.toggle('callout-collapsed');
+        toggle.textContent = el.classList.contains('callout-collapsed') ? '▶' : '▼';
+      });
+    }
   });
 
   // 折叠细节标签
