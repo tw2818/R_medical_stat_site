@@ -137,9 +137,7 @@ function navigateToChapter(groupKey, index) {
   const chapter = list[index];
 
   // 避免重复加载同一章节（但仍更新状态）
-  if (window.location.hash === '#' + chapter.id) {
-    currentGroup = groupKey;
-    currentIndex = index;
+  if (currentGroup === groupKey && currentIndex === index) {
     updateActiveLink(groupKey, index);
     const homeBtn = $('home-btn');
     if (homeBtn) homeBtn.style.display = 'inline-block';
