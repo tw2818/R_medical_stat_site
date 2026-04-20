@@ -575,7 +575,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="直线相关" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="直线相关"><span class="header-section-number">7.2</span> 直线相关</h2>
-<div class="stat-viz" data-type="scatter" data-title="直线相关：体重与KV值" data-xlabel="体重(kg)" data-ylabel="KV值" data-xs="43,74,51,58,50,65,54,57,67,69,80,48,38,85,54" data-ys="217.22,316.18,231.11,220.96,254.70,293.84,263.28,271.73,263.46,276.53,341.15,261.00,213.20,315.12,252.08" data-grouplabels="" data-groupx="" data-groupy=""></div>
+<div class="stat-viz" data-type="scatter" data-title="直线相关：体重与KV值" data-xlabel="体重(kg)" data-ylabel="KV值" data-xs="43,74,51,58,50,65,54,57,67,69,80,48,38,85,54" data-ys="217.22,316.18,231.11,220.96,254.70,293.84,263.28,271.73,263.46,276.53,341.15,261.00,213.20,315.12,252.08" data-regression="true"></div>
 <p>使用课本<strong>例9-5</strong>的数据。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -658,7 +658,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="秩相关" class="level2" data-number="7.3">
 <h2 data-number="7.3" class="anchored" data-anchor-id="秩相关"><span class="header-section-number">7.3</span> 秩相关</h2>
-<div class="stat-viz" data-type="scatter" data-title="秩相关：非正态分布数据" data-xlabel="X" data-ylabel="Y" data-xs="0.03,0.14,0.20,0.43,0.44,0.45,0.47,0.65,0.95,0.96,1.00,1.32,1.35,1.57,1.68,1.75,1.85,2.00" data-ys="0.05,0.34,0.93,0.69,0.38,0.79,1.19,4.74,2.31,5.95,6.89,8.26,8.52,8.36,9.32,9.89,10.12,10.68" data-grouplabels="" data-groupx="" data-groupy=""></div>
+<div class="stat-viz" data-type="scatter" data-title="秩相关：非正态分布数据" data-xlabel="X" data-ylabel="Y" data-xs="0.03,0.14,0.20,0.43,0.44,0.45,0.47,0.65,0.95,0.96,1.00,1.32,1.35,1.57,1.68,1.75,1.85,2.00" data-ys="0.05,0.34,0.93,0.69,0.38,0.79,1.19,4.74,2.31,5.95,6.89,8.26,8.52,8.36,9.32,9.89,10.12,10.68" data-regression="true"></div>
 <p>例9-8</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df9_8 <span class="ot">&lt;-</span> foreign<span class="sc">::</span><span class="fu">read.spss</span>(<span class="st">"datasets/例09-08.sav"</span>, <span class="at">to.data.frame =</span> T)</span>
@@ -706,7 +706,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="两条回归直线的比较" class="level2" data-number="7.4">
 <h2 data-number="7.4" class="anchored" data-anchor-id="两条回归直线的比较"><span class="header-section-number">7.4</span> 两条回归直线的比较</h2>
-<div class="stat-viz" data-type="scatter" data-title="两条回归直线比较：正常 vs 大骨节病儿童" data-xlabel="年龄(x)" data-ylabel="骨龄(y)" data-xs="13,11,9,6,8,10,12,7,4,5,9,7,6,10,7,8,6,9,11,8" data-ys="3.54,3.01,3.09,2.48,2.56,3.36,3.18,2.65,2.86,2.94,3.31,2.97,2.87,3.18,2.78,2.95,2.72,3.11,2.98,2.81" data-grouplabels="正常儿童,大骨节病儿童" data-groupx="9,8" data-groupy="3.0,2.9"></div>
+<div class="stat-viz" data-type="scatter" data-title="两条回归直线比较：正常vs大骨节病儿童" data-xlabel="年龄(x)" data-ylabel="骨龄(y)" data-xs="13,11,9,6,8,10,12,7,4,5,9,7,6,10,7,8,6,9,11,8" data-ys="3.54,3.01,3.09,2.48,2.56,3.36,3.18,2.65,2.86,2.94,3.31,2.97,2.87,3.18,2.78,2.95,2.72,3.11,2.98,2.81" data-regression="true" data-grouplabels="正常儿童均值,大骨节病儿童均值" data-groupx="9,8" data-groupy="3.0,2.9"></div>
 <p>正常儿童数据见例9-1，大骨节病儿童数据见例9-9，问：回归直线是否不平行？</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 例9-1数据</span></span>
