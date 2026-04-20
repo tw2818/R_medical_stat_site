@@ -506,7 +506,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p><code>Cochran Armitage</code>检验是一种线性趋势检验，常用于自变量是有序分类变量，而因变量是二分类变量的资料，可以用来检验自变量和因变量存不存在线性趋势。</p>
-<div class="stat-viz" data-type="scatter" data-title="Cochran-Armitage 剂量-反应关系" data-xlabel="药物剂量(mg)" data-ylabel="有效率" data-xs="50,100,200,300,500" data-ys="0.087,0.120,0.133,0.177,0.167" data-grouplabels="剂量-有效率趋势" data-groupx="50,100,200,300,500" data-groupy="0.087,0.120,0.133,0.177,0.167"></div>
+<div class="stat-viz" data-type="scatter" data-title="Cochran-Armitage 线性趋势" data-xlabel="药物剂量(mg)" data-ylabel="有效率" data-xs="50,100,200,300,500" data-ys="0.087,0.120,0.133,0.177,0.167" data-grouplabels="有效率趋势" data-groupx="50,100,200,300,500" data-groupy="0.087,0.120,0.133,0.177,0.167"></div>
 <p>注意和<code>Cochran-Mantel-Haenszel</code>检验区分，<code>CMH检验</code>是研究两个分类变量之间关联性的一种检验方法。但有时数据除了我们研究的变量外，还混杂或隐含了其它的变量，如果将这些变量纳入分析中，则有可能得出完全不同的结论，著名的<code>Simpson悖论</code>就是这个问题的典型案例。</p>
 <p>换句话说，在2 x 2表格数据的基础上，引入了第三个分类变量，称之为混杂变量。混杂变量的引入使得<code>CMH检验</code>可以用于分析分层样本，作为生物统计学领域的一种常用技术，该检验常用于疾病对照研究。</p>
 <p>现在我们想要了解某种药物剂量和疗效之间的关系，药物剂量有50mg，100mg，200mg，300mg，500mg，5个水平，疗效分为有效/无效两个水平。这种情况可以使用<code>Cochran Armitage</code>检验。</p>
