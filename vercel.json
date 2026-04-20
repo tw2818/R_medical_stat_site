@@ -3,6 +3,7 @@
   "buildCommand": null,
   "outputDirectory": ".",
   "routes": [
+    { "src": "/webr-serviceworker.js", "dest": "/webr-serviceworker.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
