@@ -450,7 +450,7 @@ function showToast(msg) {
 window.navigateToChapter = function(group, index) {
   // 展开导航组
   const header = document.querySelector(`[data-group="${group}"]`);
-  if (header) { header.classList.add('open'); header.nextElementSibling.classList.add('open'); }
+  if (header) { header.classList.add('open'); header.nextElementSibling?.classList.add('open'); }
   loadChapter(group, index);
 };
 window.loadChapter = loadChapter;
