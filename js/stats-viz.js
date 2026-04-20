@@ -721,7 +721,21 @@
       }
     }
 
-    const W = 600, H = 340;
+    // Parse group centroids from data-groupx/data-groupy
+    const groupCentroids = [];
+    if (el.dataset.groupx && el.dataset.groupy) {
+      const gxs = el.dataset.groupx.split(',').map(v => parseFloat(v.trim()));
+      const gys = el.dataset.groupy.split(',').map(v => parseFloat(v.trim()));
+      const glabels = (el.dataset.grouplabels || '').split(',');
+      const nG = Math.min(gxs.length, gys.length);
+      for (let i = 0; i < nG; i++) {
+        if (!isNaN(gxs[i]) && !isNaN(gys[i])) {
+          groupCentroids.push({ x: gxs[i], y: gys[i], label: glabels[i] || ('G' + (i+1)) });
+        }
+      }
+    }
+
+    const W = 600, H = 360;
     const pad = { left: 60, right: 20, top: 40, bottom: 50 };
 
     const card = document.createElement('div');
@@ -736,6 +750,38 @@
     const canvas = card.querySelector('canvas');
     const ctx = canvas.getContext('2d');
 
+    // Compute confidence ellipse params (for Hotelling T²)
+    function computeEllipse(pts, confidence) {
+      const n = pts.length;
+      if (n < 3) return null;
+      const mx = pts.reduce((a,b)=>a+b.x,0)/n;
+      const my = pts.reduce((a,b)=>a+b.y,0)/n;
+      const dx = pts.map(p=>p.x-mx), dy = pts.map(p=>p.y-my);
+      const sxx = dx.reduce((s,v)=>s+v*v,0)/(n-1);
+      const syy = dy.reduce((s,v)=>s+v*v,0)/(n-1);
+      const sxy = dx.reduce((s,v,i)=>s+v*dy[i],0)/(n-1);
+      // Eigenvalues of covariance matrix
+      const tr = sxx+syy, det = sxx*syy-sxy*sxy;
+      const disc = Math.sqrt(Math.max(0, tr*tr/4-det));
+      const lam1 = tr/2+disc, lam2 = tr/2-disc;
+      if (lam1 <= 0 || lam2 <= 0) return null;
+      const theta = Math.atan2(2*sxy, sxx-syy)/2;
+      const scale = { f: 2.447, t: 2.0, z: 1.96 }[confidence] || 2.0;
+      const r = Math.max(Math.sqrt(lam1), Math.sqrt(lam2));
+      const r2 = Math.min(Math.sqrt(lam1), Math.sqrt(lam2));
+      return { mx, my, theta, r: r*scale, r2: r2*scale };
+    }
+
+    function drawEllipse(ctx, cx, cy, rx, ry, theta) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(theta);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     function draw() {
       ctx.clearRect(0, 0, W, H);
 
@@ -747,12 +793,13 @@
         return;
       }
 
-      const xs = points.map(p => p.x);
-      const ys = points.map(p => p.y);
-      const xMin = Math.min(...xs), xMax = Math.max(...xs);
-      const yMin = Math.min(...ys), yMax = Math.max(...ys);
-      const xPad = (xMax - xMin) * 0.1 || 1;
-      const yPad = (yMax - yMin) * 0.1 || 1;
+      // Include group centroids in range calculation
+      const allX = points.map(p=>p.x).concat(groupCentroids.map(g=>g.x));
+      const allY = points.map(p=>p.y).concat(groupCentroids.map(g=>g.y));
+      const xMin = Math.min(...allX), xMax = Math.max(...allX);
+      const yMin = Math.min(...allY), yMax = Math.max(...allY);
+      const xPad = (xMax - xMin) * 0.15 || 1;
+      const yPad = (yMax - yMin) * 0.15 || 1;
       const plotW = W - pad.left - pad.right;
       const plotH = H - pad.top - pad.bottom;
 
@@ -795,7 +842,6 @@
         const val = yMin - yPad + ((yMax - yMin) + 2*yPad) * (i / yTicks);
         const yPos = sy(val);
         ctx.beginPath(); ctx.moveTo(pad.left - 4, yPos); ctx.lineTo(pad.left, yPos); ctx.stroke();
-        ctx.textAlign = 'right';
         ctx.fillText(val.toFixed(1), pad.left - 8, yPos + 4);
       }
 
@@ -815,6 +861,23 @@
       ctx.textAlign = 'center';
       ctx.fillText(title, pad.left + plotW/2, 20);
 
+      // Optional confidence ellipse
+      if (el.dataset.ellipse === 'true' && points.length >= 3) {
+        const ell = computeEllipse(points, 't');
+        if (ell) {
+          const ecx = sx(ell.mx), ecy = sy(ell.my);
+          const erx = (ell.r / ((xMax-xMin)+2*xPad)) * plotW;
+          const ery = (ell.r2 / ((yMax-yMin)+2*yPad)) * plotH;
+          ctx.save();
+          ctx.strokeStyle = 'rgba(231,76,60,0.6)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4,4]);
+          drawEllipse(ctx, ecx, ecy, erx, ery, ell.theta);
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+      }
+
       // 散点
       ctx.fillStyle = '#569cd6';
       points.forEach(p => {
@@ -822,6 +885,30 @@
         ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI * 2);
         ctx.fill();
       });
+
+      // Group centroids
+      if (groupCentroids.length > 0) {
+        const colors = ['#e74c3c','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e91e63'];
+        groupCentroids.forEach((g, i) => {
+          const cx = sx(g.x), cy = sy(g.y);
+          const color = colors[i % colors.length];
+          // Draw centroid marker
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 7, 0, Math.PI*2);
+          ctx.stroke();
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 4, 0, Math.PI*2);
+          ctx.fill();
+          // Label
+          ctx.fillStyle = color;
+          ctx.font = 'bold 11px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(g.label, cx + 10, cy - 6);
+        });
+      }
 
       // 回归线（5+点）
       if (points.length >= 5) {
