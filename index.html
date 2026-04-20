@@ -170,35 +170,6 @@
       </div>
     </main>
 
-    <!-- 代码面板（纯复制模式）-->
-    <div id="code-panel" class="hidden">
-      <div class="panel-header">
-        <span class="panel-title">📝 R 代码</span>
-        <div class="panel-actions">
-          <button class="btn-copy" id="copy-code-btn" title="复制代码">
-            📋 复制
-          </button>
-          <button class="btn-close" id="close-panel-btn" title="关闭面板">
-            ✕
-          </button>
-        </div>
-      </div>
-      <div class="panel-body">
-        <div id="code-editor-wrapper">
-          <textarea id="code-editor" spellcheck="false" placeholder="点击章节中的「📋 复制」按钮复制代码，或在此粘贴代码..."></textarea>
-        </div>
-        <div class="output-header">
-          <span>💡 在本地 RStudio 中粘贴运行即可</span>
-        </div>
-        <div id="code-output"></div>
-      </div>
-      <div class="panel-footer">
-        <span class="shortcut-hint">代码已预渲染，复制后本地运行</span>
-      </div>
-    </div>
-
-    <!-- 快捷按钮 -->
-    <button id="toggle-code-panel" title="切换代码面板" aria-label="打开代码面板">📝</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>

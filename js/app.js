@@ -4,7 +4,7 @@
 let currentGroup = null;
 let currentIndex = 0;
 let currentChapterData = null;
-let codePanelOpen = false;
+
 
 const GROUP_CONFIG = [
   { key: 'basic', el: 'basic-chapters', label: '基础统计分析' },
