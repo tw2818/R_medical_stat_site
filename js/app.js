@@ -400,13 +400,15 @@ async function executeCode(code) {
     const webR = window.webRInstance;
 
     let result = '';
+    let shelter = null;
     try {
-      const resultObj = await webR.run(code, {
+      shelter = await new webR.Shelter();
+      const resultObj = await shelter.captureR(code, {
         captureOutput: true,
         withAutoprint: true
       });
       const outputLines = [];
-      for await (const line of resultObj) {
+      for (const line of resultObj.output) {
         if (line && line.type === 'stdout') {
           outputLines.push(escapeHtml(line.data || ''));
         } else if (line && line.type === 'error') {
@@ -414,7 +416,9 @@ async function executeCode(code) {
         }
       }
       result = outputLines.join('\n');
+      shelter.purge();
     } catch (e) {
+      if (shelter) { shelter.purge(); }
       result = `<span class="error">❌ 执行错误：${escapeHtml(e.message)}</span>`;
     }
 
