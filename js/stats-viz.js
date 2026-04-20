@@ -910,8 +910,9 @@
         });
       }
 
-      // 回归线（5+点）
-      if (points.length >= 5) {
+      // 回归线（5+点，或强制开启）
+      const showRegression = points.length >= 5 && (el.dataset.regression !== 'false');
+      if (showRegression) {
         const xs = points.map(p=>p.x);
         const ys = points.map(p=>p.y);
         const n = xs.length;
