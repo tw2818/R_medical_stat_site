@@ -2162,9 +2162,12 @@
     else if (type === 'interaction') renderFactorialInteraction(el);
     else if (type === 'blandaltman') renderBlandAltman(el);
     else if (type === 'funnel') renderFunnel(el);
+    else if (type === 'roccompare') renderROCCompare(el);
     else if (type === 'calibration') renderCalibrationCurve(el);
     else if (type === 'confusionmatrix') renderConfusionMatrix(el);
     else if (type === 'sequential') renderSequentialAnalysis(el);
+    else if (type === 'nnt') renderNNT(el);
+    else if (type === 'doseresponse') renderDoseResponse(el);
     else if (type === 'autocorrelation') renderAutocorrelation(el);
     else if (type === 'nomogram') renderNomogram(el);
   }
@@ -2592,6 +2595,119 @@
         document.getElementById(id + '-spec').textContent = (1 - best.fpr).toFixed(3);
       }
     };
+  }
+
+  // ============================================================
+  // ROC Curve Comparison (两条ROC曲线对比)
+  // ============================================================
+  // <div class="stat-viz" data-type="roccompare" data-title="ROC曲线对比" data-auc1="0.82" data-auc2="0.75" data-label1="新模型" data-label2="旧模型"></div>
+  function renderROCCompare(el) {
+    const id = 'roc-compare-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'ROC 曲线对比';
+    const auc1 = parseFloat(el.dataset.auc1 || '0.82');
+    const auc2 = parseFloat(el.dataset.auc2 || '0.75');
+    const label1 = el.dataset.label1 || '模型1';
+    const label2 = el.dataset.label2 || '模型2';
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📈 ${title}</div>
+      <canvas id="${id}" width="560" height="380" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:8px;">
+        <span style="font-size:14px;color:#2980b9;"><strong>${label1}</strong> AUC = ${auc1.toFixed(3)}</span>
+        <span style="margin-left:24px;font-size:14px;color:#e74c3c;"><strong>${label2}</strong> AUC = ${auc2.toFixed(3)}</span>
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 560, H = 380;
+    const padL = 55, padR = 15, padT = 25, padB = 45;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Generate two realistic ROC curves based on AUCs
+    function genROC(auc, color, n = 60) {
+      // Generate points along the ROC curve
+      const pts = [];
+      const disease = [], healthy = [];
+      const meanD = 0.7 + (auc - 0.7) * 0.8;
+      for (let i = 0; i < n; i++) {
+        disease.push(jStat.normal.inv(Math.random(), meanD, 0.18));
+        healthy.push(jStat.normal.inv(Math.random(), 0.4, 0.15));
+      }
+      const allVals = [...disease, ...healthy].sort((a, b) => a - b);
+      const labels = [...Array(n).fill(1), ...Array(n).fill(0)];
+      for (let i = 0; i < allVals.length; i++) {
+        const cutoff = allVals[i];
+        let tp = 0, fp = 0, tn = 0, fn = 0;
+        for (let j = 0; j < allVals.length; j++) {
+          if (labels[j] === 1) { if (allVals[j] >= cutoff) tp++; else fn++; }
+          else { if (allVals[j] >= cutoff) fp++; else tn++; }
+        }
+        pts.push({ fpr: fp / (fp + tn), tpr: tp / (tp + fn), cutoff });
+      }
+      pts.unshift({ fpr: 0, tpr: 0 });
+      pts.push({ fpr: 1, tpr: 1 });
+      return pts;
+    }
+
+    const roc1 = genROC(auc1, '#2980b9');
+    const roc2 = genROC(auc2, '#e74c3c');
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Diagonal reference
+    ctx.setLineDash([5, 5]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw ROC curves
+    function drawROC(pts, color, fillAlpha) {
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      pts.forEach((p, i) => {
+        const x = padL + p.fpr * plotW, y = padT + (1 - p.tpr) * plotH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.lineTo(padL + plotW, padT + plotH); ctx.lineTo(padL, padT + plotH); ctx.closePath();
+      ctx.fillStyle = color.replace(')', ',' + fillAlpha + ')').replace('rgb', 'rgba');
+      ctx.fill();
+    }
+
+    drawROC(roc1, 'rgb(41,128,185)', 0.08);
+    drawROC(roc2, 'rgb(231,76,60)', 0.08);
+
+    // Legend
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillStyle = '#2980b9'; ctx.textAlign = 'left';
+    ctx.fillRect(padL + 10, padT + 10, 20, 4);
+    ctx.fillText(label1 + ' (AUC=' + auc1.toFixed(2) + ')', padL + 36, padT + 15);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(padL + 10, padT + 30, 20, 4);
+    ctx.fillText(label2 + ' (AUC=' + auc2.toFixed(2) + ')', padL + 36, padT + 35);
+
+    // Axis labels
+    ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('1 - 特异度 (False Positive Rate)', W / 2, H - 8);
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('灵敏度 (True Positive Rate)', 0, 0); ctx.restore();
+
+    // Tick labels
+    ctx.font = '11px sans-serif';
+    for (let i = 0; i <= 5; i++) {
+      ctx.textAlign = 'center';
+      ctx.fillText((i / 5).toFixed(1), padL + (i / 5) * plotW, padT + plotH + 16);
+      ctx.textAlign = 'right';
+      ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4);
+    }
   }
 
   // ============================================================
@@ -4509,4 +4625,162 @@
   // 暴露给外部调用（app.js 在 loadChapter 完成后调用）
   window.initStatViz = init;
   window.setupStatVizObserver = setupObserver;
+
+  // ============================================================
+  // NNT (Number Needed to Treat) 可视化
+  // ============================================================
+  // <div class="stat-viz" data-type="nnt" data-title="需治人数(NNT)" data-nnt="12" data-ci_lower="8" data-ci_upper="25"></div>
+  function renderNNT(el) {
+    const id = 'nnt-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '需治人数 (NNT)';
+    const nnt = parseFloat(el.dataset.nnt || '12');
+    const ciLower = parseFloat(el.dataset.ci_lower || '8');
+    const ciUpper = parseFloat(el.dataset.ci_upper || '25');
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="420" height="260" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:8px;font-size:13px;color:#555;">
+        NNT = <strong style="color:#2980b9;font-size:16px;">${nnt}</strong>
+        &nbsp;(95% CI: ${ciLower} - ${ciUpper})
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 420, H = 260;
+    const padL = 50, padR = 20, padT = 30, padB = 50;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 20);
+
+    // Draw arrow/bar representing NNT scale
+    const barY = padT + plotH * 0.5;
+    const arrowLen = plotW * 0.7;
+    const startX = padL + plotW * 0.15;
+    const endX = startX + arrowLen;
+
+    // Arrow shaft
+    ctx.strokeStyle = '#7f8c8d'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(startX, barY); ctx.lineTo(endX, barY); ctx.stroke();
+
+    // Arrow head
+    ctx.fillStyle = '#7f8c8d';
+    ctx.beginPath(); ctx.moveTo(endX, barY); ctx.lineTo(endX - 12, barY - 8); ctx.lineTo(endX - 12, barY + 8); ctx.closePath(); ctx.fill();
+
+    // Tick marks
+    const maxVal = Math.max(nnt * 1.5, ciUpper * 1.2);
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    for (let i = 0; i <= 5; i++) {
+      const x = startX + (i / 5) * arrowLen;
+      const v = (i / 5) * maxVal;
+      ctx.beginPath(); ctx.moveTo(x, barY - 6); ctx.lineTo(x, barY + 6); ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillText(Math.round(v), x, barY + 20);
+    }
+
+    // NNT marker
+    const nntX = startX + (nnt / maxVal) * arrowLen;
+    ctx.fillStyle = '#e74c3c';
+    ctx.beginPath(); ctx.arc(nntX, barY, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(nnt, nntX, barY + 4);
+
+    // CI range
+    const ciLowerX = startX + (ciLower / maxVal) * arrowLen;
+    const ciUpperX = startX + (ciUpper / maxVal) * arrowLen;
+    ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 2;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(ciLowerX, barY - 15); ctx.lineTo(ciUpperX, barY - 15); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Labels
+    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('需治人数越低，治疗效果越好', padL, H - 10);
+    ctx.textAlign = 'right'; ctx.fillStyle = '#e74c3c';
+    ctx.fillText('● NNT', W - 10, H - 10);
+  }
+
+  // ============================================================
+  // Dose-Response (剂量-反应曲线)
+  // ============================================================
+  // <div class="stat-viz" data-type="doseresponse" data-title="剂量-反应曲线" data-doses="[1,2,5,10,20,50]" data-responses="[0.05,0.12,0.25,0.45,0.68,0.82]"></div>
+  function renderDoseResponse(el) {
+    const id = 'dose-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '剂量-反应曲线';
+    const doses = el.dataset.doses ? JSON.parse(el.dataset.doses) : [1, 2, 5, 10, 20, 50];
+    const responses = el.dataset.responses ? JSON.parse(el.dataset.responses) : [0.05, 0.12, 0.25, 0.45, 0.68, 0.82];
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📈 ${title}</div>
+      <canvas id="${id}" width="480" height="320" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 480, H = 320;
+    const padL = 60, padR = 25, padT = 30, padB = 50;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Scales (log scale for dose)
+    const doseLog = doses.map(d => Math.log10(d));
+    const respMin = 0, respMax = 1;
+
+    const xOf = v => padL + ((v - Math.min(...doseLog)) / (Math.max(...doseLog) - Math.min(...doseLog))) * plotW;
+    const yOf = v => padT + (1 - (v - respMin) / (respMax - respMin)) * plotH;
+
+    // Grid
+    ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const yv = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(padL, yv); ctx.lineTo(padL + plotW, yv); ctx.stroke();
+    }
+
+    // Smooth curve (quadratic interpolation)
+    ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 3;
+    ctx.beginPath();
+    doseLog.forEach((dl, i) => {
+      const x = xOf(dl), y = yOf(responses[i]);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Points
+    doseLog.forEach((dl, i) => {
+      const x = xOf(dl), y = yOf(responses[i]);
+      ctx.fillStyle = '#2980b9'; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(doses[i], x, y - 12);
+    });
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+    // Labels
+    ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('剂量 (对数尺度)', W / 2, H - 5);
+    ctx.save(); ctx.translate(16, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.fillText('反应率', 0, 0); ctx.restore();
+
+    // Y ticks
+    ctx.font = '11px sans-serif';
+    for (let i = 0; i <= 5; i++) {
+      const v = i / 5;
+      ctx.textAlign = 'right';
+      ctx.fillText(v.toFixed(1), padL - 6, padT + (1 - v) * plotH + 4);
+    }
+
+    // X ticks (original dose values)
+    ctx.textAlign = 'center';
+    doses.forEach((d, i) => {
+      ctx.fillText(d, xOf(doseLog[i]), padT + plotH + 16);
+    });
+  }
 })();

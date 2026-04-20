@@ -572,6 +572,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>诊断试验评价的另一重要可视化——混淆矩阵：</p>
 <div class="stat-viz" data-type="confusionmatrix" data-title="诊断试验混淆矩阵（模拟数据）" data-tp="85" data-fp="15" data-fn="10" data-tn="90"></div>
 <div class="stat-viz" data-type="roc" data-title="ROC 曲线演示（模拟数据）"></div>
+<p>ROC曲线对比图可以用于比较两个诊断模型或两种生物标志物的区分能力：</p>
+<div class="stat-viz" data-type="roccompare" data-title="ROC曲线对比：新生物标志物 vs 传统指标" data-auc1="0.82" data-auc2="0.71" data-label1="新生物标志物组合" data-label2="传统单一指标"></div>
 <p>下面用一个简单的例子进行说明。</p>
 <p>假如，我想根据ca125的值判定一个人到底有没有肿瘤，找了10个肿瘤患者，20个非肿瘤患者，都给他们测一下ca125，这样就得到了30个ca125的值。</p>
 <div class="cell">
