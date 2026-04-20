@@ -1342,19 +1342,37 @@
 
       ctx.clearRect(0, 0, W, H);
 
-      // Compute KM curve
+      // Compute KM curve — sort by time, track events vs censored
       const n = times.length;
+      // Pair times with status, sort by time
+      const paired = times.map((t, i) => ({ t, e: status[i] }));
+      paired.sort((a, b) => a.t - b.t);
+      const sortedTimes = paired.map(p => p.t);
+      const sortedEvents = paired.map(p => p.e);
+
       let surv = 1.0;
-      const steps = [{ t: 0, s: 1 }];
+      const steps = [{ t: 0, s: 1 }]; // (time, survival probability)
+      let atRisk = n;
+
       for (let i = 0; i < n; i++) {
-        if (status[i] === 1) {
-          const d = status.slice(0, i + 1).filter(s => s === 1).length;
-          const atRisk = n - i;
-          surv *= (atRisk - 1) / atRisk;
+        // Same time? Skip duplicate — only process once per unique time
+        if (i > 0 && sortedTimes[i] === sortedTimes[i - 1]) continue;
+        if (sortedEvents[i] === 1) {
+          // Count events at this exact time
+          let eventsAtTime = 0;
+          for (let j = i; j < n && sortedTimes[j] === sortedTimes[i]; j++) {
+            if (sortedEvents[j] === 1) eventsAtTime++;
+          }
+          surv *= (atRisk - eventsAtTime) / atRisk;
+          atRisk--;
+          steps.push({ t: sortedTimes[i], s: surv });
+        } else {
+          // Censored — just reduce at-risk count
+          atRisk--;
+          // No survival change, but record the plateau end for step drawing
+          steps.push({ t: sortedTimes[i], s: surv });
         }
-        steps.push({ t: times[i], s: surv });
       }
-      const lastS = steps[steps.length - 1].s;
 
       // Axes
       ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
@@ -1374,25 +1392,34 @@
         ctx.fillText((1 - i * 0.25).toFixed(2), pad.l - 6, y + 6);
       }
 
-      // Step function
+      // Step function — horizontal then vertical at each event
       ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(pad.l, pad.t + ih * (1 - steps[0].s));
+      let prevX = pad.l;
       for (let i = 1; i < steps.length; i++) {
-        const x = pad.l + (steps[i].t / times[n - 1]) * iw;
-        const prevY = pad.t + ih * (1 - steps[i - 1].s);
-        ctx.lineTo(x, prevY);
+        const x = pad.l + (steps[i].t / sortedTimes[n - 1]) * iw;
         const currY = pad.t + ih * (1 - steps[i].s);
+        // Horizontal line from previous x to current x at previous y
+        ctx.lineTo(x, pad.t + ih * (1 - steps[i - 1].s));
+        // Vertical drop at current x
         ctx.lineTo(x, currY);
+        prevX = x;
       }
+      // Extend to end of time axis
+      ctx.lineTo(W - pad.r, pad.t + ih * (1 - steps[steps.length - 1].s));
       ctx.stroke();
 
-      // Censored marks (vertical ticks on the step)
+      // Censored marks — find plateau y for each censored time
       for (let i = 0; i < n; i++) {
-        if (status[i] === 0) {
-          const tIdx = steps.findIndex(s => s.t === times[i]);
-          const x = pad.l + (times[i] / times[n - 1]) * iw;
-          const y = pad.t + ih * (1 - steps[tIdx].s);
+        if (sortedEvents[i] === 0) {
+          const x = pad.l + (sortedTimes[i] / sortedTimes[n - 1]) * iw;
+          // Find the plateau y at this censored time (last step before this time)
+          let plateauS = 1;
+          for (let j = steps.length - 1; j >= 0; j--) {
+            if (steps[j].t <= sortedTimes[i]) { plateauS = steps[j].s; break; }
+          }
+          const y = pad.t + ih * (1 - plateauS);
           ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2;
           ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x, y + 8); ctx.stroke();
         }
@@ -1416,18 +1443,12 @@
       ctx.fillText('截尾', pad.l + 38, pad.t + 28);
 
       // Result text
-      const events = status.filter(s => s === 1).length;
+      const events = sortedEvents.filter(e => e === 1).length;
       const censored = n - events;
-      // Median survival time: find when S(t) <= 0.5 first
+      // Median survival time: first step where S(t) <= 0.5
       let medianSurv = 'N/A';
-      let accSurv = 1.0;
-      for (let i = 0; i < n; i++) {
-        if (status[i] === 1) {
-          const d = status.slice(0, i + 1).filter(s => s === 1).length;
-          const atRisk = n - i;
-          accSurv *= (atRisk - 1) / atRisk;
-        }
-        if (accSurv <= 0.5) { medianSurv = times[i]; break; }
+      for (let i = 0; i < steps.length; i++) {
+        if (steps[i].s <= 0.5) { medianSurv = steps[i].t; break; }
       }
       resultDiv.innerHTML = `n=${n} &nbsp;|&nbsp; 事件数=${events} &nbsp;|&nbsp; 截尾数=${censored} &nbsp;|&nbsp; 中位生存时间=${medianSurv}`;
     }
