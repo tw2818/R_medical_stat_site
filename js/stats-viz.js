@@ -1575,6 +1575,9 @@
     else if (type === 'roc') renderROC(el);
     else if (type === 'cox') renderCoxHR(el);
     else if (type === 'survcomp') renderSurvivalComp(el);
+    else if (type === 'hist') renderHistogram(el);
+    else if (type === 'box') renderBoxplot(el);
+    else if (type === 'power') renderPower(el);
   }
 
   // ============================================================
@@ -1990,6 +1993,329 @@
     ctx.fillText('● 组1 (n=138)', padL + 10, padT + 18);
     ctx.fillStyle = '#2980b9';
     ctx.fillText('● 组2 (n=90)', padL + 120, padT + 18);
+  }
+
+  // ============================================================
+  // Histogram with Normal Distribution Overlay
+  // ============================================================
+  function renderHistogram(el) {
+    const id = 'hist-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '直方图与正态分布';
+    const rawData = el.dataset.data || '72,80,85,88,90,92,95,97,98,100,102,104,105,107,108,110,112,115,118,120,125';
+    const data = rawData.split(',').map(Number);
+    const n = data.length;
+    const mean = data.reduce((a, b) => a + b, 0) / n;
+    const variance = data.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
+    const sd = Math.sqrt(variance);
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="560" height="300" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:6px;font-size:13px;color:#555;">
+        n=${n} | 均值=${mean.toFixed(1)} | 标准差=${sd.toFixed(1)} | 红色曲线为正态分布拟合
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 560, H = 300;
+    const padL = 50, padR = 20, padT = 20, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    const minD = Math.min(...data), maxD = Math.max(...data);
+    const range = maxD - minD || 1;
+    const nbins = Math.max(8, Math.min(20, Math.round(n / 3)));
+    const binWidth = range / nbins;
+    const bins = Array(nbins).fill(0);
+    data.forEach(v => {
+      const b = Math.min(Math.floor((v - minD) / binWidth), nbins - 1);
+      bins[b]++;
+    });
+    const maxCount = Math.max(...bins);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+    // X tick labels
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    for (let i = 0; i <= nbins; i += Math.ceil(nbins / 8)) {
+      const x = padL + (i / nbins) * plotW;
+      ctx.fillText((minD + i * binWidth).toFixed(0), x, padT + plotH + 16);
+    }
+
+    // Y tick labels
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 5; i++) {
+      ctx.fillText(Math.round((i / 5) * maxCount), padL - 6, padT + (i / 5) * plotH + 4);
+    }
+
+    // Bars
+    const barW = plotW / nbins * 0.8;
+    bins.forEach((count, i) => {
+      const barH = (count / maxCount) * plotH * 0.85;
+      const x = padL + (i / nbins) * plotW + (plotW / nbins) * 0.1;
+      const y = padT + plotH - barH;
+      ctx.fillStyle = '#3498db'; ctx.fillRect(x, y, barW, barH);
+    });
+
+    // Normal curve overlay
+    ctx.beginPath(); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5;
+    const xRange = maxD - minD;
+    for (let px = 0; px <= plotW; px++) {
+      const v = minD + (px / plotW) * xRange;
+      const density = jStat.normal.pdf(v, mean, sd) * binWidth;
+      const y = padT + plotH - (density / (maxCount / n) / nbins * plotH * 0.85);
+      if (px === 0) ctx.moveTo(padL + px, y);
+      else ctx.lineTo(padL + px, y);
+    }
+    ctx.stroke();
+
+    // Labels
+    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('数值', padL + plotW / 2, H - 4);
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('频数', 0, 0); ctx.restore();
+  }
+
+  // ============================================================
+  // Boxplot (comparing groups)
+  // ============================================================
+  function renderBoxplot(el) {
+    const id = 'box-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '箱线图比较';
+    const rawGroups = el.dataset.groups || 'A组,B组,C组';
+    const rawDataArr = el.dataset.values || '45,52,55,58,60,62,65,68,70,75,80,48,52,56,60,63,67,70,72,78,82,50,53,58,61,64,68,71,74,79';
+
+    const groups = rawGroups.split(',');
+    const valuesPerGroup = rawDataArr.split(';');
+    const groupData = groups.map((g, i) => {
+      const vals = (valuesPerGroup[i] || '50,55,60,65,70').split(',').map(Number).filter(v => !isNaN(v));
+      return { name: g, data: vals };
+    });
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📦 ${title}</div>
+      <canvas id="${id}" width="560" height="300" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 560, H = 300;
+    const padL = 60, padR = 20, padT = 20, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    const allData = groupData.flatMap(g => g.data);
+    const minD = Math.min(...allData), maxD = Math.max(...allData);
+    const range = maxD - minD || 1;
+    const boxW = Math.min(60, plotW / groups.length * 0.6);
+    const gap = (plotW - boxW * groups.length) / (groups.length + 1);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const y = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+    const scaleY = v => padT + plotH - ((v - minD) / range) * plotH;
+
+    groupData.forEach((group, i) => {
+      const sorted = [...group.data].sort((a, b) => a - b);
+      const n = sorted.length;
+      const q1 = sorted[Math.floor(n * 0.25)];
+      const median = sorted[Math.floor(n * 0.5)];
+      const q3 = sorted[Math.floor(n * 0.75)];
+      const iqr = q3 - q1;
+      const lowerFence = Math.max(sorted[0], q1 - 1.5 * iqr);
+      const upperFence = Math.min(sorted[n - 1], q3 + 1.5 * iqr);
+      const outliers = group.data.filter(v => v < lowerFence || v > upperFence);
+
+      const cx = padL + gap * (i + 1) + boxW * i + boxW / 2;
+
+      // Whiskers
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx, scaleY(lowerFence)); ctx.lineTo(cx, scaleY(q1)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, scaleY(q3)); ctx.lineTo(cx, scaleY(upperFence)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - boxW / 4, scaleY(lowerFence)); ctx.lineTo(cx + boxW / 4, scaleY(lowerFence)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - boxW / 4, scaleY(upperFence)); ctx.lineTo(cx + boxW / 4, scaleY(upperFence)); ctx.stroke();
+
+      // Box
+      ctx.fillStyle = i === 0 ? '#3498db' : i === 1 ? '#2ecc71' : '#9b59b6';
+      ctx.globalAlpha = 0.7;
+      ctx.fillRect(cx - boxW / 2, scaleY(q3), boxW, scaleY(q1) - scaleY(q3));
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+      ctx.strokeRect(cx - boxW / 2, scaleY(q3), boxW, scaleY(q1) - scaleY(q3));
+
+      // Median line
+      ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(cx - boxW / 2, scaleY(median)); ctx.lineTo(cx + boxW / 2, scaleY(median)); ctx.stroke();
+
+      // Outliers
+      ctx.fillStyle = '#e74c3c';
+      outliers.forEach(o => {
+        ctx.beginPath(); ctx.arc(cx, scaleY(o), 3, 0, Math.PI * 2); ctx.fill();
+      });
+
+      // Label
+      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(group.name, cx, padT + plotH + 16);
+    });
+
+    // Y labels
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 5; i++) {
+      ctx.fillText((minD + (i / 5) * range).toFixed(0), padL - 6, padT + (i / 5) * plotH + 4);
+    }
+
+    // Legend
+    ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(padL + plotW - 60, padT + 12, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('中位数', padL + plotW - 52, padT + 16);
+  }
+
+  // ============================================================
+  // Power Analysis Explorer
+  // ============================================================
+  function renderPower(el) {
+    const id = 'power-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '功效分析';
+    const test = el.dataset.test || 'ttest';
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">⚡ ${title}</div>
+      <canvas id="${id}" width="560" height="300" style="display:block;margin:0 auto;"></canvas>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px;">
+        <label style="font-size:13px;">效应量 d:
+          <input type="range" id="${id}-d" min="1" max="20" value="8" step="1" style="width:100px;">
+          <span id="${id}-dval">0.8</span>
+        </label>
+        <label style="font-size:13px;">功效 1-β:
+          <input type="range" id="${id}-pwr" min="50" max="99" value="80" step="1" style="width:100px;">
+          <span id="${id}-pwrval">0.80</span>
+        </label>
+        <label style="font-size:13px;">α:
+          <input type="range" id="${id}-a" min="1" max="10" value="5" step="1" style="width:80px;">
+          <span id="${id}-aval">0.05</span>
+        </label>
+        <button id="${id}-calc" style="padding:4px 14px;background:#3498db;color:white;border:none;border-radius:4px;cursor:pointer;font-size:13px;">计算 n</button>
+      </div>
+      <div id="${id}-result" style="text-align:center;margin-top:10px;font-size:15px;font-weight:bold;color:#2c3e50;"></div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 560, H = 300;
+    const padL = 55, padR = 15, padT = 15, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    function drawPowerCurve() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('功效曲线 (两样本t检验)', W / 2, 20);
+
+      const d = parseFloat(document.getElementById(id + '-dval').textContent);
+      const alpha = parseFloat(document.getElementById(id + '-aval').textContent);
+
+      // Grid
+      ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH;
+        ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+      }
+
+      // Axes
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+      // Power curve (simplified: power increases with n for fixed effect size)
+      const maxN = 200;
+      const scaleX = n => padL + (n / maxN) * plotW;
+      const scaleY = p => padT + (1 - p) * plotH;
+
+      // Reference lines at power=0.8 and alpha
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, scaleY(0.8)); ctx.lineTo(padL + plotW, scaleY(0.8)); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Power curve
+      ctx.beginPath(); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5;
+      for (let n = 2; n <= maxN; n++) {
+        // Approximate power for two-sample t-test
+        const se = Math.sqrt(2 * (d * d) / n); // simplified
+        const zAlpha = jStat.normal.inv(1 - alpha / 2, 0, 1);
+        const zPower = zAlpha - d * Math.sqrt(n / 2);
+        const power = 1 - jStat.normal.cdf(zPower, 0, 1);
+        const x = scaleX(n), y = scaleY(Math.min(power, 0.999));
+        if (n === 2) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Labels
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      for (let i = 0; i <= 5; i++) {
+        ctx.textAlign = 'center';
+        ctx.fillText(Math.round((i / 5) * maxN) + '', padL + (i / 5) * plotW, padT + plotH + 16);
+        ctx.textAlign = 'right';
+        ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4);
+      }
+      ctx.textAlign = 'center';
+      ctx.fillText('每组样本量 n', padL + plotW / 2, H - 4);
+      ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+      ctx.fillText('功效 (1-β)', 0, 0); ctx.restore();
+
+      // Annotate 0.8 line
+      ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('power=0.8', padL + plotW + 2, scaleY(0.8) + 4);
+    }
+
+    drawPowerCurve();
+
+    const dSlider = document.getElementById(id + '-d');
+    const pwrSlider = document.getElementById(id + '-pwr');
+    const aSlider = document.getElementById(id + '-a');
+
+    dSlider.addEventListener('input', () => {
+      document.getElementById(id + '-dval').textContent = (dSlider.value / 10).toFixed(1);
+      drawPowerCurve();
+    });
+    pwrSlider.addEventListener('input', () => {
+      document.getElementById(id + '-pwrval').textContent = (pwrSlider.value / 100).toFixed(2);
+    });
+    aSlider.addEventListener('input', () => {
+      document.getElementById(id + '-aval').textContent = (aSlider.value / 100).toFixed(2);
+      drawPowerCurve();
+    });
+
+    document.getElementById(id + '-calc').addEventListener('click', () => {
+      const d = parseFloat(document.getElementById(id + '-dval').textContent);
+      const power = parseFloat(document.getElementById(id + '-pwrval').textContent);
+      const alpha = parseFloat(document.getElementById(id + '-aval').textContent);
+      const zAlpha = jStat.normal.inv(1 - alpha / 2, 0, 1);
+      const zBeta = jStat.normal.inv(power, 0, 1);
+      // For two-sample t-test: n = 2 * ((zAlpha + zBeta) / d)^2
+      const n = Math.ceil(2 * Math.pow((zAlpha + zBeta) / d, 2));
+      document.getElementById(id + '-result').textContent = '每组所需样本量 n ≈ ' + n + ' (每组 total: ' + n * 2 + ')';
+    });
   }
 
   // DOMContentLoaded 之后运行（但章节内容是 fetch 后才注入，需要用 MutationObserver）

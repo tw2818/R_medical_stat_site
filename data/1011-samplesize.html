@@ -533,6 +533,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>计算样本量就是解方程的过程，知道其中3个就可以算出最后一个，不同研究设计用的公式是不一样的，说白了样本量计算就是套公式而已！不怕复杂的直接用计算器也能算出来。</p>
 <p>而各种软件包括R语言不过是帮我们简化了过程，但是R语言并没有帮助我们简化效应值的计算…这个效应值计算很烦，这也是我更推荐PASS的重要原因，点点点就出来了，谁不喜欢呢？</p>
 <p>在R语言中一般使用<code>pwr</code>包进行功效分析，没安装的小伙伴自行安装一下即可。</p>
+<p>功效分析可视化：</p>
+<div class="stat-viz" data-type="power"
+  data-title="t检验功效分析"
+  data-test="ttest"
+  style="margin:16px 0"></div>
 <section id="t检验的样本量计算" class="level2" data-number="10.1">
 <h2 data-number="10.1" class="anchored" data-anchor-id="t检验的样本量计算"><span class="header-section-number">10.1</span> t检验的样本量计算</h2>
 <p>对于t检验，可以使用<code>pwr.t.test(n= , d= , sig.level= , power= , type= , alternative= )</code>计算样本量，其中： - n：样本量 - d：效应值，即标准化的均值之差，d = (μ1 - μ2) / σ，也就是（组1均值 - 组2均值）/ 标准差 - sig.level：显著性水平，默认值0.05 - power：功效 - type：检验类型：两样本t检验（two.sample），单样本t检验（one.sample），配对t检验（paired），默认两样本t检验 - alternative：双侧检验还是单侧检验，双侧（two.sided），单侧（less或者greater），默认双侧检验</p>

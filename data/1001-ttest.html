@@ -520,7 +520,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>t检验主要适用于1组或2组的均数的比较，要求数据符合正态性和方差齐性。关于t检验的本质问题本文不做过多探讨，只是学习如何用R语言实现t检验！</p>
 
-<div class="stat-viz" data-type="normal" data-mu="0" data-sigma="1" style="margin:24px 0"></div>
+<p>正态性检验与分布探索：</p>
+<div class="stat-viz" data-type="normal" data-mu="0" data-sigma="1" style="margin:16px 0"></div>
+<div class="stat-viz" data-type="hist" data-title="血红蛋白分布直方图 (例3-5数据模拟)" data-data="112,137,129,126,88,90,105,98,120,115,102,108,95,88,124,110,118,100,97,92,122,85,130,99,107,116,94,86,119,113" style="margin:16px 0"></div>
+<div class="stat-viz" data-type="box"
+  data-title="三组血压比较箱线图"
+  data-groups="对照组,A药组,B药组"
+  data-values="120,125,128,130,132,135,138,140,142,145;115,118,122,125,128,130,133,136,138,140,142;108,110,112,115,118,120,122,125,128,130"
+  style="margin:16px 0"></div>
 
 <p>在R中进行t检验非常简单，就是<code>t.test()</code>函数，不管是单样本、两样本都是这一个函数。
 <section id="单样本t检验" class="level2" data-number="1.1">
