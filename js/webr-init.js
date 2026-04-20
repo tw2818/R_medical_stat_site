@@ -9,7 +9,7 @@
   async function initWebR() {
     try {
       statusEl.textContent = '⚙️ 加载 WebR...';
-      const { WebR } = await import('https://cdn.jsdelivr.net/npm/webr@0.1.11/+esm');
+      const { WebR } = await import('https://cdn.jsdelivr.net/npm/webr@0.2.1/+esm');
       window.webRInstance = new WebR();
       await window.webRInstance.init();
       window.webRReady = true;
