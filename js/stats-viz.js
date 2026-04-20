@@ -2163,6 +2163,7 @@
     else if (type === 'blandaltman') renderBlandAltman(el);
     else if (type === 'funnel') renderFunnel(el);
     else if (type === 'sem') renderSEM(el);
+    else if (type === 'autocorrelation') renderAutocorrelation(el);
   }
 
   // ============================================================
@@ -2227,6 +2228,52 @@
           <span style="margin-right:15px">X₁,X₂: 外生显变量（自变量）</span>
           <span style="margin-right:15px">η₁,η₂: 内生潜变量（中介/因变量）</span>
           <span>Y₁,Y₂: 内生显变量（观测结果）</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ============================================================
+  // Autocorrelation (ACF/PACF) Plot
+  // ============================================================
+  function renderAutocorrelation(el) {
+    const id = 'acf-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '自相关图 (ACF/PACF)';
+    const rawValues = el.dataset.values || '0.85,0.72,0.58,0.45,0.32,0.21,0.12,0.05,-0.02,-0.08,-0.14,-0.18';
+    const values = rawValues.split(',').map(Number);
+    const n = values.length;
+    const barW = 28, padL = 40, padR = 30, padT = 40, padB = 40;
+    const svgW = padL + n * (barW + 6) + padR;
+    const svgH = 200;
+    const maxVal = Math.max(...values.map(Math.abs), 0.5);
+    const scale = (svgH - padT - padB) / 2 / maxVal;
+    const centerY = padT + (svgH - padT - padB) / 2;
+
+    el.innerHTML = `<div style="font-family:sans-serif">
+      <div style="background:#f8f9fa;border-radius:8px;padding:12px">
+        <div style="font-size:13px;font-weight:bold;color:#333;margin-bottom:8px">${title}</div>
+        <svg width="${svgW}" height="${svgH}" style="display:block;margin:0 auto">
+          <!-- 置信区间线 -->
+          <line x1="${padL}" y1="${centerY - scale*1.96/Math.sqrt(30)}" x2="${svgW-padR}" y2="${centerY - scale*1.96/Math.sqrt(30)}" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4,2"/>
+          <line x1="${padL}" y1="${centerY + scale*1.96/Math.sqrt(30)}" x2="${svgW-padR}" y2="${centerY + scale*1.96/Math.sqrt(30)}" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4,2"/>
+          <!-- 零线 -->
+          <line x1="${padL}" y1="${centerY}" x2="${svgW-padR}" y2="${centerY}" stroke="#999" stroke-width="1"/>
+          <!-- 条形 -->
+          ${values.map((v, i) => {
+            const barH = v * scale;
+            const x = padL + i * (barW + 6);
+            const yPos = v >= 0 ? centerY - barH : centerY;
+            return `<rect x="${x}" y="${yPos}" width="${barW}" height="${Math.abs(barH)}" fill="${v >= 0 ? '#1976d2' : '#dc3545'}" opacity="0.8" rx="2">
+              <title>Lag ${i}: ${v.toFixed(3)}</title>
+            </rect>
+            <text x="${x + barW/2}" y="${svgH-10}" text-anchor="middle" font-size="10" fill="#666">${i}</text>`;
+          }).join('')}
+          <!-- 标签 -->
+          <text x="${svgW/2}" y="${svgH-2}" text-anchor="middle" font-size="11" fill="#666">滞后期 (Lag)</text>
+          <text x="12" y="${centerY}" text-anchor="middle" font-size="10" fill="#666" transform="rotate(-90,12,${centerY})">ACF</text>
+        </svg>
+        <div style="margin-top:8px;font-size:11px;color:#666;text-align:center">
+          蓝色条形表示正自相关，红色表示负自相关；虚线为95%置信区间
         </div>
       </div>
     </div>`;
