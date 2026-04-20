@@ -75,9 +75,10 @@ R_medical_stat_site/
 │   ├── plotting.html        # 统计绘图
 │   ├── roc.html            # ROC 曲线
 │   ├── 表格三线表.html     # 三线表绘制
-│   └── *_files/            # 各章节关联图片（figure-html/*.png）
+│   ├── *.html              # 46 个章节 HTML 文件
+│   └── *_files/             # 各章节关联图片（统一在 data/ 下）
 │       1002-anova_files/figure-html/*.png
-│       1002-anova_files/figure-html/*.png
+│       ROC曲线_files/figure-html/*.png
 │       ...
 ├── figs/                   # 网站页面用到的独立图片资源
 │   └── *.png / *.jpg
