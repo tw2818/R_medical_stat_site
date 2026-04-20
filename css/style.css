@@ -476,6 +476,20 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
   text-overflow: ellipsis;
   margin-bottom: 4px;
 }
+.btn-home {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--sidebar-hover);
+  color: rgba(255,255,255,0.85);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: center;
+}
+.btn-home:hover { background: rgba(255,255,255,0.15); color: #fff; }
 .btn-continue {
   font-size: 0.7rem;
   padding: 3px 8px;
