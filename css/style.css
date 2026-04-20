@@ -236,6 +236,7 @@ img { max-width: 100%; display: block; }
   flex: 1;
   overflow-y: auto;
   padding: 32px 40px;
+  padding-bottom: calc(var(--panel-height) + 16px);
   height: 100%;
 }
 .chapter-section { display: none; max-width: 900px; margin: 0 auto; }
@@ -533,6 +534,7 @@ th {
   flex-direction: column;
   z-index: 50;
   transition: bottom var(--transition);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.35);
 }
 #code-panel.hidden { bottom: calc(-1 * var(--panel-height) - 2px); }
 .panel-header {
@@ -657,7 +659,7 @@ th {
     z-index: -1;
   }
   #topbar { display: flex; }
-  #content-wrapper { padding: 20px 16px; }
+  #content-wrapper { padding: 20px 16px; padding-bottom: calc(var(--panel-height) + 16px); }
   #code-panel { left: 0; bottom: 60px; height: 320px; }
   #code-panel.hidden { bottom: -322px; }
   .welcome-hero h1 { font-size: 1.5rem; }
