@@ -163,6 +163,10 @@ function navigateToChapter(groupKey, index) {
   const titleEl = $('current-chapter-title');
   if (titleEl) titleEl.textContent = chapter.title;
 
+  // 显示返回首页按钮
+  const homeBtn = $('home-btn');
+  if (homeBtn) homeBtn.style.display = 'inline-block';
+
   // 加载章节内容
   loadChapter(chapter.file);
 
@@ -419,33 +423,46 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ===== Hash 路由 =====
-  // 根据 URL hash 加载章节（书签/直接链接/浏览器后退前进）
-  function navigateByHash() {
-    const hash = window.location.hash.replace('#', '');
-    if (!hash) return;
-    // 查找对应章节
-    for (const [groupKey, list] of Object.entries(CHAPTERS)) {
-      const idx = list.findIndex(ch => ch.id === hash);
-      if (idx !== -1) {
-        // 仅更新激活状态和标题，不重复加载
-        if (currentGroup === groupKey && currentIndex === idx) return;
-        currentGroup = groupKey;
-        currentIndex = idx;
-        updateActiveLink(groupKey, idx);
-        const titleEl = $('current-chapter-title');
-        if (titleEl) titleEl.textContent = list[idx].title;
-        loadChapter(list[idx].file);
-        updateNavGroupExpansion();
-        return;
-      }
-    }
-  }
-
-  // 监听 hash 变化（浏览器后退前进）
-  window.addEventListener('hashchange', navigateByHash);
-
-  // 页面加载时检查 hash
+  // 页面加载时检查 hash（用 setTimeout 确保 buildNav 已完成）
   if (window.location.hash) {
-    navigateByHash();
+    setTimeout(navigateByHash, 0);
   }
 });
+
+// ===== Hash 路由（放 DOMContentLoaded 之外，保证 CHAPTERS 已就绪）=====
+window.navigateByHash = function() {
+  const hash = window.location.hash.replace('#', '');
+  if (!hash) return;
+  for (const [groupKey, list] of Object.entries(CHAPTERS)) {
+    const idx = list.findIndex(ch => ch.id === hash);
+    if (idx !== -1) {
+      if (currentGroup === groupKey && currentIndex === idx) return;
+      currentGroup = groupKey;
+      currentIndex = idx;
+      updateActiveLink(groupKey, idx);
+      const titleEl = $('current-chapter-title');
+      if (titleEl) titleEl.textContent = list[idx].title;
+      loadChapter(list[idx].file);
+      updateNavGroupExpansion();
+      return;
+    }
+  }
+};
+
+window.addEventListener('hashchange', navigateByHash);
+
+// ===== 返回首页 =====
+window.showWelcome = function() {
+  history.replaceState(null, '', window.location.pathname);
+  currentGroup = null;
+  currentIndex = 0;
+  const wrapper = $('chapter-content');
+  const welcome = $('welcome');
+  if (wrapper) { wrapper.innerHTML = ''; wrapper.classList.remove('active'); }
+  if (welcome) welcome.classList.add('active');
+  document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));
+  const titleEl = $('current-chapter-title');
+  if (titleEl) titleEl.textContent = '';
+  const homeBtn = $('home-btn');
+  if (homeBtn) homeBtn.style.display = 'none';
+};
