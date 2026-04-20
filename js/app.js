@@ -429,25 +429,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ===== Hash 路由（放 DOMContentLoaded 之外，保证 CHAPTERS 已就绪）=====
-window.navigateByHash = function() {
+// ===== Hash 路由 =====
+function navigateByHash() {
   const hash = window.location.hash.replace('#', '');
   if (!hash) return;
   for (const [groupKey, list] of Object.entries(CHAPTERS)) {
     const idx = list.findIndex(ch => ch.id === hash);
     if (idx !== -1) {
       if (currentGroup === groupKey && currentIndex === idx) return;
-      currentGroup = groupKey;
-      currentIndex = idx;
-      updateActiveLink(groupKey, idx);
-      const titleEl = $('current-chapter-title');
-      if (titleEl) titleEl.textContent = list[idx].title;
-      loadChapter(list[idx].file);
-      updateNavGroupExpansion();
+      // 用 navigateToChapter 统一处理（含 home-btn 显示）
+      navigateToChapter(groupKey, idx);
       return;
     }
   }
-};
+}
 
 window.addEventListener('hashchange', navigateByHash);
 
