@@ -1,0 +1,16 @@
+{
+  "name": "R语言实战医学统计",
+  "short_name": "R医学统计",
+  "description": "面向医学科研人员的交互式 R 语言统计教程",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
