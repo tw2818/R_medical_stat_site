@@ -81,6 +81,12 @@ function buildNav() {
 
 function updateChapterCount() {
   const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
+  const totalVisited = visited.length;
+  const totalChapters = Object.values(CHAPTERS).flat().length;
+  const progressText = document.getElementById('progress-text');
+  if (progressText) progressText.textContent = `${totalVisited}/${totalChapters}`;
+  const progressFill = document.getElementById('progress-fill');
+  if (progressFill) progressFill.style.width = `${(totalVisited / totalChapters) * 100}%`;
   GROUP_CONFIG.forEach(({ key }) => {
     const list = CHAPTERS[key] || [];
     const visitedCount = list.filter(ch => visited.includes(ch.id)).length;
