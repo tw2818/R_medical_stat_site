@@ -540,6 +540,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   style="margin:16px 0"></div>
 <section id="t检验的样本量计算" class="level2" data-number="10.1">
 <h2 data-number="10.1" class="anchored" data-anchor-id="t检验的样本量计算"><span class="header-section-number">10.1</span> t检验的样本量计算</h2>
+<div class="stat-viz" data-type="samplesizecalc" data-title="交互式样本量计算器"></div>
 <p>对于t检验，可以使用<code>pwr.t.test(n= , d= , sig.level= , power= , type= , alternative= )</code>计算样本量，其中： - n：样本量 - d：效应值，即标准化的均值之差，d = (μ1 - μ2) / σ，也就是（组1均值 - 组2均值）/ 标准差 - sig.level：显著性水平，默认值0.05 - power：功效 - type：检验类型：两样本t检验（two.sample），单样本t检验（one.sample），配对t检验（paired），默认两样本t检验 - alternative：双侧检验还是单侧检验，双侧（two.sided），单侧（less或者greater），默认双侧检验</p>
 <section id="单样本t检验样本均数和已知总体均数比较" class="level3" data-number="10.1.1">
 <h3 data-number="10.1.1" class="anchored" data-anchor-id="单样本t检验样本均数和已知总体均数比较"><span class="header-section-number">10.1.1</span> 单样本t检验（样本均数和已知总体均数比较）</h3>

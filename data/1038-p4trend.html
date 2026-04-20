@@ -521,7 +521,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>这几个概念在统计学课本是找不到的，但是在临床研究的SCI论文中经常见到，所以有必要学习它，了解它，实现它！</p>
 <section id="p-for-trend" class="level2" data-number="41.1">
 <h2 data-number="41.1" class="anchored" data-anchor-id="p-for-trend"><span class="header-section-number">41.1</span> P for trend</h2>
-<p><code>P for trend</code>是线性趋势检验的P值，用于反映自变量和因变量是否存在线性趋势关系。线性趋势检验，之前介绍过<code>Cochran Armitage</code>检验，不过是针对分类变量的。</p>
+<div class="stat-viz" data-type="subgroupforest" data-title="趋势分析森林图演示" data-labels="总体,四分位Q1,Q2,Q3,Q4" data-hr="0.78,0.85,0.72,0.58,0.45" data-lower="0.65,0.65,0.52,0.38,0.28" data-upper="1.01,1.12,0.98,0.85,0.72"></div>
+<p><code>P for trend</code>是线性趋势检验的P值，用于反映自变量和因变量是否存在线性趋势关系。</p>
 <p>今天要介绍的<code>P for trend</code>主要是针对连续型变量的。</p>
 <p>关于<code>p for trend</code>具体含义和数值型变量分箱的方法，大家可以参考医咖会的文章：<a href="https://mp.weixin.qq.com/s/VreSa49wjuOw3gGnFApmZw">p for trend是个啥</a></p>
 <p>把连续性变量转换为分类变量(在R里转变为因子)，设置哑变量，进行回归分析，即可得到OR值及95%的可信区间；把转换好的分类变量当做数值型，进行回归分析，即可得到<code>P for trend</code></p>

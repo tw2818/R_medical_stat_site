@@ -725,6 +725,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="倾向性评分分层" class="level2" data-number="39.5">
 <h2 data-number="39.5" class="anchored" data-anchor-id="倾向性评分分层"><span class="header-section-number">39.5</span> 倾向性评分分层</h2>
+<div class="stat-viz" data-type="psdist" data-title="倾向评分分层分布"></div>
 <p>顾名思义，根据PS值进行分层，然后在每层内进行分析。每一层的协变量分布可认为是同质或均衡的。先对每一层干预与结局之间的关联进行估算，然后对所有层的关联作加权平均，最后得出干预与结局之间的总的关联效应。</p>
 <p>一般来说最好保证干预组和对照组两组的PS范围在差不多的范围内，如果相差很大，那分层效果肯定不好。比如干预组PS范围是0.5<sub>0.9，对照组PS范围是0.01</sub>0.4，这样两组PS完全没有交集，按照PS进行分层没啥意义。</p>
 <p>首先看一下PS的范围：</p>
