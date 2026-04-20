@@ -2172,6 +2172,7 @@
     else if (type === 'nomogram') renderNomogram(el);
     else if (type === 'bar') renderBarChart(el);
     else if (type === 'pie') renderPieChart(el);
+    else if (type === 'metaforest') renderMetaForest(el);
   }
 
   // ============================================================
@@ -4020,6 +4021,104 @@
     [0.25, 0.5, 1, 2, 3].forEach(v => {
       if (v >= minV && v <= maxV) ctx.fillText(v.toFixed(v === 1 ? 0 : 2), scaleX(v), H - 8);
     });
+  }
+
+  // ============================================================
+  // Meta-analysis Forest Plot (Generic)
+  // ============================================================
+  function renderMetaForest(el) {
+    const id = 'metaforest-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Meta分析森林图';
+    const rawLabels = el.dataset.labels || '研究1,研究2,研究3,研究4,研究5,总体效应';
+    const rawHR = el.dataset.hr || '0.75,0.82,0.68,0.91,0.78,0.77';
+    const rawLower = el.dataset.lower || '0.52,0.61,0.45,0.72,0.58,0.65';
+    const rawUpper = el.dataset.upper || '1.08,1.10,1.03,1.15,1.05,0.91';
+    const rawWeights = el.dataset.weights || '25,30,15,12,18,100';
+
+    const labels = rawLabels.split(',');
+    const hrs = rawHR.split(',').map(Number);
+    const lower = rawLower.split(',').map(Number);
+    const upper = rawUpper.split(',').map(Number);
+    const weights = rawWeights.split(',').map(Number);
+    const n = labels.length;
+
+    const barH = 32, padL = 130, padR = 80, padT = 55, padB = 35;
+    const rowH = barH + 6;
+    const W = 580, H = padT + n * rowH + padB + 20;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;font-size:12px;color:#555;margin-top:6px;">
+        HR&lt;1 表示有利 | 权重(%)显示在右侧 | 钻石为汇总效应
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 20);
+
+    const allVals = hrs.concat(lower).concat(upper);
+    const minV = Math.min(...allVals) - 0.05, maxV = Math.max(...allVals) + 0.1;
+    const scaleX = v => padL + ((Math.log(v) - Math.log(minV)) / (Math.log(maxV) - Math.log(minV))) * (W - padL - padR);
+
+    // Vertical ref line at HR=1
+    const refX = scaleX(1);
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(refX, padT - 15); ctx.lineTo(refX, H - padB + 10); ctx.stroke();
+    ctx.setLineDash([]);
+
+    labels.forEach((label, i) => {
+      const y = padT + i * rowH;
+      const hr = hrs[i], lo = lower[i], up = upper[i], w = weights[i];
+      const isOverall = i === n - 1;
+
+      // Label
+      ctx.fillStyle = '#333'; ctx.font = isOverall ? 'bold 12px sans-serif' : '12px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(label, padL - 8, y + barH / 2 + 4);
+
+      if (isOverall) {
+        // Summary diamond
+        const mx = scaleX(hr), my = y + barH / 2;
+        ctx.fillStyle = '#2c3e50';
+        ctx.beginPath();
+        ctx.moveTo(mx, my - 9);
+        ctx.lineTo(mx + 8, my);
+        ctx.lineTo(mx, my + 9);
+        ctx.lineTo(mx - 8, my);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // CI line
+        ctx.strokeStyle = '#3498db'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(scaleX(lo), y + barH / 2); ctx.lineTo(scaleX(up), y + barH / 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(scaleX(lo), y + barH / 2 - 4); ctx.lineTo(scaleX(lo), y + barH / 2 + 4); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(scaleX(up), y + barH / 2 - 4); ctx.lineTo(scaleX(up), y + barH / 2 + 4); ctx.stroke();
+
+        // Square marker
+        ctx.fillStyle = '#2980b9';
+        ctx.fillRect(scaleX(hr) - 4, y + barH / 2 - 4, 8, 8);
+      }
+
+      // HR text
+      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(hr.toFixed(2) + ' (' + lo.toFixed(2) + '-' + up.toFixed(2) + ')', W - padR + 5, y + barH / 2 + 4);
+
+      // Weight
+      ctx.textAlign = 'right';
+      ctx.fillText(!isOverall ? w + '%' : '-', W - 5, y + barH / 2 + 4);
+    });
+
+    // X axis ticks
+    ctx.fillStyle = '#666'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    [0.2, 0.5, 0.75, 1, 1.5, 2].forEach(v => {
+      if (v >= minV && v <= maxV) ctx.fillText(v.toFixed(v === 1 ? 0 : 2), scaleX(v), H - 5);
+    });
+    ctx.fillText('HR', W - padR + 5, H - 5);
   }
 
   // ============================================================
