@@ -2184,6 +2184,7 @@
     else if (type === 'radar') renderRadarChart(el);
     else if (type === 'sem') renderSEM(el);
     else if (type === 'sempath') renderSEMPath(el);
+    else if (type === 'riskdist') renderRiskScoreDist(el);
   }
 
   // ============================================================
@@ -4877,6 +4878,126 @@
       ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(i + 1, px, py + 3);
     });
+  }
+
+  // ============================================================
+  // Risk Score Distribution (Logistic回归预测概率分布)
+  // ============================================================
+  // <div class="stat-viz" data-type="riskdist" data-title="Logistic回归风险评分分布" data-event="[0.12,0.18,0.25,0.32,0.38,0.45,0.52,0.58,0.65,0.71,0.78,0.82,0.88,0.92,0.95,0.97,0.99]" data-nonevent="[0.05,0.08,0.10,0.12,0.15,0.18,0.22,0.28,0.35,0.42,0.48,0.55,0.61,0.68,0.74,0.80,0.85,0.88,0.91,0.93,0.95,0.97,0.98]"></div>
+  function renderRiskScoreDist(el) {
+    const id = 'riskdist-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Logistic回归风险评分分布';
+    const rawEvent = el.dataset.event || '0.12,0.18,0.25,0.32,0.38,0.45,0.52,0.58,0.65,0.71,0.78,0.82,0.88,0.92,0.95,0.97,0.99';
+    const rawNoEvent = el.dataset.nonevent || '0.05,0.08,0.10,0.12,0.15,0.18,0.22,0.28,0.35,0.42,0.48,0.55,0.61,0.68,0.74,0.80,0.85,0.88,0.91,0.93,0.95,0.97,0.98';
+    const eventProbs = rawEvent.split(',').map(Number);
+    const noEventProbs = rawNoEvent.split(',').map(Number);
+
+    const W = 560, H = 320;
+    const padL = 50, padR = 20, padT = 40, padB = 50;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📈 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="display:flex;justify-content:center;gap:20px;margin-top:8px;font-size:12px;">
+        <span style="color:#e74c3c;">● 事件组 (n=${eventProbs.length})</span>
+        <span style="color:#2ecc71;">● 无事件组 (n=${noEventProbs.length})</span>
+        <span style="color:#3498db;">— 预测概率分布</span>
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // X axis: 0 to 1 (probability)
+    const xMin = 0, xMax = 1;
+    const scaleX = v => padL + ((v - xMin) / (xMax - xMin)) * plotW;
+
+    // Draw events histogram
+    const bins = 15;
+    const eventCounts = new Array(bins).fill(0);
+    eventProbs.forEach(p => {
+      const bin = Math.min(Math.floor(p * bins), bins - 1);
+      eventCounts[bin]++;
+    });
+    const noEventCounts = new Array(bins).fill(0);
+    noEventProbs.forEach(p => {
+      const bin = Math.min(Math.floor(p * bins), bins - 1);
+      noEventCounts[bin]++;
+    });
+
+    const maxCount = Math.max(...eventCounts, ...noEventCounts);
+    const barW = plotW / bins - 2;
+    const scaleY = v => padT + plotH - (v / maxCount) * plotH * 0.75;
+
+    // Grid lines
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padT + (i / 4) * plotH;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // X axis
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    for (let i = 0; i <= 10; i++) {
+      const v = i / 10;
+      ctx.fillText(v.toFixed(1), scaleX(v), padT + plotH + 15);
+    }
+    ctx.fillStyle = '#333'; ctx.font = '12px sans-serif';
+    ctx.fillText('预测概率', padL + plotW / 2, H - 8);
+
+    // Y axis
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.stroke();
+    ctx.textAlign = 'right'; ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round((i / 4) * maxCount);
+      const y = scaleY(v);
+      ctx.fillText(v.toString(), padL - 5, y + 4);
+    }
+
+    // Draw bars - no event (behind)
+    noEventCounts.forEach((cnt, i) => {
+      const x = scaleX(i / bins) + 1;
+      const y = scaleY(cnt);
+      ctx.fillStyle = '#2ecc7144';
+      ctx.fillRect(x, y, barW, padT + plotH - y);
+      ctx.strokeStyle = '#2ecc71'; ctx.lineWidth = 0.5;
+      ctx.strokeRect(x, y, barW, padT + plotH - y);
+    });
+
+    // Draw bars - event (front)
+    eventCounts.forEach((cnt, i) => {
+      const x = scaleX(i / bins) + 1;
+      const y = scaleY(cnt);
+      ctx.fillStyle = '#e74c3c66';
+      ctx.fillRect(x, y, barW, padT + plotH - y);
+      ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 0.5;
+      ctx.strokeRect(x, y, barW, padT + plotH - y);
+    });
+
+    // Optimal cutoff line (Youden's J)
+    const allProbs = eventProbs.concat(noEventProbs);
+    let bestJ = 0, bestCut = 0.5;
+    for (let t = 0.05; t < 0.95; t += 0.02) {
+      const tp = eventProbs.filter(p => p >= t).length / eventProbs.length;
+      const fp = noEventProbs.filter(p => p >= t).length / noEventProbs.length;
+      const j = tp - fp;
+      if (j > bestJ) { bestJ = j; bestCut = t; }
+    }
+    const cutX = scaleX(bestCut);
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = '#8e44ad'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cutX, padT); ctx.lineTo(cutX, padT + plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#8e44ad'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('最佳截断值: ' + bestCut.toFixed(2), cutX, padT - 5);
   }
 
   // 暴露给外部调用（app.js 在 loadChapter 完成后调用）

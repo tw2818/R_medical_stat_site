@@ -751,6 +751,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="stat-viz" data-type="confusionmatrix" data-title="Logistic回归混淆矩阵示例" data-tp="38" data-fp="7" data-fn="5" data-tn="35"></div>
 <p>📉 Logistic回归模型评价——NNT（Number Needed to Treat）：</p>
 <div class="stat-viz" data-type="nnt" data-title="需要治疗的人数（NNT）" data-nnt="11" data-ci_lower="7" data-ci_upper="22"></div>
+<p>📊 Logistic回归模型评价——风险评分分布（预测概率直方图）：</p>
+<div class="stat-viz" data-type="riskdist" data-title="冠心病风险预测模型：事件组 vs 无事件组预测概率分布" data-event="0.12,0.18,0.25,0.32,0.38,0.45,0.52,0.58,0.65,0.71,0.78,0.82,0.88,0.92,0.95,0.97,0.99" data-nonevent="0.05,0.08,0.10,0.12,0.15,0.18,0.22,0.28,0.35,0.42,0.48,0.55,0.61,0.68,0.74,0.80,0.85,0.88,0.91,0.93,0.95,0.97,0.98"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 默认返回logit(P)的值</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(f)</span>
