@@ -531,6 +531,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="方差分析的3种类型" class="level2" data-number="18.2">
 <h2 data-number="18.2" class="anchored" data-anchor-id="方差分析的3种类型"><span class="header-section-number">18.2</span> 方差分析的3种类型</h2>
+<div class="stat-viz" data-type="anova" data-title="均衡 vs 非均衡设计 ANOVA 对比" data-groups="3" data-means="10.5,12.3,15.8" data-sds="2.1,2.5,3.1" data-ns="50,50,50"></div>
 <p>在计算方差分析中的平方和时，有3种类型（你可以简单理解为方差分析有3种类型），SPSS/SAS在做方差分析的时候，默认是<strong>类型Ⅲ</strong>，但是R语言中的<code>aov()</code>函数做方差分析时，默认是<strong>类型Ⅰ</strong>。</p>
 <p>R语言中做方差分析是用公式表示的，比如：<code>aov(y ~ A + B + A:B, data = df)</code>。</p>
 <blockquote class="blockquote">
