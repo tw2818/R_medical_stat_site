@@ -2,7 +2,7 @@
 
 > 面向医学科研人员的交互式 R 语言统计教程，完全复现孙振球《医学统计学》第5版例题。
 
-**在线访问：** https://r-medical-stat-site.vercel.app
+**在线访问：** https://r.tweb.one
 
 ---
 

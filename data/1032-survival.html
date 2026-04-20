@@ -1033,6 +1033,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p><code>Concordance= 0.645</code>是Cox回归的C-index，最后给出了<code>Likelihood ratio test</code>似然比检验的统计量、自由度、P值；<code>Wald test</code>的统计量、自由度、P值；<code>Score (logrank) test</code>的统计量、自由度、P值。</p>
 <p>想获得<em>整洁的结果</em>不需要自己提取，只要用神包<code>broom</code>即可：</p>
+<div class="stat-viz" data-type="cox"
+  data-title="Cox 回归 HR 森林图"
+  data-labels="sex (male),age,ph.karno"
+  data-values="0.608,1.012,0.987"
+  data-lower="0.438,0.994,0.976"
+  data-upper="0.845,1.031,0.998"
+  data-p="0.003,0.188,0.023"></div>
+<div class="stat-viz" data-type="survcomp"
+  data-title="两组生存曲线比较 (模拟数据)"
+  data-label1="男性 (n=138)"
+  data-label2="女性 (n=90)"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(fit.cox, <span class="at">exponentiate =</span> T, <span class="at">conf.int =</span> T)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="do">## # A tibble: 3 × 7</span></span>

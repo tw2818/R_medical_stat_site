@@ -1573,6 +1573,8 @@
     else if (type === 'km') renderKM(el);
     else if (type === 'logistic') renderLogisticOR(el);
     else if (type === 'roc') renderROC(el);
+    else if (type === 'cox') renderCoxHR(el);
+    else if (type === 'survcomp') renderSurvivalComp(el);
   }
 
   // ============================================================
@@ -1793,6 +1795,201 @@
         document.getElementById(id + '-spec').textContent = (1 - best.fpr).toFixed(3);
       }
     };
+  }
+
+  // ============================================================
+  // Cox Regression HR Forest Plot
+  // ============================================================
+  function renderCoxHR(el) {
+    const id = 'cox-hr-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Cox 回归 HR 森林图';
+    const rawValues = el.dataset.values || '0.608,1.012,0.987';
+    const rawLabels = el.dataset.labels || 'sex (male),age,ph.karno';
+    const rawLower = el.dataset.lower || '0.438,0.994,0.976';
+    const rawUpper = el.dataset.upper || '0.845,1.031,0.998';
+    const rawPval = el.dataset.p || '0.003,0.188,0.023';
+
+    const values = rawValues.split(',').map(Number);
+    const labels = rawLabels.split(',');
+    const lower = rawLower.split(',').map(Number);
+    const upper = rawUpper.split(',').map(Number);
+    const pvals = rawPval.split(',').map(Number);
+
+    const n = values.length;
+    const barH = 36, padL = 140, padR = 60, padT = 50, padB = 30;
+    const rowH = barH + 8;
+    const W = 560, H = padT + n * rowH + padB + 20;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">🏥 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+        垂直虚线 HR=1 表示无效线 | ● 表示点估计值 | 误差线为 95% CI
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // HR=1 reference line (log scale)
+    const logVals = values.concat(lower).concat(upper).map(v => Math.log(v));
+    const minLog = Math.min(...logVals) - 0.5;
+    const maxLog = Math.max(...logVals) + 0.3;
+    const scaleX = v => padL + ((Math.log(v) - minLog) / (maxLog - minLog)) * (W - padL - padR);
+
+    const refX = scaleX(1);
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(refX, padT); ctx.lineTo(refX, H - padB); ctx.stroke();
+    ctx.setLineDash([]);
+
+    values.forEach((hr, i) => {
+      const y = padT + i * rowH + barH / 2;
+      const x = scaleX(hr);
+      const xLow = scaleX(Math.max(lower[i], Math.pow(10, minLog)));
+      const xHigh = scaleX(Math.min(upper[i], Math.pow(10, maxLog)));
+      const sig = lower[i] > 1 || upper[i] < 1;
+      const pText = pvals[i] < 0.001 ? 'p<0.001' : 'p=' + pvals[i].toFixed(3);
+
+      ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(labels[i] || ('V' + (i + 1)), padL - 8, y + 4);
+
+      ctx.strokeStyle = '#666'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(xLow, y); ctx.lineTo(xHigh, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xLow, y - 5); ctx.lineTo(xLow, y + 5); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xHigh, y - 5); ctx.lineTo(xHigh, y + 5); ctx.stroke();
+
+      ctx.fillStyle = sig ? '#e74c3c' : '#3498db';
+      ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = '#333'; ctx.font = '12px monospace'; ctx.textAlign = 'left';
+      ctx.fillText('HR=' + hr.toFixed(3) + ' (' + pText + ')', x + 8, y + 4);
+    });
+
+    const logTicks = [0.2, 0.5, 1, 2, 5];
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    logTicks.filter(v => v >= Math.pow(10, minLog) && v <= Math.pow(10, maxLog)).forEach(v => {
+      ctx.fillText(v.toString(), scaleX(v), H - 10);
+    });
+
+    ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Hazard Ratio (log scale)', 0, 0); ctx.restore();
+  }
+
+  // ============================================================
+  // Survival Curve Comparison (two groups)
+  // ============================================================
+  function renderSurvivalComp(el) {
+    const id = 'surv-comp-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '两组生存曲线比较';
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📈 ${title}</div>
+      <canvas id="${id}" width="560" height="320" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:8px;">
+        <span style="display:inline-block;width:20px;height:3px;background:#e74c3c;vertical-align:middle;margin-right:4px;"></span> 组1
+        <span style="display:inline-block;width:20px;height:3px;background:#2980b9;vertical-align:middle;margin-left:16px;margin-right:4px;"></span> 组2
+        <span style="margin-left:16px;font-size:13px;color:#555;">中位生存时间: <strong id="${id}-med1">--</strong> vs <strong id="${id}-med2">--</strong></span>
+      </div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 560, H = 320;
+    const padL = 55, padR = 15, padT = 20, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    // Generate two survival curve datasets (模拟肺癌 male vs female 分组)
+    function generateKMData(n, lambda, seed) {
+      const events = [], times = [];
+      for (let i = 0; i < n; i++) {
+        const t = -Math.log(1 - Math.random()) / lambda * (0.7 + Math.random() * 0.6);
+        const status = Math.random() > 0.3 ? 1 : 0;
+        times.push(t); events.push(status);
+      }
+      const sorted = times.map((t, i) => ({ t, e: events[i] })).sort((a, b) => a.t - b.t);
+      let surv = 1, S = [1], T = [0];
+      sorted.forEach(d => {
+        if (d.e === 1) { surv *= 1 - 1 / (n - sorted.slice(0, sorted.indexOf(d)).filter(x => x.e === 1).length || 1); }
+        S.push(surv); T.push(d.t);
+      });
+      return { T, S };
+    }
+
+    const group1 = generateKMData(138, 0.015);
+    const group2 = generateKMData(90, 0.022);
+
+    const allTimes = [...group1.T, ...group2.T].sort((a, b) => a - b);
+    const maxT = Math.max(...allTimes);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+    // Y axis label
+    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('生存概率 S(t)', W / 2, H - 4);
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('生存时间', 0, 0); ctx.restore();
+
+    // X axis label
+    ctx.fillText('时间', padL + plotW / 2, H - 4);
+
+    // Y tick labels
+    ctx.font = '11px sans-serif';
+    for (let i = 0; i <= 5; i++) {
+      ctx.textAlign = 'right';
+      ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4);
+      ctx.textAlign = 'center';
+      ctx.fillText(Math.round((i / 5) * maxT) + '', padL + (i / 5) * plotW, padT + plotH + 16);
+    }
+
+    function drawStepCurve(T, S, color) {
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      T.forEach((t, i) => {
+        const x = padL + (t / maxT) * plotW;
+        const y = padT + (1 - S[i]) * plotH;
+        if (i === 0) ctx.moveTo(x, y);
+        else {
+          const prevX = padL + (T[i - 1] / maxT) * plotW;
+          ctx.lineTo(x, padT + (1 - S[i - 1]) * plotH);
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+    }
+
+    drawStepCurve(group1.T, group1.S, '#e74c3c');
+    drawStepCurve(group2.T, group2.S, '#2980b9');
+
+    // Median survival (approximate)
+    function getMedian(T, S) {
+      for (let i = 0; i < S.length; i++) { if (S[i] <= 0.5) return T[i]; }
+      return T[T.length - 1];
+    }
+    document.getElementById(id + '-med1').textContent = getMedian(group1.T, group1.S).toFixed(0) + 'd';
+    document.getElementById(id + '-med2').textContent = getMedian(group2.T, group2.S).toFixed(0) + 'd';
+
+    // Legend
+    ctx.fillStyle = '#e74c3c'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('● 组1 (n=138)', padL + 10, padT + 18);
+    ctx.fillStyle = '#2980b9';
+    ctx.fillText('● 组2 (n=90)', padL + 120, padT + 18);
   }
 
   // DOMContentLoaded 之后运行（但章节内容是 fetch 后才注入，需要用 MutationObserver）
