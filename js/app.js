@@ -171,6 +171,9 @@ async function loadChapter(filename) {
     Prism.highlightAll();
     setupChapterInteractions(wrapper);
 
+    // 初始化统计可视化组件
+    if (window.initStatViz) window.initStatViz();
+
     // 更新章节计数
     updateChapterCount();
     updateNavGroupExpansion();

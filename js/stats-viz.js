@@ -1578,4 +1578,8 @@
     init();
     setupObserver();
   });
+
+  // 暴露给外部调用（app.js 在 loadChapter 完成后调用）
+  window.initStatViz = init;
+  window.setupStatVizObserver = setupObserver;
 })();
