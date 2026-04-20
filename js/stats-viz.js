@@ -2176,6 +2176,7 @@
     else if (type === 'gauge') renderGaugeChart(el);
     else if (type === 'sankey') renderSankey(el);
     else if (type === 'spine') renderSpinePlot(el);
+    else if (type === 'errorbar') renderErrorBar(el);
   }
 
   // ============================================================
@@ -5205,5 +5206,109 @@
       const y = padT + (i / 4) * totalH;
       ctx.fillText((i / 4 * 100).toFixed(0) + '%', padL - 6, y + 4);
     }
+  }
+
+  // ============================================================
+  // Error Bar Chart (Mean ± CI)
+  // ============================================================
+  function renderErrorBar(el) {
+    const id = 'errbar-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '误差条图（均数±95%CI）';
+    // data-labels: comma-separated group names
+    // data-means: comma-separated means
+    // data-lower: comma-separated lower CI bounds
+    // data-upper: comma-separated upper CI bounds
+    const rawLabels = el.dataset.labels || '安慰剂组,新药2.4mg,新药4.8mg,新药7.2mg';
+    const rawMeans = el.dataset.means || '3.43,2.72,2.70,1.97';
+    const rawLower = el.dataset.lower || '3.17,2.49,2.52,1.70';
+    const rawUpper = el.dataset.upper || '3.69,2.94,2.88,2.23';
+    const labels = rawLabels.split(',');
+    const means = rawMeans.split(',').map(Number);
+    const lower = rawLower.split(',').map(Number);
+    const upper = rawUpper.split(',').map(Number);
+    const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12'];
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="480" height="300" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 480, H = 300;
+    const padL = 70, padR = 20, padT = 40, padB = 50;
+    const plotW = W - padL - padR;
+    const plotH = H - padT - padB;
+    const n = labels.length;
+    const barW = plotW / n * 0.4;
+    const gap = (plotW - barW * n) / (n + 1);
+    const allVals = means.concat(lower).concat(upper);
+    const yMin = Math.min(...allVals) * 0.9;
+    const yMax = Math.max(...allVals) * 1.1;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // Y axis
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH);
+    ctx.stroke();
+
+    // Y axis label
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('95% CI', 0, 0); ctx.restore();
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const y = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Y tick labels
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 5; i++) {
+      const y = padT + (i / 5) * plotH;
+      const v = (yMax - (i / 5) * (yMax - yMin)).toFixed(1);
+      ctx.fillText(v, padL - 6, y + 4);
+    }
+
+    const yRange = yMax - yMin;
+    const sy = (v) => padT + plotH - ((v - yMin) / yRange) * plotH;
+
+    // Error bars
+    labels.forEach((label, i) => {
+      const x = padL + gap + i * (barW + gap) + barW / 2;
+      const m = means[i], lo = lower[i], hi = upper[i];
+
+      // CI range line
+      ctx.strokeStyle = colors[i % colors.length]; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, sy(lo));
+      ctx.lineTo(x, sy(hi));
+      ctx.stroke();
+
+      // Horizontal caps
+      const capW = barW * 0.4;
+      ctx.beginPath();
+      ctx.moveTo(x - capW / 2, sy(lo)); ctx.lineTo(x + capW / 2, sy(lo)); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x - capW / 2, sy(hi)); ctx.lineTo(x + capW / 2, sy(hi)); ctx.stroke();
+
+      // Mean point
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.beginPath();
+      ctx.arc(x, sy(m), 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // X label
+      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(label, x, padT + plotH + 18);
+    });
   }
 })();
