@@ -515,6 +515,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>判别分析（discriminant-analysis）是根据判别对象若干个指标的观测结果判定其属于哪一类的统计方法。经典的判别分析方法有Fisher判别和贝叶斯判别分析。当分类很确定时，判别分析可以有效替代logistic回归，但是如果自变量和因变量关系很复杂时，判别分析表现不如logistic回归。</p>
 <section id="fisher判别分析" class="level2" data-number="27.1">
 <h2 data-number="27.1" class="anchored" data-anchor-id="fisher判别分析"><span class="header-section-number">27.1</span> Fisher判别分析</h2>
+<div class="stat-viz" data-type="lda"></div>
 <p>Fisher判别又称为典型判别（canonical discriminant）分析，适用于两类和多分类判别。</p>
 <p>Fisher判别使用贝叶斯定理确定每个观测属于某个类别的概率。如果你有两个类别，比如良性和恶性，判别分析会分别计算属于两个类别的概率，然后选择概率大的类别作为正确的类别。</p>
 <p>线性判别分析假设每个类中的观测服从多元正态分布，并且不同类别之间的协方差相等。二次判别假设观测服从正态分布，每种类别都有自己的协方差。</p>
