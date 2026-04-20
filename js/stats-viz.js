@@ -2182,6 +2182,8 @@
     else if (type === 'ridgeline') renderRidgeline(el);
     else if (type === 'ldascatter') renderLDAScatter(el);
     else if (type === 'radar') renderRadarChart(el);
+    else if (type === 'sem') renderSEM(el);
+    else if (type === 'sempath') renderSEMPath(el);
   }
 
   // ============================================================
