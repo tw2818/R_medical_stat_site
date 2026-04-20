@@ -530,6 +530,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>其中<code>ATE</code>就是大家比较常见的<code>IPW</code>方法，还有一种常见的<strong>inverse probability of treatment weighting, IPTW</strong>，是这里的<code>ATT</code>。前者是针对所有研究对象，后者是针对病例组。</p>
 <section id="演示数据" class="level2" data-number="40.1">
 <h2 data-number="40.1" class="anchored" data-anchor-id="演示数据"><span class="header-section-number">40.1</span> 演示数据</h2>
+<div class="stat-viz" data-type="psdist" data-title="倾向评分分布 (IPTW加权前后)"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 如果提示缺少R包直接安装即可</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(lindner, <span class="at">package =</span> <span class="st">"twang"</span>)</span>
