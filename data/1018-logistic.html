@@ -749,6 +749,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>对于logistic回归来说，如果不使用<code>type</code>函数，默认是<code>type = "link"</code>，返回的是logit(P)的值。</p>
 <p>📉 Logistic回归模型评价——混淆矩阵：</p>
 <div class="stat-viz" data-type="confusionmatrix" data-title="Logistic回归混淆矩阵示例" data-tp="38" data-fp="7" data-fn="5" data-tn="35"></div>
+<p>📉 Logistic回归模型评价——NNT（Number Needed to Treat）：</p>
+<div class="stat-viz" data-type="nnt" data-title="需要治疗的人数（NNT）" data-nnt="11" data-ci_lower="7" data-ci_upper="22"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 默认返回logit(P)的值</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(f)</span>

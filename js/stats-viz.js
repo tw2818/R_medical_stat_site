@@ -2170,6 +2170,8 @@
     else if (type === 'doseresponse') renderDoseResponse(el);
     else if (type === 'autocorrelation') renderAutocorrelation(el);
     else if (type === 'nomogram') renderNomogram(el);
+    else if (type === 'bar') renderBarChart(el);
+    else if (type === 'pie') renderPieChart(el);
   }
 
   // ============================================================
@@ -3099,6 +3101,151 @@
     ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(padL + plotW - 60, padT + 12, 4, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
     ctx.fillText('中位数', padL + plotW - 52, padT + 16);
+  }
+
+  // ============================================================
+  // Bar Chart
+  // ============================================================
+  function renderBarChart(el) {
+    const id = 'bar-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '条形图';
+    const rawLabels = el.dataset.labels || 'A,B,C';
+    const rawValues = el.dataset.values || '50,80,65';
+    const labels = rawLabels.split(',');
+    const values = rawValues.split(',').map(Number);
+    const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'];
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="480" height="300" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 480, H = 300;
+    const padL = 60, padR = 20, padT = 40, padB = 50;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const maxVal = Math.max(...values);
+    const barW = plotW / labels.length * 0.6;
+    const gap = (plotW - barW * labels.length) / (labels.length + 1);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    // Grid
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const y = padT + (i / 5) * plotH;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+    // Y axis label
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('数值', 0, 0); ctx.restore();
+
+    // Y tick labels
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 5; i++) {
+      const y = padT + (i / 5) * plotH;
+      const v = Math.round(maxVal * (1 - i / 5));
+      ctx.fillText(v, padL - 6, y + 4);
+    }
+
+    // Bars
+    values.forEach((val, i) => {
+      const barH = (val / maxVal) * plotH * 0.9;
+      const x = padL + gap + i * (barW + gap);
+      const y = padT + plotH - barH;
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillRect(x, y, barW, barH);
+      // Value label
+      ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(val, x + barW / 2, y - 8);
+      // X label
+      ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+      ctx.fillText(labels[i], x + barW / 2, padT + plotH + 18);
+    });
+  }
+
+  // ============================================================
+  // Pie Chart
+  // ============================================================
+  function renderPieChart(el) {
+    const id = 'pie-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '饼图';
+    const rawLabels = el.dataset.labels || 'A,B,C';
+    const rawValues = el.dataset.values || '30,40,30';
+    const labels = rawLabels.split(',');
+    const values = rawValues.split(',').map(Number);
+    const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e'];
+    const total = values.reduce((a, b) => a + b, 0);
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="420" height="320" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:8px;font-size:12px;color:#555;"></div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 420, H = 320;
+    const cx = W / 2, cy = H / 2 + 10;
+    const radius = Math.min(W, H) / 2 - 40;
+    const legendBoxW = 100, legendBoxH = labels.length * 20;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    let startAngle = -Math.PI / 2;
+    values.forEach((val, i) => {
+      const sliceAngle = (val / total) * Math.PI * 2;
+      const endAngle = startAngle + sliceAngle;
+
+      // Slice
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, startAngle, endAngle);
+      ctx.closePath();
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Percentage label
+      const midAngle = startAngle + sliceAngle / 2;
+      const labelR = radius * 0.65;
+      const lx = cx + labelR * Math.cos(midAngle);
+      const ly = cy + labelR * Math.sin(midAngle);
+      const pct = ((val / total) * 100).toFixed(1);
+      if (pct > 5) {
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(pct + '%', lx, ly);
+      }
+
+      startAngle = endAngle;
+    });
+
+    // Legend
+    const legX = W - legendBoxW - 15, legY = cy - legendBoxH / 2;
+    values.forEach((val, i) => {
+      const ly = legY + i * 20 + 12;
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillRect(legX, ly - 8, 12, 12);
+      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(labels[i] + ' (' + val + ')', legX + 18, ly + 2);
+    });
   }
 
   // ============================================================
