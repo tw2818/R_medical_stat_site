@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R语言实战医学统计 - 交互式教程</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+  <div id="app">
+    <!-- 侧边栏 -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <h1>📊 R语言实战医学统计</h1>
+        <p class="subtitle">交互式教程 · 阿越版</p>
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="搜索章节或关键词..." autocomplete="off">
+          <div id="search-results"></div>
+        </div>
+      </div>
+      <nav id="chapter-nav">
+        <!-- 基础统计分析 -->
+        <div class="nav-group">
+          <button class="nav-group-header" data-group="basic">
+            📈 基础统计分析 <span class="chapter-count" id="basic-count">0/13</span>
+          </button>
+          <div class="nav-group-content" id="basic-chapters"></div>
+        </div>
+        <!-- 高级统计分析 -->
+        <div class="nav-group">
+          <button class="nav-group-header" data-group="advanced">
+            🔬 高级统计分析 <span class="chapter-count" id="advanced-count">0/23</span>
+          </button>
+          <div class="nav-group-content" id="advanced-chapters"></div>
+        </div>
+        <!-- 文献常见统计分析 -->
+        <div class="nav-group">
+          <button class="nav-group-header" data-group="literature">
+            📚 文献常见统计分析 <span class="chapter-count" id="literature-count">0/11</span>
+          </button>
+          <div class="nav-group-content" id="literature-chapters"></div>
+        </div>
+        <!-- 其他 -->
+        <div class="nav-group">
+          <button class="nav-group-header" data-group="other">
+            📎 其他合集 <span class="chapter-count" id="other-count">0/1</span>
+          </button>
+          <div class="nav-group-content" id="other-chapters"></div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="progress-info">
+          <span>学习进度</span>
+          <span id="progress-text">0/60</span>
+        </div>
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main id="main-content">
+      <!-- 顶部导航（移动端） -->
+      <header id="topbar">
+        <button id="menu-toggle">☰</button>
+        <span id="current-chapter-title">R语言实战医学统计</span>
+        <button id="theme-toggle">🌙</button>
+      </header>
+
+      <!-- 章节内容 -->
+      <div id="content-wrapper">
+        <!-- 欢迎页 -->
+        <section id="welcome" class="chapter-section active">
+          <div class="welcome-hero">
+            <h1>R语言实战医学统计</h1>
+            <p class="lead">面向医学科研人员的交互式 R 语言统计教程</p>
+            <div class="welcome-badges">
+              <span class="badge">🎯 60+ 章节</span>
+              <span class="badge">📖 孙振球《医学统计学》第5版</span>
+              <span class="badge">⚡ 交互式代码运行</span>
+              <span class="badge">💾 免费开源</span>
+            </div>
+          </div>
+
+          <div class="welcome-grid">
+            <div class="welcome-card" onclick="navigateToChapter('basic', 0)">
+              <div class="card-icon">📈</div>
+              <h3>基础统计分析</h3>
+              <p>t检验、方差分析、卡方检验、秩和检验、相关回归等</p>
+              <span class="card-count">13章</span>
+            </div>
+            <div class="welcome-card" onclick="navigateToChapter('advanced', 0)">
+              <div class="card-icon">🔬</div>
+              <h3>高级统计分析</h3>
+              <p>多因素方差分析、重复测量、协方差、Logistic回归、生存分析等</p>
+              <span class="card-count">23章</span>
+            </div>
+            <div class="welcome-card" onclick="navigateToChapter('literature', 0)">
+              <div class="card-icon">📚</div>
+              <h3>文献常见分析</h3>
+              <p>倾向评分、竞争风险、亚组分析、森林图、样条回归等</p>
+              <span class="card-count">11章</span>
+            </div>
+            <div class="welcome-card" onclick="navigateToChapter('other', 0)">
+              <div class="card-icon">📎</div>
+              <h3>其他合集</h3>
+              <p>更新日志、补充材料</p>
+              <span class="card-count">1章</span>
+            </div>
+          </div>
+
+          <div class="welcome-features">
+            <h2>✨ 教程特色</h2>
+            <div class="feature-list">
+              <div class="feature-item">
+                <span class="feature-icon">▶️</span>
+                <div>
+                  <h4>交互式代码运行</h4>
+                  <p>在浏览器中直接运行 R 代码，无需安装任何软件</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">📊</span>
+                <div>
+                  <h4>配套教材原题</h4>
+                  <p>完全使用 R 语言复现孙振球《医学统计学》教材例题</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">📈</span>
+                <div>
+                  <h4>统计概念详解</h4>
+                  <p>先讲统计原理，再配 R 实操，边学边记</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🔢</span>
+                <div>
+                  <h4>结果解读</h4>
+                  <p>每段代码配详细结果解读，三线表规范呈现</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="welcome-start">
+            <button class="btn-primary btn-large" onclick="navigateToChapter('basic', 0)">
+              🚀 开始学习 · 从t检验开始
+            </button>
+          </div>
+
+          <div class="welcome-ack">
+            <h4>📢 致谢</h4>
+            <p>本内容改编自<strong>阿越就是我</strong>的《R语言实战医学统计》</p>
+            <p>采用 CC BY-SA 4.0 许可证发布</p>
+            <p class="ack-book">教材：孙振球主编《医学统计学》第5版（颜艳、王彤主编）</p>
+          </div>
+        </section>
+
+        <!-- 动态章节内容 -->
+        <section id="chapter-content" class="chapter-section"></section>
+      </div>
+    </main>
+
+    <!-- 代码运行面板 -->
+    <div id="code-panel">
+      <div class="panel-header">
+        <span class="panel-title">📝 R 代码运行区</span>
+        <div class="panel-actions">
+          <button class="btn-run" id="run-code-btn" title="运行代码 (Ctrl+Enter)">
+            ▶️ 运行
+          </button>
+          <button class="btn-clear" id="clear-output-btn" title="清除输出">
+            🗑️ 清除
+          </button>
+          <button class="btn-copy" id="copy-code-btn" title="复制代码">
+            📋 复制
+          </button>
+          <button class="btn-close" id="close-panel-btn" title="关闭面板">
+            ✕
+          </button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="code-editor-wrapper">
+          <textarea id="code-editor" spellcheck="false" placeholder="在这里输入 R 代码..."></textarea>
+        </div>
+        <div class="output-header">
+          <span>📤 输出结果</span>
+          <button class="btn-copy-output" id="copy-output-btn">📋 复制</button>
+        </div>
+        <div id="code-output"></div>
+      </div>
+      <div class="panel-footer">
+        <span class="webr-status" id="webr-status">⚙️ 初始化 WebR...</span>
+        <span class="shortcut-hint">Ctrl+Enter 运行</span>
+      </div>
+    </div>
+
+    <!-- 快捷按钮 -->
+    <button id="toggle-code-panel" title="切换代码面板">📝</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-r.min.js"></script>
+  <script src="js/webr-init.js"></script>
+  <script src="js/chapters.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
