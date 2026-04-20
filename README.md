@@ -58,18 +58,30 @@ R_medical_stat_site/
 ├── index.html              # SPA 入口页面
 ├── manifest.json           # PWA manifest
 ├── favicon.svg             # 网站图标
+├── README.md               # 项目文档
+├── .gitignore
 ├── css/
-│   └── style.css           # 所有样式（867 行）
+│   └── style.css           # 所有样式（~1086 行）
 ├── js/
-│   ├── app.js              # 主应用逻辑（360 行）
-│   ├── chapters.js         # 46 个章节的元数据
-│   └── stats-viz.js        # 统计可视化引擎（1605 行）
-├── data/                   # 46 个章节 HTML 文件
+│   ├── app.js              # 主应用逻辑（~406 行）
+│   ├── chapters.js          # 46 个章节的元数据（id / title / file）
+│   └── stats-viz.js        # 统计可视化引擎（~1605 行）
+├── data/                   # 章节内容 + 关联图片
 │   ├── 1001-ttest.html     # t 检验
 │   ├── 1002-anova.html     # 方差分析
-│   ├── discrete.html       # 离散分布
-│   └── ...                 # 共 46 个 .html 文件
-└── figs/                   # 网站用到的图片资源
+│   ├── 1006-chisq.html     # 卡方检验
+│   ├── discrete.html        # 离散分布
+│   ├── 1032-survival.html  # 生存分析
+│   ├── plotting.html        # 统计绘图
+│   ├── roc.html            # ROC 曲线
+│   ├── 表格三线表.html     # 三线表绘制
+│   └── *_files/            # 各章节关联图片（figure-html/*.png）
+│       1002-anova_files/figure-html/*.png
+│       1002-anova_files/figure-html/*.png
+│       ...
+├── figs/                   # 网站页面用到的独立图片资源
+│   └── *.png / *.jpg
+└── .vercel/                # Vercel 部署配置（不上游）
 ```
 
 ---
@@ -96,17 +108,10 @@ R_medical_stat_site/
 ## 开发
 
 ### 目录部署说明
-Vercel 部署时，`data/*.html` 中的图片引用（如 `<img src="1001-ttest_files/figure-html/xxx.png">`）需要相对于**站点根目录**而非 `data/` 目录。因此图片目录（`*_files/`）统一放在项目根目录：
-
-```
-# 正确（图片目录在根目录）
-data/1001-ttest.html     →  <img src="1001-ttest_files/figure-html/xxx.png">
-1001-ttest_files/        # ← 在根目录
-
-# 错误（图片目录在 data/ 内）
-data/1001-ttest.html     →  <img src="1001-ttest_files/figure-html/xxx.png">
-data/1001-ttest_files/   # ← 这会让 Vercel 找不到图片
-```
+章节 HTML 中的图片引用（如 `<img src="1001-ttest_files/figure-html/xxx.png">`）在 Vercel 部署时需要相对于**站点根目录**。因此：
+- 图片目录（`*_files/`）统一放在 `data/` 目录内
+- HTML 中的引用路径为 `data/xxx_files/figure-html/xxx.png`（如 `data/1002-anova_files/figure-html/unnamed-chunk-2-1.png`）
+- 所有中文目录名（`ROC曲线_files`、`统计绘图_files` 等）已移入 `data/` 下
 
 ### 本地开发
 
