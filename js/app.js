@@ -80,10 +80,12 @@ function buildNav() {
 }
 
 function updateChapterCount() {
+  const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
   GROUP_CONFIG.forEach(({ key }) => {
     const list = CHAPTERS[key] || [];
+    const visitedCount = list.filter(ch => visited.includes(ch.id)).length;
     const countEl = $(`${key}-count`);
-    if (countEl) countEl.textContent = `0/${list.length}`;
+    if (countEl) countEl.textContent = `${visitedCount}/${list.length}`;
   });
 }
 
@@ -91,9 +93,17 @@ function navigateToChapter(groupKey, index) {
   const list = CHAPTERS[groupKey] || [];
   if (!list[index]) return;
 
+  // Track visited chapter
+  const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
+  const chapter = list[index];
+  if (!visited.includes(chapter.id)) {
+    visited.push(chapter.id);
+    localStorage.setItem('rstat_visited', JSON.stringify(visited));
+  }
+  updateChapterCount();
+
   currentGroup = groupKey;
   currentIndex = index;
-  const chapter = list[index];
 
   // 更新侧边栏激活状态
   document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));

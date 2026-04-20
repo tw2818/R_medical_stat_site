@@ -693,6 +693,150 @@
     return res;
   }
 
+  // ── 散点图 ─────────────────────────────────────────
+  // <div class="stat-viz" data-type="scatter" data-title="标题" data-xlabel="X轴" data-ylabel="Y轴" data-points="[{x:1,y:2},{x:3,y:4}]"></div>
+  function renderScatterPlot(el) {
+    const title = el.dataset.title || '散点图';
+    const xlabel = el.dataset.xlabel || 'X';
+    const ylabel = el.dataset.ylabel || 'Y';
+    let points = [];
+    try {
+      points = JSON.parse(el.dataset.points || '[]');
+    } catch(e) { points = []; }
+
+    const W = 600, H = 340;
+    const pad = { left: 60, right: 20, top: 40, bottom: 50 };
+
+    const card = document.createElement('div');
+    card.className = 'viz-card';
+    card.innerHTML = `
+      <div class="viz-header"><span>📈 ${title}</span></div>
+      <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
+      <div class="viz-r-display">r = <span data-r>—</span></div>
+    `;
+    el.appendChild(card);
+
+    const canvas = card.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      if (points.length < 2) {
+        ctx.fillStyle = '#666';
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('请提供至少2个数据点', W/2, H/2);
+        return;
+      }
+
+      const xs = points.map(p => p.x);
+      const ys = points.map(p => p.y);
+      const xMin = Math.min(...xs), xMax = Math.max(...xs);
+      const yMin = Math.min(...ys), yMax = Math.max(...ys);
+      const xPad = (xMax - xMin) * 0.1 || 1;
+      const yPad = (yMax - yMin) * 0.1 || 1;
+      const plotW = W - pad.left - pad.right;
+      const plotH = H - pad.top - pad.bottom;
+
+      const sx = x => pad.left + (x - (xMin - xPad)) / ((xMax - xMin) + 2*xPad) * plotW;
+      const sy = y => pad.top + plotH - (y - (yMin - yPad)) / ((yMax - yMin) + 2*yPad) * plotH;
+
+      // 网格
+      ctx.strokeStyle = 'rgba(128,128,128,0.15)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const xPos = pad.left + (plotW / 5) * i;
+        ctx.beginPath(); ctx.moveTo(xPos, pad.top); ctx.lineTo(xPos, pad.top + plotH); ctx.stroke();
+        const yPos = pad.top + (plotH / 5) * i;
+        ctx.beginPath(); ctx.moveTo(pad.left, yPos); ctx.lineTo(pad.left + plotW, yPos); ctx.stroke();
+      }
+
+      // 坐标轴
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + plotH); ctx.lineTo(pad.left + plotW, pad.top + plotH);
+      ctx.stroke();
+
+      // X轴刻度和标签
+      ctx.fillStyle = '#333';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      const xTicks = 5;
+      for (let i = 0; i <= xTicks; i++) {
+        const val = xMin - xPad + ((xMax - xMin) + 2*xPad) * (i / xTicks);
+        const xPos = sx(val);
+        ctx.beginPath(); ctx.moveTo(xPos, pad.top + plotH); ctx.lineTo(xPos, pad.top + plotH + 4); ctx.stroke();
+        ctx.fillText(val.toFixed(1), xPos, pad.top + plotH + 16);
+      }
+
+      // Y轴刻度和标签
+      ctx.textAlign = 'right';
+      const yTicks = 5;
+      for (let i = 0; i <= yTicks; i++) {
+        const val = yMin - yPad + ((yMax - yMin) + 2*yPad) * (i / yTicks);
+        const yPos = sy(val);
+        ctx.beginPath(); ctx.moveTo(pad.left - 4, yPos); ctx.lineTo(pad.left, yPos); ctx.stroke();
+        ctx.textAlign = 'right';
+        ctx.fillText(val.toFixed(1), pad.left - 8, yPos + 4);
+      }
+
+      // 轴标签
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(xlabel, pad.left + plotW/2, H - 8);
+      ctx.save();
+      ctx.translate(14, pad.top + plotH/2);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillText(ylabel, 0, 0);
+      ctx.restore();
+
+      // 标题
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillStyle = '#222';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, pad.left + plotW/2, 20);
+
+      // 散点
+      ctx.fillStyle = '#569cd6';
+      points.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 回归线（5+点）
+      if (points.length >= 5) {
+        const n = xs.length;
+        const sumX = xs.reduce((a,b)=>a+b,0);
+        const sumY = ys.reduce((a,b)=>a+b,0);
+        const sumXY = xs.reduce((s,x,i)=>s+x*ys[i],0);
+        const sumX2 = xs.reduce((s,x)=>s+x*x,0);
+        const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+        const intercept = (sumY - slope*sumX) / n;
+
+        // r 计算
+        const meanX = sumX / n, meanY = sumY / n;
+        const numR = xs.reduce((s,x,i)=>s+(x-meanX)*(ys[i]-meanY),0);
+        const denR = Math.sqrt(xs.reduce((s,x)=>s+(x-meanX)**2,0) * ys.reduce((s,y)=>s+(y-meanY)**2,0));
+        const r = numR / denR;
+        card.querySelector('[data-r]').textContent = r.toFixed(4);
+
+        // 回归线
+        const x1 = xMin - xPad, x2 = xMax + xPad;
+        ctx.strokeStyle = '#f9826c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sx(x1), sy(slope*x1+intercept));
+        ctx.lineTo(sx(x2), sy(slope*x2+intercept));
+        ctx.stroke();
+      }
+    }
+
+    draw();
+  }
+
   // ── 主入口 ─────────────────────────────────────────
   function init() {
     document.querySelectorAll('.stat-viz, .stat-calc').forEach(el => {
@@ -702,6 +846,7 @@
         if (el.dataset.type === 'normal') renderNormalDistribution(el);
         else if (el.dataset.type === 'tcompare') renderTCompare(el);
         else if (el.dataset.type === 'pvalue') renderPValue(el);
+        else if (el.dataset.type === 'scatter') renderScatterPlot(el);
         else if (el.dataset.type === 'ttest') renderTTest(el);
         else if (el.dataset.type === 'chisq') renderChiSq(el);
       } catch(e) { console.error('stats-viz error:', e); }
@@ -721,6 +866,7 @@
                   if (el.dataset.type === 'normal') renderNormalDistribution(el);
                   else if (el.dataset.type === 'tcompare') renderTCompare(el);
                   else if (el.dataset.type === 'pvalue') renderPValue(el);
+                  else if (el.dataset.type === 'scatter') renderScatterPlot(el);
                   else if (el.dataset.type === 'ttest') renderTTest(el);
                   else if (el.dataset.type === 'chisq') renderChiSq(el);
                 } catch(e) { console.error('stats-viz error:', e); }

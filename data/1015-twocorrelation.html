@@ -630,6 +630,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>相关性分析的过程比较简单，在选择方法时要注意是使用pearson相关还是秩相关。</p>
+<div class="stat-viz" data-type="scatter" data-title="散点图与相关系数" data-xlabel="身高 (cm)" data-ylabel="体重 (kg)" data-points="[{&quot;x&quot;:170,&quot;y&quot;:62},{&quot;x&quot;:175,&quot;y&quot;:65},{&quot;x&quot;:168,&quot;y&quot;:58},{&quot;x&quot;:180,&quot;y&quot;:72},{&quot;x&quot;:172,&quot;y&quot;:68},{&quot;x&quot;:165,&quot;y&quot;:55},{&quot;x&quot;:178,&quot;y&quot;:70},{&quot;x&quot;:173,&quot;y&quot;:66},{&quot;x&quot;:169,&quot;y&quot;:60},{&quot;x&quot;:177,&quot;y&quot;:71},{&quot;x&quot;:174,&quot;y&quot;:67},{&quot;x&quot;:171,&quot;y&quot;:63},{&quot;x&quot;:176,&quot;y&quot;:69},{&quot;x&quot;:167,&quot;y&quot;:57},{&quot;x&quot;:179,&quot;y&quot;:73}]"></div>
 <p>R<sup>2</sup>的计算：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(weight <span class="sc">~</span> kv, <span class="at">data =</span> df))</span>
