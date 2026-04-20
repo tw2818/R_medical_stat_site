@@ -709,6 +709,18 @@
       points = JSON.parse(el.dataset.points || '[]');
     } catch(e) { points = []; }
 
+    // Fallback: parse data-xs and data-ys (comma-separated)
+    if (points.length === 0 && el.dataset.xs && el.dataset.ys) {
+      const xsRaw = el.dataset.xs.split(',').map(v => parseFloat(v.trim()));
+      const ysRaw = el.dataset.ys.split(',').map(v => parseFloat(v.trim()));
+      const n = Math.min(xsRaw.length, ysRaw.length);
+      for (let i = 0; i < n; i++) {
+        if (!isNaN(xsRaw[i]) && !isNaN(ysRaw[i])) {
+          points.push({ x: xsRaw[i], y: ysRaw[i] });
+        }
+      }
+    }
+
     const W = 600, H = 340;
     const pad = { left: 60, right: 20, top: 40, bottom: 50 };
 
