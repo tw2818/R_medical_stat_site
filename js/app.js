@@ -523,6 +523,9 @@ function init() {
   buildNav();
   initSearch();
   updateProgressBar();
+  // Sync toggle button with actual panel state
+  $('toggle-code-panel').textContent = '📝';
+  $('toggle-code-panel').setAttribute('aria-label', '打开代码面板');
   $('theme-toggle')?.addEventListener('click', toggleTheme);
   loadInitialChapterFromHash();
 }
