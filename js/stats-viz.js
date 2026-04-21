@@ -3410,4 +3410,7 @@
     });
     observer.observe(document.getElementById('chapter-content') || document.body, { childList: true, subtree: true });
   }
+
+  init();
+  setupObserver();
 })();
