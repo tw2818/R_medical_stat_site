@@ -1,4 +1,4 @@
-import { registerViz } from './_core.js';
+import { registerViz, ensureJStat } from './_core.js';
 
 // ==========================================================
 // DISTRIBUTIONS - 统计可视化模块
@@ -233,11 +233,10 @@ registerViz('normal', renderNormalDistribution);
       </div>
     `;
     el.appendChild(card);
-
+    if (!ensureJStat(el)) return;
     const canvas = card.querySelector('canvas');
     const ctx = canvas.getContext('2d');
     const tailEl = card.querySelector('[data-stat="tail"]');
-
     function normalPDF(x) {
       return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
     }
@@ -387,6 +386,7 @@ registerViz('tcompare', renderTCompare);
       </div>
     `;
     el.appendChild(card);
+    if (!ensureJStat(el)) return;
 
     const canvas = card.querySelector('canvas');
     const ctx = canvas.getContext('2d');
@@ -568,6 +568,7 @@ registerViz('pvalue', renderPValue);
       </div>
     `;
     el.appendChild(card);
+    if (!ensureJStat(el)) return;
 
     const canvas = card.querySelector('canvas');
     const ctx = canvas.getContext('2d');
@@ -783,13 +784,15 @@ registerViz('fdist', renderFDist);
         ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H-pad.b); ctx.stroke();
       }
 
+      const mean = dn * dp;
+      const variance = dn * dp * (1 - dp);
+
       // Bars
       for (let k = 0; k <= dn; k++) {
         const x = pad.l + (k / dn) * iw - (iw/(dn*2));
         const barW = Math.max(2, (iw/dn) * 0.85);
         const barH = (probs[k] / maxP) * ih;
         const barY = H - pad.b - barH;
-        const mean = dn * dp;
         const isMean = Math.abs(k - mean) < 0.5;
         ctx.fillStyle = isMean ? '#e74c3c' : '#3498db';
         ctx.fillRect(x, barY, barW, barH);
@@ -804,7 +807,6 @@ registerViz('fdist', renderFDist);
       ctx.fillText(`μ=${mean.toFixed(1)}`, meanX, pad.t + 18);
 
       // Stats
-      const variance = dn * dp * (1 - dp);
       resultDiv.innerHTML = `μ = ${mean.toFixed(2)} &nbsp;|&nbsp; σ² = ${variance.toFixed(2)} &nbsp;|&nbsp; P(X=⌊np⌋) = ${probs[Math.round(mean)].toFixed(4)}`;
     }
 

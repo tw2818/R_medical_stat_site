@@ -21,6 +21,23 @@ function sd(arr) {
 
 function sum(arr) { return arr.reduce((a,b)=>a+b,0); }
 
+// ── jStat 可用性检测 + fallback 警告 ──────────────────────
+// 所有组件在 jStat 不可用时应调用此函数：
+//   if (!ensureJStat(el)) return;
+// 会在 el 顶部追加黄色警告 banner，只出现一次。
+function ensureJStat(el) {
+  if (window.jStat && window.jStat.studentt) return true;
+  const already = el.querySelector('.jstat-warn');
+  if (!already) {
+    const warn = document.createElement('div');
+    warn.className = 'jstat-warn';
+    warn.style = 'background:#fff3cd;color:#856404;padding:6px 12px;font-size:12px;text-align:center;border-radius:4px;margin-bottom:6px;';
+    warn.textContent = '⚠️ jStat 未加载，图形为近似示意，数值不精确';
+    el.insertBefore(warn, el.firstChild);
+  }
+  return false;
+}
+
 function makeCanvas(container, w, h) {
   const canvas = document.createElement('canvas');
   canvas.width = w; canvas.height = h;
@@ -90,4 +107,4 @@ function setupObserver() {
   vizObserver.observe(target, { childList: true, subtree: true });
 }
 
-export { $, parseNumbers, mean, sd, sum, makeCanvas, renderComponent, init, setupObserver };
+export { $, parseNumbers, mean, sd, sum, ensureJStat, makeCanvas, renderComponent, init, setupObserver };
