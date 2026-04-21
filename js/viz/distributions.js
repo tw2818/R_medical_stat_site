@@ -19,41 +19,55 @@ import { registerViz } from './_core.js';
       <div class="viz-header"><span>📈 正态分布 N(μ, σ²)</span><button class="viz-reset" title="重置">↺</button></div>
       <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
       <div class="viz-sliders">
-        <label>μ = <span class="viz-val" data-for="mu">${mu}</span>
+        <label>μ = <span class="viz-val" data-for="mu">${mu.toFixed(1)}</span>
           <input type="range" class="viz-slider" data-param="mu" min="-5" max="5" step="0.1" value="${mu}">
         </label>
-        <label>σ = <span class="viz-val" data-for="sigma">${sigma}</span>
+        <label>σ = <span class="viz-val" data-for="sigma">${sigma.toFixed(1)}</span>
           <input type="range" class="viz-slider" data-param="sigma" min="0.5" max="5" step="0.1" value="${sigma}">
         </label>
       </div>
       <div class="viz-stats">
-        <span>P(μ-σ &lt; X &lt; μ+σ) = <strong>68.3%</strong></span>
-        <span>P(μ-2σ &lt; X &lt; μ+2σ) = <strong>95.5%</strong></span>
+        <span>阴影图例：<strong style="color:#f9826c;">±1σ</strong> / <strong style="color:#c26b5b;">±2σ</strong></span>
+        <span>P(μ-σ &lt; X &lt; μ+σ) = <strong data-stat="p1">68.3%</strong></span>
+        <span>P(μ-2σ &lt; X &lt; μ+2σ) = <strong data-stat="p2">95.5%</strong></span>
       </div>
     `;
     el.appendChild(card);
 
     const canvas = card.querySelector('canvas');
     const ctx = canvas.getContext('2d');
+    const p1El = card.querySelector('[data-stat="p1"]');
+    const p2El = card.querySelector('[data-stat="p2"]');
 
     function pdf(x, mu, sigma) {
       return Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI));
     }
 
     function draw(muV, sigmaV) {
-      const dpr = window.devicePixelRatio || 1;
       ctx.clearRect(0, 0, W, H);
+
+      const cdf = x => window.jStat?.normal?.cdf ? window.jStat.normal.cdf(x, muV, sigmaV) : null;
+      const p1 = cdf(muV + sigmaV) !== null ? cdf(muV + sigmaV) - cdf(muV - sigmaV) : 0.6827;
+      const p2 = cdf(muV + 2 * sigmaV) !== null ? cdf(muV + 2 * sigmaV) - cdf(muV - 2 * sigmaV) : 0.9545;
+      if (p1El) p1El.textContent = `${(p1 * 100).toFixed(1)}%`;
+      if (p2El) p2El.textContent = `${(p2 * 100).toFixed(1)}%`;
 
       // 背景
       ctx.fillStyle = 'rgba(30,30,30,0.03)';
       ctx.fillRect(0, 0, W, H);
 
       // 坐标映射
-      const xMin = muV - 4*sigmaV, xMax = muV + 4*sigmaV;
+      const xMin = muV - 4 * sigmaV;
+      const xMax = muV + 4 * sigmaV;
       const yMax = pdf(muV, muV, sigmaV) * 1.15;
+      const baselineY = H - 20;
+      const oneSigmaLeft = muV - sigmaV;
+      const oneSigmaRight = muV + sigmaV;
+      const twoSigmaLeft = muV - 2 * sigmaV;
+      const twoSigmaRight = muV + 2 * sigmaV;
 
       const sx = x => (x - xMin) / (xMax - xMin) * W;
-      const sy = y => H - (y / yMax) * H * 0.85 - 20;
+      const sy = y => baselineY - (y / yMax) * H * 0.85;
 
       // 网格
       ctx.strokeStyle = 'rgba(128,128,128,0.15)';
@@ -65,47 +79,108 @@ import { registerViz } from './_core.js';
       }
       ctx.stroke();
 
+      // x 轴刻度
+      const tickDefs = [
+        { value: twoSigmaLeft, label: (muV - 2 * sigmaV).toFixed(1) },
+        { value: oneSigmaLeft, label: (muV - sigmaV).toFixed(1) },
+        { value: muV, label: muV.toFixed(1) },
+        { value: oneSigmaRight, label: (muV + sigmaV).toFixed(1) },
+        { value: twoSigmaRight, label: (muV + 2 * sigmaV).toFixed(1) },
+      ];
+      ctx.fillStyle = '#666';
+      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      tickDefs.forEach(({ value, label }) => {
+        const cx = sx(value);
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(90,90,90,0.35)';
+        ctx.moveTo(cx, baselineY - 4);
+        ctx.lineTo(cx, baselineY + 4);
+        ctx.stroke();
+        ctx.fillText(label, cx, H - 4);
+      });
+
+      // 先填充整条曲线下方的浅色面积
+      ctx.beginPath();
+      for (let px = 0; px <= W; px++) {
+        const x = xMin + (px / W) * (xMax - xMin);
+        const y = pdf(x, muV, sigmaV);
+        const cy = sy(y);
+        px === 0 ? ctx.moveTo(px, cy) : ctx.lineTo(px, cy);
+      }
+      ctx.lineTo(W, baselineY);
+      ctx.lineTo(0, baselineY);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, 'rgba(86,156,214,0.22)');
+      grad.addColorStop(1, 'rgba(86,156,214,0.02)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      const fillBand = (left, right, color) => {
+        ctx.beginPath();
+        ctx.moveTo(sx(left), baselineY);
+        let started = false;
+        for (let px = 0; px <= W; px++) {
+          const x = xMin + (px / W) * (xMax - xMin);
+          if (x < left || x > right) continue;
+          const y = pdf(x, muV, sigmaV);
+          const cx = sx(x), cy = sy(y);
+          if (!started) {
+            ctx.lineTo(cx, cy);
+            started = true;
+          } else {
+            ctx.lineTo(cx, cy);
+          }
+        }
+        ctx.lineTo(sx(right), baselineY);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+      };
+
+      // 先画 ±2σ，再画 ±1σ
+      fillBand(twoSigmaLeft, twoSigmaRight, 'rgba(194,107,91,0.12)');
+      fillBand(oneSigmaLeft, oneSigmaRight, 'rgba(249,130,108,0.22)');
+
       // 曲线
       ctx.beginPath();
       ctx.strokeStyle = '#569cd6';
       ctx.lineWidth = 2.5;
       for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
+        const x = xMin + (px / W) * (xMax - xMin);
         const y = pdf(x, muV, sigmaV);
-        const cx = px, cy = sy(y);
-        px === 0 ? ctx.moveTo(cx,cy) : ctx.lineTo(cx,cy);
+        const cy = sy(y);
+        px === 0 ? ctx.moveTo(px, cy) : ctx.lineTo(px, cy);
       }
       ctx.stroke();
-
-      // 填充曲线
-      ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-      const grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, 'rgba(86,156,214,0.3)');
-      grad.addColorStop(1, 'rgba(86,156,214,0.02)');
-      ctx.fillStyle = grad;
-      ctx.fill();
 
       // μ 线
       const mx = sx(muV);
       ctx.strokeStyle = '#f9826c';
       ctx.lineWidth = 1.5;
-      ctx.setLineDash([4,4]);
+      ctx.setLineDash([4, 4]);
       ctx.beginPath(); ctx.moveTo(mx, 0); ctx.lineTo(mx, H); ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = '#f9826c';
       ctx.font = '12px JetBrains Mono, monospace';
-      ctx.fillText('μ', mx+4, 16);
+      ctx.fillText('μ', mx + 4, 16);
 
-      // σ 区域 (±1σ 浅色)
-      ctx.fillStyle = 'rgba(86,156,214,0.08)';
-      ctx.beginPath();
-      for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
-        const cx = px, cy = sy(pdf(x,muV,sigmaV));
-        px === 0 ? ctx.moveTo(cx,cy) : ctx.lineTo(cx,cy);
-      }
-      ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
-      ctx.fill();
+      // ±1σ 边界线 + 拐点
+      [oneSigmaLeft, oneSigmaRight].forEach((xVal, idx) => {
+        const cx = sx(xVal);
+        const cy = sy(pdf(xVal, muV, sigmaV));
+        ctx.strokeStyle = 'rgba(249,130,108,0.7)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(249,130,108,0.9)';
+        ctx.fillText(idx === 0 ? 'μ-σ' : 'μ+σ', cx + 4, 32 + idx * 14);
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
     }
 
     draw(mu, sigma);
@@ -125,8 +200,8 @@ import { registerViz } from './_core.js';
     card.querySelector('.viz-reset').addEventListener('click', () => {
       card.querySelector('[data-param="mu"]').value = mu;
       card.querySelector('[data-param="sigma"]').value = sigma;
-      card.querySelector('[data-for="mu"]').textContent = mu;
-      card.querySelector('[data-for="sigma"]').textContent = sigma;
+      card.querySelector('[data-for="mu"]').textContent = mu.toFixed(1);
+      card.querySelector('[data-for="sigma"]').textContent = sigma.toFixed(1);
       draw(mu, sigma);
     });
   }
