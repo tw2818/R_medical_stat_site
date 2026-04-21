@@ -126,10 +126,6 @@ function updateChapterCount() {
       if (countEl) countEl.textContent = `${visitedCount}/${list.length}`;
     });
   }
-
-  function updateProgress() {
-    _updateProgressBar(JSON.parse(localStorage.getItem('rstat_visited') || '[]'));
-  }
 }
 
 function continueLearning() {
@@ -259,12 +255,6 @@ async function loadChapter(filename) {
       const main = doc.getElementById('quarto-document-content');
       if (!main) throw new Error('无法解析章节内容');
 
-      // 注入 onclick 复制功能（替换 Quarto 原有的 clipboard.js 依赖）
-      main.querySelectorAll('.code-copy-button').forEach(btn => {
-        btn.setAttribute('onclick', 'copyCodeBlock(this)');
-        btn.removeAttribute('data-code');
-      });
-
       // 移除所有内联脚本，避免污染全局命名空间
       main.querySelectorAll('script').forEach(s => s.remove());
 
@@ -275,17 +265,6 @@ async function loadChapter(filename) {
 
     wrapper.innerHTML = contentHtml;
     rewriteChapterLinks(wrapper);
-
-    // 追踪已访问章节
-    const allChapters = Object.values(CHAPTERS).flat();
-    const chapterInfo = allChapters.find(ch => ch.file === filename);
-    if (chapterInfo) {
-      const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
-      if (!visited.includes(chapterInfo.id)) {
-        visited.push(chapterInfo.id);
-        localStorage.setItem('rstat_visited', JSON.stringify(visited));
-      }
-    }
 
     // 渲染完成后注入交互
     Prism.highlightAll();
@@ -351,14 +330,6 @@ window.copyCodeBlock = function(btn) {
     setTimeout(() => { btn.textContent = '📋 复制'; }, 1500);
   });
 };
-
-function copyCode(btn) {
-  const code = decodeURIComponent(btn.dataset.code || '');
-  if (!code) return;
-  navigator.clipboard.writeText(code).then(() => {
-    showToast('代码已复制');
-  });
-}
 
 // ===== 章节内交互（锚点、代码块等）=====
 function setupChapterInteractions(container) {
