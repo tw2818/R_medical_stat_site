@@ -58,44 +58,42 @@ Fine-Gray检验和竞争风险模型 · 倾向性评分（匹配/回归和分层
 
 ```
 R_medical_stat_site/
-├── index.html              # SPA 入口页面
-├── manifest.json           # PWA manifest
-├── favicon.svg             # 网站图标
-├── README.md               # 项目文档
+├── index.html                     # SPA 入口页面
+├── manifest.json                  # PWA manifest
+├── favicon.svg                    # 网站图标
+├── README.md                      # 项目文档
 ├── .gitignore
 ├── css/
-│   └── style.css           # 所有样式（~1086 行）
+│   └── style.css                  # 全站样式
 ├── js/
-│   ├── app.js              # 主应用逻辑（~499 行）
-│   ├── chapters.js         # 46 个章节的元数据（id / title / file）
-│   ├── stats-viz.js        # 可视化模块加载器（~100 行）
-│   └── viz/                # 可视化模块（ES Module 拆分）
-│       ├── _core.js         # 注册表、init()、setupObserver()（~100 行）
-│       ├── distributions.js # 正态/t/F/二项/泊松分布 explorer
-│       ├── hypothesis.js    # t检验/ANOVA/Kruskal-Wallis/Friedman/Wilcoxon 等
-│       ├── regression.js    # 散点图/回归/ROC/PCA 等
-│       ├── survival.js      # Kaplan-Meier 生存曲线
-│       ├── calculators.js   # t检验/卡方检验计算器
-│       ├── advanced.js      # 高级可视化
-│       ├── visualization.js # 通用图表组件
-│       └── meta.js          # 配色、工具函数
-├── data/                   # 章节内容 + 关联图片
-│   ├── 1001-ttest.html     # t 检验
-│   ├── 1002-anova.html     # 方差分析
-│   ├── 1006-chisq.html     # 卡方检验
-│   ├── discrete.html        # 离散分布
-│   ├── 1032-survival.html  # 生存分析
-│   ├── plotting.html        # 统计绘图
-│   ├── roc.html            # ROC 曲线
-│   ├── 表格三线表.html     # 三线表绘制
-│   ├── *.html              # 46 个章节 HTML 文件
-│   └── *_files/             # 各章节关联图片（统一在 data/ 下）
-│       1002-anova_files/figure-html/*.png
-│       ROC曲线_files/figure-html/*.png
-│       ...
-├── figs/                   # 网站页面用到的独立图片资源
+│   ├── app.js                     # 主应用逻辑
+│   ├── chapters.js                # 46 个章节的元数据 + 进度工具
+│   ├── stats-viz.js               # 可视化模块加载入口
+│   └── viz/                       # 可视化模块（ES Module 拆分）
+│       ├── _core.js               # 注册表、init()、setupObserver()
+│       ├── distributions.js       # 正态/t/F/二项/泊松分布 explorer
+│       ├── hypothesis.js          # 参数检验与部分诊断/交互组件
+│       ├── hypothesis-nonparametric.js # 非参数检验 + 重复测量交互效应（首批拆分）
+│       ├── regression.js          # 散点图/回归/ROC/PCA 等
+│       ├── survival.js            # Kaplan-Meier 生存曲线
+│       ├── calculators.js         # 其他计算器组件
+│       ├── advanced.js            # 高级可视化
+│       ├── visualization.js       # 通用图表组件
+│       ├── meta.js                # 配色、工具函数
+│       └── overrides.js           # 对 t 检验 / 卡方-Fisher 计算器的精度覆盖修复
+├── data/                          # 章节内容 + 关联图片
+│   ├── 1001-ttest.html            # t 检验
+│   ├── 1002-anova.html            # 方差分析
+│   ├── 1006-chisq.html            # 卡方检验
+│   ├── discrete.html              # 离散分布
+│   ├── 1032-survival.html         # 生存分析
+│   ├── plotting.html              # 统计绘图
+│   ├── roc.html                   # ROC 曲线
+│   ├── *.html                     # 46 个章节 HTML 文件
+│   └── *_files/                   # 各章节关联图片
+├── figs/                          # 网站页面用到的独立图片资源
 │   └── *.png / *.jpg
-└── .vercel/                # Vercel 部署配置（不上游）
+└── .vercel/                       # Vercel 部署配置（不上游）
 ```
 
 ---
@@ -103,25 +101,28 @@ R_medical_stat_site/
 ## 技术架构
 
 ### 前端框架
-- **纯原生 JavaScript** — 无需任何前端框架，ES Module 按需加载
-- **SPA 架构** — 章节通过 `fetch()` 动态加载，DOMParser 提取内容
-- **Canvas 2D API** — 所有统计图形自绘，不依赖 Chart.js
+- **纯原生 JavaScript** — 无需前端框架，ES Module 拆分加载
+- **SPA 架构** — 章节通过 `fetch()` 动态加载，`DOMParser` 提取正文
+- **Canvas 2D API** — 统计图形纯前端自绘，不依赖 Chart.js
 - **jStat CDN** — 统计函数库（正态/t/F/卡方分布的 PDF、CDF、逆函数）
 
 ### ES Module 模块设计
-`stats-viz.js` 作为入口加载器，按需动态 `import()` 各个 viz 模块：
-- **`viz/_core.js`** — 注册表（67 个条目）、`init()` 初始化、`setupObserver()` 监听动态挂载
-- **`viz/distributions.js`** — 正态/t/F/二项/泊松分布的可视化 explorer
-- **`viz/hypothesis.js`** — 参数检验：t 检验、ANOVA、Kruskal-Wallis H、Friedman M、Wilcoxon 符号秩
+`stats-viz.js` 作为入口加载器，统一加载各个 viz 模块：
+- **`viz/_core.js`** — 注册表、`init()` 初始化、`setupObserver()` 动态挂载监听
+- **`viz/distributions.js`** — 正态/t/F/二项/泊松分布 explorer
+- **`viz/hypothesis.js`** — 参数检验、ANOVA、散点图、诊断图等历史主模块
+- **`viz/hypothesis-nonparametric.js`** — 非参数检验与重复测量交互效应的首批拆分模块
 - **`viz/survival.js`** — Kaplan-Meier 生存曲线
-- **`viz/regression.js`** — 散点图、线性回归、ROC 曲线（含 AUC）、PCA 碎石图
-- **`viz/calculators.js`** — t 检验、卡方检验计算器
+- **`viz/regression.js`** — 散点图、线性回归、ROC 曲线、PCA 等
+- **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
+
+> 当前 `hypothesis.js` 的模块化仍处于过渡阶段：新模块边界已经建立，但旧实现尚未完全删除。后续应继续做“迁移 + 清旧代码”两步走。
 
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
 2. `loadChapter(file)` → `fetch('data/xxx.html')` → `DOMParser` 提取 `<main id="quarto-document-content">`
 3. `setupChapterInteractions()` → `initStatViz()` 扫描 `.stat-viz` / `.stat-calc` 标记，按 `data-type` 分发渲染
-4. Quarto 原生的代码复制按钮被替换为内联 onclick 版本（绕过 ClipboardJS）
+4. Quarto 原生的代码复制按钮被替换为内联 `onclick` 版本（绕过 ClipboardJS）
 
 ### 可视化组件注册约定
 ```html
@@ -139,7 +140,7 @@ R_medical_stat_site/
 
 1. 在 `viz/*.js` 中编写渲染函数并调用 `registerViz('typename', renderFn)`
 2. 在对应章节的 `.html` 文件中加入 `<div class="stat-viz" data-type="typename">` 标记
-3. jStat 提供以下可用分布：`normal`, `studentt`, `chisquare`, `centralF`, `binomial`, `poisson`, `beta`, `gamma`，PDF/CDF/inv 方法齐全
+3. jStat 提供以下可用分布：`normal`, `studentt`, `chisquare`, `centralF`, `binomial`, `poisson`, `beta`, `gamma`
 
 ### 本地开发
 
@@ -170,18 +171,30 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 ## 更新日志
 
-### 2026-04-22 — 进度系统重构 + 多处 bug 修复
-- **进度系统**：修复进度条/圆环/最近章节/继续学习按钮长期冻结问题。`updateChapterCount()` 重构为直接调用 `chapters.js` 的 `updateProgressBar()`，统一使用 `rstat_visited` 数组作为单一数据源，删除了重复的 localStorage 写入逻辑
-- **首页索引修复**：`basic[11]`→`basic[9]`（样本量计算），`advanced[6]`→`advanced[0]`（多因素方差分析）
-- **重复代码清理**：删除 `loadChapter()` 中的冗余 visited 记录逻辑；合并代码复制按钮两套注入方案为正则替换；删除死函数 `copyCode()`
-- **og:url**：同步为当前域名 `https://r.tweb.one`
+### 2026-04-22 — README 同步 + hypothesis 模块拆分起步
+- **README 同步**：更新模块结构、最近修复记录、当前架构状态描述
+- **模块边界建立**：新增 `js/viz/hypothesis-nonparametric.js`，首批抽离 `wilcoxon`、`kruskal`、`friedman`、`rminteraction`
+- **主入口接线**：`js/stats-viz.js` 显式引入新模块，为后续继续拆 `hypothesis.js` 做准备
+- **说明**：这一轮是“先抽模块、后清旧代码”的第一步，优先保证低风险和易回滚
+
+### 2026-04-22 — 计算器精度修复 + 移动端返回首页按钮调整
+- **t 检验计算器**：95% CI 改为优先使用精确 t 临界值；Welch t 检验不再先四舍五入自由度再计算 p 值；两样本结果增加均数差与 95% CI
+- **卡方 / Fisher 计算器**：修正 Fisher 双侧精确检验求和逻辑，增加最小期望频数显示，对 2×2 且期望频数较小的情况提示优先参考 Fisher
+- **实现方式**：新增 `js/viz/overrides.js`，通过 registry 覆盖 `ttest` / `chisq` 组件，避免直接硬改超长的 `hypothesis.js`
+- **移动端可用性**：将“返回首页”按钮从侧边栏底部移到顶部栏，避免抽屉式侧边栏下方遮挡
+
+### 2026-04-22 — 进度系统重构 + 一致性清理
+- **进度系统**：统一使用 `rstat_visited` 作为单一数据源，自动去重并过滤失效章节 id
+- **逻辑复用**：`app.js` 改为复用 `chapters.js` 中的 `saveProgress()` / `updateProgressBar()`，减少重复 localStorage 写入逻辑
+- **UI 一致性**：返回首页时恢复顶部标题；`continueLearning()` 找到目标章节后立即返回
+- **章节核对**：重新核对 `data/` 与 `chapters.js`，正式章节数仍为 46，未发现真实目录漂移
 
 ### 2026-04-21 — 统计计算 bug 修复
 - **Kruskal-Wallis H 检验**：`hypothesis.js` — 原输出 H=9.74 / P≈0.008 为硬编码，已替换为完整动态计算（含并列校正秩次、chi-square 近似 P 值）
 - **Friedman M 检验**：`hypothesis.js` — 原输出 M=9.34 / P≈0.025 为硬编码，已替换为完整动态计算（区块内编秩 + tie 校正因子）
-- **Kaplan-Meier 生存曲线**：`survival.js` — 原公式 `surv *= 1 - 1/(n - ...)` 与标准 product-limit estimator 不符，已重写为按时间点聚合 + 正确维护 at-risk 集合
-- **t 分布 fallback**：`distributions.js` — 原 fallback 分支引用未定义的 `lgamma()`，已替换为 Stirling 近似 logΓ 函数
-- **F 分布 fallback**：`distributions.js` — 原条件 `1/jStat.beta` 永远为真（beta 是对象），beta normalizing constant 从未被使用，已修正调用逻辑
+- **Kaplan-Meier 生存曲线**：`survival.js` — 原公式与标准 product-limit estimator 不符，已重写为按时间点聚合 + 正确维护 at-risk 集合
+- **t 分布 fallback**：`distributions.js` — 原 fallback 分支引用未定义的 `lgamma()`，已替换为 Stirling 近似 `logΓ`
+- **F 分布 fallback**：`distributions.js` — 修正 beta normalizing constant 的调用逻辑
 - **`pad.left` 未定义**：`distributions.js` — 替换为正确属性名 `pad.l`
 
 ---
