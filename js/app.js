@@ -125,6 +125,9 @@ function updateChapterCount() {
       const countEl = $(`${key}-count`);
       if (countEl) countEl.textContent = `${visitedCount}/${list.length}`;
     });
+
+    // 接通全局进度条（chapters.js 的 updateProgressBar）
+    if (typeof updateProgressBar === 'function') updateProgressBar();
   }
 }
 
