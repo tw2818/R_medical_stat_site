@@ -97,4 +97,27 @@ function updateProgressBar() {
       if (countEl) countEl.textContent = `${groupDone}/${groupTotal}`;
     });
   }
+
+  // 以下为 app.js 进度 UI（圆环、最近章节、继续学习按钮）
+  const ring = document.getElementById('progress-ring-fill');
+  const pctEl = document.getElementById('progress-pct');
+  if (ring) {
+    const r = 22, circ = 2 * Math.PI * r;
+    ring.style.strokeDasharray = `${circ}`;
+    ring.style.strokeDashoffset = `${circ - (pct / 100) * circ}`;
+  }
+  if (pctEl) pctEl.textContent = `${Math.round(pct)}%`;
+
+  const lastId = effective[effective.length - 1] || null;
+  const lastEl = document.getElementById('last-chapter');
+  const btnCont = document.getElementById('btn-continue');
+  if (lastId && lastEl) {
+    let chapterName = '';
+    Object.values(CHAPTERS).flat().forEach(ch => { if (ch.id === lastId) chapterName = ch.title; });
+    lastEl.textContent = chapterName ? `最近：${chapterName}` : '';
+  } else if (lastEl) {
+    lastEl.textContent = '';
+  }
+  if (btnCont) btnCont.style.display = lastId ? 'inline-block' : 'none';
+  window._lastChapterId = lastId;
 }

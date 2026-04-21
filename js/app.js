@@ -87,48 +87,7 @@ function buildNav() {
 }
 
 function updateChapterCount() {
-  // 内部实现：接收已解析的 visited 数组，避免重复 JSON.parse
-  function _updateProgressBar(visited) {
-    const total = ALL_CHAPTERS.length;
-    const done = visited.length;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-    const progressText = document.getElementById('progress-text');
-    if (progressText) progressText.textContent = `${done}/${total}`;
-    const progressFill = document.getElementById('progress-fill');
-    if (progressFill) progressFill.style.width = `${pct}%`;
-
-    const ring = document.getElementById('progress-ring-fill');
-    const pctEl = document.getElementById('progress-pct');
-    if (ring) {
-      const r = 22, circ = 2 * Math.PI * r;
-      ring.style.strokeDasharray = `${circ}`;
-      ring.style.strokeDashoffset = `${circ - (pct / 100) * circ}`;
-    }
-    if (pctEl) pctEl.textContent = `${pct}%`;
-
-    const lastId = visited[visited.length - 1] || null;
-    const lastEl = document.getElementById('last-chapter');
-    const btnCont = document.getElementById('btn-continue');
-    if (lastId && lastEl) {
-      let chapterName = '';
-      Object.values(CHAPTERS).flat().forEach(ch => { if (ch.id === lastId) chapterName = ch.title; });
-      lastEl.textContent = chapterName ? `最近：${chapterName}` : '';
-    } else if (lastEl) {
-      lastEl.textContent = '';
-    }
-    if (btnCont) btnCont.style.display = lastId ? 'inline-block' : 'none';
-    window._lastChapterId = lastId;
-
-    GROUP_CONFIG.forEach(({ key }) => {
-      const list = CHAPTERS[key] || [];
-      const visitedCount = list.filter(ch => visited.includes(ch.id)).length;
-      const countEl = $(`${key}-count`);
-      if (countEl) countEl.textContent = `${visitedCount}/${list.length}`;
-    });
-
-    // 接通全局进度条（chapters.js 的 updateProgressBar）
-    if (typeof updateProgressBar === 'function') updateProgressBar();
-  }
+  if (typeof updateProgressBar === 'function') updateProgressBar();
 }
 
 function continueLearning() {
