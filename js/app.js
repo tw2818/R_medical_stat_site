@@ -87,45 +87,49 @@ function buildNav() {
 }
 
 function updateChapterCount() {
-  const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
-  const totalVisited = visited.length;
-  const totalChapters = Object.values(CHAPTERS).flat().length;
-  const pct = totalChapters > 0 ? Math.round((totalVisited / totalChapters) * 100) : 0;
-  const progressText = document.getElementById('progress-text');
-  if (progressText) progressText.textContent = `${totalVisited}/${totalChapters}`;
-  const progressFill = document.getElementById('progress-fill');
-  if (progressFill) progressFill.style.width = `${pct}%`;
+  // 内部实现：接收已解析的 visited 数组，避免重复 JSON.parse
+  function _updateProgressBar(visited) {
+    const total = ALL_CHAPTERS.length;
+    const done = visited.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    const progressText = document.getElementById('progress-text');
+    if (progressText) progressText.textContent = `${done}/${total}`;
+    const progressFill = document.getElementById('progress-fill');
+    if (progressFill) progressFill.style.width = `${pct}%`;
 
-  // SVG ring
-  const ring = document.getElementById('progress-ring-fill');
-  const pctEl = document.getElementById('progress-pct');
-  if (ring) {
-    const r = 22, circ = 2 * Math.PI * r;
-    ring.style.strokeDasharray = `${circ}`;
-    ring.style.strokeDashoffset = `${circ - (pct / 100) * circ}`;
+    const ring = document.getElementById('progress-ring-fill');
+    const pctEl = document.getElementById('progress-pct');
+    if (ring) {
+      const r = 22, circ = 2 * Math.PI * r;
+      ring.style.strokeDasharray = `${circ}`;
+      ring.style.strokeDashoffset = `${circ - (pct / 100) * circ}`;
+    }
+    if (pctEl) pctEl.textContent = `${pct}%`;
+
+    const lastId = visited[visited.length - 1] || null;
+    const lastEl = document.getElementById('last-chapter');
+    const btnCont = document.getElementById('btn-continue');
+    if (lastId && lastEl) {
+      let chapterName = '';
+      Object.values(CHAPTERS).flat().forEach(ch => { if (ch.id === lastId) chapterName = ch.title; });
+      lastEl.textContent = chapterName ? `最近：${chapterName}` : '';
+    } else if (lastEl) {
+      lastEl.textContent = '';
+    }
+    if (btnCont) btnCont.style.display = lastId ? 'inline-block' : 'none';
+    window._lastChapterId = lastId;
+
+    GROUP_CONFIG.forEach(({ key }) => {
+      const list = CHAPTERS[key] || [];
+      const visitedCount = list.filter(ch => visited.includes(ch.id)).length;
+      const countEl = $(`${key}-count`);
+      if (countEl) countEl.textContent = `${visitedCount}/${list.length}`;
+    });
   }
-  if (pctEl) pctEl.textContent = `${pct}%`;
 
-  // Last visited chapter
-  const lastId = visited[visited.length - 1] || null;
-  const lastEl = document.getElementById('last-chapter');
-  const btnCont = document.getElementById('btn-continue');
-  if (lastId && lastEl) {
-    let chapterName = '';
-    Object.values(CHAPTERS).flat().forEach(ch => { if (ch.id === lastId) chapterName = ch.title; });
-    lastEl.textContent = chapterName ? `最近：${chapterName}` : '';
-  } else if (lastEl) {
-    lastEl.textContent = '';
+  function updateProgress() {
+    _updateProgressBar(JSON.parse(localStorage.getItem('rstat_visited') || '[]'));
   }
-  if (btnCont) btnCont.style.display = lastId ? 'inline-block' : 'none';
-  window._lastChapterId = lastId;
-
-  GROUP_CONFIG.forEach(({ key }) => {
-    const list = CHAPTERS[key] || [];
-    const visitedCount = list.filter(ch => visited.includes(ch.id)).length;
-    const countEl = $(`${key}-count`);
-    if (countEl) countEl.textContent = `${visitedCount}/${list.length}`;
-  });
 }
 
 function continueLearning() {
@@ -182,7 +186,6 @@ function navigateToChapter(groupKey, index) {
   // 关闭侧边栏（移动端）
   const sidebar = $('sidebar');
   if (sidebar) sidebar.classList.remove('open');
-  updateProgress();
 }
 
 function updateActiveLink(groupKey, index) {
@@ -292,7 +295,7 @@ async function loadChapter(filename) {
     if (window.initStatViz) window.initStatViz();
     if (window.setupStatVizObserver) window.setupStatVizObserver();
 
-    // 更新章节计数
+    // 更新章节计数（进度条、圆环、最近章节等）
     updateChapterCount();
     updateNavGroupExpansion();
   } catch (err) {
@@ -420,9 +423,6 @@ function initSearch() {
 }
 
 // ===== 进度 =====
-function updateProgress() {
-  updateProgressBar();
-}
 
 // ===== Toast =====
 window.showToast = function showToast(msg) {
@@ -470,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  updateProgress();
+  updateChapterCount();
   updateStaticCounts();
 
   // 学习路线 tab 切换
