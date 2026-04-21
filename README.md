@@ -10,7 +10,7 @@
 
 - **📖 46 个专题章节** — 从基础 t 检验到高级生存分析全覆盖
 - **📋 代码可复制** — 所有 R 代码一键复制到剪贴板
-- **📊 交互式统计可视化** — 11 个内置可视化/计算器组件
+- **📊 67 个交互式可视化/计算器组件** — 内置统计图形 + 实时参数调节
 - **📱 移动端适配** — 响应式布局，手机/平板可用
 - **🔍 章节搜索** — 侧边栏实时搜索
 - **✅ 学习进度追踪** — 自动记录已访问章节
@@ -32,6 +32,8 @@ Fine-Gray检验和竞争风险模型 · 倾向性评分（匹配/回归和分层
 
 ## 交互式可视化组件
 
+统计计算基于 [jStat](https://github.com/jstat/jstat) 库，图形使用 Canvas 2D API 纯前端渲染，无需服务器。
+
 | # | 类型 | 名称 | 所在章节 |
 |---|------|------|---------|
 | 1 | 📊 | 正态分布 explorer（μ/σ 滑块） | t检验 |
@@ -46,8 +48,9 @@ Fine-Gray检验和竞争风险模型 · 倾向性评分（匹配/回归和分层
 | 10 | 📊 | 二项分布 B(n,p) 条形图（n/p 滑块） | 离散分布 |
 | 11 | 📊 | 泊松分布 P(λ) 条形图（λ 滑块） | 离散分布 |
 | 12 | 📊 | Kaplan-Meier 生存曲线（含截尾标记） | 生存分析 |
-
-统计计算基于 [jStat](https://github.com/jstat/jstat) 库，图形使用 Canvas 2D API 纯前端渲染，无需服务器。
+| 13 | 📊 | Wilcoxon 符号秩检验图（柱状图+秩次标注） | 秩转换非参数检验 |
+| 14 | 📊 | Kruskal-Wallis H 检验箱线图（动态 H/P 值） | 秩转换非参数检验 |
+| 15 | 📊 | Friedman M 检验连线图（动态 M/P 值） | 秩转换非参数检验 |
 
 ---
 
@@ -64,8 +67,18 @@ R_medical_stat_site/
 │   └── style.css           # 所有样式（~1086 行）
 ├── js/
 │   ├── app.js              # 主应用逻辑（~406 行）
-│   ├── chapters.js          # 46 个章节的元数据（id / title / file）
-│   └── stats-viz.js        # 统计可视化引擎（~1605 行）
+│   ├── chapters.js         # 46 个章节的元数据（id / title / file）
+│   ├── stats-viz.js        # 可视化模块加载器（~100 行）
+│   └── viz/                # 可视化模块（ES Module 拆分）
+│       ├── _core.js         # 注册表、init()、setupObserver()（~100 行）
+│       ├── distributions.js # 正态/t/F/二项/泊松分布 explorer
+│       ├── hypothesis.js    # t检验/ANOVA/Kruskal-Wallis/Friedman/Wilcoxon 等
+│       ├── regression.js    # 散点图/回归/ROC/PCA 等
+│       ├── survival.js      # Kaplan-Meier 生存曲线
+│       ├── calculators.js   # t检验/卡方检验计算器
+│       ├── advanced.js      # 高级可视化
+│       ├── visualization.js # 通用图表组件
+│       └── meta.js          # 配色、工具函数
 ├── data/                   # 章节内容 + 关联图片
 │   ├── 1001-ttest.html     # t 检验
 │   ├── 1002-anova.html     # 方差分析
@@ -90,29 +103,43 @@ R_medical_stat_site/
 ## 技术架构
 
 ### 前端框架
-- **纯原生 JavaScript** — 无需任何前端框架
+- **纯原生 JavaScript** — 无需任何前端框架，ES Module 按需加载
 - **SPA 架构** — 章节通过 `fetch()` 动态加载，DOMParser 提取内容
 - **Canvas 2D API** — 所有统计图形自绘，不依赖 Chart.js
 - **jStat CDN** — 统计函数库（正态/t/F/卡方分布的 PDF、CDF、逆函数）
 
+### ES Module 模块设计
+`stats-viz.js` 作为入口加载器，按需动态 `import()` 各个 viz 模块：
+- **`viz/_core.js`** — 注册表（67 个条目）、`init()` 初始化、`setupObserver()` 监听动态挂载
+- **`viz/distributions.js`** — 正态/t/F/二项/泊松分布的可视化 explorer
+- **`viz/hypothesis.js`** — 参数检验：t 检验、ANOVA、Kruskal-Wallis H、Friedman M、Wilcoxon 符号秩
+- **`viz/survival.js`** — Kaplan-Meier 生存曲线
+- **`viz/regression.js`** — 散点图、线性回归、ROC 曲线（含 AUC）、PCA 碎石图
+- **`viz/calculators.js`** — t 检验、卡方检验计算器
+
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
 2. `loadChapter(file)` → `fetch('data/xxx.html')` → `DOMParser` 提取 `<main id="quarto-document-content">`
-3. `setupChapterInteractions()` → `initStatViz()` 初始化可视化组件
+3. `setupChapterInteractions()` → `initStatViz()` 扫描 `.stat-viz` / `.stat-calc` 标记，按 `data-type` 分发渲染
 4. Quarto 原生的代码复制按钮被替换为内联 onclick 版本（绕过 ClipboardJS）
 
-### 统计可视化初始化
-每个可视化组件以 `<div class="stat-viz" data-type="xxx">` 或 `<div class="stat-calc" data-type="xxx">` 标记于章节 HTML 中。`initStatViz()` 在章节加载完成后扫描这些标记，根据 `data-type` 调用对应的渲染函数。
+### 可视化组件注册约定
+```html
+<!-- 可视化图形 -->
+<div class="stat-viz" data-type="kruskal" data-title="Kruskal-Wallis H检验"></div>
+<!-- 计算器（带输入框） -->
+<div class="stat-calc" data-type="ttest" data-title="t检验计算器"></div>
+```
 
 ---
 
 ## 开发
 
-### 目录部署说明
-章节 HTML 中的图片引用（如 `<img src="1001-ttest_files/figure-html/xxx.png">`）在 Vercel 部署时需要相对于**站点根目录**。因此：
-- 图片目录（`*_files/`）统一放在 `data/` 目录内
-- HTML 中的引用路径为 `data/xxx_files/figure-html/xxx.png`（如 `data/1002-anova_files/figure-html/unnamed-chunk-2-1.png`）
-- 所有中文目录名（`ROC曲线_files`、`统计绘图_files` 等）已移入 `data/` 下
+### 添加新的可视化组件
+
+1. 在 `viz/*.js` 中编写渲染函数并调用 `registerViz('typename', renderFn)`
+2. 在对应章节的 `.html` 文件中加入 `<div class="stat-viz" data-type="typename">` 标记
+3. jStat 提供以下可用分布：`normal`, `studentt`, `chisquare`, `centralF`, `binomial`, `poisson`, `beta`, `gamma`，PDF/CDF/inv 方法齐全
 
 ### 本地开发
 
@@ -127,12 +154,6 @@ npx serve .
 python3 -m http.server 8000
 ```
 
-### 添加新的可视化组件
-
-1. 在 `stats-viz.js` 中添加渲染函数（如 `function renderMyViz(el) { ... }`）
-2. 在 `initStatViz()` 末尾的 switch 语句中注册新类型
-3. 在对应章节的 `.html` 文件中加入 `<div class="stat-viz" data-type="myviz">` 标记
-
 ---
 
 ## 部署
@@ -144,6 +165,18 @@ GitHub (main) → Vercel → r-medical-stat-site.vercel.app
 ```
 
 无需 `vercel.json` 配置文件，Vercel 会自动检测为静态站点。
+
+---
+
+## 更新日志
+
+### 2026-04-21 — 统计计算 bug 修复
+- **Kruskal-Wallis H 检验**：`hypothesis.js` — 原输出 H=9.74 / P≈0.008 为硬编码，已替换为完整动态计算（含并列校正秩次、chi-square 近似 P 值）
+- **Friedman M 检验**：`hypothesis.js` — 原输出 M=9.34 / P≈0.025 为硬编码，已替换为完整动态计算（区块内编秩 + tie 校正因子）
+- **Kaplan-Meier 生存曲线**：`survival.js` — 原公式 `surv *= 1 - 1/(n - ...)` 与标准 product-limit estimator 不符，已重写为按时间点聚合 + 正确维护 at-risk 集合
+- **t 分布 fallback**：`distributions.js` — 原 fallback 分支引用未定义的 `lgamma()`，已替换为 Stirling 近似 logΓ 函数
+- **F 分布 fallback**：`distributions.js` — 原条件 `1/jStat.beta` 永远为真（beta 是对象），beta normalizing constant 从未被使用，已修正调用逻辑
+- **`pad.left` 未定义**：`distributions.js` — 替换为正确属性名 `pad.l`
 
 ---
 

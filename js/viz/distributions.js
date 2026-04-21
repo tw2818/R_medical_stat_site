@@ -173,10 +173,18 @@ registerViz('normal', renderNormalDistribution);
       if (window.jStat && window.jStat.studentt) {
         tPdf = x => window.jStat.studentt.pdf(x, df);
       } else {
-        // 近似：t 分布的尾部比正态厚
+        // t PDF fallback: 用 Stirling 近似计算 log-Gamma
+        // logΓ(z) ≈ (z-0.5)*log(z) - z + 0.5*log(2π) + 1/(12z) - 1/(360z³)
+        function logGammaStirling(z) {
+          if (z <= 0) return 0;
+          return (z - 0.5) * Math.log(z) - z + 0.5 * Math.log(2 * Math.PI) + 1 / (12 * z) - 1 / (360 * z * z * z);
+        }
         tPdf = x => {
-          const c = (1 + x*x/df) ** (-(df+1)/2);
-          return c * (df > 0 ? Math.exp(-lgamma(df/2+0.5) - lgamma(0.5) + lgamma(df/2+1)) / Math.sqrt(df*Math.PI) : 0);
+          const c = Math.pow(1 + x * x / df, -(df + 1) / 2);
+          const lg1 = logGammaStirling(df / 2 + 0.5);
+          const lg2 = 0.5 * Math.log(Math.PI); // log Γ(0.5) = log √π
+          const lg3 = logGammaStirling(df / 2 + 1);
+          return c * Math.exp(lg1 + lg2 - lg3) / Math.sqrt(df * Math.PI);
         };
       }
 
@@ -420,7 +428,10 @@ registerViz('pvalue', renderPValue);
       // Fallback approximation
       if (x <= 0) return 0;
       const c = d1 > 0 && d2 > 0 ? (d1*x)**d1 * d2**d2 / (d1*x + d2)**(d1+d2) : 0;
-      return c / x * (1 / jStat.beta ? jStat.beta.fn(d1/2, d2/2) : 1);
+      const betaFn = (window.jStat && window.jStat.beta && window.jStat.beta.fn)
+        ? window.jStat.beta.fn(d1/2, d2/2)
+        : 1 / (Math.sqrt(Math.PI) * Math.exp(jStat.gammaln ? jStat.gammaln(d1/2) + jStat.gammaln(d2/2) - jStat.gammaln((d1+d2)/2) : 0));
+      return c / x * betaFn;
     }
 
     function draw(d1, d2) {
@@ -481,7 +492,7 @@ registerViz('pvalue', renderPValue);
       ctx.strokeStyle = '#333';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(pad.left || 0, 0); ctx.lineTo(pad.left || 0, H); ctx.lineTo(W, H);
+      ctx.moveTo(pad.l, 0); ctx.lineTo(pad.l, H); ctx.lineTo(W, H);
       ctx.stroke();
     }
 

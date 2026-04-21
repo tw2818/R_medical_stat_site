@@ -182,11 +182,31 @@ registerViz('km', renderKM);
         times.push(t); events.push(status);
       }
       const sorted = times.map((t, i) => ({ t, e: events[i] })).sort((a, b) => a.t - b.t);
+      // 标准 Kaplan-Meier product-limit 估计
+      // Step 1: 按时间排序（已在上面完成）
+      // Step 2: 按时间点聚合（同一时间可能有多个事件）
       let surv = 1, S = [1], T = [0];
-      sorted.forEach(d => {
-        if (d.e === 1) { surv *= 1 - 1 / (n - sorted.slice(0, sorted.indexOf(d)).filter(x => x.e === 1).length || 1); }
-        S.push(surv); T.push(d.t);
-      });
+      let atRisk = sorted.length; // 初始 at-risk = 总样本量
+      let i = 0;
+      while (i < sorted.length) {
+        const currentTime = sorted[i].t;
+        // 统计该时间点的事件数 d
+        let d = 0;
+        while (i < sorted.length && sorted[i].t === currentTime && sorted[i].e === 1) {
+          d++; i++;
+        }
+        // 跳过该时间点的截尾观测（e=0），但不计入 d
+        while (i < sorted.length && sorted[i].t === currentTime && sorted[i].e === 0) {
+          i++;
+        }
+        // 更新 KM 乘积极计
+        if (atRisk > 0) {
+          surv *= (atRisk - d) / atRisk;
+        }
+        S.push(surv);
+        T.push(currentTime);
+        atRisk -= d;
+      }
       return { T, S };
     }
 

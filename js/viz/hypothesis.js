@@ -984,12 +984,41 @@ registerViz('wilcoxon', renderWilcoxonSignedRank);
     // 组名标签
     ctx.fillStyle = '#888'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('三组死亡率比较（方框=四分位须=范围 红线=中位数 点=均值）', W/2, H - 5);
-    // Kruskal-Wallis H统计量手工算（合并排序）
-    const allIndexed = allVals.map((v, idx) => ({v, g: groups.findIndex(g => g.values.includes(v) && g.values.indexOf(v) === g.values.filter(x => x === v).indexOf(v))}));
-    // 简化：直接用jStat算近似
-    // n=15, k=3, H ≈ chi-square
+    // ── Kruskal-Wallis H 真实计算 ──────────────────────────
+    // Step 1: 合并全部数据，统一编秩（遇相同值取平均秩）
+    const N = allVals.length;
+    const k = groups.length;
+    const sortedAll = [...allVals].sort((a, b) => a - b);
+
+    // 计算每个观测值的秩（含并列调整）
+    const ranks = allVals.map((v) => {
+      // 找这个值在全量中的所有位置
+      const positions = [];
+      sortedAll.forEach((sv, idx) => { if (sv === v) positions.push(idx + 1); });
+      // 平均秩
+      return positions.reduce((a, b) => a + b, 0) / positions.length;
+    });
+
+    // Step 2: 每个组的秩和
+    let offset = 0;
+    const groupRanks = groups.map(g => {
+      const r = ranks.slice(offset, offset + g.values.length);
+      offset += g.values.length;
+      return { name: g.name, Ri: r.reduce((a, b) => a + b, 0), ni: g.values.length };
+    });
+
+    // Step 3: H 统计量
+    const sumRi2ni = groupRanks.reduce((s, gr) => s + (gr.Ri * gr.Ri) / gr.ni, 0);
+    const H = (12 / (N * (N + 1))) * sumRi2ni - 3 * (N + 1);
+
+    // Step 4: P 值（chi-square, df = k-1）
+    const df = k - 1;
+    const pVal = jStat.chisquare.cdf(H, df);
+    const pDisplay = (1 - pVal).toFixed(4);
+
     document.getElementById(id + '-result').innerHTML =
-      'H = 9.74 (χ²≈9.74, df=2, P≈0.008) — 三组死亡率差异有统计学意义';
+      `H = ${H.toFixed(3)} (χ²=${H.toFixed(3)}, df=${df}, P≈${pDisplay})` +
+      (pDisplay < 0.05 ? ' — 三组死亡率差异有统计学意义 ✱' : ' — 三组差异无统计学意义');
   }
 registerViz('kruskal', renderKruskalWallis);
 
@@ -1073,7 +1102,54 @@ registerViz('kruskal', renderKruskalWallis);
       ctx.fillText(t, lx + 8, pad.t - 11);
     });
     ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('每条线代表一个区块(Block)，连线连接同一区块内各处理 | Friedman M = 9.34, P ≈ 0.025', W/2, H - 5);
+    // ── Friedman M 真实计算 ─────────────────────────────────
+    // 在每个区块内对各处理编秩（值越大秩越小，即 rank 越小）
+    const b = nBlocks; // block 数
+    const t = nTreat;  // 处理数
+    const blockRanks = data.map(blockData => {
+      // 按值升序排列，记录原始索引，然后赋予秩（1=最小值）
+      const indexed = blockData.map((v, ti) => ({ v, ti }));
+      indexed.sort((a, b) => a.v - b.v);
+      const ranks = new Array(t);
+      let i = 0;
+      while (i < t) {
+        let j = i;
+        // 找相同值的范围
+        while (j < t - 1 && indexed[j + 1].v === indexed[i].v) j++;
+        const avgRank = (i + 1 + j + 1) / 2; // 平均秩（1-indexed）
+        for (let k = i; k <= j; k++) ranks[indexed[k].ti] = avgRank;
+        i = j + 1;
+      }
+      return ranks;
+    });
+
+    // 各处理的秩和
+    const treatRankSums = treatments.map((_, ti) =>
+      blockRanks.reduce((s, br) => s + br[ti], 0)
+    );
+    const meanRank = (t + 1) / 2; // 每个区块内 mean rank = (t+1)/2
+    const expectedSum = b * meanRank;
+
+    // M = Σ (Ri - b*meanRank)^2
+    const M = treatRankSums.reduce((s, Ri) => s + (Ri - expectedSum) ** 2, 0);
+
+    // χ² 近似（df = t-1），考虑 ties 的校正因子
+    const totalPairs = b * t * (t + 1) / 2;
+    let tieCorrection = 0;
+    blockRanks.forEach(br => {
+      const freq = {};
+      br.forEach(r => { freq[r] = (freq[r] || 0) + 1; });
+      Object.values(freq).forEach(f => { if (f > 1) tieCorrection += (f ** 3 - f); });
+    });
+    const Cf = 1 - tieCorrection / (b * t * (t ** 2 - 1));
+    const chiSq = Cf > 0 && b > 1 ? (12 * M) / (b * t * (t + 1)) : 0;
+    const df = t - 1;
+    const pVal = jStat.chisquare.cdf(chiSq, df);
+    const pDisplay = (1 - pVal).toFixed(4);
+
+    document.getElementById(id + '-result').innerHTML =
+      `Friedman M = ${M.toFixed(3)} (χ²=${chiSq.toFixed(3)}, df=${df}, P≈${pDisplay})` +
+      (pDisplay < 0.05 ? ' — 各处理间差异有统计学意义 ✱' : ' — 各处理间差异无统计学意义');
   }
 registerViz('friedman', renderFriedman);
 
