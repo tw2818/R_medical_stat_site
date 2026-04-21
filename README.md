@@ -14,6 +14,7 @@
 - **📱 移动端适配** — 响应式布局，手机/平板可用
 - **🔍 章节搜索** — 侧边栏实时搜索
 - **✅ 学习进度追踪** — 自动记录已访问章节
+- **🧪 轻量验证基线** — 为关键统计计算器保留回归校验样例
 
 ---
 
@@ -92,6 +93,9 @@ R_medical_stat_site/
 │   ├── roc.html                   # ROC 曲线
 │   ├── *.html                     # 46 个章节 HTML 文件
 │   └── *_files/                   # 各章节关联图片
+├── tests/                         # 轻量回归校验基线
+│   ├── README.md                  # 校验工作流说明
+│   └── stat_calculator_cases.json # 关键统计组件验证样例
 ├── figs/                          # 网站页面用到的独立图片资源
 │   └── *.png / *.jpg
 └── .vercel/                       # Vercel 部署配置（不上游）
@@ -118,13 +122,38 @@ R_medical_stat_site/
 - **`viz/survival.js`** — Kaplan-Meier 生存曲线
 - **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
 
-> `regression.js` 已经从运行路径中移除，并已从仓库删除。现在可视化模块边界已经比最初清晰得多：假设检验、临床建模、结构示意和生存分析都已分离。
+> 目前可视化模块边界已经比最初清晰得多：假设检验、临床建模、结构示意和生存分析都已分离。
 
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
 2. `loadChapter(file)` → `fetch('data/xxx.html')` → `DOMParser` 提取 `<main id="quarto-document-content">`
 3. `setupChapterInteractions()` → `initStatViz()` 扫描 `.stat-viz` / `.stat-calc` 标记，按 `data-type` 分发渲染
 4. Quarto 原生的代码复制按钮被替换为内联 `onclick` 版本（绕过 ClipboardJS）
+
+### 轻量验证基线
+仓库现在包含一个不依赖测试框架的回归校验基线：
+
+- `tests/stat_calculator_cases.json`
+- `tests/README.md`
+
+它的目标不是替代正式自动化测试，而是先把关键统计组件的：
+
+- 输入样例
+- 关键输出约束
+- 高风险回归点
+
+固化下来，方便后续：
+
+- 手工回归
+- Playwright 接入
+- Node 脚本校验
+
+目前优先覆盖：
+- `ttest`
+- `chisq` / Fisher exact
+- `kruskal`
+- `friedman`
+- `survival` 的基本不变量
 
 ### 可视化组件注册约定
 ```html
@@ -172,6 +201,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 ---
 
 ## 更新日志
+
+### 2026-04-22 — 增加轻量验证基线
+- **新增目录**：`tests/`
+- **新增基线文件**：`tests/stat_calculator_cases.json`
+- **新增说明**：`tests/README.md`
+- **目的**：为关键统计组件建立低成本回归校验基线，便于后续接入自动化或手工验证
 
 ### 2026-04-22 — 删除 legacy regression 文件
 - **仓库清理**：删除 `js/viz/regression.js`
