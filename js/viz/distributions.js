@@ -212,28 +212,34 @@ registerViz('normal', renderNormalDistribution);
 
   function renderTCompare(el) {
     const W = 600, H = 280;
+    const initialDf = 10;
     const card = document.createElement('div');
     card.className = 'viz-card';
     card.innerHTML = `
-      <div class="viz-header"><span>📊 正态分布 vs t 分布</span><button class="viz-reset" title="重置">↺</button></div>
+      <div class="viz-header"><span>📈 正态分布 vs t 分布</span><button class="viz-reset" title="重置">↺</button></div>
       <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
       <div class="viz-sliders">
-        <label>自由度 df = <span class="viz-val" data-for="df">10</span>
-          <input type="range" class="viz-slider" data-param="df" min="1" max="100" step="1" value="10">
+        <label>自由度 df = <span class="viz-val" data-for="df">${initialDf}</span>
+          <input type="range" class="viz-slider" data-param="df" min="1" max="100" step="1" value="${initialDf}">
         </label>
       </div>
       <div class="viz-legend">
         <span class="legend-item" style="border-color:#569cd6">— 标准正态 N(0,1)</span>
         <span class="legend-item" style="border-color:#c586c0">— t 分布</span>
       </div>
+      <div class="viz-stats">
+        <span>尾部差异：<strong data-stat="tail">—</strong></span>
+        <span>提示：df 越小，t 分布尾部越厚、峰越低</span>
+      </div>
     `;
     el.appendChild(card);
 
     const canvas = card.querySelector('canvas');
     const ctx = canvas.getContext('2d');
+    const tailEl = card.querySelector('[data-stat="tail"]');
 
     function normalPDF(x) {
-      return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);
+      return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
     }
 
     function draw(df) {
@@ -242,14 +248,12 @@ registerViz('normal', renderNormalDistribution);
       ctx.fillRect(0, 0, W, H);
 
       const xMin = -4, xMax = 4;
+      const baselineY = H - 20;
 
-      // t PDF（用 jStat 如果可用，否则近似）
       let tPdf;
       if (window.jStat && window.jStat.studentt) {
         tPdf = x => window.jStat.studentt.pdf(x, df);
       } else {
-        // t PDF fallback: 用 Stirling 近似计算 log-Gamma
-        // logΓ(z) ≈ (z-0.5)*log(z) - z + 0.5*log(2π) + 1/(12z) - 1/(360z³)
         function logGammaStirling(z) {
           if (z <= 0) return 0;
           return (z - 0.5) * Math.log(z) - z + 0.5 * Math.log(2 * Math.PI) + 1 / (12 * z) - 1 / (360 * z * z * z);
@@ -257,59 +261,98 @@ registerViz('normal', renderNormalDistribution);
         tPdf = x => {
           const c = Math.pow(1 + x * x / df, -(df + 1) / 2);
           const lg1 = logGammaStirling(df / 2 + 0.5);
-          const lg2 = 0.5 * Math.log(Math.PI); // log Γ(0.5) = log √π
+          const lg2 = 0.5 * Math.log(Math.PI);
           const lg3 = logGammaStirling(df / 2 + 1);
           return c * Math.exp(lg1 + lg2 - lg3) / Math.sqrt(df * Math.PI);
         };
       }
 
       const maxY = Math.max(normalPDF(0), tPdf(0)) * 1.2;
-      const sx = x => (x - xMin)/(xMax - xMin) * W;
-      const sy = y => H - (y/maxY)*H*0.8 - 15;
+      const sx = x => (x - xMin) / (xMax - xMin) * W;
+      const sy = y => baselineY - (y / maxY) * H * 0.8;
 
-      // 画正态曲线
+      ctx.strokeStyle = 'rgba(128,128,128,0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let tick = -3; tick <= 3; tick += 1) {
+        const cx = sx(tick);
+        ctx.moveTo(cx, 0);
+        ctx.lineTo(cx, H);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#666';
+      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      for (let tick = -3; tick <= 3; tick += 1) {
+        const cx = sx(tick);
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(90,90,90,0.35)';
+        ctx.moveTo(cx, baselineY - 4);
+        ctx.lineTo(cx, baselineY + 4);
+        ctx.stroke();
+        ctx.fillText(String(tick), cx, H - 4);
+      }
+
+      const fillCurve = (fn, colorStops) => {
+        ctx.beginPath();
+        for (let px = 0; px <= W; px++) {
+          const x = xMin + (px / W) * (xMax - xMin);
+          const y = fn(x);
+          px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
+        }
+        ctx.lineTo(W, baselineY);
+        ctx.lineTo(0, baselineY);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        colorStops.forEach(([stop, color]) => grad.addColorStop(stop, color));
+        ctx.fillStyle = grad;
+        ctx.fill();
+      };
+
+      fillCurve(tPdf, [[0, 'rgba(197,133,192,0.15)'], [1, 'rgba(197,133,192,0.02)']]);
+
       ctx.beginPath();
       ctx.strokeStyle = '#569cd6';
       ctx.lineWidth = 2;
       for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
+        const x = xMin + (px / W) * (xMax - xMin);
         const y = normalPDF(x);
         px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
       }
       ctx.stroke();
 
-      // 画 t 曲线
       ctx.beginPath();
       ctx.strokeStyle = '#c586c0';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
+        const x = xMin + (px / W) * (xMax - xMin);
         const y = tPdf(x);
         px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
       }
       ctx.stroke();
 
-      // 填充 t 曲线
-      ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
-      const grad = ctx.createLinearGradient(0,0,0,H);
-      grad.addColorStop(0,'rgba(197,133,192,0.15)');
-      grad.addColorStop(1,'rgba(197,133,192,0.02)');
-      ctx.fillStyle = grad;
-      ctx.fill();
+      const tailNormal = window.jStat?.normal?.cdf ? 2 * (1 - window.jStat.normal.cdf(2, 0, 1)) : 0.0455;
+      const tailT = window.jStat?.studentt?.cdf ? 2 * (1 - window.jStat.studentt.cdf(2, df)) : null;
+      if (tailEl) {
+        tailEl.textContent = tailT !== null
+          ? `|x|>2 时：t=${(tailT * 100).toFixed(2)}%，正态=${(tailNormal * 100).toFixed(2)}%`
+          : 'jStat 未加载，无法动态计算尾部概率';
+      }
     }
 
-    draw(10);
+    draw(initialDf);
 
     card.querySelector('.viz-slider').addEventListener('input', () => {
-      const df = parseInt(card.querySelector('[data-param="df"]').value);
+      const df = parseInt(card.querySelector('[data-param="df"]').value, 10);
       card.querySelector('[data-for="df"]').textContent = df;
       draw(df);
     });
 
     card.querySelector('.viz-reset').addEventListener('click', () => {
-      card.querySelector('[data-param="df"]').value = 10;
-      card.querySelector('[data-for="df"]').textContent = 10;
-      draw(10);
+      card.querySelector('[data-param="df"]').value = initialDf;
+      card.querySelector('[data-for="df"]').textContent = initialDf;
+      draw(initialDf);
     });
   }
 registerViz('tcompare', renderTCompare);
@@ -318,16 +361,17 @@ registerViz('tcompare', renderTCompare);
   // <div class="stat-viz" data-type="pvalue" data-df="35"></div>
 
   function renderPValue(el) {
-    const df = parseInt(el.dataset.df || '35');
-    const W = 600, H = 260;
+    const df = parseInt(el.dataset.df || '35', 10);
+    const initialT = parseFloat(el.dataset.tstat || '2.14');
+    const W = 600, H = 280;
     const card = document.createElement('div');
     card.className = 'viz-card';
     card.innerHTML = `
       <div class="viz-header"><span>🎯 P 值可视化（t 分布）</span><button class="viz-reset" title="重置">↺</button></div>
       <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
       <div class="viz-sliders">
-        <label>t 统计量 = <span class="viz-val" data-for="t">2.14</span>
-          <input type="range" class="viz-slider" data-param="t" min="-6" max="6" step="0.01" value="2.14">
+        <label>t 统计量 = <span class="viz-val" data-for="t">${initialT.toFixed(2)}</span>
+          <input type="range" class="viz-slider" data-param="t" min="-6" max="6" step="0.01" value="${initialT}">
         </label>
       </div>
       <div class="viz-pvalue-display">
@@ -349,17 +393,14 @@ registerViz('tcompare', renderTCompare);
 
     function tPdf(x, df) {
       if (window.jStat && window.jStat.studentt) return window.jStat.studentt.pdf(x, df);
-      // 不支持时的退化（should not happen since jStat is loaded）
-      return Math.exp(-(df+1)/2*Math.log(1+x*x/df)) / Math.sqrt(df*Math.PI);
+      return Math.exp(-(df + 1) / 2 * Math.log(1 + x * x / df)) / Math.sqrt(df * Math.PI);
     }
 
     function tCdf(x, df) {
       if (window.jStat && window.jStat.studentt) return window.jStat.studentt.cdf(x, df);
-      // fallback: 标准正态近似（df 大时足够好）
       return 0.5 * (1 + _erf(x / Math.sqrt(2)));
     }
 
-    // 近似误差函数（ Abramowitz-Stegun 公式）
     function _erf(x) {
       const t = 1 / (1 + 0.5 * Math.abs(x));
       const tau = t * Math.exp(-x * x - 1.26551223 +
@@ -375,68 +416,100 @@ registerViz('tcompare', renderTCompare);
       return x >= 0 ? 1 - tau : tau - 1;
     }
 
+    function drawTail(left, right, color, xMin, xMax, baselineY, sy) {
+      ctx.beginPath();
+      ctx.moveTo(left === xMin ? 0 : (left - xMin) / (xMax - xMin) * W, baselineY);
+      let started = false;
+      for (let px = 0; px <= W; px++) {
+        const x = xMin + (px / W) * (xMax - xMin);
+        if (x < left || x > right) continue;
+        const y = tPdf(x, df);
+        if (!started) {
+          ctx.lineTo(px, sy(y));
+          started = true;
+        } else {
+          ctx.lineTo(px, sy(y));
+        }
+      }
+      const endX = (right - xMin) / (xMax - xMin) * W;
+      ctx.lineTo(endX, baselineY);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
     function draw(tStat) {
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = 'rgba(30,30,30,0.03)';
       ctx.fillRect(0, 0, W, H);
 
-      const xMin = -5, xMax = 5;
+      const xMin = -6, xMax = 6;
+      const baselineY = H - 20;
       const maxY = tPdf(0, df) * 1.2;
-      const sx = x => (x - xMin)/(xMax - xMin) * W;
-      const sy = y => H - (y/maxY)*H*0.8 - 12;
+      const sx = x => (x - xMin) / (xMax - xMin) * W;
+      const sy = y => baselineY - (y / maxY) * H * 0.8;
 
-      // 画曲线
+      ctx.strokeStyle = 'rgba(128,128,128,0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let tick = -6; tick <= 6; tick += 2) {
+        const cx = sx(tick);
+        ctx.moveTo(cx, 0);
+        ctx.lineTo(cx, H);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#666';
+      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      for (let tick = -6; tick <= 6; tick += 2) {
+        const cx = sx(tick);
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(90,90,90,0.35)';
+        ctx.moveTo(cx, baselineY - 4);
+        ctx.lineTo(cx, baselineY + 4);
+        ctx.stroke();
+        ctx.fillText(String(tick), cx, H - 4);
+      }
+
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(90,90,90,0.5)';
+      ctx.beginPath();
+      ctx.moveTo(sx(0), 0);
+      ctx.lineTo(sx(0), H);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
       ctx.beginPath();
       ctx.strokeStyle = '#569cd6';
       ctx.lineWidth = 2;
       for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
+        const x = xMin + (px / W) * (xMax - xMin);
         const y = tPdf(x, df);
         px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
       }
       ctx.stroke();
 
-      // 填充右尾
-      const rightX = Math.max(tStat, xMin);
-      ctx.beginPath();
-      for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
-        if (x < rightX) continue;
-        const y = tPdf(x, df);
-        px === 0 || x === rightX ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
-      }
-      ctx.lineTo(W,H); ctx.lineTo(sx(rightX),H); ctx.closePath();
-      ctx.fillStyle = 'rgba(214,105,105,0.35)';
-      ctx.fill();
+      const absT = Math.abs(tStat);
+      drawTail(xMin, -absT, 'rgba(214,105,105,0.35)', xMin, xMax, baselineY, sy);
+      drawTail(absT, xMax, 'rgba(214,105,105,0.35)', xMin, xMax, baselineY, sy);
 
-      // 填充左尾
-      const leftX = Math.min(tStat, xMax);
-      ctx.beginPath();
-      for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
-        if (x > leftX) continue;
-        const y = tPdf(x, df);
-        px === 0 || x === leftX ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
-      }
-      ctx.lineTo(0,H); ctx.lineTo(sx(leftX),H); ctx.closePath();
-      ctx.fill();
+      [tStat, -tStat].forEach((value, idx) => {
+        const tx = sx(value);
+        ctx.strokeStyle = '#f9826c';
+        ctx.lineWidth = idx === 0 ? 2 : 1.4;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, H); ctx.stroke();
+        ctx.setLineDash([]);
+      });
 
-      // t 统计量线
       const tx = sx(tStat);
-      ctx.strokeStyle = '#f9826c';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5,5]);
-      ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, H); ctx.stroke();
-      ctx.setLineDash([]);
-
-      // t 统计量标签
       ctx.fillStyle = '#f9826c';
       ctx.font = 'bold 13px JetBrains Mono, monospace';
-      ctx.fillText(`t = ${tStat.toFixed(2)}`, Math.min(tx+6, W-90), 16);
+      ctx.fillText(`t = ${tStat.toFixed(2)}`, Math.min(tx + 8, W - 92), 16);
 
-      // 更新 P 值显示
-      const pTwo = 2 * (1 - tCdf(Math.abs(tStat), df));
-      const pOne = 1 - tCdf(tStat, df);
+      const pTwo = 2 * (1 - tCdf(absT, df));
+      const pOne = tStat >= 0 ? 1 - tCdf(tStat, df) : tCdf(tStat, df);
       const pTwoClamped = Math.min(1, Math.max(0, pTwo));
       const pOneClamped = Math.min(1, Math.max(0, pOne));
 
@@ -450,7 +523,7 @@ registerViz('tcompare', renderTCompare);
       else interp.textContent = '○ P ≥ 0.05，不显著';
     }
 
-    draw(2.14);
+    draw(initialT);
 
     card.querySelector('.viz-slider').addEventListener('input', () => {
       const t = parseFloat(card.querySelector('[data-param="t"]').value);
@@ -459,9 +532,9 @@ registerViz('tcompare', renderTCompare);
     });
 
     card.querySelector('.viz-reset').addEventListener('click', () => {
-      card.querySelector('[data-param="t"]').value = 2.14;
-      card.querySelector('[data-for="t"]').textContent = '2.14';
-      draw(2.14);
+      card.querySelector('[data-param="t"]').value = initialT;
+      card.querySelector('[data-for="t"]').textContent = initialT.toFixed(2);
+      draw(initialT);
     });
   }
 registerViz('pvalue', renderPValue);
@@ -470,8 +543,8 @@ registerViz('pvalue', renderPValue);
   // <div class="stat-calc" data-type="ttest"></div>
 
   function renderFDist(el) {
-    const df1 = parseInt(el.dataset.df1 || '2');
-    const df2 = parseInt(el.dataset.df2 || '87');
+    const initialDf1 = parseInt(el.dataset.df1 || '2', 10);
+    const initialDf2 = parseInt(el.dataset.df2 || '87', 10);
     const W = 600, H = 280;
     const alpha = 0.05;
 
@@ -481,16 +554,17 @@ registerViz('pvalue', renderPValue);
       <div class="viz-header"><span>📈 F 分布与 ANOVA (α=0.05)</span><button class="viz-reset" title="重置">↺</button></div>
       <canvas class="viz-canvas" width="${W}" height="${H}"></canvas>
       <div class="viz-sliders">
-        <label>df1 = <span class="viz-val" data-for="df1">${df1}</span>
-          <input type="range" class="viz-slider" data-param="df1" min="1" max="20" step="1" value="${df1}">
+        <label>df1 = <span class="viz-val" data-for="df1">${initialDf1}</span>
+          <input type="range" class="viz-slider" data-param="df1" min="1" max="20" step="1" value="${initialDf1}">
         </label>
-        <label>df2 = <span class="viz-val" data-for="df2">${df2}</span>
-          <input type="range" class="viz-slider" data-param="df2" min="1" max="100" step="1" value="${df2}">
+        <label>df2 = <span class="viz-val" data-for="df2">${initialDf2}</span>
+          <input type="range" class="viz-slider" data-param="df2" min="1" max="100" step="1" value="${initialDf2}">
         </label>
       </div>
       <div class="viz-stats">
         <span>F临界值 = <strong data-fcrit>—</strong></span>
         <span>拒绝域面积 = <strong>5%</strong></span>
+        <span data-reject-label>右尾红色区域为拒绝域</span>
       </div>
     `;
     el.appendChild(card);
@@ -500,22 +574,18 @@ registerViz('pvalue', renderPValue);
 
     function fPdf(x, d1, d2) {
       if (window.jStat && window.jStat.centralF && window.jStat.centralF.pdf) return window.jStat.centralF.pdf(x, d1, d2);
-      // Fallback approximation
       if (x <= 0) return 0;
-      const c = d1 > 0 && d2 > 0 ? (d1*x)**d1 * d2**d2 / (d1*x + d2)**(d1+d2) : 0;
-      // Beta function: B(a,b)=Γ(a)Γ(b)/Γ(a+b). Fallback without gammaln uses logGamma.
+      const c = d1 > 0 && d2 > 0 ? (d1 * x) ** d1 * d2 ** d2 / (d1 * x + d2) ** (d1 + d2) : 0;
       const betaFnFallback = (a, b) => {
-        // Use Stirling-based logGamma if gammaln unavailable
         if (window.jStat && window.jStat.gammaln) {
           const lgA = jStat.gammaln(a), lgB = jStat.gammaln(b), lgAB = jStat.gammaln(a + b);
           return Math.exp(lgA + lgB - lgAB);
         }
-        // Very rough fallback: 1/sqrt(pi) for typical a,b (not accurate)
         return 1 / Math.sqrt(Math.PI);
       };
       const betaFn = (window.jStat && window.jStat.beta && window.jStat.beta.fn)
-        ? window.jStat.beta.fn(d1/2, d2/2)
-        : betaFnFallback(d1/2, d2/2);
+        ? window.jStat.beta.fn(d1 / 2, d2 / 2)
+        : betaFnFallback(d1 / 2, d2 / 2);
       return c / x * betaFn;
     }
 
@@ -524,45 +594,88 @@ registerViz('pvalue', renderPValue);
       ctx.fillStyle = 'rgba(30,30,30,0.03)';
       ctx.fillRect(0, 0, W, H);
 
-      // 计算 F 临界值
       let fCrit = 3.0;
-      if (window.jStat && window.jStat.ftest) {
-        fCrit = jStat.centralF.inv(1 - alpha, d1, d2);
+      if (window.jStat?.centralF?.inv) {
+        fCrit = window.jStat.centralF.inv(1 - alpha, d1, d2);
       }
       card.querySelector('[data-fcrit]').textContent = fCrit.toFixed(3);
 
-      const xMin = 0, xMax = Math.max(5, fCrit * 2.5);
-      const maxY = fPdf(0.5, d1, d2) * 1.3;
+      const xMin = 0;
+      const xMax = Math.max(5, fCrit * 2.5);
+      const baselineY = H - 20;
+      const probeX = Math.max(0.3, Math.min(1, d2 > 4 ? (d2 - 2) / d2 : 0.5));
+      const maxY = Math.max(fPdf(probeX, d1, d2), fPdf(fCrit, d1, d2), 0.0001) * 1.35;
       const sx = x => (x - xMin) / (xMax - xMin) * W;
-      const sy = y => H - (y / maxY) * H * 0.8 - 15;
+      const sy = y => baselineY - (y / maxY) * H * 0.8;
 
-      // 画曲线
+      ctx.strokeStyle = 'rgba(128,128,128,0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      const tickMax = Math.ceil(xMax);
+      for (let tick = 0; tick <= tickMax; tick += Math.max(1, Math.ceil(tickMax / 5))) {
+        const cx = sx(tick);
+        ctx.moveTo(cx, 0);
+        ctx.lineTo(cx, H);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#666';
+      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      for (let tick = 0; tick <= tickMax; tick += Math.max(1, Math.ceil(tickMax / 5))) {
+        const cx = sx(tick);
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(90,90,90,0.35)';
+        ctx.moveTo(cx, baselineY - 4);
+        ctx.lineTo(cx, baselineY + 4);
+        ctx.stroke();
+        ctx.fillText(String(tick), cx, H - 4);
+      }
+
+      ctx.beginPath();
+      for (let px = 0; px <= W; px++) {
+        const x = xMin + (px / W) * (xMax - xMin);
+        const y = fPdf(x, d1, d2);
+        px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
+      }
+      ctx.lineTo(W, baselineY);
+      ctx.lineTo(0, baselineY);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, 'rgba(86,156,214,0.20)');
+      grad.addColorStop(1, 'rgba(86,156,214,0.02)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.beginPath();
+      let started = false;
+      for (let px = 0; px <= W; px++) {
+        const x = xMin + (px / W) * (xMax - xMin);
+        if (x < fCrit) continue;
+        const y = fPdf(x, d1, d2);
+        if (!started) {
+          ctx.moveTo(px, sy(y));
+          started = true;
+        } else {
+          ctx.lineTo(px, sy(y));
+        }
+      }
+      ctx.lineTo(W, baselineY);
+      ctx.lineTo(sx(fCrit), baselineY);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(214, 105, 105, 0.35)';
+      ctx.fill();
+
       ctx.beginPath();
       ctx.strokeStyle = '#569cd6';
       ctx.lineWidth = 2.5;
       for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
+        const x = xMin + (px / W) * (xMax - xMin);
         const y = fPdf(x, d1, d2);
-        const cx = px, cy = sy(y);
-        px === 0 ? ctx.moveTo(cx,cy) : ctx.lineTo(cx,cy);
+        px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
       }
       ctx.stroke();
 
-      // 填充拒绝域
-      ctx.beginPath();
-      let started = false;
-      for (let px = 0; px <= W; px++) {
-        const x = xMin + (px/W)*(xMax-xMin);
-        if (x < fCrit) continue;
-        const y = fPdf(x, d1, d2);
-        if (!started) { ctx.moveTo(px, sy(y)); started = true; }
-        else ctx.lineTo(px, sy(y));
-      }
-      ctx.lineTo(W, H); ctx.lineTo(sx(fCrit), H); ctx.closePath();
-      ctx.fillStyle = 'rgba(214, 105, 105, 0.35)';
-      ctx.fill();
-
-      // F 临界线
       const cxCrit = sx(fCrit);
       ctx.strokeStyle = '#f9826c';
       ctx.lineWidth = 2;
@@ -570,36 +683,31 @@ registerViz('pvalue', renderPValue);
       ctx.beginPath(); ctx.moveTo(cxCrit, 0); ctx.lineTo(cxCrit, H); ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = '#f9826c';
-      ctx.font = 'bold 12px monospace';
+      ctx.font = 'bold 12px JetBrains Mono, monospace';
       ctx.fillText(`F* = ${fCrit.toFixed(2)}`, Math.min(cxCrit + 6, W - 80), 16);
-
-      // 坐标轴
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(pad.l, 0); ctx.lineTo(pad.l, H); ctx.lineTo(W, H);
-      ctx.stroke();
+      ctx.fillStyle = 'rgba(214,105,105,0.9)';
+      ctx.fillText('拒绝域 α=0.05', Math.min(cxCrit + 12, W - 110), 34);
     }
 
-    draw(df1, df2);
+    draw(initialDf1, initialDf2);
 
     card.querySelectorAll('.viz-slider').forEach(slider => {
       slider.addEventListener('input', () => {
         const param = slider.dataset.param;
-        const val = parseInt(slider.value);
+        const val = parseInt(slider.value, 10);
         card.querySelector(`[data-for="${param}"]`).textContent = val;
-        const d1 = parseInt(card.querySelector('[data-param="df1"]').value);
-        const d2 = parseInt(card.querySelector('[data-param="df2"]').value);
+        const d1 = parseInt(card.querySelector('[data-param="df1"]').value, 10);
+        const d2 = parseInt(card.querySelector('[data-param="df2"]').value, 10);
         draw(d1, d2);
       });
     });
 
     card.querySelector('.viz-reset').addEventListener('click', () => {
-      card.querySelector('[data-param="df1"]').value = df1;
-      card.querySelector('[data-param="df2"]').value = df2;
-      card.querySelector('[data-for="df1"]').textContent = df1;
-      card.querySelector('[data-for="df2"]').textContent = df2;
-      draw(df1, df2);
+      card.querySelector('[data-param="df1"]').value = initialDf1;
+      card.querySelector('[data-param="df2"]').value = initialDf2;
+      card.querySelector('[data-for="df1"]').textContent = initialDf1;
+      card.querySelector('[data-for="df2"]').textContent = initialDf2;
+      draw(initialDf1, initialDf2);
     });
   }
 registerViz('fdist', renderFDist);
