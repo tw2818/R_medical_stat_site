@@ -5,6 +5,8 @@
 // 使用 Canvas + jStat 实现，无需安装
 
 (function() {
+  window.StatVizRegistry = {};
+
   // ── 工具函数 ──────────────────────────────────────
   const $ = id => document.getElementById(id);
 
@@ -160,6 +162,7 @@
       draw(mu, sigma);
     });
   }
+  window.StatVizRegistry["normal"] = renderNormalDistribution;
 
   // ── t 分布对比器 ───────────────────────────────────
   // <div class="stat-viz" data-type="tcompare"></div>
@@ -257,6 +260,7 @@
       draw(10);
     });
   }
+  window.StatVizRegistry["tcompare"] = renderTCompare;
 
   // ── P 值可视化 ─────────────────────────────────────
   // <div class="stat-viz" data-type="pvalue" data-df="35"></div>
@@ -407,6 +411,7 @@
       draw(2.14);
     });
   }
+  window.StatVizRegistry["pvalue"] = renderPValue;
 
   // ── t 检验计算器 ───────────────────────────────────
   // <div class="stat-calc" data-type="ttest"></div>
@@ -538,6 +543,7 @@
       displayTTestResult(card.querySelector('[data-result]'), result);
     });
   }
+  window.StatVizRegistry["ttest"] = renderTTest;
 
   function displayTTestResult(el, r) {
     // Handle pTwo strings like '< 0.001' which are always significant
@@ -675,6 +681,7 @@
       resultEl.innerHTML = html;
     });
   }
+  window.StatVizRegistry["chisq"] = renderChiSq;
 
   // Fisher 精确检验（超几何分布）
   function hypergeometricTest(a, b, c, d) {
@@ -944,6 +951,7 @@
 
     draw();
   }
+  window.StatVizRegistry["scatter"] = renderScatterPlot;
 
   // ── PCA 碎石图 ─────────────────────────────────────
   // <div class="stat-viz" data-type="pca" data-eigenvalues="[4.2, 2.1, 1.3, 0.8, 0.4, 0.2]"></div>
@@ -1076,6 +1084,7 @@
 
     draw();
   }
+  window.StatVizRegistry["pca"] = renderScreePlot;
 
   // ── ANOVA 组间差异比较 ─────────────────────────────
   // <div class="stat-viz" data-type="anova" data-means="[10.5,13.2,15.8]" data-sds="[2.1,2.4,1.9]" data-ns="[30,30,30]" data-labels='["低剂量","中剂量","高剂量"]'></div>
@@ -1194,6 +1203,7 @@
       </table>
     `;
   }
+  window.StatVizRegistry["anova"] = renderANOVA;
 
   // ── F 分布探索器 ─────────────────────────────────
   // <div class="stat-viz" data-type="fdist" data-df1="2" data-df2="87"></div>
@@ -1317,6 +1327,7 @@
       draw(df1, df2);
     });
   }
+  window.StatVizRegistry["fdist"] = renderFDist;
 
   // ── 二项分布可视化 ──────────────────────────────────
   // <div class="stat-viz" data-type="binom" data-n="20" data-p="0.5" data-title="二项分布 B(n,p)"></div>
@@ -1417,6 +1428,7 @@
     pInput.addEventListener('input', draw);
     draw();
   }
+  window.StatVizRegistry["binom"] = renderBinomial;
 
   // ── Kaplan-Meier 生存曲线 ────────────────────────────
   // <div class="stat-viz" data-type="km" data-times="[3,5,8,12,15,20,25]" data-status="[1,1,0,1,0,1,0]" data-title="Kaplan-Meier 生存曲线"></div>
@@ -1561,6 +1573,7 @@
 
     draw();
   }
+  window.StatVizRegistry["km"] = renderKM;
 
   // ── 泊松分布可视化 ──────────────────────────────────
   // <div class="stat-viz" data-type="poisson" data-lambda="5" data-title="泊松分布 P(λ)"></div>
@@ -1648,6 +1661,7 @@
     lambdaInput.addEventListener('input', draw);
     draw();
   }
+  window.StatVizRegistry["poisson"] = renderPoisson;
 
   // ── Wilcoxon符号秩检验可视化 ─────────────────────────
   // <div class="stat-viz" data-type="wilcoxon" data-title="配对样本Wilcoxon符号秩检验"></div>
@@ -1744,6 +1758,7 @@
       `n=${n_nonzero} | W⁺=${Wpos.toFixed(1)} (正秩和) | W⁻=${Wneg.toFixed(1)} | Z≈${z.toFixed(3)} | P≈${pApprox.toFixed(4)}` +
       (pApprox < 0.05 ? ' <span style="color:#c0392b">†</span>' : '');
   }
+  window.StatVizRegistry["wilcoxon"] = renderWilcoxonSignedRank;
 
   // ── Kruskal-Wallis H 检验可视化 ─────────────────────
   // <div class="stat-viz" data-type="kruskal" data-title="Kruskal-Wallis H检验"></div>
@@ -1835,6 +1850,7 @@
     document.getElementById(id + '-result').innerHTML =
       'H = 9.74 (χ²≈9.74, df=2, P≈0.008) — 三组死亡率差异有统计学意义';
   }
+  window.StatVizRegistry["kruskal"] = renderKruskalWallis;
 
   // ── Friedman M 检验可视化 ────────────────────────────
   // <div class="stat-viz" data-type="friedman" data-title="Friedman M检验"></div>
@@ -1917,6 +1933,7 @@
     ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('每条线代表一个区块(Block)，连线连接同一区块内各处理 | Friedman M = 9.34, P ≈ 0.025', W/2, H - 5);
   }
+  window.StatVizRegistry["friedman"] = renderFriedman;
 
   // ── 重复测量方差交互效应图 ───────────────────────────
   // <div class="stat-viz" data-type="rminteraction" data-title="重复测量交互效应"></div>
@@ -1983,6 +2000,7 @@
     ctx.fillStyle = '#c0392b'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('↗ 存在正交互效应（组间差异随时间增大）', W/2, pad.t - 12);
   }
+  window.StatVizRegistry["rminteraction"] = renderRepeatedMeasuresInteraction;
 
   // ── 偏相关 Venn 图 ───────────────────────────────────
   // <div class="stat-viz" data-type="partialcorr" data-title="偏相关分析"></div>
@@ -2023,6 +2041,7 @@
       '偏相关 r<sub>XY·Z</sub> = 控制Z后X与Y的净相关 | ' +
       '例：控制年龄后，血脂与血压的净相关';
   }
+  window.StatVizRegistry["partialcorr"] = renderPartialCorr;
 
   // ── 聚类分析树状图 ───────────────────────────────────
   // <div class="stat-viz" data-type="dendrogram" data-title="系统聚类树状图"></div>
@@ -2112,6 +2131,7 @@
       ctx.fillText(h.toString(), pad.l - 5, y + 4);
     });
   }
+  window.StatVizRegistry["dendrogram"] = renderDendrogram;
 
   // ── 主入口 ─────────────────────────────────────────
 
@@ -2181,6 +2201,7 @@
       </div>
     </div>`;
   }
+  window.StatVizRegistry["sem"] = renderSEM;
 
   // ============================================================
   // Autocorrelation (ACF/PACF) Plot
@@ -2227,6 +2248,7 @@
       </div>
     </div>`;
   }
+  window.StatVizRegistry["autocorrelation"] = renderAutocorrelation;
 
   // ============================================================
   // Predictive Nomogram
@@ -2319,6 +2341,7 @@
       </div>
     </div>`;
   }
+  window.StatVizRegistry["nomogram"] = renderNomogram;
 
   // ============================================================
   // Logistic Regression OR Forest Plot
@@ -2412,6 +2435,7 @@
     ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('Odds Ratio (log scale)', 0, 0); ctx.restore();
   }
+  window.StatVizRegistry["logistic"] = renderLogisticOR;
 
   // ============================================================
   // ROC Curve Interactive
@@ -2539,6 +2563,7 @@
       }
     };
   }
+  window.StatVizRegistry["roc"] = renderROC;
 
   // ============================================================
   // ROC Curve Comparison (两条ROC曲线对比)
@@ -2652,6 +2677,7 @@
       ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4);
     }
   }
+  window.StatVizRegistry["roccompare"] = renderROCCompare;
 
   // ============================================================
   // Cox Regression HR Forest Plot
@@ -2735,6 +2761,7 @@
     ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('Hazard Ratio (log scale)', 0, 0); ctx.restore();
   }
+  window.StatVizRegistry["cox"] = renderCoxHR;
 
   // ============================================================
   // Survival Curve Comparison (two groups)
@@ -2847,6 +2874,7 @@
     ctx.fillStyle = '#2980b9';
     ctx.fillText('● 组2 (n=90)', padL + 120, padT + 18);
   }
+  window.StatVizRegistry["survcomp"] = renderSurvivalComp;
 
   // ============================================================
   // Histogram with Normal Distribution Overlay
@@ -2940,6 +2968,7 @@
     ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
     ctx.fillText('频数', 0, 0); ctx.restore();
   }
+  window.StatVizRegistry["hist"] = renderHistogram;
 
   // ============================================================
   // Boxplot (comparing groups)
@@ -3043,6 +3072,7 @@
     ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
     ctx.fillText('中位数', padL + plotW - 52, padT + 16);
   }
+  window.StatVizRegistry["box"] = renderBoxplot;
 
   // ============================================================
   // Bar Chart
@@ -3116,6 +3146,7 @@
       ctx.fillText(labels[i], x + barW / 2, padT + plotH + 18);
     });
   }
+  window.StatVizRegistry["bar"] = renderBarChart;
 
   // ============================================================
   // Pie Chart
@@ -3188,6 +3219,7 @@
       ctx.fillText(labels[i] + ' (' + val + ')', legX + 18, ly + 2);
     });
   }
+  window.StatVizRegistry["pie"] = renderPieChart;
 
   // ============================================================
   // Power Analysis Explorer
@@ -3315,6 +3347,7 @@
       document.getElementById(id + '-result').textContent = '每组所需样本量 n ≈ ' + n + ' (每组 total: ' + n * 2 + ')';
     });
   }
+  window.StatVizRegistry["power"] = renderPower;
 
   // DOMContentLoaded 之后运行（但章节内容是 fetch 后才注入，需要用 MutationObserver）
 
@@ -3376,6 +3409,7 @@
       ctx.beginPath(); ctx.arc(scaleX(beta), y + barH / 2, 5, 0, Math.PI * 2); ctx.fill();
     });
   }
+  window.StatVizRegistry["coefci"] = renderCoefCI;
   function renderLDA(el) {
     const id = 'lda-' + Math.random().toString(36).slice(2, 8);
     const W = 500, H = 400;
@@ -3487,6 +3521,7 @@
     canvas.addEventListener('mouseup', () => dragging = null);
     canvas.addEventListener('mouseleave', () => dragging = null);
   }
+  window.StatVizRegistry["lda"] = renderLDA;
   function renderFactorLoad(el) {
     const id = 'factorload-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '因子载荷热图';
@@ -3554,6 +3589,7 @@
       });
     });
   }
+  window.StatVizRegistry["factorload"] = renderFactorLoad;
   function renderPSDist(el) {
     const id = 'psdist-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '倾向评分分布 (PSM)';
@@ -3646,6 +3682,7 @@
     draw();
     document.getElementById(id + '-overlap').addEventListener('click', () => { highlightOverlap = !highlightOverlap; draw(); });
   }
+  window.StatVizRegistry["psdist"] = renderPSDist;
   function renderDoseResponse(el) {
     const id = 'dose-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '剂量-反应曲线';
@@ -3743,6 +3780,7 @@
       drawCurve();
     });
   }
+  window.StatVizRegistry["dose"] = renderDoseResponse;
   function renderSplineRCS(el) {
     const id = 'splinercs-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '限制性立方样条 (RCS)';
@@ -3839,6 +3877,7 @@
       draw(parseInt(document.getElementById(id + '-k').value));
     });
   }
+  window.StatVizRegistry["splinercs"] = renderSplineRCS;
   function renderSubgroupForest(el) {
     const id = 'subgroupforest-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '亚组分析森林图';
@@ -3916,6 +3955,7 @@
       if (v >= minV && v <= maxV) ctx.fillText(v.toFixed(v === 1 ? 0 : 2), scaleX(v), H - 8);
     });
   }
+  window.StatVizRegistry["subgroupforest"] = renderSubgroupForest;
   function renderMetaForest(el) {
     const id = 'metaforest-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || 'Meta分析森林图';
@@ -4010,6 +4050,7 @@
     });
     ctx.fillText('HR', W - padR + 5, H - 5);
   }
+  window.StatVizRegistry["metaforest"] = renderMetaForest;
   function renderSampleSizeCalc(el) {
     const id = 'ss-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '样本量计算器';
@@ -4108,6 +4149,7 @@
       document.getElementById(id + '-result').textContent = result;
     });
   }
+  window.StatVizRegistry["samplesizecalc"] = renderSampleSizeCalc;
   function renderNormTest(el) {
     const id = 'normtest-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '正态性检验 Q-Q 图';
@@ -4191,6 +4233,7 @@
     document.getElementById(id + '-skew').addEventListener('input', () => draw(parseInt(document.getElementById(id + '-skew').value)));
     document.getElementById(id + '-reset').addEventListener('click', () => { document.getElementById(id + '-skew').value = 0; draw(0); });
   }
+  window.StatVizRegistry["normtest"] = renderNormTest;
   function renderFactorialInteraction(el) {
     const id = 'fact-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '析因设计交互效应图';
@@ -4269,6 +4312,7 @@
     ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
     ctx.fillText('均值', 0, 0); ctx.restore();
   }
+  window.StatVizRegistry["interaction"] = renderFactorialInteraction;
   function renderSEMPath(el) {
     const id = 'sem-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || 'SEM 路径分析示意图';
@@ -4379,6 +4423,7 @@
     ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('ξ = 外生潜变量  |  η = 内生潜变量', W/2, H - 10);
   }
+  // renderSEMPath intentionally omitted — no function body, no HTML references
   function renderBlandAltman(el) {
     const id = 'ba-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || 'Bland-Altman 一致性分析';
@@ -4466,6 +4511,7 @@
       'mean=' + meanVal.toFixed(2) + '  |  SD=' + sd.toFixed(2) + '  |  95%LoA: [' +
       (meanVal - 1.96 * sd).toFixed(2) + ', ' + (meanVal + 1.96 * sd).toFixed(2) + ']';
   }
+  window.StatVizRegistry["blandaltman"] = renderBlandAltman;
   function renderFunnel(el) {
     const id = 'funnel-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '漏斗图 (发表偏倚检测)';
@@ -4533,6 +4579,7 @@
       ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
     });
   }
+  window.StatVizRegistry["funnel"] = renderFunnel;
   function renderCalibrationCurve(el) {
     const id = 'cal-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '校准曲线';
@@ -4595,6 +4642,7 @@
     pred.forEach((p, i) => { const e = (obs[i] - p); hlChi2 += e * e / (p * (1 - p) + 0.001); });
     document.getElementById(id + '-info').textContent = '提示：点越接近对角线，模型校准越好';
   }
+  window.StatVizRegistry["calibration"] = renderCalibrationCurve;
   function renderConfusionMatrix(el) {
     const id = 'cm-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '混淆矩阵';
@@ -4642,6 +4690,7 @@
     const m = document.getElementById(id + '-metrics');
     m.innerHTML = '<span style="color:#27ae60;">准确率:' + accuracy + '%</span><span style="color:#2980b9;">灵敏度:' + sensitivity + '%</span><span>特异度:' + specificity + '%</span><span>PPV:' + ppv + '%</span><span>NPV:' + npv + '%</span>';
   }
+  window.StatVizRegistry["confusionmatrix"] = renderConfusionMatrix;
   function renderSequentialAnalysis(el) {
     const id = 'seq-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '序贯分析图 ( Whitehead Triangle )';
@@ -4723,6 +4772,7 @@
       ctx.fillText(i + 1, px, py + 3);
     });
   }
+  window.StatVizRegistry["sequential"] = renderSequentialAnalysis;
   function renderRiskScoreDist(el) {
     const id = 'riskdist-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || 'Logistic回归风险评分分布';
@@ -4838,6 +4888,7 @@
     ctx.fillStyle = '#8e44ad'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('最佳截断值: ' + bestCut.toFixed(2), cutX, padT - 5);
   }
+  window.StatVizRegistry["riskdist"] = renderRiskScoreDist;
   function renderNNT(el) {
     const id = 'nnt-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '需治人数 (NNT)';
@@ -4912,6 +4963,7 @@
     ctx.textAlign = 'right'; ctx.fillStyle = '#e74c3c';
     ctx.fillText('● NNT', W - 10, H - 10);
   }
+  window.StatVizRegistry["nnt"] = renderNNT;
 
   // ============================================================
   // Gauge Chart (Risk Stratification)
@@ -4989,6 +5041,7 @@
     ctx.fillStyle = '#2980b9'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(value + unit, cx, cy - 30);
   }
+  window.StatVizRegistry["gauge"] = renderGaugeChart;
 
   // ============================================================
   // Sankey Diagram (Flow / Transition)
@@ -5087,6 +5140,7 @@
       svg.appendChild(text);
     });
   }
+  window.StatVizRegistry["sankey"] = renderSankey;
 
   // ============================================================
   // Spine Plot (Ordinal Categorical Data)
@@ -5165,6 +5219,7 @@
       ctx.fillText((i / 4 * 100).toFixed(0) + '%', padL - 6, y + 4);
     }
   }
+  window.StatVizRegistry["spine"] = renderSpinePlot;
 
   // ============================================================
   // Error Bar Chart (Mean ± CI)
@@ -5269,6 +5324,7 @@
       ctx.fillText(label, x, padT + plotH + 18);
     });
   }
+  window.StatVizRegistry["errorbar"] = renderErrorBar;
 
   // ============================================================
   // Area Chart (堆叠面积图 / Stacked Area)
@@ -5367,6 +5423,7 @@
       ctx.fillText(Math.round(v), padL - 5, y + 4);
     });
   }
+  window.StatVizRegistry["area"] = renderAreaChart;
 
   // ============================================================
   // Heatmap (热图)
@@ -5445,6 +5502,7 @@
       });
     });
   }
+  window.StatVizRegistry["heatmap"] = renderHeatmap;
 
   // ============================================================
   // Ridgeline Plot (峰峦图 / Joy Plot)
@@ -5514,6 +5572,7 @@
       ctx.fillText(labels[i], padL - 5, yBase - bandH / 2 + 4);
     });
   }
+  window.StatVizRegistry["ridgeline"] = renderRidgeline;
 
   // ============================================================
   // LDA Scatter Plot (判别分析散点图)
@@ -5606,6 +5665,7 @@
     ctx.textAlign = 'center'; ctx.fillText('判别函数1 (LD1)', W / 2, H - 5);
     ctx.save(); ctx.translate(12, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('判别函数2 (LD2)', 0, 0); ctx.restore();
   }
+  window.StatVizRegistry["ldascatter"] = renderLDAScatter;
 
   // ============================================================
   // Radar / Spider Chart (雷达图)
@@ -5677,69 +5737,22 @@
       ctx.fillStyle = colors[0]; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
     });
   }
+  window.StatVizRegistry["radar"] = renderRadarChart;
 
   // ── 分发器 ─────────────────────────────────────────────
 
   function renderComponent(el) {
     const type = el.dataset.type;
-    if (type === 'normal') renderNormalDistribution(el);
-    else if (type === 'tcompare') renderTCompare(el);
-    else if (type === 'pvalue') renderPValue(el);
-    else if (type === 'scatter') renderScatterPlot(el);
-    else if (type === 'ttest') renderTTest(el);
-    else if (type === 'chisq') renderChiSq(el);
-    else if (type === 'pca') renderScreePlot(el);
-    else if (type === 'anova') renderANOVA(el);
-    else if (type === 'fdist') renderFDist(el);
-    else if (type === 'binom') renderBinomial(el);
-    else if (type === 'poisson') renderPoisson(el);
-    else if (type === 'km') renderKM(el);
-    else if (type === 'logistic') renderLogisticOR(el);
-    else if (type === 'roc') renderROC(el);
-    else if (type === 'cox') renderCoxHR(el);
-    else if (type === 'survcomp') renderSurvivalComp(el);
-    else if (type === 'hist') renderHistogram(el);
-    else if (type === 'box') renderBoxplot(el);
-    else if (type === 'power') renderPower(el);
-    else if (type === 'wilcoxon') renderWilcoxonSignedRank(el);
-    else if (type === 'kruskal') renderKruskalWallis(el);
-    else if (type === 'friedman') renderFriedman(el);
-    else if (type === 'rminteraction') renderRepeatedMeasuresInteraction(el);
-    else if (type === 'partialcorr') renderPartialCorr(el);
-    else if (type === 'dendrogram') renderDendrogram(el);
-    else if (type === 'coefci') renderCoefCI(el);
-    else if (type === 'lda') renderLDA(el);
-    else if (type === 'factorload') renderFactorLoad(el);
-    else if (type === 'psdist') renderPSDist(el);
-    else if (type === 'dose') renderDoseResponse(el);
-    else if (type === 'splinercs') renderSplineRCS(el);
-    else if (type === 'subgroupforest') renderSubgroupForest(el);
-    else if (type === 'samplesizecalc') renderSampleSizeCalc(el);
-    else if (type === 'normtest') renderNormTest(el);
-    else if (type === 'interaction') renderFactorialInteraction(el);
-    else if (type === 'blandaltman') renderBlandAltman(el);
-    else if (type === 'funnel') renderFunnel(el);
-    else if (type === 'roccompare') renderROCCompare(el);
-    else if (type === 'calibration') renderCalibrationCurve(el);
-    else if (type === 'confusionmatrix') renderConfusionMatrix(el);
-    else if (type === 'sequential') renderSequentialAnalysis(el);
-    else if (type === 'nnt') renderNNT(el);
-    else if (type === 'autocorrelation') renderAutocorrelation(el);
-    else if (type === 'nomogram') renderNomogram(el);
-    else if (type === 'bar') renderBarChart(el);
-    else if (type === 'pie') renderPieChart(el);
-    else if (type === 'metaforest') renderMetaForest(el);
-    else if (type === 'gauge') renderGaugeChart(el);
-    else if (type === 'sankey') renderSankey(el);
-    else if (type === 'spine') renderSpinePlot(el);
-    else if (type === 'errorbar') renderErrorBar(el);
-    else if (type === 'area') renderAreaChart(el);
-    else if (type === 'heatmap') renderHeatmap(el);
-    else if (type === 'ridgeline') renderRidgeline(el);
-    else if (type === 'ldascatter') renderLDAScatter(el);
-    else if (type === 'radar') renderRadarChart(el);
-    else if (type === 'sem') renderSEM(el);
-    else if (type === 'riskdist') renderRiskScoreDist(el);
+    if (!type) return;
+    if (el.dataset.rendered) return;
+    el.dataset.rendered = 'true';
+    const fn = window.StatVizRegistry[type];
+    if (fn) {
+      try { fn(el); }
+      catch(e) { console.error('[stats-viz] render error:', type, e); }
+    } else {
+      console.warn('[stats-viz] unknown type:', type);
+    }
   }
 
   function init() {
