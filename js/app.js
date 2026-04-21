@@ -5,6 +5,9 @@ let currentGroup = null;
 let currentIndex = 0;
 let currentChapterData = null;
 
+// ===== 章节内容缓存 =====
+const chapterCache = new Map();
+
 
 const GROUP_CONFIG = [
   { key: 'basic', el: 'basic-chapters', label: '基础统计分析' },
@@ -16,12 +19,6 @@ const GROUP_CONFIG = [
 // ===== DOM =====
 const $ = id => document.getElementById(id);
 const CHAPTER_BY_FILE = new Map(ALL_CHAPTERS.map(ch => [ch.file, ch]));
-const CHAPTER_TITLE_ALIASES = {
-  '多变量数据hotelling_t2检验.html': 'hotelling.html',
-  '对数线性模型.html': 'loglinear.html',
-  'pca可视化.html': 'pca-vis.html',
-  '亚组分析和多因素回归的森林图.html': '1041-subgroupanalysis.html',
-};
 const CHAPTER_BY_TITLE_FILE = new Map(
   ALL_CHAPTERS.map(ch => [`${ch.title}.html`, ch])
 );
@@ -206,8 +203,7 @@ function findChapterByHref(href) {
   }
 
   const fileCandidate = cleaned.split('/').pop();
-  const aliasedFile = CHAPTER_TITLE_ALIASES[fileCandidate] || fileCandidate;
-  const byFile = CHAPTER_BY_FILE.get(aliasedFile);
+  const byFile = CHAPTER_BY_FILE.get(fileCandidate);
   if (byFile) return { type: 'chapter', chapter: byFile };
 
   const byTitleFile = CHAPTER_BY_TITLE_FILE.get(fileCandidate);
@@ -246,27 +242,34 @@ async function loadChapter(filename) {
   wrapper.classList.add('active');
 
   try {
-    const resp = await fetch(`data/${filename}`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const html = await resp.text();
+    let contentHtml;
+    if (chapterCache.has(filename)) {
+      contentHtml = chapterCache.get(filename);
+    } else {
+      const resp = await fetch(`data/${filename}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const html = await resp.text();
 
-    // 解析完整文档，只提取主要章节内容（避开 Quarto 的 head/nav/footer）
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const main = doc.getElementById('quarto-document-content');
-    if (!main) throw new Error('无法解析章节内容');
+      // 解析完整文档，只提取主要章节内容（避开 Quarto 的 head/nav/footer）
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const main = doc.getElementById('quarto-document-content');
+      if (!main) throw new Error('无法解析章节内容');
 
-    // 注入 onclick 复制功能（替换 Quarto 原有的 clipboard.js 依赖）
-    main.querySelectorAll('.code-copy-button').forEach(btn => {
-      btn.setAttribute('onclick', 'copyCodeBlock(this)');
-      btn.removeAttribute('data-code');
-    });
+      // 注入 onclick 复制功能（替换 Quarto 原有的 clipboard.js 依赖）
+      main.querySelectorAll('.code-copy-button').forEach(btn => {
+        btn.setAttribute('onclick', 'copyCodeBlock(this)');
+        btn.removeAttribute('data-code');
+      });
 
-    // 移除所有内联脚本，避免污染全局命名空间
-    main.querySelectorAll('script').forEach(s => s.remove());
+      // 移除所有内联脚本，避免污染全局命名空间
+      main.querySelectorAll('script').forEach(s => s.remove());
 
-    let contentHtml = main.innerHTML;
-    contentHtml = injectCopyButtons(contentHtml);
+      contentHtml = main.innerHTML;
+      contentHtml = injectCopyButtons(contentHtml);
+      chapterCache.set(filename, contentHtml);
+    }
+
     wrapper.innerHTML = contentHtml;
     rewriteChapterLinks(wrapper);
 

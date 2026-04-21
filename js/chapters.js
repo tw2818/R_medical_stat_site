@@ -64,22 +64,23 @@ const ALL_CHAPTERS = [
   ...CHAPTERS.other.map((c, index) => ({ ...c, index, group: "other", groupName: "其他合集" })),
 ];
 
-// 加载进度
+// 加载进度（统一使用 rstat_visited，不再使用 rstat_progress）
 function getProgress() {
   try {
-    return JSON.parse(localStorage.getItem('rstat_progress') || '{}');
-  } catch { return {}; }
+    return JSON.parse(localStorage.getItem('rstat_visited') || '[]');
+  } catch { return []; }
 }
 function saveProgress(chapterId) {
-  const p = getProgress();
-  p[chapterId] = true;
-  localStorage.setItem('rstat_progress', JSON.stringify(p));
+  const visited = getProgress();
+  if (!visited.includes(chapterId)) {
+    visited.push(chapterId);
+    localStorage.setItem('rstat_visited', JSON.stringify(visited));
+  }
   updateProgressBar();
 }
 function updateProgressBar() {
-  const p = getProgress();
-  const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
-  const effective = Object.keys(p).length ? Object.keys(p) : visited;
+  const visited = getProgress();
+  const effective = visited;
   const total = ALL_CHAPTERS.length;
   const done = effective.length;
   const pct = total > 0 ? (done / total) * 100 : 0;
