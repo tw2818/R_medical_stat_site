@@ -74,7 +74,8 @@ R_medical_stat_site/
 │       ├── distributions.js       # 正态/t/F/二项/泊松分布 explorer
 │       ├── hypothesis-nonparametric.js # 非参数检验 + 重复测量交互效应
 │       ├── hypothesis-remaining.js     # ANOVA / 散点图 / Q-Q 图 / 交互图 / Bland-Altman
-│       ├── regression.js          # 线性回归、ROC 曲线等其他模块
+│       ├── clinical-models.js     # Logistic / ROC / Cox / 列线图
+│       ├── regression.js          # 其余回归与相关可视化（待进一步瘦身）
 │       ├── survival.js            # Kaplan-Meier 生存曲线
 │       ├── calculators.js         # 其他计算器组件
 │       ├── advanced.js            # 高级可视化
@@ -112,11 +113,12 @@ R_medical_stat_site/
 - **`viz/distributions.js`** — 正态/t/F/二项/泊松分布 explorer
 - **`viz/hypothesis-nonparametric.js`** — Wilcoxon、Kruskal-Wallis、Friedman、重复测量交互效应
 - **`viz/hypothesis-remaining.js`** — ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
+- **`viz/clinical-models.js`** — Logistic OR 森林图、ROC/ROC 对比、Cox HR 森林图、列线图
 - **`viz/survival.js`** — Kaplan-Meier 生存曲线
-- **`viz/regression.js`** — 线性回归、ROC 曲线等其他模块
+- **`viz/regression.js`** — 其余回归、相关和结构示意模块
 - **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
 
-> `hypothesis.js` 已经从运行路径中移除，并已从仓库删除。当前假设检验相关组件已经拆分到两个更清晰的模块中。
+> 当前 `regression.js` 的瘦身也已经开始：临床模型相关组件先独立到了 `clinical-models.js`。后续可以继续拆出 `SEM / 聚类 / 自相关 / 偏相关` 等结构示意模块。
 
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
@@ -170,6 +172,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 ---
 
 ## 更新日志
+
+### 2026-04-22 — regression 模块开始拆临床建模组件
+- **新增模块**：`js/viz/clinical-models.js`
+- **首批迁移**：Logistic OR 森林图、ROC / ROC 对比、Cox HR 森林图、列线图
+- **运行路径切换**：`stats-viz.js` 现在在 `regression.js` 后加载 `clinical-models.js`，由新模块覆盖对应 registry 项
+- **意义**：`regression.js` 开始摆脱“临床模型 + 结构图 + 相关分析”混装状态
 
 ### 2026-04-22 — 删除 legacy hypothesis 文件
 - **仓库清理**：删除 `js/viz/hypothesis.js`
