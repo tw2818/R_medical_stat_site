@@ -72,9 +72,10 @@ R_medical_stat_site/
 │   └── viz/                       # 可视化模块（ES Module 拆分）
 │       ├── _core.js               # 注册表、init()、setupObserver()
 │       ├── distributions.js       # 正态/t/F/二项/泊松分布 explorer
-│       ├── hypothesis.js          # 参数检验与部分诊断/交互组件
-│       ├── hypothesis-nonparametric.js # 非参数检验 + 重复测量交互效应（首批拆分）
-│       ├── regression.js          # 散点图/回归/ROC/PCA 等
+│       ├── hypothesis.js          # 历史遗留模块（当前已不在运行路径中）
+│       ├── hypothesis-nonparametric.js # 非参数检验 + 重复测量交互效应
+│       ├── hypothesis-remaining.js     # ANOVA / 散点图 / Q-Q 图 / 交互图 / Bland-Altman
+│       ├── regression.js          # 散点图/回归/ROC/PCA 等历史模块
 │       ├── survival.js            # Kaplan-Meier 生存曲线
 │       ├── calculators.js         # 其他计算器组件
 │       ├── advanced.js            # 高级可视化
@@ -107,16 +108,16 @@ R_medical_stat_site/
 - **jStat CDN** — 统计函数库（正态/t/F/卡方分布的 PDF、CDF、逆函数）
 
 ### ES Module 模块设计
-`stats-viz.js` 作为入口加载器，统一加载各个 viz 模块：
+`stats-viz.js` 作为入口加载器，当前运行路径加载：
 - **`viz/_core.js`** — 注册表、`init()` 初始化、`setupObserver()` 动态挂载监听
 - **`viz/distributions.js`** — 正态/t/F/二项/泊松分布 explorer
-- **`viz/hypothesis.js`** — 参数检验、ANOVA、散点图、诊断图等历史主模块
-- **`viz/hypothesis-nonparametric.js`** — 非参数检验与重复测量交互效应的首批拆分模块
+- **`viz/hypothesis-nonparametric.js`** — Wilcoxon、Kruskal-Wallis、Friedman、重复测量交互效应
+- **`viz/hypothesis-remaining.js`** — ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
 - **`viz/survival.js`** — Kaplan-Meier 生存曲线
-- **`viz/regression.js`** — 散点图、线性回归、ROC 曲线、PCA 等
+- **`viz/regression.js`** — 线性回归、ROC 曲线等其他模块
 - **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
 
-> 当前 `hypothesis.js` 的模块化仍处于过渡阶段：新模块边界已经建立，但旧实现尚未完全删除。后续应继续做“迁移 + 清旧代码”两步走。
+> `hypothesis.js` 目前已从 `stats-viz.js` 的运行路径中移除，等价于完成了“先切运行依赖，再删旧文件”的关键一步。后续主要是清理仓库中的历史遗留文件与重复实现。
 
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
@@ -170,6 +171,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 ---
 
 ## 更新日志
+
+### 2026-04-22 — 运行路径脱离 legacy hypothesis 模块
+- **新增模块**：`js/viz/hypothesis-remaining.js`，承接 ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
+- **运行路径切换**：`js/stats-viz.js` 不再加载 `hypothesis.js`，改为直接加载 `hypothesis-nonparametric.js` + `hypothesis-remaining.js`
+- **意义**：虽然仓库里暂时还保留 `hypothesis.js`，但运行时已经真正脱离这个历史超长文件
+- **后续方向**：下一步主要是删除仓库里的 legacy 文件、去掉重复实现，并继续精简模块职责边界
 
 ### 2026-04-22 — README 同步 + hypothesis 模块拆分起步
 - **README 同步**：更新模块结构、最近修复记录、当前架构状态描述
