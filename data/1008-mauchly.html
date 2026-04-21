@@ -561,9 +561,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="do">## data:  SSD matrix from lm(formula = df ~ 1)</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="do">## W = 0.06273, p-value = 0.008207</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="do">## W = 0.06273, p-value = 0.008207</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果就有了，就是这么简单直接，网上很多资料都是直接复制粘贴帮助文档里的内容，非常费脑子！</p>
+<p>但仅有 W 和 p-value 还不够——球形假设被拒绝时，还需要计算 ε 校正值来判断用哪种方法更合适。R 中可以用 <code>rstatix</code> 包自动完成：</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 计算 Greenhouse-Geisser 和 Huynh-Feldt ε 校正</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 先将宽数据转为长格式，再使用 anova_test</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstatix); <span class="fu">library</span>(tidyr)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(df)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(df, <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"t"</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">names_to =</span> <span class="st">"time"</span>, <span class="at">values_to =</span> <span class="st">"y"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>df_long<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">ordered</span>(df_long<span class="sc">$</span>time)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>df_long<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">factor</span>(df_long<span class="sc">$</span>id)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">anova_test</span>(df_long, <span class="at">dv =</span> y, <span class="at">wid =</span> id, <span class="at">within =</span> time)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">get_anova_table</span>(res)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="do">## ANOVA Table (type III tests)</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="do">## $`Mauchly's Test for Sphericity`</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="do">##   Effect     W     p p&lt;.05</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 1   time 0.063 0.008     *</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="do">## $`Sphericity Corrections`</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="do">##   Effect  GGe p[GG]&lt;.05  HFe p[HF]&lt;.05</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="do">## 1  time 0.528     *      0.657     *</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="do">## 注：GGe = Greenhouse-Geisser ε (ε̂_GG)，HFe = Huynh-Feldt ε (ε̂_HF)</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="do">## ε 越接近 1 越接近球形；ε &lt; 0.75 时 GG 校正经校正效果更好</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Mauchly 检验拒绝球形假设（W=0.063, p=0.008），此时需看 ε 校正后的 ANOVA 结果。Greenhouse-Geisser ε=0.528，Huynh-Feldt ε=0.657，两种校正的 p 值均仍显著。由于 ε̂<sub>GG</sub> &lt; 0.75，建议报告 GG 校正结果。</p>
 </section>
 <section id="课本例12-3的数据" class="level2" data-number="15.2">
 <h2 data-number="15.2" class="anchored" data-anchor-id="课本例12-3的数据"><span class="header-section-number">15.2</span> 课本例12-3的数据</h2>
@@ -616,6 +642,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="do">## data:  SSD matrix from lm(formula = df2 ~ 1)</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="do">## W = 0.427, p-value = 0.279</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>使用 <code>rstatix</code> 包一站式完成 Mauchly 检验和 ε 校正：</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstatix); <span class="fu">library</span>(tidyr)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df1<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(df1)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(df1, <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"t"</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">names_to =</span> <span class="st">"time"</span>, <span class="at">values_to =</span> <span class="st">"y"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>df_long<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">ordered</span>(df_long<span class="sc">$</span>time)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>df_long<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">factor</span>(df_long<span class="sc">$</span>id)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">anova_test</span>(df_long, <span class="at">dv =</span> y, <span class="at">wid =</span> id, <span class="at">within =</span> time)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">get_anova_table</span>(res)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">## ANOVA Table (type III tests)</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">## $`Mauchly's Test for Sphericity`</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="do">##   Effect     W     p p&lt;.05</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 1   time 0.113 0.001     *</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="do">## $`Sphericity Corrections`</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="do">##   Effect  GGe p[GG]&lt;.05  HFe p[HF]&lt;.05</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="do">## 1  time 0.597     *      0.729     *</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## 注：Mauchly 拒绝球形时，需要报告校正后的 F 和 p 值</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="do">## ε̂_GG = 0.597 &lt; 0.75，推荐使用 Greenhouse-Geisser 校正</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>当 Mauchly 检验拒绝球形假设（p &lt; 0.05）时，需查看 ε 校正结果。这里 ε̂<sub>GG</sub>=0.597 &lt; 0.75，应采用 Greenhouse-Geisser 校正的 df 和 p 值。</p>
+
 </div>
 <p>真的是有点费事儿！不过现在很多R包都可以在进行重复测量方差分析时自动给出球形检验的结果，已经方便多了。</p>
 

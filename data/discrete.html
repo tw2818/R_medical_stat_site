@@ -495,7 +495,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#总体均数的区间估计" id="toc-总体均数的区间估计" class="nav-link" data-scroll-target="#总体均数的区间估计"><span class="header-section-number">3.2.1</span> 总体均数的区间估计</a></li>
   <li><a href="#样本均数和总体均数的比较" id="toc-样本均数和总体均数的比较" class="nav-link" data-scroll-target="#样本均数和总体均数的比较"><span class="header-section-number">3.2.2</span> 样本均数和总体均数的比较</a></li>
-  <li><a href="#两个样本均数的比较有问题" id="toc-两个样本均数的比较有问题" class="nav-link" data-scroll-target="#两个样本均数的比较有问题"><span class="header-section-number">3.2.3</span> 两个样本均数的比较（有问题）</a></li>
+  <li><a href="#两个样本均数的比较" id="toc-两个样本均数的比较" class="nav-link" data-scroll-target="#两个样本均数的比较"><span class="header-section-number">3.2.3</span> 两个样本均数的比较</a></li>
   </ul></li>
   <li><a href="#负二项分布略" id="toc-负二项分布略" class="nav-link" data-scroll-target="#负二项分布略"><span class="header-section-number">3.3</span> 负二项分布（略）</a></li>
   </ul>
@@ -765,8 +765,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>结论：拒绝H0，接受H1，认为有亲缘血统婚配关系的后代其精神发育不全的发生率高于一般人群。</p>
 </section>
-<section id="两个样本均数的比较有问题" class="level3" data-number="3.2.3">
-<h3 data-number="3.2.3" class="anchored" data-anchor-id="两个样本均数的比较有问题"><span class="header-section-number">3.2.3</span> 两个样本均数的比较（有问题）</h3>
+<section id="两个样本均数的比较" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="两个样本均数的比较"><span class="header-section-number">3.2.3</span> 两个样本均数的比较</h3>
 <p>例6-14。两种纯净水分别抽检1ml，分别培养出大肠杆菌4个和7个，问有无差别？</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">poisson.test</span>(<span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">7</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
