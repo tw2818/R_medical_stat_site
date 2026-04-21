@@ -941,8 +941,8 @@ registerViz('wilcoxon', renderWilcoxonSignedRank);
     const spacing = iW / n;
     // Y轴
     ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, canvasH-pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, canvasH-pad.b); ctx.lineTo(W-pad.r, canvasH-pad.b); ctx.stroke();
     // Y刻度
     const yTicks = 5;
     for (let y = 0; y <= yTicks; y++) {
