@@ -66,7 +66,7 @@ R_medical_stat_site/
 ├── css/
 │   └── style.css           # 所有样式（~1086 行）
 ├── js/
-│   ├── app.js              # 主应用逻辑（~406 行）
+│   ├── app.js              # 主应用逻辑（~499 行）
 │   ├── chapters.js         # 46 个章节的元数据（id / title / file）
 │   ├── stats-viz.js        # 可视化模块加载器（~100 行）
 │   └── viz/                # 可视化模块（ES Module 拆分）
@@ -161,7 +161,7 @@ python3 -m http.server 8000
 项目通过 GitHub 连接到 Vercel，每次推送到 `main` 分支自动触发部署。
 
 ```
-GitHub (main) → Vercel → r-medical-stat-site.vercel.app
+GitHub (main) → Vercel → https://r.tweb.one
 ```
 
 无需 `vercel.json` 配置文件，Vercel 会自动检测为静态站点。
@@ -169,6 +169,12 @@ GitHub (main) → Vercel → r-medical-stat-site.vercel.app
 ---
 
 ## 更新日志
+
+### 2026-04-22 — 进度系统重构 + 多处 bug 修复
+- **进度系统**：修复进度条/圆环/最近章节/继续学习按钮长期冻结问题。`updateChapterCount()` 重构为直接调用 `chapters.js` 的 `updateProgressBar()`，统一使用 `rstat_visited` 数组作为单一数据源，删除了重复的 localStorage 写入逻辑
+- **首页索引修复**：`basic[11]`→`basic[9]`（样本量计算），`advanced[6]`→`advanced[0]`（多因素方差分析）
+- **重复代码清理**：删除 `loadChapter()` 中的冗余 visited 记录逻辑；合并代码复制按钮两套注入方案为正则替换；删除死函数 `copyCode()`
+- **og:url**：同步为当前域名 `https://r.tweb.one`
 
 ### 2026-04-21 — 统计计算 bug 修复
 - **Kruskal-Wallis H 检验**：`hypothesis.js` — 原输出 H=9.74 / P≈0.008 为硬编码，已替换为完整动态计算（含并列校正秩次、chi-square 近似 P 值）
