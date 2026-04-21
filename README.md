@@ -72,10 +72,9 @@ R_medical_stat_site/
 │   └── viz/                       # 可视化模块（ES Module 拆分）
 │       ├── _core.js               # 注册表、init()、setupObserver()
 │       ├── distributions.js       # 正态/t/F/二项/泊松分布 explorer
-│       ├── hypothesis.js          # 历史遗留模块（当前已不在运行路径中）
 │       ├── hypothesis-nonparametric.js # 非参数检验 + 重复测量交互效应
 │       ├── hypothesis-remaining.js     # ANOVA / 散点图 / Q-Q 图 / 交互图 / Bland-Altman
-│       ├── regression.js          # 散点图/回归/ROC/PCA 等历史模块
+│       ├── regression.js          # 线性回归、ROC 曲线等其他模块
 │       ├── survival.js            # Kaplan-Meier 生存曲线
 │       ├── calculators.js         # 其他计算器组件
 │       ├── advanced.js            # 高级可视化
@@ -117,7 +116,7 @@ R_medical_stat_site/
 - **`viz/regression.js`** — 线性回归、ROC 曲线等其他模块
 - **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
 
-> `hypothesis.js` 目前已从 `stats-viz.js` 的运行路径中移除，等价于完成了“先切运行依赖，再删旧文件”的关键一步。后续主要是清理仓库中的历史遗留文件与重复实现。
+> `hypothesis.js` 已经从运行路径中移除，并已从仓库删除。当前假设检验相关组件已经拆分到两个更清晰的模块中。
 
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
@@ -172,11 +171,16 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 ## 更新日志
 
+### 2026-04-22 — 删除 legacy hypothesis 文件
+- **仓库清理**：删除 `js/viz/hypothesis.js`
+- **状态收口**：假设检验相关代码现在完全由 `hypothesis-nonparametric.js` 与 `hypothesis-remaining.js` 承担
+- **README 同步**：删除对 legacy 文件的引用，更新当前最终模块结构
+
 ### 2026-04-22 — 运行路径脱离 legacy hypothesis 模块
 - **新增模块**：`js/viz/hypothesis-remaining.js`，承接 ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
 - **运行路径切换**：`js/stats-viz.js` 不再加载 `hypothesis.js`，改为直接加载 `hypothesis-nonparametric.js` + `hypothesis-remaining.js`
-- **意义**：虽然仓库里暂时还保留 `hypothesis.js`，但运行时已经真正脱离这个历史超长文件
-- **后续方向**：下一步主要是删除仓库里的 legacy 文件、去掉重复实现，并继续精简模块职责边界
+- **意义**：运行时已经真正脱离历史超长文件
+- **后续方向**：继续精简模块职责边界，必要时再拆 `regression.js` 等文件
 
 ### 2026-04-22 — README 同步 + hypothesis 模块拆分起步
 - **README 同步**：更新模块结构、最近修复记录、当前架构状态描述
@@ -197,8 +201,8 @@ GitHub (main) → Vercel → https://r.tweb.one
 - **章节核对**：重新核对 `data/` 与 `chapters.js`，正式章节数仍为 46，未发现真实目录漂移
 
 ### 2026-04-21 — 统计计算 bug 修复
-- **Kruskal-Wallis H 检验**：`hypothesis.js` — 原输出 H=9.74 / P≈0.008 为硬编码，已替换为完整动态计算（含并列校正秩次、chi-square 近似 P 值）
-- **Friedman M 检验**：`hypothesis.js` — 原输出 M=9.34 / P≈0.025 为硬编码，已替换为完整动态计算（区块内编秩 + tie 校正因子）
+- **Kruskal-Wallis H 检验**：原输出 H=9.74 / P≈0.008 为硬编码，已替换为完整动态计算（含并列校正秩次、chi-square 近似 P 值）
+- **Friedman M 检验**：原输出 M=9.34 / P≈0.025 为硬编码，已替换为完整动态计算（区块内编秩 + tie 校正因子）
 - **Kaplan-Meier 生存曲线**：`survival.js` — 原公式与标准 product-limit estimator 不符，已重写为按时间点聚合 + 正确维护 at-risk 集合
 - **t 分布 fallback**：`distributions.js` — 原 fallback 分支引用未定义的 `lgamma()`，已替换为 Stirling 近似 `logΓ`
 - **F 分布 fallback**：`distributions.js` — 修正 beta normalizing constant 的调用逻辑
