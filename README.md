@@ -76,7 +76,6 @@ R_medical_stat_site/
 │       ├── hypothesis-remaining.js     # ANOVA / 散点图 / Q-Q 图 / 交互图 / Bland-Altman
 │       ├── clinical-models.js     # Logistic / ROC / Cox / 列线图
 │       ├── structure-diagrams.js  # 偏相关 / 聚类树状图 / SEM / 自相关图
-│       ├── regression.js          # 其余回归与相关可视化（继续瘦身中）
 │       ├── survival.js            # Kaplan-Meier 生存曲线
 │       ├── calculators.js         # 其他计算器组件
 │       ├── advanced.js            # 高级可视化
@@ -117,10 +116,9 @@ R_medical_stat_site/
 - **`viz/clinical-models.js`** — Logistic OR 森林图、ROC/ROC 对比、Cox HR 森林图、列线图
 - **`viz/structure-diagrams.js`** — 偏相关、聚类树状图、SEM、自相关图
 - **`viz/survival.js`** — Kaplan-Meier 生存曲线
-- **`viz/regression.js`** — 其余回归、相关与剩余历史模块
 - **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
 
-> `regression.js` 现在已经开始按“临床建模”和“结构示意”两个方向拆分。后续只需要再做一次清理 PR，把旧文件中的重复实现删掉，模块边界就会更干净。
+> `regression.js` 已经从运行路径中移除，并已从仓库删除。现在可视化模块边界已经比最初清晰得多：假设检验、临床建模、结构示意和生存分析都已分离。
 
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
@@ -175,6 +173,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 ## 更新日志
 
+### 2026-04-22 — 删除 legacy regression 文件
+- **仓库清理**：删除 `js/viz/regression.js`
+- **运行路径收口**：`stats-viz.js` 不再引用 `regression.js`
+- **状态收口**：临床建模与结构示意相关代码现在完全由 `clinical-models.js` 与 `structure-diagrams.js` 承担
+- **README 同步**：删除对 legacy 文件的引用，更新当前最终模块结构
+
 ### 2026-04-22 — regression 模块继续拆结构示意组件
 - **新增模块**：`js/viz/structure-diagrams.js`
 - **首批迁移**：偏相关、聚类树状图、SEM、自相关图
@@ -196,7 +200,7 @@ GitHub (main) → Vercel → https://r.tweb.one
 - **新增模块**：`js/viz/hypothesis-remaining.js`，承接 ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
 - **运行路径切换**：`js/stats-viz.js` 不再加载 `hypothesis.js`，改为直接加载 `hypothesis-nonparametric.js` + `hypothesis-remaining.js`
 - **意义**：运行时已经真正脱离历史超长文件
-- **后续方向**：继续精简模块职责边界，必要时再拆 `regression.js` 等文件
+- **后续方向**：继续精简模块职责边界，必要时再拆其他模块
 
 ### 2026-04-22 — README 同步 + hypothesis 模块拆分起步
 - **README 同步**：更新模块结构、最近修复记录、当前架构状态描述
