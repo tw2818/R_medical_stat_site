@@ -75,7 +75,8 @@ R_medical_stat_site/
 │       ├── hypothesis-nonparametric.js # 非参数检验 + 重复测量交互效应
 │       ├── hypothesis-remaining.js     # ANOVA / 散点图 / Q-Q 图 / 交互图 / Bland-Altman
 │       ├── clinical-models.js     # Logistic / ROC / Cox / 列线图
-│       ├── regression.js          # 其余回归与相关可视化（待进一步瘦身）
+│       ├── structure-diagrams.js  # 偏相关 / 聚类树状图 / SEM / 自相关图
+│       ├── regression.js          # 其余回归与相关可视化（继续瘦身中）
 │       ├── survival.js            # Kaplan-Meier 生存曲线
 │       ├── calculators.js         # 其他计算器组件
 │       ├── advanced.js            # 高级可视化
@@ -114,11 +115,12 @@ R_medical_stat_site/
 - **`viz/hypothesis-nonparametric.js`** — Wilcoxon、Kruskal-Wallis、Friedman、重复测量交互效应
 - **`viz/hypothesis-remaining.js`** — ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
 - **`viz/clinical-models.js`** — Logistic OR 森林图、ROC/ROC 对比、Cox HR 森林图、列线图
+- **`viz/structure-diagrams.js`** — 偏相关、聚类树状图、SEM、自相关图
 - **`viz/survival.js`** — Kaplan-Meier 生存曲线
-- **`viz/regression.js`** — 其余回归、相关和结构示意模块
+- **`viz/regression.js`** — 其余回归、相关与剩余历史模块
 - **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
 
-> 当前 `regression.js` 的瘦身也已经开始：临床模型相关组件先独立到了 `clinical-models.js`。后续可以继续拆出 `SEM / 聚类 / 自相关 / 偏相关` 等结构示意模块。
+> `regression.js` 现在已经开始按“临床建模”和“结构示意”两个方向拆分。后续只需要再做一次清理 PR，把旧文件中的重复实现删掉，模块边界就会更干净。
 
 ### 章节加载机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
@@ -172,6 +174,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 ---
 
 ## 更新日志
+
+### 2026-04-22 — regression 模块继续拆结构示意组件
+- **新增模块**：`js/viz/structure-diagrams.js`
+- **首批迁移**：偏相关、聚类树状图、SEM、自相关图
+- **运行路径切换**：`stats-viz.js` 现在在 `regression.js` 后加载 `structure-diagrams.js`，由新模块覆盖对应 registry 项
+- **意义**：`regression.js` 进一步摆脱“临床建模 + 结构示意 + 相关分析”混装状态
 
 ### 2026-04-22 — regression 模块开始拆临床建模组件
 - **新增模块**：`js/viz/clinical-models.js`
