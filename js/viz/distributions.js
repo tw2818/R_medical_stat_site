@@ -428,9 +428,19 @@ registerViz('pvalue', renderPValue);
       // Fallback approximation
       if (x <= 0) return 0;
       const c = d1 > 0 && d2 > 0 ? (d1*x)**d1 * d2**d2 / (d1*x + d2)**(d1+d2) : 0;
+      // Beta function: B(a,b)=Γ(a)Γ(b)/Γ(a+b). Fallback without gammaln uses logGamma.
+      const betaFnFallback = (a, b) => {
+        // Use Stirling-based logGamma if gammaln unavailable
+        if (window.jStat && window.jStat.gammaln) {
+          const lgA = jStat.gammaln(a), lgB = jStat.gammaln(b), lgAB = jStat.gammaln(a + b);
+          return Math.exp(lgA + lgB - lgAB);
+        }
+        // Very rough fallback: 1/sqrt(pi) for typical a,b (not accurate)
+        return 1 / Math.sqrt(Math.PI);
+      };
       const betaFn = (window.jStat && window.jStat.beta && window.jStat.beta.fn)
         ? window.jStat.beta.fn(d1/2, d2/2)
-        : 1 / (Math.sqrt(Math.PI) * Math.exp(jStat.gammaln ? jStat.gammaln(d1/2) + jStat.gammaln(d2/2) - jStat.gammaln((d1+d2)/2) : 0));
+        : betaFnFallback(d1/2, d2/2);
       return c / x * betaFn;
     }
 

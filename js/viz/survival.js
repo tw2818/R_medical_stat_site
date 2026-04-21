@@ -48,22 +48,23 @@ import { registerViz } from './_core.js';
       let atRisk = n;
 
       for (let i = 0; i < n; i++) {
-        // Same time? Skip duplicate — only process once per unique time
+        // Skip duplicate time entries — process each unique time only once
         if (i > 0 && sortedTimes[i] === sortedTimes[i - 1]) continue;
-        if (sortedEvents[i] === 1) {
-          // Count events at this exact time
-          let eventsAtTime = 0;
-          for (let j = i; j < n && sortedTimes[j] === sortedTimes[i]; j++) {
-            if (sortedEvents[j] === 1) eventsAtTime++;
-          }
+        const t = sortedTimes[i];
+        // Count all observations (events + censored) at this exact time
+        let countAtTime = 0, eventsAtTime = 0;
+        for (let j = i; j < n && sortedTimes[j] === t; j++) {
+          countAtTime++;
+          if (sortedEvents[j] === 1) eventsAtTime++;
+        }
+        if (eventsAtTime > 0) {
           surv *= (atRisk - eventsAtTime) / atRisk;
-          atRisk--;
-          steps.push({ t: sortedTimes[i], s: surv });
-        } else {
-          // Censored — just reduce at-risk count
-          atRisk--;
-          // No survival change, but record the plateau end for step drawing
-          steps.push({ t: sortedTimes[i], s: surv });
+          steps.push({ t, s: surv });
+        }
+        // Reduce at-risk by ALL observations at this time (events + censored)
+        atRisk -= countAtTime;
+        if (countAtTime > 0 && eventsAtTime === 0) {
+          steps.push({ t, s: surv });
         }
       }
 
@@ -190,22 +191,23 @@ registerViz('km', renderKM);
       let i = 0;
       while (i < sorted.length) {
         const currentTime = sorted[i].t;
-        // 统计该时间点的事件数 d
+        // Count events at this exact time
         let d = 0;
         while (i < sorted.length && sorted[i].t === currentTime && sorted[i].e === 1) {
           d++; i++;
         }
-        // 跳过该时间点的截尾观测（e=0），但不计入 d
+        // Count censored at this exact time
+        let c = 0;
         while (i < sorted.length && sorted[i].t === currentTime && sorted[i].e === 0) {
-          i++;
+          c++; i++;
         }
-        // 更新 KM 乘积极计
-        if (atRisk > 0) {
+        // Update KM product-limit: reduce at-risk by ALL observations at this time
+        if (atRisk > 0 && d > 0) {
           surv *= (atRisk - d) / atRisk;
+          S.push(surv);
+          T.push(currentTime);
         }
-        S.push(surv);
-        T.push(currentTime);
-        atRisk -= d;
+        atRisk -= (d + c);
       }
       return { T, S };
     }

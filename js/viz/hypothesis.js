@@ -238,9 +238,9 @@ registerViz('ttest', renderTTest);
 
       // Fisher 精确检验（2×2 only）
       let fisherP = null;
-      if (rows === 2 && cols === 2 && window.jStat && jStat.beta) {
+      if (rows === 2 && cols === 2) {
         const [a,b,c,d] = [matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]];
-        // 超几何分布精确 P
+        // 超几何分布精确 P（large samples return null, skip）
         const hyperP = hypergeometricTest(a, b, c, d);
         fisherP = hyperP;
       }
@@ -268,6 +268,7 @@ registerViz('ttest', renderTTest);
       }
       html += '</div>';
 
+      // 只有 chi-square 不显著但 Fisher 显著时，才提示期望频数不足
       if (fisherP !== null && fisherP < 0.05 && !sig) {
         html += '<div class="calc-note">⚠️ 期望频数 < 5，建议用 Fisher 精确检验</div>';
       }
@@ -280,6 +281,9 @@ registerViz('chisq', renderChiSq);
   // Fisher 精确检验（超几何分布）
   function hypergeometricTest(a, b, c, d) {
     const total = a + b + c + d;
+    // Guard: Fisher exact test is only feasible for small samples.
+    // For large tables (total > 500), skip to avoid browser freeze.
+    if (total > 500) return null;
     const row1 = a + b, row2 = c + d, col1 = a + c, col2 = b + d;
     const min = Math.max(0, col1 - row2), max = Math.min(row1, col1);
     let pObs = 0, pSum = 0;
@@ -312,6 +316,12 @@ registerViz('chisq', renderChiSq);
     
     if (!means.length) {
       el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA 组间差异比较</span></div><p style="padding:20px;color:#666;">请提供组数据</p></div>';
+      return;
+    }
+
+    // Guard: each group needs n >= 1
+    if (means.some((m, i) => ns[i] < 1 || isNaN(ns[i]))) {
+      el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA</span></div><p style="padding:20px;color:#e74c3c;">每组样本量 n 必须 ≥ 1</p></div>';
       return;
     }
 
@@ -1296,11 +1306,18 @@ registerViz('rminteraction', renderRepeatedMeasuresInteraction);
         ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
       });
 
-      // Stats
-      const skewness = jStat.skewness(skewedData);
-      const kurtosis = jStat.kurtosis(skewedData);
+      // Stats — 用原始未扰动数据计算偏度和峰度，并做防护
+      let skewness = NaN, kurtosis = NaN;
+      try {
+        if (n >= 3) {
+          skewness = jStat.skewness(data);
+          kurtosis = jStat.kurtosis(data);
+        }
+      } catch(e) {}
+      const skewStr = isNaN(skewness) ? '—' : skewness.toFixed(3);
+      const kurtStr = isNaN(kurtosis) ? '—' : kurtosis.toFixed(3);
       document.getElementById(id + '-stats').textContent =
-        `n=${n} | 偏度=${skewness.toFixed(3)} | 峰度=${kurtosis.toFixed(3)} | 数据点越贴近红线越接近正态`;
+        `n=${n} | 偏度=${skewStr} | 峰度=${kurtStr} | 数据点越贴近红线越接近正态`;
     }
 
     draw(0);
