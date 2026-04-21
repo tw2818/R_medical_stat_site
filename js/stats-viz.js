@@ -3379,7 +3379,6 @@
     else if (type === 'ldascatter') renderLDAScatter(el);
     else if (type === 'radar') renderRadarChart(el);
     else if (type === 'sem') renderSEM(el);
-    else if (type === 'sempath') renderSEMPath(el);
     else if (type === 'riskdist') renderRiskScoreDist(el);
   }
 
