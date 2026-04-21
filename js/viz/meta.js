@@ -190,8 +190,23 @@ registerViz('metaforest', renderMetaForest);
   function renderFunnel(el) {
     const id = 'funnel-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '漏斗图 (发表偏倚检测)';
-    let effects = el.dataset.effects ? JSON.parse(el.dataset.effects) : [0.65, 1.12, 0.88, 1.33, 0.95, 1.05, 0.78, 1.20, 0.91, 1.08, 0.72, 1.15];
-    let ses = el.dataset.se ? JSON.parse(el.dataset.se) : [0.18, 0.15, 0.22, 0.12, 0.19, 0.16, 0.24, 0.14, 0.20, 0.17, 0.21, 0.13];
+    let effects = [0.65, 1.12, 0.88, 1.33, 0.95, 1.05, 0.78, 1.20, 0.91, 1.08, 0.72, 1.15];
+    let ses = [0.18, 0.15, 0.22, 0.12, 0.19, 0.16, 0.24, 0.14, 0.20, 0.17, 0.21, 0.13];
+    try {
+      if (el.dataset.effects) effects = JSON.parse(el.dataset.effects);
+      if (el.dataset.se) ses = JSON.parse(el.dataset.se);
+    } catch (e) {
+      console.warn('[stats-viz] funnel data parse failed, using fallback defaults', e);
+    }
+    effects = effects.filter(v => Number.isFinite(v));
+    ses = ses.filter(v => Number.isFinite(v) && v > 0);
+    const n = Math.min(effects.length, ses.length);
+    if (n < 3) {
+      el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><p style="padding:20px;color:#666;">漏斗图至少需要 3 个有效研究点。</p></div>';
+      return;
+    }
+    effects = effects.slice(0, n);
+    ses = ses.slice(0, n);
     const W = 500, H = 380;
     el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas></div>';
     const canvas = document.getElementById(id);

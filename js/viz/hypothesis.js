@@ -1238,8 +1238,14 @@ registerViz('rminteraction', renderRepeatedMeasuresInteraction);
     const id = 'normtest-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '正态性检验 Q-Q 图';
     const rawData = el.dataset.data || '72,80,85,88,90,92,95,97,98,100,102,104,105,107,108,110,112,115,118,120,125,128,132';
-    const data = rawData.split(',').map(Number).sort((a, b) => a - b);
+    const data = rawData.split(',').map(Number).filter(v => Number.isFinite(v)).sort((a, b) => a - b);
     const n = data.length;
+
+    if (n < 3 || !window.jStat?.normal?.inv) {
+      el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><p style="padding:20px;color:#666;">至少需要 3 个有效数据点，且需成功加载 jStat 才能绘制 Q-Q 图。</p></div>';
+      return;
+    }
+
     const mu = data.reduce((a, b) => a + b, 0) / n;
     const sigma = Math.sqrt(data.reduce((a, b) => a + (b - mu) ** 2, 0) / (n - 1));
 
@@ -1411,8 +1417,24 @@ registerViz('interaction', renderFactorialInteraction);
     const title = el.dataset.title || 'Bland-Altman 一致性分析';
     const method1 = el.dataset.method1 || '方法A';
     const method2 = el.dataset.method2 || '方法B';
-    let delta = el.dataset.delta ? JSON.parse(el.dataset.delta) : [10,15,12,8,18,11,14,9,13,16,7,20,5,17,14];
-    let mean = el.dataset.mean ? JSON.parse(el.dataset.mean) : [55,58,52,60,48,56,53,59,54,57,50,62,45,58,54];
+
+    let delta = [10,15,12,8,18,11,14,9,13,16,7,20,5,17,14];
+    let meanVals = [55,58,52,60,48,56,53,59,54,57,50,62,45,58,54];
+    try {
+      if (el.dataset.delta) delta = JSON.parse(el.dataset.delta);
+      if (el.dataset.mean) meanVals = JSON.parse(el.dataset.mean);
+    } catch (e) {
+      console.warn('[stats-viz] blandaltman data parse failed, using fallback defaults', e);
+    }
+    delta = delta.filter(v => Number.isFinite(v));
+    meanVals = meanVals.filter(v => Number.isFinite(v));
+    const n = Math.min(delta.length, meanVals.length);
+    if (n < 3) {
+      el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><p style="padding:20px;color:#666;">Bland-Altman 图至少需要 3 对有效数据。</p></div>';
+      return;
+    }
+    delta = delta.slice(0, n);
+    meanVals = meanVals.slice(0, n);
     const W = 520, H = 340;
     el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div id="' + id + '-stats" style="text-align:center;font-size:12px;color:#555;margin-top:4px;"></div></div>';
     const canvas = document.getElementById(id);
@@ -1421,8 +1443,8 @@ registerViz('interaction', renderFactorialInteraction);
     const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
     const meanVal = delta.reduce((a, b) => a + b, 0) / delta.length;
     const sd = Math.sqrt(delta.reduce((s, d) => s + (d - meanVal) ** 2, 0) / (delta.length - 1));
-    const xMin = Math.min(...mean) * 0.95;
-    const xMax = Math.max(...mean) * 1.05;
+    const xMin = Math.min(...meanVals) * 0.95;
+    const xMax = Math.max(...meanVals) * 1.05;
     const yMin = Math.min(...delta) - Math.abs(meanVal) * 0.3;
     const yMax = Math.max(...delta) + Math.abs(meanVal) * 0.3;
     const xOf = v => pad.l + ((v - xMin) / (xMax - xMin)) * iW;
@@ -1483,7 +1505,7 @@ registerViz('interaction', renderFactorialInteraction);
     ctx.fillText('两方法均值', pad.l + iW / 2, H - 4);
     // Points
     delta.forEach((d, i) => {
-      const x = xOf(mean[i]);
+      const x = xOf(meanVals[i]);
       const y = yOf(d);
       ctx.fillStyle = Math.abs(d) > 1.96 * sd ? '#e74c3c' : '#3498db';
       ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();

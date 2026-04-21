@@ -1035,15 +1035,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>想获得<em>整洁的结果</em>不需要自己提取，只要用神包<code>broom</code>即可：</p>
 <div class="stat-viz" data-type="cox"
   data-title="Cox 回归 HR 森林图"
-  data-labels="sex (male),age,ph.karno"
-  data-values="0.608,1.012,0.987"
+  data-labels="sexmale,age,ph.karno"
+  data-values="0.608,1.01,0.987"
   data-lower="0.438,0.994,0.976"
-  data-upper="0.845,1.031,0.998"
+  data-upper="0.845,1.03,0.998"
   data-p="0.003,0.188,0.023"></div>
 <div class="stat-viz" data-type="survcomp"
-  data-title="两组生存曲线比较 (模拟数据)"
-  data-label1="男性 (n=138)"
-  data-label2="女性 (n=90)"></div>
+  data-title="两组生存曲线比较（模拟示意）"
+  data-label1="男性组"
+  data-label2="女性组"
+  data-times1="[31,46,101,21,88,102,31,36,22,17,17,65]"
+  data-status1="[1,1,0,1,0,1,1,1,1,1,1,0]"
+  data-times2="[57,14,61,71,6,9,30,8,72,10,48,16]"
+  data-status2="[0,1,0,0,1,1,1,1,0,1,0,1]"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(fit.cox, <span class="at">exponentiate =</span> T, <span class="at">conf.int =</span> T)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="do">## # A tibble: 3 × 7</span></span>

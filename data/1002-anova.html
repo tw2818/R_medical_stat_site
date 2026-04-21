@@ -578,8 +578,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果显示组间自由度为3，组内自由度为116，组间离均差平方和为32.16，组内离均差平方和为49.97，组间均方为10.719，组内均方为0.431，F值=24.88，p=1.67e-12，和课本一致。</p>
-<div class="stat-viz" data-type="anova" data-title="组间差异比较" data-means="[10.5, 13.2, 15.8]" data-sds="[2.1, 2.4, 1.9]" data-ns="[30, 30, 30]" data-labels='["低剂量","中剂量","高剂量"]'></div>
-<div class="stat-viz" data-type="fdist" data-title="F分布与ANOVA" data-df1="2" data-df2="87"></div>
+<div class="stat-viz" data-type="anova" data-title="组间差异比较（与上面 ANOVA 结果一致）" data-means="[3.12, 2.63, 2.78, 2.57]" data-sds="[0.69, 0.53, 0.56, 0.59]" data-ns="[30, 30, 30, 30]" data-labels='["A组","B组","C组","D组"]'></div>
+<div class="stat-viz" data-type="fdist" data-title="F分布与ANOVA（df1=3, df2=116）" data-df1="3" data-df2="116"></div>
 <p>再简单介绍一下可视化的平均数和可信区间的方法：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gplots)</span>
