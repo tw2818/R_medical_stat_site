@@ -7,7 +7,6 @@ import { init, setupObserver } from './viz/_core.js';
 import './viz/distributions.js';
 import './viz/hypothesis-nonparametric.js';
 import './viz/hypothesis-remaining.js';
-import './viz/regression.js';
 import './viz/clinical-models.js';
 import './viz/structure-diagrams.js';
 import './viz/survival.js';
