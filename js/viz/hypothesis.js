@@ -912,17 +912,17 @@ registerViz('wilcoxon', renderWilcoxonSignedRank);
       {name: 'Drug_B', values: [16,20.5,22.5,29,36]},
       {name: 'Drug_C', values: [6.5,9.0,12.5,18,24]},
     ];
-    const W = 560, H = 300;
+    const W = 560, canvasH = 300;
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
-      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <canvas id="${id}" width="${W}" height="${canvasH}" style="display:block;margin:0 auto;"></canvas>
       <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:#333;"></div>
     </div>`;
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, canvasH);
     const pad = {t:40, r:20, b:50, l:50};
-    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+    const iW = W - pad.l - pad.r, iH = canvasH - pad.t - pad.b;
     const allVals = groups.flatMap(g => g.values);
     const globalMin = Math.min(...allVals), globalMax = Math.max(...allVals);
     const range = globalMax - globalMin;
@@ -976,14 +976,14 @@ registerViz('wilcoxon', renderWilcoxonSignedRank);
       ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, yOf(mean), 5, 0, Math.PI*2); ctx.fill();
       // 组名
       ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(g.name, cx, H - pad.b + 18);
+      ctx.fillText(g.name, cx, canvasH - pad.b + 18);
       // 均值标注
       ctx.fillStyle = c; ctx.font = '11px sans-serif';
       ctx.fillText('μ=' + mean.toFixed(1), cx, pad.t - 8);
     });
     // 组名标签
     ctx.fillStyle = '#888'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('三组死亡率比较（方框=四分位须=范围 红线=中位数 点=均值）', W/2, H - 5);
+    ctx.fillText('三组死亡率比较（方框=四分位须=范围 红线=中位数 点=均值）', W/2, canvasH - 5);
     // ── Kruskal-Wallis H 真实计算 ──────────────────────────
     // Step 1: 合并全部数据，统一编秩（遇相同值取平均秩）
     const N = allVals.length;
@@ -1009,15 +1009,15 @@ registerViz('wilcoxon', renderWilcoxonSignedRank);
 
     // Step 3: H 统计量
     const sumRi2ni = groupRanks.reduce((s, gr) => s + (gr.Ri * gr.Ri) / gr.ni, 0);
-    const H = (12 / (N * (N + 1))) * sumRi2ni - 3 * (N + 1);
+    const H_stat = (12 / (N * (N + 1))) * sumRi2ni - 3 * (N + 1);
 
     // Step 4: P 值（chi-square, df = k-1）
     const df = k - 1;
-    const pVal = jStat.chisquare.cdf(H, df);
+    const pVal = jStat.chisquare.cdf(H_stat, df);
     const pDisplay = (1 - pVal).toFixed(4);
 
     document.getElementById(id + '-result').innerHTML =
-      `H = ${H.toFixed(3)} (χ²=${H.toFixed(3)}, df=${df}, P≈${pDisplay})` +
+      `H = ${H_stat.toFixed(3)} (χ²=${H_stat.toFixed(3)}, df=${df}, P≈${pDisplay})` +
       (pDisplay < 0.05 ? ' — 三组死亡率差异有统计学意义 ✱' : ' — 三组差异无统计学意义');
   }
 registerViz('kruskal', renderKruskalWallis);
