@@ -42,7 +42,9 @@ import { registerViz } from './_core.js';
     ctx.fillText(title, W / 2, 22);
 
     const allVals = hrs.concat(lower).concat(upper);
-    const minV = Math.min(...allVals) - 0.1, maxV = Math.max(...allVals) + 0.1;
+    const positiveVals = allVals.filter(v => Number.isFinite(v) && v > 0);
+    const minV = Math.max(Math.min(...positiveVals) * 0.8, 0.05);
+    const maxV = Math.max(...positiveVals) * 1.1;
     const scaleX = v => padL + ((Math.log(v) - Math.log(minV)) / (Math.log(maxV) - Math.log(minV))) * (W - padL - padR);
 
     // Overall ref line (first HR)
@@ -123,7 +125,9 @@ registerViz('subgroupforest', renderSubgroupForest);
     ctx.fillText(title, W / 2, 20);
 
     const allVals = hrs.concat(lower).concat(upper);
-    const minV = Math.min(...allVals) - 0.05, maxV = Math.max(...allVals) + 0.1;
+    const positiveVals = allVals.filter(v => Number.isFinite(v) && v > 0);
+    const minV = Math.max(Math.min(...positiveVals) * 0.85, 0.05);
+    const maxV = Math.max(...positiveVals) * 1.1;
     const scaleX = v => padL + ((Math.log(v) - Math.log(minV)) / (Math.log(maxV) - Math.log(minV))) * (W - padL - padR);
 
     // Vertical ref line at HR=1

@@ -257,17 +257,17 @@ registerViz('factorload', renderFactorLoad);
       // Draw bars
       for (let b = 0; b < bins; b++) {
         const x = padL + (b / bins) * plotW;
-        const inOverlap = treated[bins - 1 - b] > 0 && control[bins - 1 - b] > 0;
+        const inOverlap = hT[b] > 0 && hC[b] > 0;
         if (highlightOverlap && inOverlap) {
           ctx.fillStyle = 'rgba(39,174,96,0.6)';
-          ctx.fillRect(x, padT + plotH - scaleY(hT[bins - 1 - b]), barW - 1, scaleY(hT[bins - 1 - b]));
+          ctx.fillRect(x, padT + plotH - scaleY(hT[b]), barW - 1, scaleY(hT[b]));
           ctx.fillStyle = 'rgba(39,174,96,0.6)';
-          ctx.fillRect(x, padT + plotH - scaleY(hC[bins - 1 - b]), barW - 1, scaleY(hC[bins - 1 - b]));
+          ctx.fillRect(x, padT + plotH - scaleY(hC[b]), barW - 1, scaleY(hC[b]));
         } else {
           ctx.fillStyle = 'rgba(52,152,219,0.65)';
-          ctx.fillRect(x, padT + plotH - scaleY(hT[bins - 1 - b]), barW - 1, scaleY(hT[bins - 1 - b]));
+          ctx.fillRect(x, padT + plotH - scaleY(hT[b]), barW - 1, scaleY(hT[b]));
           ctx.fillStyle = 'rgba(231,76,60,0.55)';
-          ctx.fillRect(x, padT + plotH - scaleY(hC[bins - 1 - b]), barW - 1, scaleY(hC[bins - 1 - b]));
+          ctx.fillRect(x, padT + plotH - scaleY(hC[b]), barW - 1, scaleY(hC[b]));
         }
       }
 

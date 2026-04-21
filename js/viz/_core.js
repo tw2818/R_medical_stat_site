@@ -31,6 +31,7 @@ function makeCanvas(container, w, h) {
 
 // ── 注册表 ────────────────────────────────────────────────
 export const StatVizRegistry = {};
+let vizObserver = null;
 
 export function registerViz(type, fn) {
   StatVizRegistry[type] = fn;
@@ -62,10 +63,18 @@ function init() {
 // ── setupObserver ────────────────────────────────────────
 function setupObserver() {
   const target = document.getElementById('chapter-content') || document.body;
-  const observer = new MutationObserver(mutations => {
+  if (vizObserver) vizObserver.disconnect();
+
+  vizObserver = new MutationObserver(mutations => {
     mutations.forEach(m => {
       m.addedNodes.forEach(node => {
         if (node.nodeType === 1 && node.querySelectorAll) {
+          if (node.matches?.('.stat-viz, .stat-calc') && !node.dataset.rendered) {
+            try {
+              renderComponent(node);
+              node.dataset.rendered = 'true';
+            } catch(e) { console.error('[stats-viz] render error:', e); }
+          }
           node.querySelectorAll('.stat-viz, .stat-calc').forEach(el => {
             if (!el.dataset.rendered) {
               try {
@@ -78,7 +87,7 @@ function setupObserver() {
       });
     });
   });
-  observer.observe(target, { childList: true, subtree: true });
+  vizObserver.observe(target, { childList: true, subtree: true });
 }
 
 export { $, parseNumbers, mean, sd, sum, makeCanvas, renderComponent, init, setupObserver };

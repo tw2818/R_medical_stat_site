@@ -106,8 +106,9 @@ img { max-width: 100%; display: block; }
   display: none;
   z-index: 200;
 }
-#search-results.show { display: block; }
-.search-result-item {
+#search-results.show, #search-results:not(:empty) { display: block; }
+.search-result {
+  display: block;
   padding: 8px 12px;
   font-size: 0.85rem;
   color: var(--text);
@@ -116,9 +117,15 @@ img { max-width: 100%; display: block; }
   cursor: pointer;
   border-bottom: 1px solid var(--border);
 }
-.search-result-item:hover { background: var(--bg); }
-.search-result-item:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; background: var(--bg); }
-.search-result-item:last-child { border-bottom: none; }
+.search-result:hover { background: var(--bg); }
+.search-result:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; background: var(--bg); }
+.search-result:last-child { border-bottom: none; }
+.search-result-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
 
 /* ===== 导航 ===== */
 #chapter-nav {

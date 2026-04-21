@@ -15,6 +15,16 @@ const GROUP_CONFIG = [
 
 // ===== DOM =====
 const $ = id => document.getElementById(id);
+const CHAPTER_BY_FILE = new Map(ALL_CHAPTERS.map(ch => [ch.file, ch]));
+const CHAPTER_TITLE_ALIASES = {
+  '多变量数据hotelling_t2检验.html': 'hotelling.html',
+  '对数线性模型.html': 'loglinear.html',
+  'pca可视化.html': 'pca-vis.html',
+  '亚组分析和多因素回归的森林图.html': '1041-subgroupanalysis.html',
+};
+const CHAPTER_BY_TITLE_FILE = new Map(
+  ALL_CHAPTERS.map(ch => [`${ch.title}.html`, ch])
+);
 
 function getTotalChapterCount() {
   return ALL_CHAPTERS.length;
@@ -184,6 +194,48 @@ function updateActiveLink(groupKey, index) {
   if (activeLink) activeLink.classList.add('active');
 }
 
+function findChapterByHref(href) {
+  if (!href) return null;
+  const cleaned = href.split('#')[0].replace(/^\.\//, '').trim();
+  if (!cleaned || cleaned === 'index.html') return { type: 'home' };
+
+  if (cleaned.startsWith('data/')) {
+    const file = cleaned.slice('data/'.length);
+    const chapter = CHAPTER_BY_FILE.get(file);
+    if (chapter) return { type: 'chapter', chapter };
+  }
+
+  const fileCandidate = cleaned.split('/').pop();
+  const aliasedFile = CHAPTER_TITLE_ALIASES[fileCandidate] || fileCandidate;
+  const byFile = CHAPTER_BY_FILE.get(aliasedFile);
+  if (byFile) return { type: 'chapter', chapter: byFile };
+
+  const byTitleFile = CHAPTER_BY_TITLE_FILE.get(fileCandidate);
+  if (byTitleFile) return { type: 'chapter', chapter: byTitleFile };
+
+  return null;
+}
+
+function rewriteChapterLinks(container) {
+  container.querySelectorAll('a[href]').forEach(link => {
+    const rawHref = link.getAttribute('href');
+    if (!rawHref || rawHref.startsWith('#') || /^(https?:|mailto:|javascript:|data:)/i.test(rawHref)) return;
+
+    const target = findChapterByHref(rawHref);
+    if (!target) return;
+
+    link.href = '#';
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      if (target.type === 'home') {
+        showWelcome();
+        return;
+      }
+      navigateToChapter(target.chapter.group, target.chapter.index);
+    });
+  });
+}
+
 async function loadChapter(filename) {
   const wrapper = $('chapter-content');
   const welcome = $('welcome');
@@ -216,6 +268,7 @@ async function loadChapter(filename) {
     let contentHtml = main.innerHTML;
     contentHtml = injectCopyButtons(contentHtml);
     wrapper.innerHTML = contentHtml;
+    rewriteChapterLinks(wrapper);
 
     // 追踪已访问章节
     const allChapters = Object.values(CHAPTERS).flat();
@@ -334,30 +387,33 @@ function setupChapterInteractions(container) {
 // ===== 搜索 =====
 function initSearch() {
   const input = $('search-input');
-  if (!input) return;
+  const results = $('search-results');
+  if (!input || !results) return;
+
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
-    const results = $('search-results');
-    if (!results) return;
     if (!q) { results.innerHTML = ''; return; }
     const matches = ALL_CHAPTERS.filter(ch =>
-      ch.title.toLowerCase().includes(q)
+      [ch.title, ch.groupName, ch.file, String(ch.num)].some(field =>
+        String(field).toLowerCase().includes(q)
+      )
     ).slice(0, 8);
     if (!matches.length) { results.innerHTML = '<div class="search-empty">无结果</div>'; return; }
     results.innerHTML = matches.map(ch =>
-      `<a href="#" class="search-result" data-group="${ch.group}" data-index="${ch.index}">${ch.title}</a>`
+      `<a href="#" class="search-result" data-group="${ch.group}" data-index="${ch.index}">${ch.title}<span class="search-result-meta">${ch.groupName}</span></a>`
     ).join('');
     results.querySelectorAll('.search-result').forEach(a => {
       a.addEventListener('click', e => {
         e.preventDefault();
         const { group, index } = a.dataset;
-        navigateToChapter(group, parseInt(index));
+        navigateToChapter(group, parseInt(index, 10));
         input.value = '';
         results.innerHTML = '';
       });
     });
   });
-  input.addEventListener('blur', () => setTimeout(() => { if (results) results.innerHTML = ''; }, 200));
+
+  input.addEventListener('blur', () => setTimeout(() => { results.innerHTML = ''; }, 200));
 }
 
 // ===== 进度 =====

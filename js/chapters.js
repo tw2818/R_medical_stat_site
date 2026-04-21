@@ -58,10 +58,10 @@ const CHAPTERS = {
 
 // 全部章节列表（用于搜索）
 const ALL_CHAPTERS = [
-  ...CHAPTERS.basic.map(c => ({ ...c, group: "basic", groupName: "基础统计分析" })),
-  ...CHAPTERS.advanced.map(c => ({ ...c, group: "advanced", groupName: "高级统计分析" })),
-  ...CHAPTERS.literature.map(c => ({ ...c, group: "literature", groupName: "文献常见统计分析" })),
-  ...CHAPTERS.other.map(c => ({ ...c, group: "other", groupName: "其他合集" })),
+  ...CHAPTERS.basic.map((c, index) => ({ ...c, index, group: "basic", groupName: "基础统计分析" })),
+  ...CHAPTERS.advanced.map((c, index) => ({ ...c, index, group: "advanced", groupName: "高级统计分析" })),
+  ...CHAPTERS.literature.map((c, index) => ({ ...c, index, group: "literature", groupName: "文献常见统计分析" })),
+  ...CHAPTERS.other.map((c, index) => ({ ...c, index, group: "other", groupName: "其他合集" })),
 ];
 
 // 加载进度
@@ -78,16 +78,19 @@ function saveProgress(chapterId) {
 }
 function updateProgressBar() {
   const p = getProgress();
+  const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
+  const effective = Object.keys(p).length ? Object.keys(p) : visited;
   const total = ALL_CHAPTERS.length;
-  const done = Object.keys(p).length;
+  const done = effective.length;
+  const pct = total > 0 ? (done / total) * 100 : 0;
   const progressText = document.getElementById('progress-text');
   const progressFill = document.getElementById('progress-fill');
   if (progressText) progressText.textContent = `${done}/${total}`;
-  if (progressFill) progressFill.style.width = `${(done/total*100).toFixed(1)}%`;
+  if (progressFill) progressFill.style.width = `${pct.toFixed(1)}%`;
 
   if (typeof GROUP_CONFIG !== 'undefined') {
     GROUP_CONFIG.forEach(({ key }) => {
-      const groupDone = CHAPTERS[key].filter(ch => p[ch.id]).length;
+      const groupDone = CHAPTERS[key].filter(ch => effective.includes(ch.id)).length;
       const groupTotal = CHAPTERS[key].length;
       const countEl = document.getElementById(`${key}-count`);
       if (countEl) countEl.textContent = `${groupDone}/${groupTotal}`;

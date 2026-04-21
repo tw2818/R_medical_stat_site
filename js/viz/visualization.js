@@ -80,12 +80,16 @@ import { registerViz, mean, sd } from './_core.js';
     });
 
     // Normal curve overlay
-    ctx.beginPath(); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5;
-    const xRange = maxD - minD;
+    ctx.beginPath();
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth = 2.5;
+    const xRange = maxD - minD || 1;
+    const safeMaxCount = Math.max(maxCount, 1);
+    const safeBins = Math.max(nbins, 1);
     for (let px = 0; px <= plotW; px++) {
       const v = minD + (px / plotW) * xRange;
       const density = jStat.normal.pdf(v, mean, sd) * binWidth;
-      const y = padT + plotH - (density / (maxCount / n) / nbins * plotH * 0.85);
+      const y = padT + plotH - (density / (safeMaxCount / n) / safeBins * plotH * 0.85);
       if (px === 0) ctx.moveTo(padL + px, y);
       else ctx.lineTo(padL + px, y);
     }

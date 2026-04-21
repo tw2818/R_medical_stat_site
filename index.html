@@ -110,7 +110,7 @@
             <div class="welcome-cta">
               <button class="btn-primary" onclick="navigateToChapter('basic', 0)">🚀 从零开始</button>
               <button class="btn-secondary" onclick="document.getElementById('task-nav').scrollIntoView({behavior:'smooth'})">🔍 按问题查找</button>
-              <button class="btn-ghost" onclick="document.getElementById('chapter-nav').click()">📑 查看全部</button>
+              <button class="btn-ghost" onclick="document.getElementById('sidebar').classList.add('open'); document.querySelectorAll('.nav-group-header').forEach(btn => { btn.setAttribute('aria-expanded', 'true'); const content = document.getElementById(`${btn.dataset.group}-chapters`); if (content) content.style.display = 'block'; }); document.getElementById('chapter-nav').scrollIntoView({behavior:'smooth'});">📑 查看全部</button>
             </div>
           </div>
 
