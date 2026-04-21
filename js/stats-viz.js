@@ -9,6 +9,7 @@ import './viz/hypothesis-nonparametric.js';
 import './viz/hypothesis-remaining.js';
 import './viz/regression.js';
 import './viz/clinical-models.js';
+import './viz/structure-diagrams.js';
 import './viz/survival.js';
 import './viz/visualization.js';
 import './viz/advanced.js';
