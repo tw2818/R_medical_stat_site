@@ -64,13 +64,20 @@ const ALL_CHAPTERS = [
   ...CHAPTERS.other.map((c, index) => ({ ...c, index, group: "other", groupName: "其他合集" })),
 ];
 
+const CHAPTER_ID_SET = new Set(ALL_CHAPTERS.map(ch => ch.id));
+
 // 加载进度（统一使用 rstat_visited，不再使用 rstat_progress）
 function getProgress() {
   try {
-    return JSON.parse(localStorage.getItem('rstat_visited') || '[]');
-  } catch { return []; }
+    const raw = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
+    if (!Array.isArray(raw)) return [];
+    return [...new Set(raw)].filter(id => CHAPTER_ID_SET.has(id));
+  } catch {
+    return [];
+  }
 }
 function saveProgress(chapterId) {
+  if (!CHAPTER_ID_SET.has(chapterId)) return;
   const visited = getProgress();
   if (!visited.includes(chapterId)) {
     visited.push(chapterId);

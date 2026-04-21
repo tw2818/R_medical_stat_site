@@ -93,10 +93,13 @@ function updateChapterCount() {
 function continueLearning() {
   const lastId = window._lastChapterId;
   if (!lastId) return;
-  Object.entries(CHAPTERS).forEach(([groupKey, list]) => {
+  for (const [groupKey, list] of Object.entries(CHAPTERS)) {
     const idx = list.findIndex(ch => ch.id === lastId);
-    if (idx !== -1) navigateToChapter(groupKey, idx);
-  });
+    if (idx !== -1) {
+      navigateToChapter(groupKey, idx);
+      return;
+    }
+  }
 }
 
 function navigateToChapter(groupKey, index) {
@@ -117,12 +120,16 @@ function navigateToChapter(groupKey, index) {
   history.replaceState(null, '', '#' + chapter.id);
 
   // Track visited chapter
-  const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
-  if (!visited.includes(chapter.id)) {
-    visited.push(chapter.id);
-    localStorage.setItem('rstat_visited', JSON.stringify(visited));
+  if (typeof saveProgress === 'function') {
+    saveProgress(chapter.id);
+  } else {
+    const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
+    if (!visited.includes(chapter.id)) {
+      visited.push(chapter.id);
+      localStorage.setItem('rstat_visited', JSON.stringify(visited));
+    }
+    updateChapterCount();
   }
-  updateChapterCount();
 
   currentGroup = groupKey;
   currentIndex = index;
@@ -452,7 +459,7 @@ window.showWelcome = function() {
   if (welcome) welcome.classList.add('active');
   document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));
   const titleEl = $('current-chapter-title');
-  if (titleEl) titleEl.textContent = '';
+  if (titleEl) titleEl.textContent = 'R语言实战医学统计';
   const homeBtn = $('home-btn');
   if (homeBtn) homeBtn.style.display = 'none';
 };
