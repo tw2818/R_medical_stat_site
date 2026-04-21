@@ -13,5 +13,9 @@ import './viz/advanced.js';
 import './viz/meta.js';
 import './viz/calculators.js';
 
+// 暴露到 window，让 app.js 在章节内容加载完成后可调用
+window.initStatViz = init;
+window.setupStatVizObserver = setupObserver;
+
 init();
 setupObserver();
