@@ -401,6 +401,15 @@ function pruneMisplacedChapterWidgets(container, filename) {
       poissonApprox.insertAdjacentElement('afterend', note);
     }
 
+    const rateHeading = Array.from(container.querySelectorAll('h3')).find(h => h.textContent.includes('样本率和总体率的比较'));
+    if (rateHeading && !container.querySelector('.stat-calc[data-type="ratecompare"]')) {
+      const widget = document.createElement('div');
+      widget.className = 'stat-calc';
+      widget.dataset.type = 'ratecompare';
+      widget.dataset.title = '率比较可视化';
+      rateHeading.insertAdjacentElement('afterend', widget);
+    }
+
     const nbViz = container.querySelector('h2#负二项分布略 + .stat-viz[data-type="poisson"]');
     if (nbViz) nbViz.remove();
 
