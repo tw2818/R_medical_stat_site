@@ -393,13 +393,13 @@ function initSearch() {
     ).slice(0, 8);
     if (!matches.length) { results.innerHTML = '<div class="search-empty">无结果</div>'; return; }
     results.innerHTML = matches.map(ch =>
-      `<a href="#" class="search-result" data-group="${ch.group}" data-index="${ch.index}">${ch.title}<span class="search-result-meta">${ch.groupName}</span></a>`
+      `<a href="#" class="search-result" data-nav-group="${ch.group}" data-nav-index="${ch.index}">${ch.title}<span class="search-result-meta">${ch.groupName}</span></a>`
     ).join('');
     results.querySelectorAll('.search-result').forEach(a => {
       a.addEventListener('click', e => {
         e.preventDefault();
-        const { group, index } = a.dataset;
-        navigateToChapter(group, parseInt(index, 10));
+        const { navGroup, navIndex } = a.dataset;
+        navigateToChapter(navGroup, parseInt(navIndex, 10));
         input.value = '';
         results.innerHTML = '';
       });
