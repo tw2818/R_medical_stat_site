@@ -210,6 +210,11 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 ## 更新日志
 
+### 2026-04-22 — 固定 jStat 版本并清理首页 inline handler
+- **依赖稳定性**：将 `jStat` CDN 从 `@latest` 固定为明确版本，降低上游变更带来的线上波动风险
+- **交互整理**：把首页欢迎页、顶部栏和“继续学习”按钮这批 inline `onclick` 改为 `data-* + JS 事件委托`
+- **意义**：减少 HTML 内联行为，便于后续继续做 CSP、可维护性整理和前端测试
+
 ### 2026-04-22 — 增加可执行的轻量验证脚本
 - **新增脚本**：`tests/run_validation.js`
 - **当前能力**：检查 case JSON 合法性、重复 id、关键输入结构，以及部分基线数值
