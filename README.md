@@ -68,8 +68,8 @@ R_medical_stat_site/
 ├── css/
 │   └── style.css                  # 全站样式
 ├── js/
-│   ├── app.js                     # 主应用逻辑
-│   ├── chapters.js                # 46 个章节的元数据 + 进度工具
+│   ├── app.js                     # 主应用逻辑（ES Module）
+│   ├── chapters.js                # 46 个章节元数据 + 进度工具（ES Module）
 │   ├── stats-viz.js               # 可视化模块加载入口
 │   └── viz/                       # 可视化模块（ES Module 拆分）
 │       ├── _core.js               # 注册表、init()、setupObserver()
@@ -131,6 +131,7 @@ R_medical_stat_site/
 2. `loadChapter(file)` → `fetch('data/xxx.html')` → `DOMParser` 提取 `<main id="quarto-document-content">`
 3. `setupChapterInteractions()` → `initStatViz()` 扫描 `.stat-viz` / `.stat-calc` 标记，按 `data-type` 分发渲染
 4. Quarto 代码复制按钮会在章节内容注入后被替换为站内统一样式按钮，并通过 JS 统一绑定复制行为
+5. `chapters.js` 现已改为 ES Module，由 `app.js` 显式导入章节数据与进度工具，而不再依赖全局挂载
 
 ### 轻量验证基线
 仓库现在包含一个不依赖测试框架的回归校验基线：
@@ -216,6 +217,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 ---
 
 ## 更新日志
+
+### 2026-04-22 — chapters.js 模块化，减少全局依赖
+- **模块边界收紧**：将 `chapters.js` 从全局脚本改为 ES Module，显式导出章节数据、分组配置和进度工具
+- **应用层同步**：`app.js` 改为通过 import 使用 `CHAPTERS`、`ALL_CHAPTERS`、`GROUP_CONFIG`、`saveProgress()`、`updateProgressBar()`
+- **入口同步**：`index.html` 不再单独以普通脚本加载 `chapters.js`，改为由模块脚本驱动
+- **意义**：减少加载顺序耦合，让章节数据层与应用层的依赖关系更显式
 
 ### 2026-04-22 — 小范围清理核心代码注释与样式
 - **注释一致性**：修正 `stats-viz.js` 中已经过期的 `jStat @latest` 注释，和当前固定版本保持一致
