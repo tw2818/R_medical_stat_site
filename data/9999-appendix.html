@@ -108,6 +108,211 @@ npm run validate</code></pre></div>
   <p>如果你在站内发现明显的统计错误、链接失效、图片缺失或移动端显示问题，建议直接到当前仓库提交 issue 或 pull request。</p>
 </section>
 
+<section id="changelog" class="level2" data-number="A.8">
+  <h2 data-number="A.8" class="anchored" data-anchor-id="changelog"><span class="header-section-number">A.8</span> 更新日志</h2>
+  <h3>2026-04-22 — 统一第二章部分小节导语风格，并顺滑方差齐性结论表述</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1002-anova.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时统一第二章若干设计类型小节的导语风格，并将方差齐性检验结尾处较拧的双重否定表述改成更顺的结论性表达</li>
+    <li><strong>原因</strong>：第二章后期剩余问题已主要集中在风格统一和阅读顺滑度，而不是统计内容本身</li>
+    <li><strong>方式</strong>：沿用小范围 post-load text refinement，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 补强第二章中两处教学性说明</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1002-anova.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时为两阶段交叉设计一节补充 <code>phase</code>、<code>type</code>、<code>testid</code> 的简短模型解释，并将 SNK-q 检验一节"与课本不一样"的说明改写为更完整的实现差异提示</li>
+    <li><strong>原因</strong>：第二章剩余问题主要已从"硬错误"转为"解释不够"，这轮优先补齐最容易让初学者卡住的两处说明</li>
+    <li><strong>方式</strong>：沿用小范围 post-load text refinement，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 修正第二章中两处 ANOVA 结果说明的正文错误</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1002-anova.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时修正随机区组设计一节中的区组间 F 值笔误（<code>5.798 → 5.978</code>），并修正拉丁方设计一节中坏掉的"组内离均差平方和"数值文案（改为 <code>683.2</code>）</li>
+    <li><strong>原因</strong>：这两处属于正文层面的确定性错误，会影响读者对 ANOVA 输出的核对</li>
+    <li><strong>方式</strong>：沿用小范围 post-load text correction，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 打磨第一章的导语、结果说明与标题措辞</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1001-ttest.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时对第一章的开场导语、分布探索提示语、<code>t.test()</code> 说明、单样本结果解释、配对样本数据说明，以及 <code>1.4</code> 标题做小范围措辞优化</li>
+    <li><strong>原因</strong>：前面几轮已经把组件位置、数据一致性和明显错误清理掉了，这一轮主要把文案改得更严谨、更顺、更贴近教学节奏</li>
+    <li><strong>方式</strong>：沿用小范围 post-load text refinement，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 移除第一章开头与 t 检验主线不匹配的三组箱线图</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1001-ttest.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时移除开头"正态性检验与分布探索"部分中的 <code>box</code> 组件</li>
+    <li><strong>原因</strong>：该组件展示的是三组血压比较，更贴近第二章方差分析语境，不适合作为第一章 t 检验的开场组件</li>
+    <li><strong>方式</strong>：沿用小范围 post-load cleanup，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 统一第一章配对样本组件与正文例题数据</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1001-ttest.html</code></li>
+    <li><strong>修复内容</strong>：将配对散点图和 Bland-Altman 组件的数据改为与正文例 3-6 完全一致的 10 对 <code>x1/x2</code> 数据</li>
+    <li><strong>原因</strong>：之前组件使用的是另一组 15 对数据，和正文的配对 t 检验示例不一致，会削弱章节内容与交互演示之间的可信度</li>
+    <li><strong>方式</strong>：直接修正章节中的组件 <code>data-*</code> 属性，使可视化、原始数据和检验结果保持同源</li>
+  </ul>
+  <h3>2026-04-22 — 移除第一章配对 t 检验中错误的 formula 演示段落</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1001-ttest.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时移除配对样本 t 检验部分那段错误的 <code>formula</code> 演示、对应长表转换示例、误导性的"结果也是一模一样的"结论，以及后续围绕该示例的版本警告</li>
+    <li><strong>原因</strong>：该段展示出的结果实际对应两样本 t 检验，不是前文的配对 t 检验，继续保留会误导读者</li>
+    <li><strong>方式</strong>：沿用小范围 post-load cleanup，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 移除 t 检验计算器中方向不明确的单侧 P 值</h3>
+  <ul>
+    <li><strong>修复范围</strong>：<code>ttest</code> 计算器结果表</li>
+    <li><strong>修复内容</strong>：两样本 t 检验结果中不再显示 <code>P 值（单侧）</code></li>
+    <li><strong>原因</strong>：原实现没有提供备择假设方向选择，却显示了单侧 P 值，容易导致结果解释不严谨</li>
+    <li><strong>效果</strong>：保留双侧 P 值、均数差和 95% CI，使单样本与两样本输出口径更一致</li>
+  </ul>
+  <h3>2026-04-22 — 优化统计组件与计算器的移动端布局</h3>
+  <ul>
+    <li><strong>修复范围</strong>：移动端下的统计可视化和计算器通用样式</li>
+    <li><strong>修复内容</strong>：调整组件标题栏换行、滑块区纵向布局、P 值结果块单列显示、统计说明与图例堆叠、计算器 tab 换行、结果表改为更适合窄屏的纵向展示</li>
+    <li><strong>原因</strong>：第一章中的分布图、P 值组件和 t 检验计算器在手机端最容易出现内容挤压、裁切或不完整显示</li>
+    <li><strong>方式</strong>：优先通过 CSS 响应式规则修复，不改动组件计算逻辑</li>
+  </ul>
+  <h3>2026-04-22 — 移除方差分析章节中多重比较部分重复的 ANOVA 组件</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1002-anova.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时移除 <code>2.5 多重比较</code> 开头重复出现的 <code>anova</code> 组件，仅保留 <code>2.1</code> 中用于解释总体 ANOVA 的核心 <code>anova</code> 与 <code>fdist</code> 组件</li>
+    <li><strong>原因</strong>：同一章内重复使用同一组 4 组均值数据会造成轻度视觉重复；多重比较部分已有足够的后续图形和输出支撑理解</li>
+    <li><strong>方式</strong>：沿用小范围 post-load cleanup，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 调整 t 检验章节中重复的 P 值组件位置</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1001-ttest.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时移除前面过早出现的固定版 <code>pvalue</code> 组件，仅保留结果解释后的交互版 <code>pvalue</code> 与 <code>ttest</code> 计算器</li>
+    <li><strong>原因</strong>：按教学顺序，应先展示代码和检验结果，再通过 P 值可视化和计算器帮助读者理解；前置的固定版组件会造成重复感</li>
+    <li><strong>方式</strong>：沿用小范围 post-load cleanup，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 移除多项式拟合章节中不够贴题的剂量反应组件</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1039-nonlinear.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时移除 <code>dose</code> 组件</li>
+    <li><strong>原因</strong>：该组件展示的是剂量-反应 / Sigmoid 曲线，和本章"多项式拟合"的方法主线不够贴合</li>
+    <li><strong>方式</strong>：沿用小范围 post-load cleanup，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — 移除趋势检验章节中不匹配的森林图组件</h3>
+  <ul>
+    <li><strong>问题章节</strong>：<code>1038-p4trend.html</code></li>
+    <li><strong>修复内容</strong>：在章节渲染时移除误用的 <code>subgroupforest</code> 组件</li>
+    <li><strong>原因</strong>：该组件更适合亚组分析语境，不适合用于 <code>p for trend</code> / <code>p for interaction</code> / <code>per 1 sd</code> 章节主线</li>
+    <li><strong>方式</strong>：沿用小范围 post-load cleanup，不直接重写大型 Quarto 导出 HTML</li>
+  </ul>
+  <h3>2026-04-22 — chapters.js 模块化，减少全局依赖</h3>
+  <ul>
+    <li><strong>模块边界收紧</strong>：将 <code>chapters.js</code> 从全局脚本改为 ES Module，显式导出章节数据、分组配置和进度工具</li>
+    <li><strong>应用层同步</strong>：<code>app.js</code> 改为通过 import 使用 <code>CHAPTERS</code>、<code>ALL_CHAPTERS</code>、<code>GROUP_CONFIG</code>、<code>saveProgress()</code>、<code>updateProgressBar()</code></li>
+    <li><strong>入口同步</strong>：<code>index.html</code> 不再单独以普通脚本加载 <code>chapters.js</code>，改为由模块脚本驱动</li>
+    <li><strong>意义</strong>：减少加载顺序耦合，让章节数据层与应用层的依赖关系更显式</li>
+  </ul>
+  <h3>2026-04-22 — 小范围清理核心代码注释与样式</h3>
+  <ul>
+    <li><strong>注释一致性</strong>：修正 <code>stats-viz.js</code> 中已经过期的 <code>jStat @latest</code> 注释，和当前固定版本保持一致</li>
+    <li><strong>死代码清理</strong>：删除 <code>app.js</code> 中未使用的 <code>currentChapterData</code> 变量</li>
+    <li><strong>样式整理</strong>：将 <code>_core.js</code> 中的 <code>jstat-warn</code> 与 canvas 内联样式改为 CSS class</li>
+    <li><strong>意义</strong>：减少小型历史残留，让核心代码与当前工程状态更加一致</li>
+  </ul>
+  <h3>2026-04-22 — 重写附录页，使其回到本站定位</h3>
+  <ul>
+    <li><strong>内容重写</strong>：将 <code>9999-appendix.html</code> 从外部资源与公众号导流页，改为本站自己的"站点说明与补充资源"页面</li>
+    <li><strong>内容范围调整</strong>：保留站点定位、使用方式、验证入口、本地开发命令、参考来源与版权说明，移除不必要的外部合集导流内容</li>
+    <li><strong>意义</strong>：让附录页与 <code>r.tweb.one</code> 的站点身份、使用场景和工程状态保持一致</li>
+  </ul>
+  <h3>2026-04-22 — 增加 package.json 并清理代码复制按钮 inline 行为</h3>
+  <ul>
+    <li><strong>开发入口</strong>：新增最小 <code>package.json</code>，统一提供 <code>npm run preview</code> 和 <code>npm run validate</code></li>
+    <li><strong>复制按钮整理</strong>：将 Quarto 代码复制按钮的 inline <code>onclick / onmouseover / onmouseout / style</code> 移出 HTML 字符串，改为统一 class + JS 绑定 + CSS 样式</li>
+    <li><strong>意义</strong>：进一步降低内联行为，改善可维护性，并为后续更严格的前端策略和测试铺路</li>
+  </ul>
+  <h3>2026-04-22 — 固定 jStat 版本并清理首页 inline handler</h3>
+  <ul>
+    <li><strong>依赖稳定性</strong>：将 <code>jStat</code> CDN 从 <code>@latest</code> 固定为明确版本，降低上游变更带来的线上波动风险</li>
+    <li><strong>交互整理</strong>：把首页欢迎页、顶部栏和"继续学习"按钮这批 inline <code>onclick</code> 改为 <code>data-* + JS 事件委托</code></li>
+    <li><strong>意义</strong>：减少 HTML 内联行为，便于后续继续做 CSP、可维护性整理和前端测试</li>
+  </ul>
+  <h3>2026-04-22 — 增加可执行的轻量验证脚本</h3>
+  <ul>
+    <li><strong>新增脚本</strong>：<code>tests/run_validation.js</code></li>
+    <li><strong>当前能力</strong>：检查 case JSON 合法性、重复 id、关键输入结构，以及部分基线数值</li>
+    <li><strong>运行方式</strong>：<code>node tests/run_validation.js</code></li>
+    <li><strong>意义</strong>：把原来的"文档化验证基线"推进到"最小可执行验证器"阶段</li>
+  </ul>
+  <h3>2026-04-22 — 增加轻量验证基线</h3>
+  <ul>
+    <li><strong>新增目录</strong>：<code>tests/</code></li>
+    <li><strong>新增基线文件</strong>：<code>tests/stat_calculator_cases.json</code></li>
+    <li><strong>新增说明</strong>：<code>tests/README.md</code></li>
+    <li><strong>目的</strong>：为关键统计组件建立低成本回归校验基线，便于后续接入自动化或手工验证</li>
+  </ul>
+  <h3>2026-04-22 — 删除 legacy regression 文件</h3>
+  <ul>
+    <li><strong>仓库清理</strong>：删除 <code>js/viz/regression.js</code></li>
+    <li><strong>运行路径收口</strong>：<code>stats-viz.js</code> 不再引用 <code>regression.js</code></li>
+    <li><strong>状态收口</strong>：临床建模与结构示意相关代码现在完全由 <code>clinical-models.js</code> 与 <code>structure-diagrams.js</code> 承担</li>
+    <li><strong>README 同步</strong>：删除对 legacy 文件的引用，更新当前最终模块结构</li>
+  </ul>
+  <h3>2026-04-22 — regression 模块继续拆结构示意组件</h3>
+  <ul>
+    <li><strong>新增模块</strong>：<code>js/viz/structure-diagrams.js</code></li>
+    <li><strong>首批迁移</strong>：偏相关、聚类树状图、SEM、自相关图</li>
+    <li><strong>运行路径切换</strong>：<code>stats-viz.js</code> 现在在 <code>regression.js</code> 后加载 <code>structure-diagrams.js</code>，由新模块覆盖对应 registry 项</li>
+    <li><strong>意义</strong>：<code>regression.js</code> 进一步摆脱"临床建模 + 结构示意 + 相关分析"混装状态</li>
+  </ul>
+  <h3>2026-04-22 — regression 模块开始拆临床建模组件</h3>
+  <ul>
+    <li><strong>新增模块</strong>：<code>js/viz/clinical-models.js</code></li>
+    <li><strong>首批迁移</strong>：Logistic OR 森林图、ROC / ROC 对比、Cox HR 森林图、列线图</li>
+    <li><strong>运行路径切换</strong>：<code>stats-viz.js</code> 现在在 <code>regression.js</code> 后加载 <code>clinical-models.js</code>，由新模块覆盖对应 registry 项</li>
+    <li><strong>意义</strong>：<code>regression.js</code> 开始摆脱"临床模型 + 结构图 + 相关分析"混装状态</li>
+  </ul>
+  <h3>2026-04-22 — 删除 legacy hypothesis 文件</h3>
+  <ul>
+    <li><strong>仓库清理</strong>：删除 <code>js/viz/hypothesis.js</code></li>
+    <li><strong>状态收口</strong>：假设检验相关代码现在完全由 <code>hypothesis-nonparametric.js</code> 与 <code>hypothesis-remaining.js</code> 承担</li>
+    <li><strong>README 同步</strong>：删除对 legacy文件的引用，更新当前最终模块结构</li>
+  </ul>
+  <h3>2026-04-22 — 运行路径脱离 legacy hypothesis 模块</h3>
+  <ul>
+    <li><strong>新增模块</strong>：<code>js/viz/hypothesis-remaining.js</code>，承接 ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman</li>
+    <li><strong>运行路径切换</strong>：<code>js/stats-viz.js</code> 不再加载 <code>hypothesis.js</code>，改为直接加载 <code>hypothesis-nonparametric.js</code> + <code>hypothesis-remaining.js</code></li>
+    <li><strong>意义</strong>：运行时已经真正脱离历史超长文件</li>
+    <li><strong>后续方向</strong>：继续精简模块职责边界，必要时再拆其他模块</li>
+  </ul>
+  <h3>2026-04-22 — README 同步 + hypothesis 模块拆分起步</h3>
+  <ul>
+    <li><strong>README 同步</strong>：更新模块结构、最近修复记录、当前架构状态描述</li>
+    <li><strong>模块边界建立</strong>：新增 <code>js/viz/hypothesis-nonparametric.js</code>，首批抽离 <code>wilcoxon</code>、<code>kruskal</code>、<code>friedman</code>、<code>rminteraction</code></li>
+    <li><strong>主入口接线</strong>：<code>js/stats-viz.js</code> 显式引入新模块，为后续继续拆 <code>hypothesis.js</code> 做准备</li>
+    <li><strong>说明</strong>：这一轮是"先抽模块、后清旧代码"的第一步，优先保证低风险和易回滚</li>
+  </ul>
+  <h3>2026-04-22 — 计算器精度修复 + 移动端返回首页按钮调整</h3>
+  <ul>
+    <li><strong>t 检验计算器</strong>：95% CI 改为优先使用精确 t 临界值；Welch t 检验不再先四舍五入自由度再计算 p 值；两样本结果增加均数差与 95% CI</li>
+    <li><strong>卡方 / Fisher 计算器</strong>：修正 Fisher 双侧精确检验求和逻辑，增加最小期望频数显示，对 2×2 且期望频数较小的情况提示优先参考 Fisher</li>
+    <li><strong>实现方式</strong>：新增 <code>js/viz/overrides.js</code>，通过 registry 覆盖 <code>ttest</code> / <code>chisq</code> 组件，避免直接硬改超长的 <code>hypothesis.js</code></li>
+    <li><strong>移动端可用性</strong>：将"返回首页"按钮从侧边栏底部移到顶部栏，避免抽屉式侧边栏下方遮挡</li>
+  </ul>
+  <h3>2026-04-22 — 进度系统重构 + 一致性清理</h3>
+  <ul>
+    <li><strong>进度系统</strong>：统一使用 <code>rstat_visited</code> 作为单一数据源，自动去重并过滤失效章节 id</li>
+    <li><strong>逻辑复用</strong>：<code>app.js</code> 改为复用 <code>chapters.js</code> 中的 <code>saveProgress()</code> / <code>updateProgressBar()</code>，减少重复 localStorage 写入逻辑</li>
+    <li><strong>UI 一致性</strong>：返回首页时恢复顶部标题；<code>continueLearning()</code> 找到目标章节后立即返回</li>
+    <li><strong>章节核对</strong>：重新核对 <code>data/</code> 与 <code>chapters.js</code>，正式章节数仍为 46，未发现真实目录漂移</li>
+  </ul>
+  <h3>2026-04-21 — 统计计算 bug 修复</h3>
+  <ul>
+    <li><strong>Kruskal-Wallis H 检验</strong>：原输出 H=9.74 / P≈0.008 为硬编码，已替换为完整动态计算（含并列校正秩次、chi-square 近似 P 值）</li>
+    <li><strong>Friedman M 检验</strong>：原输出 M=9.34 / P≈0.025 为硬编码，已替换为完整动态计算（区块内编秩 + tie 校正因子）</li>
+    <li><strong>Kaplan-Meier 生存曲线</strong>：<code>survival.js</code> — 原公式与标准 product-limit estimator 不符，已重写为按时间点聚合 + 正确维护 at-risk 集合</li>
+    <li><strong>t 分布 fallback</strong>：<code>distributions.js</code> — 原 fallback 分支引用未定义的 <code>lgamma()</code>，已替换为 Stirling 近似 <code>logΓ</code></li>
+    <li><strong>F 分布 fallback</strong>：<code>distributions.js</code> — 修正 beta normalizing constant 的调用逻辑</li>
+    <li><strong><code>pad.left</code> 未定义</strong>：<code>distributions.js</code> — 替换为正确属性名 <code>pad.l</code></li>
+  </ul>
+</section>
+
 </main>
 </body>
 </html>

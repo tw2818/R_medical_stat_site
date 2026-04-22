@@ -91,6 +91,11 @@ export function saveProgress(chapterId) {
   updateProgressBar();
 }
 
+export function clearProgress() {
+  localStorage.removeItem('rstat_visited');
+  updateProgressBar();
+}
+
 export function updateProgressBar() {
   const visited = getProgress();
   const total = ALL_CHAPTERS.length;

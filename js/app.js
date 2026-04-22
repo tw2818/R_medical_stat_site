@@ -1,10 +1,11 @@
 "use strict";
 
-import { ALL_CHAPTERS, CHAPTERS, GROUP_CONFIG, saveProgress, updateProgressBar } from './chapters.js';
+import { ALL_CHAPTERS, CHAPTERS, GROUP_CONFIG, saveProgress, updateProgressBar, clearProgress } from './chapters.js';
 
 // ===== 状态 =====
 let currentGroup = null;
 let currentIndex = 0;
+let progressTimer = null;
 
 // ===== 章节内容缓存 =====
 const chapterCache = new Map();
@@ -41,7 +42,7 @@ function updateThemeToggle() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const btn = $('theme-toggle');
   if (!btn) return;
-  btn.textContent = isDark ? '☀️' : '🌙';
+  btn.textContent = isDark ? '🌙' : '☀️';
   btn.setAttribute('aria-label', isDark ? '切换浅色模式' : '切换深色模式');
 }
 
@@ -125,6 +126,12 @@ function initGlobalActions() {
   const homeBtn = $('home-btn');
   if (homeBtn) homeBtn.addEventListener('click', showWelcome);
 
+  const resetBtn = $('btn-reset-progress');
+  if (resetBtn) resetBtn.addEventListener('click', () => {
+    clearProgress();
+    window.showToast('学习进度已重置');
+  });
+
   const contentWrapper = $('content-wrapper');
   if (!contentWrapper) return;
 
@@ -156,7 +163,6 @@ function navigateToChapter(groupKey, index) {
   }
 
   history.replaceState(null, '', '#' + chapter.id);
-  saveProgress(chapter.id);
 
   currentGroup = groupKey;
   currentIndex = index;
@@ -169,7 +175,7 @@ function navigateToChapter(groupKey, index) {
   const homeBtn = $('home-btn');
   if (homeBtn) homeBtn.style.display = 'inline-block';
 
-  loadChapter(chapter.file);
+  loadChapter(chapter.file, chapter.id);
 
   const sidebar = $('sidebar');
   if (sidebar) sidebar.classList.remove('open');
@@ -222,10 +228,26 @@ function rewriteChapterLinks(container) {
   });
 }
 
-async function loadChapter(filename) {
+function stripBreadcrumbLinks(container) {
+  container.querySelectorAll('.quarto-page-breadcrumbs').forEach(breadcrumb => {
+    breadcrumb.querySelectorAll('a').forEach(a => {
+      const span = document.createElement('span');
+      span.textContent = a.textContent;
+      a.parentNode.replaceChild(span, a);
+    });
+  });
+}
+
+async function loadChapter(filename, chapterId) {
   const wrapper = $('chapter-content');
   const welcome = $('welcome');
   if (!wrapper) return;
+
+  // Cancel any pending progress timer
+  if (progressTimer) {
+    clearTimeout(progressTimer);
+    progressTimer = null;
+  }
 
   if (welcome) welcome.classList.remove('active');
   wrapper.innerHTML = '<div class="loading">加载中...</div>';
@@ -255,6 +277,7 @@ async function loadChapter(filename) {
     wrapper.innerHTML = contentHtml;
     pruneMisplacedChapterWidgets(wrapper, filename);
     rewriteChapterLinks(wrapper);
+    stripBreadcrumbLinks(wrapper);
 
     Prism.highlightAll();
     setupChapterInteractions(wrapper);
@@ -264,6 +287,14 @@ async function loadChapter(filename) {
 
     updateChapterCount();
     updateNavGroupExpansion();
+
+    // Start a 30-second timer — only count as "learned" if user stays
+    if (chapterId) {
+      progressTimer = setTimeout(() => {
+        saveProgress(chapterId);
+        progressTimer = null;
+      }, 30000);
+    }
   } catch (err) {
     wrapper.innerHTML = `<div class="error">加载失败：${err.message}</div>`;
   }
