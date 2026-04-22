@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jstat@1.9.6/dist/jstat.min.js"></script>
 </head>
 <body>
   <div id="app">
@@ -75,7 +75,7 @@
           </div>
           <div class="progress-bar"><div id="progress-fill"></div></div>
           <div class="last-chapter" id="last-chapter"></div>
-          <button class="btn-continue" id="btn-continue" onclick="continueLearning()" style="display:none">
+          <button class="btn-continue" id="btn-continue" style="display:none">
             ▶ 继续学习
           </button>
         </div>
@@ -88,7 +88,7 @@
       <header id="topbar">
         <button id="menu-toggle" aria-label="打开章节导航">☰</button>
         <span id="current-chapter-title">R语言实战医学统计</span>
-        <button class="btn-home-topbar" id="home-btn" onclick="showWelcome()" style="display:none" aria-label="返回首页">🏠</button>
+        <button class="btn-home-topbar" id="home-btn" style="display:none" aria-label="返回首页">🏠</button>
         <button id="theme-toggle" aria-label="切换深色模式">🌙</button>
       </header>
 
@@ -106,9 +106,9 @@
               <span class="badge">💾 免费开源</span>
             </div>
             <div class="welcome-cta">
-              <button class="btn-primary" onclick="navigateToChapter('basic', 0)">🚀 从零开始</button>
-              <button class="btn-secondary" onclick="document.getElementById('task-nav').scrollIntoView({behavior:'smooth'})">🔍 按问题查找</button>
-              <button class="btn-ghost" onclick="document.getElementById('sidebar').classList.add('open'); document.querySelectorAll('.nav-group-header').forEach(btn => { btn.setAttribute('aria-expanded', 'true'); const content = document.getElementById(`${btn.dataset.group}-chapters`); if (content) content.style.display = 'block'; }); document.getElementById('chapter-nav').scrollIntoView({behavior:'smooth'});">📑 查看全部</button>
+              <button class="btn-primary" data-nav-group="basic" data-nav-index="0">🚀 从零开始</button>
+              <button class="btn-secondary" data-action="scroll-task-nav">🔍 按问题查找</button>
+              <button class="btn-ghost" data-action="open-all-chapters">📑 查看全部</button>
             </div>
           </div>
 
@@ -116,62 +116,62 @@
           <div class="task-nav" id="task-nav">
             <h2>🔍 按研究问题查找</h2>
             <div class="task-grid">
-              <button class="task-item" onclick="navigateToChapter('basic', 0)">
+              <button class="task-item" data-nav-group="basic" data-nav-index="0">
                 <span class="task-icon">📊</span>
                 <span class="task-name">两组均值比较</span>
                 <span class="task-meta">t检验</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('basic', 1)">
+              <button class="task-item" data-nav-group="basic" data-nav-index="1">
                 <span class="task-icon">📈</span>
                 <span class="task-name">多组均值比较</span>
                 <span class="task-meta">方差分析</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('basic', 3)">
+              <button class="task-item" data-nav-group="basic" data-nav-index="3">
                 <span class="task-icon">📋</span>
                 <span class="task-name">分类数据分析</span>
                 <span class="task-meta">卡方检验</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('basic', 5)">
+              <button class="task-item" data-nav-group="basic" data-nav-index="5">
                 <span class="task-icon">📉</span>
                 <span class="task-name">非正态数据</span>
                 <span class="task-meta">秩和检验</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('basic', 6)">
+              <button class="task-item" data-nav-group="basic" data-nav-index="6">
                 <span class="task-icon">📈</span>
                 <span class="task-name">相关性分析</span>
                 <span class="task-meta">回归相关</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('advanced', 11)">
+              <button class="task-item" data-nav-group="advanced" data-nav-index="11">
                 <span class="task-icon">⚕️</span>
                 <span class="task-name">生存结局分析</span>
                 <span class="task-meta">KM曲线 / Cox</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('advanced', 7)">
+              <button class="task-item" data-nav-group="advanced" data-nav-index="7">
                 <span class="task-icon">📊</span>
                 <span class="task-name">分类结局建模</span>
                 <span class="task-meta">Logistic回归</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('literature', 1)">
+              <button class="task-item" data-nav-group="literature" data-nav-index="1">
                 <span class="task-icon">⚖️</span>
                 <span class="task-name">混杂校正</span>
                 <span class="task-meta">倾向评分</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('literature', 6)">
+              <button class="task-item" data-nav-group="literature" data-nav-index="6">
                 <span class="task-icon">🌲</span>
                 <span class="task-name">非线性关系</span>
                 <span class="task-meta">样条回归</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('literature', 7)">
+              <button class="task-item" data-nav-group="literature" data-nav-index="7">
                 <span class="task-icon">🌲</span>
                 <span class="task-name">亚组分析</span>
                 <span class="task-meta">森林图</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('basic', 7)">
+              <button class="task-item" data-nav-group="basic" data-nav-index="7">
                 <span class="task-icon">📊</span>
                 <span class="task-name">规范表格</span>
                 <span class="task-meta">三线表</span>
               </button>
-              <button class="task-item" onclick="navigateToChapter('literature', 0)">
+              <button class="task-item" data-nav-group="literature" data-nav-index="0">
                 <span class="task-icon">⏱️</span>
                 <span class="task-name">竞争风险</span>
                 <span class="task-meta">Fine-Gray</span>
@@ -180,38 +180,38 @@
           </div>
 
           <div class="welcome-grid">
-            <div class="welcome-card" onclick="navigateToChapter('basic', 0)">
+            <button class="welcome-card" data-nav-group="basic" data-nav-index="0">
               <div class="card-icon">📈</div>
               <h3>基础统计分析</h3>
               <p class="card-desc">适合刚接触 R 或需要巩固统计基础的读者</p>
               <p class="card-scenes">典型场景：复现教材例题、准备统计考试、零基础入门</p>
               <p class="card-methods">t检验 · 方差分析 · 卡方检验 · 秩和检验 · 相关回归</p>
               <span class="card-count" id="basic-card-count">13章</span>
-            </div>
-            <div class="welcome-card" onclick="navigateToChapter('advanced', 0)">
+            </button>
+            <button class="welcome-card" data-nav-group="advanced" data-nav-index="0">
               <div class="card-icon">🔬</div>
               <h3>高级统计分析</h3>
               <p class="card-desc">适合论文方法部分需要建模的医学研究者</p>
               <p class="card-scenes">典型场景：论文写作、建模分析、复杂统计设计</p>
               <p class="card-methods">多因素方差 · Logistic回归 · 生存分析 · 聚类 · 主成分</p>
               <span class="card-count" id="advanced-card-count">23章</span>
-            </div>
-            <div class="welcome-card" onclick="navigateToChapter('literature', 0)">
+            </button>
+            <button class="welcome-card" data-nav-group="literature" data-nav-index="0">
               <div class="card-icon">📚</div>
               <h3>文献常见统计分析</h3>
               <p class="card-desc">适合临床研究复现和高频投稿分析场景</p>
               <p class="card-scenes">典型场景：SCI投稿、临床研究复现、方法学对比</p>
               <p class="card-methods">倾向评分 · 竞争风险 · 亚组分析 · 森林图 · 样条回归</p>
               <span class="card-count" id="literature-card-count">9章</span>
-            </div>
-            <div class="welcome-card" onclick="navigateToChapter('other', 0)">
+            </button>
+            <button class="welcome-card" data-nav-group="other" data-nav-index="0">
               <div class="card-icon">📎</div>
               <h3>附录与更新</h3>
               <p class="card-desc">补充材料与更新日志</p>
               <p class="card-scenes">内容持续更新中，欢迎反馈纠错</p>
               <p class="card-methods">更新日志 · 补充材料</p>
               <span class="card-count" id="other-card-count">1章</span>
-            </div>
+            </button>
           </div>
 
           <div class="welcome-features">
@@ -258,32 +258,32 @@
             </div>
             <div id="path-basic" class="path-content active">
               <ul class="path-list">
-                <li onclick="navigateToChapter('basic', 0)"><span class="path-num">1</span><span class="path-title">t检验</span><span class="path-tag basic">基础</span></li>
-                <li onclick="navigateToChapter('basic', 1)"><span class="path-num">2</span><span class="path-title">方差分析</span><span class="path-tag basic">基础</span></li>
-                <li onclick="navigateToChapter('basic', 3)"><span class="path-num">3</span><span class="path-title">卡方检验</span><span class="path-tag basic">基础</span></li>
-                <li onclick="navigateToChapter('basic', 5)"><span class="path-num">4</span><span class="path-title">秩和检验</span><span class="path-tag basic">基础</span></li>
-                <li onclick="navigateToChapter('basic', 6)"><span class="path-num">5</span><span class="path-title">回归与相关</span><span class="path-tag basic">基础</span></li>
-                <li onclick="navigateToChapter('basic', 9)"><span class="path-num">6</span><span class="path-title">样本量计算</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="basic" data-nav-index="0"><span class="path-num">1</span><span class="path-title">t检验</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="basic" data-nav-index="1"><span class="path-num">2</span><span class="path-title">方差分析</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="basic" data-nav-index="3"><span class="path-num">3</span><span class="path-title">卡方检验</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="basic" data-nav-index="5"><span class="path-num">4</span><span class="path-title">秩和检验</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="basic" data-nav-index="6"><span class="path-num">5</span><span class="path-title">回归与相关</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="basic" data-nav-index="9"><span class="path-num">6</span><span class="path-title">样本量计算</span><span class="path-tag basic">基础</span></li>
               </ul>
             </div>
             <div id="path-paper" class="path-content">
               <ul class="path-list">
-                <li onclick="navigateToChapter('basic', 7)"><span class="path-num">1</span><span class="path-title">三线表绘制</span><span class="path-tag basic">基础</span></li>
-                <li onclick="navigateToChapter('basic', 8)"><span class="path-num">2</span><span class="path-title">统计绘图</span><span class="path-tag basic">基础</span></li>
-                <li onclick="navigateToChapter('literature', 1)"><span class="path-num">3</span><span class="path-title">倾向评分匹配（PSM）</span><span class="path-tag lit">文献</span></li>
-                <li onclick="navigateToChapter('literature', 0)"><span class="path-num">4</span><span class="path-title">竞争风险模型</span><span class="path-tag lit">文献</span></li>
-                <li onclick="navigateToChapter('advanced', 11)"><span class="path-num">5</span><span class="path-title">Cox回归</span><span class="path-tag adv">进阶</span></li>
-                <li onclick="navigateToChapter('literature', 7)"><span class="path-num">6</span><span class="path-title">亚组分析森林图</span><span class="path-tag lit">文献</span></li>
+                <li data-nav-group="basic" data-nav-index="7"><span class="path-num">1</span><span class="path-title">三线表绘制</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="basic" data-nav-index="8"><span class="path-num">2</span><span class="path-title">统计绘图</span><span class="path-tag basic">基础</span></li>
+                <li data-nav-group="literature" data-nav-index="1"><span class="path-num">3</span><span class="path-title">倾向评分匹配（PSM）</span><span class="path-tag lit">文献</span></li>
+                <li data-nav-group="literature" data-nav-index="0"><span class="path-num">4</span><span class="path-title">竞争风险模型</span><span class="path-tag lit">文献</span></li>
+                <li data-nav-group="advanced" data-nav-index="11"><span class="path-num">5</span><span class="path-title">Cox回归</span><span class="path-tag adv">进阶</span></li>
+                <li data-nav-group="literature" data-nav-index="7"><span class="path-num">6</span><span class="path-title">亚组分析森林图</span><span class="path-tag lit">文献</span></li>
               </ul>
             </div>
             <div id="path-clinical" class="path-content">
               <ul class="path-list">
-                <li onclick="navigateToChapter('advanced', 7)"><span class="path-num">1</span><span class="path-title">Logistic回归</span><span class="path-tag adv">进阶</span></li>
-                <li onclick="navigateToChapter('advanced', 0)"><span class="path-num">2</span><span class="path-title">多因素方差分析</span><span class="path-tag adv">进阶</span></li>
-                <li onclick="navigateToChapter('advanced', 11)"><span class="path-num">3</span><span class="path-title">生存分析 / Cox回归</span><span class="path-tag adv">进阶</span></li>
-                <li onclick="navigateToChapter('literature', 2)"><span class="path-num">4</span><span class="path-title">倾向评分回归调整</span><span class="path-tag lit">文献</span></li>
-                <li onclick="navigateToChapter('literature', 6)"><span class="path-num">5</span><span class="path-title">样条回归（RCS）</span><span class="path-tag lit">文献</span></li>
-                <li onclick="navigateToChapter('literature', 5)"><span class="path-num">6</span><span class="path-title">非线性多项式拟合</span><span class="path-tag lit">文献</span></li>
+                <li data-nav-group="advanced" data-nav-index="7"><span class="path-num">1</span><span class="path-title">Logistic回归</span><span class="path-tag adv">进阶</span></li>
+                <li data-nav-group="advanced" data-nav-index="0"><span class="path-num">2</span><span class="path-title">多因素方差分析</span><span class="path-tag adv">进阶</span></li>
+                <li data-nav-group="advanced" data-nav-index="11"><span class="path-num">3</span><span class="path-title">生存分析 / Cox回归</span><span class="path-tag adv">进阶</span></li>
+                <li data-nav-group="literature" data-nav-index="2"><span class="path-num">4</span><span class="path-title">倾向评分回归调整</span><span class="path-tag lit">文献</span></li>
+                <li data-nav-group="literature" data-nav-index="6"><span class="path-num">5</span><span class="path-title">样条回归（RCS）</span><span class="path-tag lit">文献</span></li>
+                <li data-nav-group="literature" data-nav-index="5"><span class="path-num">6</span><span class="path-title">非线性多项式拟合</span><span class="path-tag lit">文献</span></li>
               </ul>
             </div>
           </div>
