@@ -987,40 +987,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>这个值和课本是一致的。</p>
 <p>课本是看两者之间有没有线性趋势，我们可以直接用<code>lm()</code>函数做，把<code>age</code>作为自变量，把<code>level</code>作为因变量即可，由于没有原始数据，这里就不演示了。</p>
-<p>对于这种双向有序的列联表资料，也可以用下一节介绍的MH卡方统计量检验行变量和列变量是否存在线性相关(以下代码参考：<a href="https://online.stat.psu.edu/stat504/lesson/4/4.4">Mantel-Haenszel Test for Linear Trend</a>)：</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"Mantel_Haenszel_test.R"</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>ather <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">70</span>,<span class="dv">22</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">27</span>,<span class="dv">24</span>,<span class="dv">9</span>,<span class="dv">3</span>,<span class="dv">16</span>,<span class="dv">23</span>,<span class="dv">13</span>,<span class="dv">7</span>,<span class="dv">9</span>,<span class="dv">20</span>,<span class="dv">15</span>,<span class="dv">14</span>),</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">nrow =</span> <span class="dv">4</span>,<span class="at">byrow =</span> T)</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>level <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>)</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">MH.test</span>(ather,age,level)</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning in margin.table(table, 2) * cscore: longer object length is not a</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="do">## multiple of shorter object length</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning in margin.table(table, 2) * (cdif^2): longer object length is not a</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="do">## multiple of shorter object length</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning in t(table * rdif) * cdif: longer object length is not a multiple of</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="do">## shorter object length</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="do">## $pcor</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.2955288</span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="do">## $M2</span></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 24.19242</span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="do">## $pval</span></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 8.717448e-07</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="do">## $rscore</span></span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 1 2 3 4</span></span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="do">## $cscore</span></span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 1 2 3</span></span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a><span class="co">#MH.test.mid(ather)</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>本节关于线性趋势的主要结论以前述 <code>MHChisqTest()</code> 结果为准（p&lt;0.05，存在线性趋势）。后续自定义函数结果可作为补充性演示，不作为本节核心判定依据。</p>
 <p><strong>扩展阅读：Kappa 一致性检验。</strong> Kappa 检验主要用于评价两种检测方法或评估者间的一致性程度，取值范围 0~1，越接近 1 一致性越强。它与线性趋势检验是不同目的的分析方法，本节不将其作为趋势判定依据，仅作扩展介绍。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2选1</span></span>
