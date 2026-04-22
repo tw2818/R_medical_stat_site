@@ -299,7 +299,7 @@ function pruneMisplacedChapterWidgets(container, filename) {
     const introBox = container.querySelector('.stat-viz[data-type="box"]');
     if (introBox) introBox.remove();
 
-    const introPs = Array.from(container.querySelectorAll('main > p, p'));
+    const introPs = Array.from(container.querySelectorAll('p'));
     const introLead = introPs.find(p => p.textContent.includes('t检验主要适用于1组或2组的均数的比较'));
     if (introLead) {
       introLead.textContent = 't检验用于比较一组均数、配对差值均数或两组均数。经典两样本 t 检验通常要求数据近似正态且方差齐；若两组方差不齐，可使用 Welch t 检验。这里不展开推导，只聚焦如何用 R 完成常见 t 检验。';
@@ -310,17 +310,17 @@ function pruneMisplacedChapterWidgets(container, filename) {
       introExplore.textContent = '先用图形直观感受正态分布和样本分布：';
     }
 
-    const introFunc = introPs.find(p => p.textContent.includes('在R中进行t检验非常简单，就是')); 
+    const introFunc = introPs.find(p => p.textContent.includes('在R中进行t检验非常简单，就是'));
     if (introFunc) {
       introFunc.textContent = '在 R 中进行 t 检验非常简单，核心函数就是 t.test()。单样本、配对样本和两样本 t 检验都可以通过这个函数完成。';
     }
 
-    const oneSampleResult = introPs.find(p => p.textContent.includes('结果显示t=-2.1367')); 
+    const oneSampleResult = introPs.find(p => p.textContent.includes('结果显示t=-2.1367'));
     if (oneSampleResult) {
       oneSampleResult.textContent = '结果显示 t = -2.1367，df = 35，P = 0.03969，和课本一致。下面两个组件分别用于直观看 P 值所在位置，以及自己动手改参数体会 t 检验结果如何变化。';
     }
 
-    const pairedData = introPs.find(p => p.textContent.includes('数据一共3列10行，第1列是样本编号')); 
+    const pairedData = introPs.find(p => p.textContent.includes('数据一共3列10行，第1列是样本编号'));
     if (pairedData) {
       pairedData.textContent = '数据一共 3 列 10 行：第 1 列是样本编号，第 2 列和第 3 列分别是配对比较的两次测量值。';
     }
@@ -332,7 +332,6 @@ function pruneMisplacedChapterWidgets(container, filename) {
 
     const h14 = container.querySelector('h2#正态性检验和两样本方差比较的f检验');
     if (h14) {
-      const titleSpan = h14.querySelector('.header-section-number')?.nextSibling;
       h14.childNodes.forEach(node => {
         if (node.nodeType === Node.TEXT_NODE) node.textContent = '\u00A0 正态性检验与方差齐性检验';
       });
@@ -366,6 +365,17 @@ function pruneMisplacedChapterWidgets(container, filename) {
     const anovas = container.querySelectorAll('.stat-viz[data-type="anova"]');
     if (anovas.length > 1) {
       anovas[1].remove();
+    }
+
+    const anovaPs = Array.from(container.querySelectorAll('p'));
+    const blockResult = anovaPs.find(p => p.textContent.includes('区组间F值=5.798'));
+    if (blockResult) {
+      blockResult.textContent = '结果显示区组间自由度为4，分组间自由度为2，组内自由度为8，区组间离均差平方和为0.2284，分组间离均差平方和为0.2280，组内离均差平方和为0.0764，区组间均方为0.05709，分组间均方为0.1140，组内均方为0.00955，区组间F值=5.978，p=0.01579，分组间F值=11.937，p=0.00397，和课本一致。';
+    }
+
+    const latinResult = anovaPs.find(p => p.textContent.includes('组内离均差平方和为0.0683.2'));
+    if (latinResult) {
+      latinResult.textContent = '结果显示行区组间自由度为5，列区组间自由度为5，分组（处理因素）间自由度为5，组内自由度为20；行区组间离均差平方和为250.5，列区组间离均差平方和为85.5，分组间离均差平方和为667.1，组内离均差平方和为683.2；行区组间均方为50.09，列区组间均方为17.09，分组间均方为133.43，组内均方为34.16，行区组间F值=1.466，p=0.2447，列区组间F值=0.5，p=0.7723，分组间F值=3.906，p=0.0124，和课本一致。';
     }
   }
 
