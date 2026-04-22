@@ -575,9 +575,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="配对样本t检验" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="配对样本t检验"><span class="header-section-number">1.2</span> 配对样本t检验</h2>
-<div class="stat-viz" data-type="scatter" data-title="配对数据散点图" data-xlabel="用药前" data-ylabel="用药后" data-xs="0.84,0.59,0.67,0.63,0.69,0.98,0.85,0.69,0.75,0.82,0.76,0.65,0.59,0.73,0.79" data-ys="0.58,0.51,0.50,0.32,0.34,0.52,0.55,0.51,0.48,0.51,0.50,0.40,0.38,0.35,0.51" data-regression="true"></div>
+<div class="stat-viz" data-type="scatter" data-title="配对数据散点图" data-xlabel="用药前" data-ylabel="用药后" data-xs="0.840,0.591,0.674,0.632,0.687,0.978,0.750,0.730,1.200,0.870" data-ys="0.580,0.509,0.500,0.316,0.337,0.517,0.454,0.512,0.997,0.506" data-regression="true"></div>
 <p>除了散点图，还可以用 <strong>Bland-Altman 法</strong>评价两种测量方法的一致性：</p>
-<div class="stat-viz" data-type="blandaltman" data-title="Bland-Altman 一致性分析：用药前后差值" data-method1="用药前" data-method2="用药后" data-delta="[0.26,0.08,0.17,0.31,0.35,0.46,0.30,0.18,0.27,0.31,0.26,0.25,0.21,0.38,0.28]" data-mean="[0.71,0.55,0.59,0.48,0.52,0.75,0.70,0.60,0.62,0.67,0.63,0.53,0.49,0.56,0.65]"></div>
+<div class="stat-viz" data-type="blandaltman" data-title="Bland-Altman 一致性分析：用药前后差值" data-method1="用药前" data-method2="用药后" data-delta="[0.260,0.082,0.174,0.316,0.350,0.461,0.296,0.218,0.203,0.364]" data-mean="[0.710,0.550,0.587,0.474,0.512,0.748,0.602,0.621,1.099,0.688]"></div>
 <p>使用<strong>课本例3-6</strong>的数据，首先是读取数据。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(foreign)</span>
@@ -869,11 +869,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     return false;
   }
   const onCopySuccess = function(e) {
-    // button target
     const button = e.trigger;
-    // don't keep focus
     button.blur();
-    // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "已复制");
@@ -898,7 +895,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
-    // clear code selection
     e.clearSelection();
   }
   const getTextToCopy = function(trigger) {
@@ -915,8 +911,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -929,13 +923,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
-    // Inspect non-navigation links and adorn them if external
  	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
         if (link.dataset.originalHref !== undefined) {
           link.href = link.dataset.originalHref;
         }
@@ -970,7 +961,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   for (var i=0; i<noterefs.length; i++) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
-      // use id or data attribute instead here
       let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
@@ -984,7 +974,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
   const processXRef = (id, note) => {
-    // Strip column container classes
     const stripColumnClz = (el) => {
       el.classList.remove("page-full", "page-columns");
       if (el.children) {
@@ -995,7 +984,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     stripColumnClz(note)
     if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
       const container = document.createElement("div");
       if (note.children && note.children.length > 2) {
         container.appendChild(note.children[0].cloneNode(true));
@@ -1019,7 +1007,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return note.innerHTML;
       }
     } else {
-      // Remove any anchor links if they are present
       const anchorLink = note.querySelector('a.anchorjs-link');
       if (anchorLink) {
         anchorLink.remove();
@@ -1027,7 +1014,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {
@@ -1058,7 +1044,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           }
         } else {
-          // See if we can fetch this
           fetch(url.split('#')[0])
           .then(res => res.text())
           .then(html => {
@@ -1075,8 +1060,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
           });
         }
       } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
         fetch(url)
         .then(res => res.text())
         .then(html => {
@@ -1084,9 +1067,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
           const htmlDoc = parser.parseFromString(html, "text/html");
           const note = htmlDoc.querySelector('main.content');
           if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
             if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
               note.children[0].remove();
             }
@@ -1121,7 +1101,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         let height = null;
         let parent = null;
         if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
             const el = window.document.getElementById(lineIds[0]);
             top = el.offsetTop;
             height = el.offsetHeight;
@@ -1132,7 +1111,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             height = bottom - top;
           }
           if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
             let div = window.document.getElementById("code-annotation-line-highlight");
             if (div === null) {
               div = window.document.createElement("div");
@@ -1168,7 +1146,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
-        // Handle positioning of the toggle
     window.addEventListener(
       "resize",
       throttle(() => {
@@ -1182,11 +1159,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     let throttle = false;
     let timer;
       return (...args) => {
-        if(!throttle) { // first call gets through
+        if(!throttle) {
             fn.apply(this, args);
             throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
+        } else {
+            if(timer) clearTimeout(timer);
             timer = setTimeout(() => {
               fn.apply(this, args);
               timer = throttle = false;
@@ -1194,7 +1171,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         }
       };
     }
-      // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
         annoteDlNode.addEventListener('click', (event) => {
@@ -1208,7 +1184,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             selectCodeLines(clickedEl);
             clickedEl.classList.add('code-annotation-active');
           } else {
-            // Unselect the line
             unselectCodeLines();
             clickedEl.classList.remove('code-annotation-active');
           }
