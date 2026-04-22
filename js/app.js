@@ -295,6 +295,20 @@ function pruneMisplacedChapterWidgets(container, filename) {
     if (pvalues.length > 1) {
       pvalues[0].remove();
     }
+
+    const startP = Array.from(container.querySelectorAll('p')).find(p =>
+      p.textContent.includes('如果数据格式是两列数据')
+    );
+    if (startP) {
+      let node = startP;
+      while (node) {
+        const next = node.nextElementSibling;
+        const stop = node.tagName === 'BLOCKQUOTE';
+        node.remove();
+        if (stop) break;
+        node = next;
+      }
+    }
   }
 
   if (filename === '1002-anova.html') {
