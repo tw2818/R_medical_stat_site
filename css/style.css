@@ -1009,6 +1009,33 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
 .callout-collapsed .callout-header { border-bottom: none; }
 .callout-collapsed > *:not(.callout-header) { display: none; }
 
+/* ===== 可折叠详情（更新日志）===== */
+#changelog details {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+#changelog summary {
+  cursor: pointer;
+  padding: 10px 16px;
+  background: var(--surface, #fff);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+#changelog summary:hover {
+  background: var(--sidebar-hover, #f1f5f9);
+}
+#changelog details[open] summary {
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+#changelog details > *:not(summary) {
+  padding: 16px;
+}
+
 /* ===== 统计可视化与计算器 ===== */
 .viz-card, .calc-card {
   border: 1px solid var(--border, #e2e8f0);

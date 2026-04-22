@@ -230,11 +230,7 @@ function rewriteChapterLinks(container) {
 
 function stripBreadcrumbLinks(container) {
   container.querySelectorAll('.quarto-page-breadcrumbs').forEach(breadcrumb => {
-    breadcrumb.querySelectorAll('a').forEach(a => {
-      const span = document.createElement('span');
-      span.textContent = a.textContent;
-      a.parentNode.replaceChild(span, a);
-    });
+    breadcrumb.remove();
   });
 }
 
