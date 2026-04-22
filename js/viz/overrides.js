@@ -37,7 +37,6 @@ function displayTTestResult(el, r) {
         ['t 统计量', r.t],
         ['自由度 df', r.df],
         ['P 值（双侧）', `${r.pTwo} ${pTag}`],
-        ['P 值（单侧）', r.pOne],
         ['95% CI', r.ci95],
       ];
 
@@ -160,11 +159,9 @@ function renderTTest(el) {
 
       const tStat = diff / se;
       let pTwo = NaN;
-      let pOne = NaN;
       let tCrit = 1.96;
       if (window.jStat && window.jStat.studentt) {
         pTwo = 2 * (1 - jStat.studentt.cdf(Math.abs(tStat), df));
-        pOne = 1 - jStat.studentt.cdf(tStat, df);
         if (typeof jStat.studentt.inv === 'function') {
           tCrit = jStat.studentt.inv(0.975, df);
         }
@@ -182,7 +179,6 @@ function renderTTest(el) {
         t: tStat.toFixed(4),
         df: Number.isInteger(df) ? df : df.toFixed(2),
         pTwo: formatPValue(pTwo),
-        pOne: formatPValue(pOne),
         ci95: `[${ci95[0].toFixed(3)}, ${ci95[1].toFixed(3)}]`
       };
     }
