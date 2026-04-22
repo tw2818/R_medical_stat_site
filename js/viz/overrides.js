@@ -1,4 +1,4 @@
-import { registerViz, parseNumbersStrict, ensureJStat, mean, sd, sum } from './_core.js';
+import { registerViz, parseNumbers, parseNumbersStrict, ensureJStat, mean, sd, sum } from './_core.js';
 
 function formatPValue(p) {
   if (p == null || Number.isNaN(p)) return '—';
