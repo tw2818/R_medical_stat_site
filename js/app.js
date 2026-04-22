@@ -280,6 +280,7 @@ async function loadChapter(filename) {
     }
 
     wrapper.innerHTML = contentHtml;
+    pruneMisplacedChapterWidgets(wrapper, filename);
     rewriteChapterLinks(wrapper);
 
     // 渲染完成后注入交互
@@ -318,6 +319,12 @@ function injectCopyButtons(html) {
     /<button([^>]*)class="code-copy-button"([^>]*)>[\s\S]*?<\/button>/g,
     `<button$1class="code-copy-button chapter-copy-button"$2 type="button" title="复制代码" aria-label="复制代码">📋</button>`
   );
+}
+
+function pruneMisplacedChapterWidgets(container, filename) {
+  if (filename === '1012-randomgroup.html') {
+    container.querySelectorAll('.stat-viz[data-type="samplesizecalc"]').forEach(el => el.remove());
+  }
 }
 
 // ===== 代码复制 =====
