@@ -267,7 +267,8 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
   padding: 40px 20px 32px;
 }
 .welcome-hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.welcome-hero .lead { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 20px; }
+.welcome-hero .lead { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 8px; }
+.welcome-hero .lead-sub { font-size: 0.95rem; color: var(--primary); font-weight: 500; margin-bottom: 20px; }
 .welcome-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 24px; }
 .welcome-badges .badge {
   padding: 4px 12px;
@@ -400,8 +401,10 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
 .footer-ack {
   font-size: 0.78rem;
   color: var(--text-muted);
-  line-height: 1.8;
+  line-height: 1.6;
   text-align: center;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
 }
 .footer-ack a { color: var(--primary); text-decoration: none; }
 .footer-ack a:hover { text-decoration: underline; }
@@ -549,8 +552,8 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
   background: var(--primary);
   color: #fff;
 }
-.path-content { display: none; }
-.path-content.active { display: block; }
+.path-content { display: none; opacity: 0; }
+.path-content.active { display: block; opacity: 1; }
 .path-list { list-style: none; padding: 0; margin: 0; }
 .path-list li {
   display: flex;
@@ -1309,4 +1312,58 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   font-size: 0.82rem;
   color: var(--text-muted, #64748b);
   text-align: center;
+}
+
+/* ===== appendix 页面的 section 美化 ===== */
+#quarto-document-content section.level2 {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border-left: 4px solid var(--primary);
+}
+
+/* ===== 更新日志 details/summary 美化 ===== */
+#changelog {
+  border-left-color: var(--success);
+}
+#changelog summary {
+  font-weight: 600;
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  background: rgba(16, 185, 129, 0.08);
+  border-radius: var(--radius);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#changelog summary::before {
+  content: "▶";
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+#changelog[open] summary::before {
+  transform: rotate(90deg);
+}
+#changelog .changelog-entries {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+#changelog h3 {
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+  font-weight: 600;
+}
+#changelog h3:first-child { margin-top: 0; }
+#changelog ul { margin-left: 1rem; }
+
+/* ===== path-content 过渡 ===== */
+.path-content {
+  transition: opacity 0.2s ease;
 }

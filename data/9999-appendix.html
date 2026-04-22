@@ -14,7 +14,7 @@
   </div>
 </header>
 
-<p>这一页不再作为外部资源导流页，而是作为 <strong>R语言实战医学统计</strong> 站点自己的补充说明页，集中回答“本站是什么、怎么用、适合谁、后续怎么验证和维护”这些问题。</p>
+<p>本页为站点说明与补充资源，包含使用指南、验证入口和更新记录。</p>
 
 <section id="site-positioning" class="level2" data-number="A.1">
   <h2 data-number="A.1" class="anchored" data-anchor-id="site-positioning"><span class="header-section-number">A.1</span> 站点定位</h2>
@@ -31,7 +31,7 @@
 <section id="recommended-usage" class="level2" data-number="A.2">
   <h2 data-number="A.2" class="anchored" data-anchor-id="recommended-usage"><span class="header-section-number">A.2</span> 推荐使用方式</h2>
   <ol>
-    <li>先从首页按“研究问题”或“学习路线”进入对应章节；</li>
+    <li>先从首页按"研究问题"或"学习路线"进入对应章节；</li>
     <li>先阅读统计方法的适用条件，再看代码实现；</li>
     <li>把代码复制到本地 R / RStudio 中运行；</li>
     <li>结合页面中的交互式组件理解参数变化如何影响结果；</li>
@@ -43,7 +43,7 @@
       <div class="callout-title-container flex-fill">提示</div>
     </div>
     <div class="callout-body-container callout-body">
-      <p>本站更适合做“方法理解 + 代码复现 + 输出解释”的桥梁，不建议在没有核对研究设计与假设前提的情况下直接把某段代码机械套用到正式研究中。</p>
+      <p>本站更适合做"方法理解 + 代码复现 + 输出解释"的桥梁，不建议在没有核对研究设计与假设前提的情况下直接把某段代码机械套用到正式研究中。</p>
     </div>
   </div>
 </section>
@@ -55,62 +55,33 @@
     <li><strong>高级统计分析</strong>：适合处理 Logistic 回归、生存分析、聚类、主成分、结构方程等更复杂问题；</li>
     <li><strong>文献常见统计分析</strong>：适合论文复现与较新的临床研究分析场景，例如倾向评分、竞争风险、样条回归、亚组分析。</li>
   </ul>
-  <p>建议零基础用户先完成基础部分，再进入高级和文献部分；已经有统计基础的用户可以直接从首页“按研究问题查找”进入对应专题。</p>
+  <p>建议零基础用户先完成基础部分，再进入高级和文献部分；已经有统计基础的用户可以直接从首页"按研究问题查找"进入对应专题。</p>
 </section>
 
 <section id="validation-workflow" class="level2" data-number="A.4">
-  <h2 data-number="A.4" class="anchored" data-anchor-id="validation-workflow"><span class="header-section-number">A.4</span> 验证与维护说明</h2>
-  <p>本站除了内容页面，还包含一套轻量的回归校验基线，用于保护关键统计计算器不在后续维护中被悄悄改坏。</p>
-  <ul>
-    <li><code>tests/stat_calculator_cases.json</code>：关键组件的样例输入与预期约束；</li>
-    <li><code>tests/run_validation.js</code>：零依赖最小可执行验证脚本；</li>
-    <li><code>npm run validate</code>：统一验证入口。</li>
-  </ul>
-  <p>目前优先覆盖的组件包括：</p>
-  <ul>
-    <li><code>ttest</code></li>
-    <li><code>chisq</code> / Fisher exact</li>
-    <li><code>kruskal</code></li>
-    <li><code>friedman</code></li>
-    <li>Kaplan-Meier 生存曲线的基本不变量</li>
-  </ul>
-  <p>这套验证不是完整自动化测试框架，但已经能在重构后帮助快速发现一些高风险统计逻辑回归。</p>
+  <h2 data-number="A.4" class="anchored" data-anchor-id="validation-workflow"><span class="header-section-number">A.4</span> 验证与本地开发</h2>
+  <p>本站包含一套轻量回归校验基线，保护关键统计计算器不在后续维护中被悄悄改坏。运行 <code>npm run validate</code> 即可执行验证（依赖 Node.js）。</p>
+  <p>当前覆盖 <code>ttest</code>、<code>chisq</code> / Fisher exact、<code>kruskal</code>、<code>friedman</code>、Kaplan-Meier 生存曲线等核心组件。</p>
 </section>
 
-<section id="local-development" class="level2" data-number="A.5">
-  <h2 data-number="A.5" class="anchored" data-anchor-id="local-development"><span class="header-section-number">A.5</span> 本地开发入口</h2>
-  <p>当前项目已经提供最小统一命令入口：</p>
-  <div class="cell">
-    <div class="sourceCode cell-code"><pre class="sourceCode bash"><code class="sourceCode bash">npm run preview
-npm run validate</code></pre></div>
-  </div>
-  <p>其中：</p>
+<section id="references-and-credit" class="level2" data-number="A.5">
+  <h2 data-number="A.5" class="anchored" data-anchor-id="references-and-credit"><span class="header-section-number">A.5</span> 参考来源</h2>
   <ul>
-    <li><code>npm run preview</code>：本地启动一个静态文件服务器；</li>
-    <li><code>npm run validate</code>：运行当前最小可执行验证脚本。</li>
+    <li>原教程：<a href="https://ayueme.github.io/R_medical_stat/">R语言实战医学统计</a>（阿越）</li>
+    <li>教材参考：孙振球《医学统计学》第5版（颜艳、王彤 主编）</li>
+    <li>统计计算：<a href="https://github.com/jstat/jstat">jStat</a></li>
   </ul>
 </section>
 
-<section id="references-and-credit" class="level2" data-number="A.6">
-  <h2 data-number="A.6" class="anchored" data-anchor-id="references-and-credit"><span class="header-section-number">A.6</span> 参考来源与致谢</h2>
-  <p>本站教程内容基于阿越的《R语言实战医学统计》进行整理，并在当前仓库中做了静态站点化、交互组件补充、移动端适配、验证基线和工程结构整理。</p>
-  <ul>
-    <li>原教程：<a href="https://ayueme.github.io/R_medical_stat/">R语言实战医学统计</a></li>
-    <li>原仓库：<a href="https://github.com/ayueme/R_medical_stat">ayueme/R_medical_stat</a></li>
-    <li>当前站点仓库：<a href="https://github.com/tw2818/R_medical_stat_site">tw2818/R_medical_stat_site</a></li>
-  </ul>
-  <p>教材参考为孙振球《医学统计学》第5版（颜艳、王彤 主编）。统计计算使用 <a href="https://github.com/jstat/jstat">jStat</a>，页面部署在 Vercel。</p>
+<section id="license-note" class="level2" data-number="A.6">
+  <h2 data-number="A.6" class="anchored" data-anchor-id="license-note"><span class="header-section-number">A.6</span> 使用与版权</h2>
+  <p>引用或转载时请同时注明原教程来源与当前站点来源。发现错误欢迎提交 issue 或 pull request。</p>
 </section>
 
-<section id="license-note" class="level2" data-number="A.7">
-  <h2 data-number="A.7" class="anchored" data-anchor-id="license-note"><span class="header-section-number">A.7</span> 使用与版权说明</h2>
-  <p>本站内容包含对原教程内容的整理与改编。引用、转载或二次使用时，应同时注明原教程来源与当前站点来源，并遵循原项目对应的许可要求。</p>
-  <p>如果你在站内发现明显的统计错误、链接失效、图片缺失或移动端显示问题，建议直接到当前仓库提交 issue 或 pull request。</p>
-</section>
-
-<section id="changelog" class="level2" data-number="A.8">
+<section id="changelog" class="level2" data-number="A.7">
   <details>
-    <summary><h2 data-number="A.8" class="anchored" data-anchor-id="changelog"><span class="header-section-number">A.8</span> 更新日志</h2></summary>
+    <summary>A.7 更新日志</summary>
+    <div class="changelog-entries">
   <h3>2026-04-22 — 统一第二章部分小节导语风格，并顺滑方差齐性结论表述</h3>
   <ul>
     <li><strong>问题章节</strong>：<code>1002-anova.html</code></li>
@@ -312,6 +283,7 @@ npm run validate</code></pre></div>
     <li><strong>F 分布 fallback</strong>：<code>distributions.js</code> — 修正 beta normalizing constant 的调用逻辑</li>
     <li><strong><code>pad.left</code> 未定义</strong>：<code>distributions.js</code> — 替换为正确属性名 <code>pad.l</code></li>
   </ul>
+    </div>
   </details>
 </section>
 
