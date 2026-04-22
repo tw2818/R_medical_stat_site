@@ -1,4 +1,4 @@
-import { registerViz, parseNumbers, mean, sd, sum } from './_core.js';
+import { registerViz, parseNumbersStrict, ensureJStat, mean, sd, sum } from './_core.js';
 
 function formatPValue(p) {
   if (p == null || Number.isNaN(p)) return '—';
@@ -243,21 +243,54 @@ function renderChiSq(el) {
   card.querySelector('.calc-run').addEventListener('click', () => {
     const raw = card.querySelector('[data-input="table"]').value.trim();
     const lines = raw.split('\n').filter(l => l.trim());
-    const matrix = lines.map(l => parseNumbers(l));
 
-    if (matrix.length < 2 || matrix.some(r => r.length < 2)) {
-      alert('请输入至少 2×2 的列联表（每行数字用空格分隔）');
+    if (lines.length < 2) {
+      alert('请输入至少 2 行数据（每行数字用空格分隔）');
       return;
+    }
+
+    // 严格解析：每行分别解析，检测非法 token
+    const matrix = [];
+    for (let i = 0; i < lines.length; i++) {
+      const { values, hasError } = parseNumbersStrict(lines[i]);
+      if (hasError) {
+        alert(`第 ${i + 1} 行检测到非法字符，请只输入数字。`);
+        return;
+      }
+      if (values.length === 0) {
+        alert(`第 ${i + 1} 行为空，请补充数据。`);
+        return;
+      }
+      matrix.push(values);
     }
 
     const rows = matrix.length;
     const cols = Math.max(...matrix.map(r => r.length));
     if (matrix.some(r => r.length !== cols)) {
-      alert('每行长度必须一致（当前检测到行列数不统一），请检查输入。');
+      alert(`每行长度必须一致（当前检测到行列数不统一），请检查输入。`);
       return;
     }
 
-    const total = matrix.flat().reduce((a, b) => a + b, 0);
+    // 非负整数校验（列联表频数必须为非负整数）
+    const flat = matrix.flat();
+    if (flat.some(v => v < 0 || !Number.isFinite(v))) {
+      alert('列联表频数不能为负数。');
+      return;
+    }
+    const allInt = flat.every(v => Number.isInteger(v));
+    if (!allInt) {
+      alert('列联表频数必须为整数，请检查输入。');
+      return;
+    }
+    const total = flat.reduce((a, b) => a + b, 0);
+    if (total === 0) {
+      alert('总频数为 0，无法进行检验。');
+      return;
+    }
+
+    // jStat 警告
+    ensureJStat(card);
+
     const rowTotals = matrix.map(r => sum(r));
     const colTotals = Array.from({ length: cols }, (_, c) => sum(matrix.map(r => r[c] || 0)));
 
@@ -281,10 +314,14 @@ function renderChiSq(el) {
       p = 1 - jStat.chisquare.cdf(chi2, df);
     }
 
+    let fisherMsg = null; // 非 null 表示有提示
     let fisherP = null;
     if (rows === 2 && cols === 2) {
       const [a, b, c, d] = [matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]];
       fisherP = hypergeometricTest(a, b, c, d);
+      if (fisherP === null) {
+        fisherMsg = '⚠️ 样本量较大（总频数 > 500），当前组件未计算 Fisher 精确检验。';
+      }
     }
 
     const resultEl = card.querySelector('[data-result]');
@@ -301,6 +338,9 @@ function renderChiSq(el) {
     if (fisherP !== null) {
       const fisherSig = fisherP < 0.05 ? '<span class="result-sig">* 显著</span>' : '<span class="result-ns">不显著</span>';
       html += `<div class="result-row"><span>Fisher 精确 P</span><span>${formatPValue(fisherP)} ${fisherSig}</span></div>`;
+    } else if (fisherMsg) {
+      html += `<div class="result-row"><span>Fisher 精确</span><span>—</span></div>`;
+      html += `<div class="calc-note">${fisherMsg}</div>`;
     }
 
     html += `<div class="result-row"><span>最小期望频数</span><span>${minExpected.toFixed(3)}</span></div>`;

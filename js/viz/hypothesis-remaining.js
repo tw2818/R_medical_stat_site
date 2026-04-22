@@ -520,8 +520,8 @@ registerViz('blandaltman', renderBlandAltman);
           <span>格内：<strong>实测 (期望)</strong>，颜色深浅 = 观测-期望 差值</span>
         </div>
         <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
-          <span style="background:#c8e6ff;padding:2px 8px;border-radius:4px;">■ 正偏差（实测&gt;期望）</span>
-          <span style="background:#ffd0d0;padding:2px 8px;border-radius:4px;">■ 负偏差（实测&lt;期望）</span>
+          <span style="background:#ffd0d0;padding:2px 8px;border-radius:4px;">■ 正偏差（实测&gt;期望）</span>
+          <span style="background:#c8e6ff;padding:2px 8px;border-radius:4px;">■ 负偏差（实测&lt;期望）</span>
           <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;">■ 无偏差</span>
         </div>
       </div>
@@ -595,7 +595,7 @@ registerViz('contingency', renderContingency);
     const b = parseInt(el.dataset.b || '21');
     const c = parseInt(el.dataset.c || '99');
     const d = parseInt(el.dataset.d || '5');
-    const title = el.dataset.title || '马赛克图（四格表频数）';
+    const title = el.dataset.title || '面积比例图（四格表频数）';
     const rowLabels = (el.dataset.rowLabels || '治疗组,安慰剂组').split(',');
     const colLabels = (el.dataset.colLabels || '有效,无效').split(',');
 
@@ -690,10 +690,10 @@ registerViz('contingency', renderContingency);
     ctx.fillText(colLabels[0] || '有效', pad.l + col1W / 2, pad.t + innerH + 14);
     ctx.fillText(colLabels[1] || '无效', pad.l + col1W + col2W / 2, pad.t + innerH + 14);
 
-    // 行标签（左侧，顶部=安慰剂组=row2，底部=治疗组=row1）
+    // 行标签（左侧，顶部=安慰剂组=row1，底部=治疗组=row2）
     ctx.textAlign = 'right';
     ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(rowLabels[1] || '治疗组', pad.l - 6, pad.t + row1H1 / 2 + 4);
-    ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
+    ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 6, pad.t + row1H1 / 2 + 4);
+    ctx.fillText(rowLabels[1] || '治疗组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
   }
 registerViz('mosaic', renderMosaic);

@@ -1284,6 +1284,7 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   color: #92400e;
 }
 [data-theme="dark"] .calc-note { background: #292524; border-color: #78716c; color: #fde68a; }
+[data-theme="dark"] .jstat-warn { background: #3d2e00; color: #fde68a; border: 1px solid #6b5700; }
 .callout > *:not(.callout-header) { padding: 12px 14px; }
 
 /* ANOVA table */

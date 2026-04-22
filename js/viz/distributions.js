@@ -813,8 +813,8 @@ registerViz('fdist', renderFDist);
           const x = xMin + (px / W) * (xMax - xMin);
           if (x < chiCrit) continue;
           const y = chiPdf(x, df);
-          if (!started) { ctx.moveTo(px, sy(y)); started = true; }
-          else ctx.lineTo(px, sy(y));
+          if (!started) { ctx.moveTo(sx(x), sy(y)); started = true; }
+          else ctx.lineTo(sx(x), sy(y));
         }
         ctx.lineTo(sx(chiCrit), pad.t + ih);
         ctx.lineTo(sx(chiCrit), sy(0));
@@ -841,7 +841,7 @@ registerViz('fdist', renderFDist);
       for (let px = 0; px <= W; px++) {
         const x = xMin + (px / W) * (xMax - xMin);
         const y = chiPdf(x, df);
-        px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
+        px === 0 ? ctx.moveTo(sx(x), sy(y)) : ctx.lineTo(sx(x), sy(y));
       }
       ctx.stroke();
 

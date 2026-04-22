@@ -12,6 +12,14 @@ function parseNumbers(text) {
     .filter(v => !isNaN(v) && isFinite(v));
 }
 
+// 严格版：原始 token 数与解析成功数必须一致，否则返回 { values, error }
+function parseNumbersStrict(text) {
+  const raw = text.trim().split(/[,\s]+/).filter(t => t.length > 0);
+  const values = raw.map(v => parseFloat(v));
+  const hasError = values.some(v => isNaN(v) || !isFinite(v));
+  return { values, hasError, rawTokens: raw.length };
+}
+
 function mean(arr) { return arr.reduce((a,b)=>a+b,0)/arr.length; }
 
 function sd(arr) {
@@ -107,4 +115,4 @@ function setupObserver() {
   vizObserver.observe(target, { childList: true, subtree: true });
 }
 
-export { $, parseNumbers, mean, sd, sum, ensureJStat, makeCanvas, renderComponent, init, setupObserver };
+export { $, parseNumbers, parseNumbersStrict, mean, sd, sum, ensureJStat, makeCanvas, renderComponent, init, setupObserver };
