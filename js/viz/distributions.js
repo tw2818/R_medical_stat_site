@@ -769,7 +769,7 @@ registerViz('fdist', renderFDist);
       dfLabel.textContent = df;
 
       const ctx = canvas.getContext('2d');
-      const W = canvas.offsetWidth * 2, H = canvas.offsetHeight * 2;
+      const W = canvas.offsetWidth * 2, H = 520;
       canvas.width = W; canvas.height = H;
       const pad = { l: 52, r: 20, t: 20, b: 52 };
       const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
