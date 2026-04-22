@@ -389,25 +389,11 @@ function pruneMisplacedChapterWidgets(container, filename) {
   }
 
   if (filename === '1002-anova.html') {
-    const anovas = container.querySelectorAll('.stat-viz[data-type="anova"]');
-    if (anovas.length > 1) {
-      anovas[1].remove();
-    }
-
     const anovaPs = Array.from(container.querySelectorAll('p'));
-    const blockResult = anovaPs.find(p => p.textContent.includes('区组间F值=5.798'));
-    if (blockResult) {
-      blockResult.textContent = '结果显示区组间自由度为4，分组间自由度为2，组内自由度为8，区组间离均差平方和为0.2284，分组间离均差平方和为0.2280，组内离均差平方和为0.0764，区组间均方为0.05709，分组间均方为0.1140，组内均方为0.00955，区组间F值=5.978，p=0.01579，分组间F值=11.937，p=0.00397，和课本一致。';
-    }
 
-    const latinResult = anovaPs.find(p => p.textContent.includes('组内离均差平方和为0.0683.2'));
-    if (latinResult) {
-      latinResult.textContent = '结果显示行区组间自由度为5，列区组间自由度为5，分组（处理因素）间自由度为5，组内自由度为20；行区组间离均差平方和为250.5，列区组间离均差平方和为85.5，分组间离均差平方和为667.1，组内离均差平方和为683.2；行区组间均方为50.09，列区组间均方为17.09，分组间均方为133.43，组内均方为34.16，行区组间F值=1.466，p=0.2447，列区组间F值=0.5，p=0.7723，分组间F值=3.906，p=0.0124，和课本一致。';
-    }
-
-    const crossoverHint = anovaPs.find(p => p.textContent.includes('然后是方差分析：'));
+    const crossoverHint = anovaPs.find(p => p.textContent.includes('进行两阶段交叉设计资料方差分析：'));
     if (crossoverHint) {
-      crossoverHint.textContent = '然后进行方差分析：这里的 phase 表示阶段效应，type 表示处理（药物）效应，testid 用来控制受试对象之间的个体差异。';
+      crossoverHint.textContent = '进行两阶段交叉设计资料方差分析：这里的 phase 表示阶段效应，type 表示处理（药物）效应，testid 用来控制受试对象之间的个体差异。';
     }
 
     const snkNote = anovaPs.find(p => p.textContent.includes('结果和课本不一样，试了多种方法，q值全都不一样。'));

@@ -578,9 +578,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果显示组间自由度为3，组内自由度为116，组间离均差平方和为32.16，组内离均差平方和为49.97，组间均方为10.719，组内均方为0.431，F值=24.88，p=1.67e-12，和课本一致。</p>
-<div class="stat-viz" data-type="anova" data-title="组间差异比较（与上面 ANOVA 结果一致）" data-means="[3.12, 2.63, 2.78, 2.57]" data-sds="[0.69, 0.53, 0.56, 0.59]" data-ns="[30, 30, 30, 30]" data-labels='["A组","B组","C组","D组"]'></div>
+<div class="stat-viz" data-type="anova" data-title="组间差异比较（与上面 ANOVA 结果一致）" data-means="[3.4303, 2.7153, 2.698, 1.9663]" data-sds="[0.7151, 0.6382, 0.4972, 0.7464]" data-ns="[30, 30, 30, 30]" data-labels='["A组","B组","C组","D组"]'></div>
 <div class="stat-viz" data-type="fdist" data-title="F分布与ANOVA（df1=3, df2=116）" data-df1="3" data-df2="116"></div>
-<p>再简单介绍一下可视化的平均数和可信区间的方法：</p>
+<p>再简单介绍一下可视化的平均数和置信区间的方法：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gplots)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotmeans</span>(weight<span class="sc">~</span>trt,<span class="at">xlab =</span> <span class="st">"treatment"</span>,<span class="at">ylab =</span> <span class="st">"weight"</span>,</span>
@@ -628,7 +628,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>结果显示区组间自由度为4，分组间自由度为2，组内自由度为8，区组间离均差平方和为0.2284，分组间离均差平方和为0.2280，组内离均差平方和为0.0764，区组间均方为0.05709，分组间均方为0.1140，组内均方为0.00955，区组间F值=5.798，p=0.01579，分组间F值=11.937，p=0.00397，和课本一致。</p>
+<p>结果显示区组间自由度为4，分组间自由度为2，组内自由度为8，区组间离均差平方和为0.2284，分组间离均差平方和为0.2280，组内离均差平方和为0.0764，区组间均方为0.05709，分组间均方为0.1140，组内均方为0.00955，区组间F值=5.978，p=0.01579，分组间F值=11.937，p=0.00397，和课本一致。</p>
 </section>
 <section id="拉丁方设计方差分析" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="拉丁方设计方差分析"><span class="header-section-number">2.3</span> 拉丁方设计方差分析</h2>
@@ -665,11 +665,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>结果显示行区组间自由度为5，列区组间自由度为5，分组（处理因素）间自由度为5，组内自由度为20； 行区组间离均差平方和为250.5，列区组间离均差平方和为85.5，分组间离均差平方和为667.1，组内离均差平方和为0.0683.2； 行区组间均方为50.09，列区组间均方为17.09，分组间均方为133.43，组内均方为34.16， 行区组间F值=1.466，p=0.2447，列区组间F值=0.5，p=0.7723，分组间F值=3.906，p=0.0124，和课本一致。</p>
+<p>结果显示行区组间自由度为5，列区组间自由度为5，分组（处理因素）间自由度为5，组内自由度为20； 行区组间离均差平方和为250.5，列区组间离均差平方和为85.5，分组间离均差平方和为667.1，组内离均差平方和为683.2； 行区组间均方为50.09，列区组间均方为17.09，分组间均方为133.43，组内均方为34.16， 行区组间F值=1.466，p=0.2447，列区组间F值=0.5，p=0.7723，分组间F值=3.906，p=0.0124，和课本一致。</p>
 </section>
 <section id="两阶段交叉设计资料方差分析" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="两阶段交叉设计资料方差分析"><span class="header-section-number">2.4</span> 两阶段交叉设计资料方差分析</h2>
-<p>两阶段交叉设计每名受试者在两个阶段分别接受A药和B药，记录血药浓度。A药均值726，B药均值797，两种药物存在药代动力学差异。</p>
+<p>两阶段交叉设计每名受试者在两个阶段分别接受A药和B药，记录血药浓度。从下方方差分析结果可见，药物类型（type）主效应 p=0.0799，按 α=0.05 阈值尚不能认为两种药物的血药浓度差异有统计学意义。</p>
 <p>使用课本<strong>例4-6</strong>的数据。</p>
 <p>首先是构造数据，本次数据自己从书上摘录。</p>
 <div class="cell">
@@ -690,7 +690,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>mydata<span class="sc">$</span>testid <span class="ot">&lt;-</span> <span class="fu">factor</span>(mydata<span class="sc">$</span>testid)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>数据一共4列，第一列是受试者id，第二列是不同阶段，第三列是测定方法，第四列是测量值。</p>
+<p>数据一共4列，第一列是受试者id，第二列是阶段（phase_1/phase_2），第三列是药物类型（A/B），第四列是测量值。</p>
 <p>简单看下2个阶段情况：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mydata<span class="sc">$</span>phase,mydata<span class="sc">$</span>type)</span>
@@ -715,7 +715,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="多个样本均数间的多重比较" class="level2" data-number="2.5">
 <h2 data-number="2.5" class="anchored" data-anchor-id="多个样本均数间的多重比较"><span class="header-section-number">2.5</span> 多个样本均数间的多重比较</h2>
-<div class="stat-viz" data-type="anova" data-title="多重比较：4组体重均数比较" data-groups="4" data-means="3.12,2.63,2.78,2.57" data-sds="0.69,0.53,0.56,0.59" data-ns="30,30,30,30"></div>
 <p>课本例4-7，使用了课本<strong>例4-2</strong>的数据。</p>
 <p>首先是构造数据，本次数据自己从书上摘录。</p>
 <div class="cell">
