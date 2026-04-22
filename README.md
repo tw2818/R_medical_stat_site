@@ -24,7 +24,7 @@
 t检验 · 方差分析 · 离散分布 · 卡方检验 · Cochran-Armitage检验 · 秩转换非参数检验 · 双变量回归与相关 · 三线表绘制 · 统计绘图 · 样本量计算 · 随机分组 · ROC曲线 · tidy流统计分析
 
 ### 高级统计分析（23章）
-多因素方差分析 · 球对称检验 · 重复测量方差分析 · 协方差分析 · 方差分析注意事项 · 多变量统计描述和推断 · 多元线性回归 · Logistic回归 · 对数线性模型 · 泊松回归 · 分类变量重编码 · 生存分析 · 生存曲线可视化 · 判别分析 · 聚类分析 · 主成分分析 · 主成分回归 · 探索性因子分析 · 偏相关和典型相关 · 结构方程模型 · 多水平模型 · 广义估计方程
+多因素方差分析 · 球对称检验 · 重复测量方差分析 · 协方差分析 · 方差分析注意事项 · 多变量统计描述和统计推断 · 多元线性回归 · Logistic回归 · 对数线性模型 · 泊松回归 · 分类变量重编码 · 生存分析 · 生存曲线可视化 · 判别分析 · 聚类分析 · 主成分分析 · 主成分回归 · 探索性因子分析 · 偏相关和典型相关 · 结构方程模型 · 多水平模型 · 广义估计方程
 
 ### 文献常见统计分析（9章）
 Fine-Gray检验和竞争风险模型 · 倾向性评分（匹配/回归和分层/加权）· p-for-trend · 多项式拟合 · 样条回归 · 亚组分析及森林图绘制
@@ -63,6 +63,7 @@ R_medical_stat_site/
 ├── manifest.json                  # PWA manifest
 ├── favicon.svg                    # 网站图标
 ├── README.md                      # 项目文档
+├── package.json                   # 最小开发命令入口（preview / validate）
 ├── .gitignore
 ├── css/
 │   └── style.css                  # 全站样式
@@ -129,7 +130,7 @@ R_medical_stat_site/
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
 2. `loadChapter(file)` → `fetch('data/xxx.html')` → `DOMParser` 提取 `<main id="quarto-document-content">`
 3. `setupChapterInteractions()` → `initStatViz()` 扫描 `.stat-viz` / `.stat-calc` 标记，按 `data-type` 分发渲染
-4. Quarto 原生的代码复制按钮被替换为内联 `onclick` 版本（绕过 ClipboardJS）
+4. Quarto 代码复制按钮会在章节内容注入后被替换为站内统一样式按钮，并通过 JS 统一绑定复制行为
 
 ### 轻量验证基线
 仓库现在包含一个不依赖测试框架的回归校验基线：
@@ -153,6 +154,8 @@ R_medical_stat_site/
 当前最小可执行方式：
 
 ```bash
+npm run validate
+# 或
 node tests/run_validation.js
 ```
 
@@ -188,7 +191,11 @@ node tests/run_validation.js
 git clone https://github.com/tw2818/R_medical_stat_site.git
 cd R_medical_stat_site
 
-# 本地预览（任意静态服务器）
+# 使用统一命令入口
+npm run preview
+npm run validate
+
+# 或继续使用任意静态服务器
 npx serve .
 # 或
 python3 -m http.server 8000
@@ -209,6 +216,11 @@ GitHub (main) → Vercel → https://r.tweb.one
 ---
 
 ## 更新日志
+
+### 2026-04-22 — 增加 package.json 并清理代码复制按钮 inline 行为
+- **开发入口**：新增最小 `package.json`，统一提供 `npm run preview` 和 `npm run validate`
+- **复制按钮整理**：将 Quarto 代码复制按钮的 inline `onclick / onmouseover / onmouseout / style` 移出 HTML 字符串，改为统一 class + JS 绑定 + CSS 样式
+- **意义**：进一步降低内联行为，改善可维护性，并为后续更严格的前端策略和测试铺路
 
 ### 2026-04-22 — 固定 jStat 版本并清理首页 inline handler
 - **依赖稳定性**：将 `jStat` CDN 从 `@latest` 固定为明确版本，降低上游变更带来的线上波动风险
