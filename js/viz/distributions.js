@@ -723,7 +723,7 @@ registerViz('fdist', renderFDist);
       <div class="viz-card">
         <div class="viz-header">📊 ${title}</div>
         <div class="viz-body">
-          <canvas class="viz-canvas" style="width:100%;max-width:600px;aspect-ratio:12/11;display:block;margin:0 auto;"></canvas>
+          <canvas class="viz-canvas" style="width:100%;max-width:600px;height:260px;display:block;margin:0 auto;"></canvas>
         </div>
         <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:#f8f9fa;border-top:1px solid #eee;">
           <label>df = <span data-for="df" class="val-label">${initialDf}</span>
@@ -769,7 +769,7 @@ registerViz('fdist', renderFDist);
       dfLabel.textContent = df;
 
       const ctx = canvas.getContext('2d');
-      const W = canvas.offsetWidth * 2, H = 520;
+      const W = canvas.offsetWidth * 2, H = canvas.offsetHeight * 2;
       canvas.width = W; canvas.height = H;
       const pad = { l: 52, r: 20, t: 20, b: 52 };
       const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
