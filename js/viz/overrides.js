@@ -228,7 +228,7 @@ function renderChiSq(el) {
   const card = document.createElement('div');
   card.className = 'calc-card';
   card.innerHTML = `
-    <div class="calc-header">📊 卡方检验计算器</div>
+    <div class="calc-header">📊 列联表 χ² / Fisher 计算器</div>
     <div class="calc-body">
       <div class="calc-field">
         <label>列联表数据（每行一组，数字用空格分隔）</label>
@@ -252,8 +252,9 @@ function renderChiSq(el) {
 
     const rows = matrix.length;
     const cols = Math.max(...matrix.map(r => r.length));
-    for (let i = 0; i < rows; i++) {
-      while (matrix[i].length < cols) matrix[i].push(0);
+    if (matrix.some(r => r.length !== cols)) {
+      alert('每行长度必须一致（当前检测到行列数不统一），请检查输入。');
+      return;
     }
 
     const total = matrix.flat().reduce((a, b) => a + b, 0);

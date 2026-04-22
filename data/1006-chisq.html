@@ -1047,7 +1047,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>可以看到和课本是一样的。</p>
 <p>这时的 P' = P / (K * (K - 1) / 2 + 1)，K是组数，一般情况下P=0.05，所以P' = 0.05/(3*(3-1)/2+1) = 0.0125，上面3个卡方分析的P值和0.0125比较即可！</p>
-<p>这里采用的是教材给出的卡方分割法口径，阈值 0.0125 是该方法的特定处理方式，不等同于所有场景下的通用 Bonferroni 校正。</p>
+<p><strong>注意：</strong>这里采用的是教材给出的卡方分割法口径，阈值 0.0125 是该方法的特定处理方式，不等同于一般场景下的通用 Bonferroni 校正——后者在校正中分母通常取比较次数本身，而卡方分割法的分母为 K×(K-1)/2+1，两者并不等价。如需更通用的多重比较实现，见本节末尾 <code>rcompanion::pairwiseNominalIndependence()</code>。</p>
 <p>也可以使用<code>rcompanion::pairwiseNominalIndependence()</code>实现多重比较，直接给出P值和调整后的P值：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rcompanion)</span>
@@ -1244,27 +1244,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="do">## X-squared = 2.0377, df = 6, p-value = 0.9162</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果和课本非常接近。</p>
-<p>这里贴一个<a href="http://rvdsd.top/">网络教程</a>的概率计算方法：</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>x<span class="ot">&lt;-</span><span class="dv">0</span><span class="sc">:</span><span class="dv">6</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>y<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="dv">26</span>,<span class="dv">51</span>,<span class="dv">75</span>,<span class="dv">63</span>,<span class="dv">38</span>,<span class="dv">17</span>,<span class="dv">9</span>)</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>mean<span class="ot">&lt;-</span><span class="fu">mean</span>(<span class="fu">rep</span>(x,y))</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>q<span class="ot">&lt;-</span><span class="fu">ppois</span>(x,mean)</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>n<span class="ot">&lt;-</span><span class="fu">length</span>(y)</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>p<span class="ot">&lt;-</span><span class="fu">c</span>()</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>p[<span class="dv">1</span>]<span class="ot">&lt;-</span>q[<span class="dv">1</span>]</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>p[n]<span class="ot">&lt;-</span><span class="dv">1</span><span class="sc">-</span>q[n<span class="dv">-1</span>]</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(n<span class="dv">-1</span>))</span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  p[i]<span class="ot">&lt;-</span>q[i]<span class="sc">-</span>q[i<span class="dv">-1</span>]</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(y, <span class="at">p=</span>p,<span class="at">correct=</span>F)</span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a><span class="do">##  Chi-squared test for given probabilities</span></span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a><span class="do">## data:  y</span></span>
-<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a><span class="do">## X-squared = 2.0569, df = 6, p-value = 0.9144</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>结果和课本非常接近。</p>
-
 
 </section>
 
