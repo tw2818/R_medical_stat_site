@@ -377,6 +377,16 @@ function pruneMisplacedChapterWidgets(container, filename) {
     if (latinResult) {
       latinResult.textContent = '结果显示行区组间自由度为5，列区组间自由度为5，分组（处理因素）间自由度为5，组内自由度为20；行区组间离均差平方和为250.5，列区组间离均差平方和为85.5，分组间离均差平方和为667.1，组内离均差平方和为683.2；行区组间均方为50.09，列区组间均方为17.09，分组间均方为133.43，组内均方为34.16，行区组间F值=1.466，p=0.2447，列区组间F值=0.5，p=0.7723，分组间F值=3.906，p=0.0124，和课本一致。';
     }
+
+    const crossoverHint = anovaPs.find(p => p.textContent.includes('然后是方差分析：'));
+    if (crossoverHint) {
+      crossoverHint.textContent = '然后进行方差分析：这里的 phase 表示阶段效应，type 表示处理（药物）效应，testid 用来控制受试对象之间的个体差异。';
+    }
+
+    const snkNote = anovaPs.find(p => p.textContent.includes('结果和课本不一样，试了多种方法，q值全都不一样。'));
+    if (snkNote) {
+      snkNote.textContent = '结果和课本不完全一样。这里更适合把它理解为 R 中 SNK-q 检验的一种实现演示：不同软件、算法细节或分步规则可能导致 q 值略有差异；若需要逐项与教材完全核对，应以教材所采用的方法或软件输出为准。';
+    }
   }
 
   if (filename === '1012-randomgroup.html') {
