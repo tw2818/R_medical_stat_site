@@ -1,0 +1,10 @@
+{
+  "name": "r-medical-stat-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Interactive medical statistics tutorial site built with static HTML and vanilla JavaScript.",
+  "scripts": {
+    "preview": "python3 -m http.server 8000",
+    "validate": "node tests/run_validation.js"
+  }
+}
