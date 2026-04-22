@@ -514,7 +514,7 @@ registerViz('blandaltman', renderBlandAltman);
       <div class="viz-card">
         <div class="viz-header">📊 ${title}</div>
         <div class="viz-body">
-          <canvas class="viz-canvas" style="width:100%;max-width:480px;height:220px;display:block;margin:0 auto;"></canvas>
+          <canvas class="viz-canvas" style="width:100%;max-width:480px;aspect-ratio:12/11;display:block;margin:0 auto;"></canvas>
         </div>
         <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:#f8f9fa;border-top:1px solid #eee;font-size:12px;color:#555;">
           <span>格内：<strong>实测 (期望)</strong>，颜色深浅 = 观测-期望 差值</span>
@@ -608,7 +608,7 @@ registerViz('contingency', renderContingency);
       <div class="viz-card">
         <div class="viz-header">📊 ${title}</div>
         <div class="viz-body">
-          <canvas class="viz-canvas" style="width:100%;max-width:520px;height:240px;display:block;margin:0 auto;"></canvas>
+          <canvas class="viz-canvas" style="width:100%;max-width:520px;aspect-ratio:13/12;display:block;margin:0 auto;"></canvas>
         </div>
         <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
           <span style="background:#aed6f1;padding:2px 8px;border-radius:4px;">■ 有效</span>
