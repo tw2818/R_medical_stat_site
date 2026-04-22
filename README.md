@@ -218,6 +218,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 ## 更新日志
 
+### 2026-04-22 — 移除趋势检验章节中不匹配的森林图组件
+- **问题章节**：`1038-p4trend.html`
+- **修复内容**：在章节渲染时移除误用的 `subgroupforest` 组件
+- **原因**：该组件更适合亚组分析语境，不适合用于 `p for trend` / `p for interaction` / `per 1 sd` 章节主线
+- **方式**：沿用小范围 post-load cleanup，不直接重写大型 Quarto 导出 HTML
+
 ### 2026-04-22 — chapters.js 模块化，减少全局依赖
 - **模块边界收紧**：将 `chapters.js` 从全局脚本改为 ES Module，显式导出章节数据、分组配置和进度工具
 - **应用层同步**：`app.js` 改为通过 import 使用 `CHAPTERS`、`ALL_CHAPTERS`、`GROUP_CONFIG`、`saveProgress()`、`updateProgressBar()`
