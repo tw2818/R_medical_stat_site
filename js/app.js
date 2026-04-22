@@ -389,6 +389,40 @@ function pruneMisplacedChapterWidgets(container, filename) {
     }
   }
 
+  if (filename === 'discrete.html') {
+    const discretePs = Array.from(container.querySelectorAll('p'));
+
+    const poissonApprox = discretePs.find(p => p.textContent.includes('例6-11。正态近似法。直接根据公式（6-18）计算。'));
+    if (poissonApprox) {
+      const note = document.createElement('p');
+      note.textContent = '按正态近似法，99%可信区间应写为 68 ± 2.58×√68；也就是下限用减号、上限用加号。这里保留思路说明，但不再用错误的重复下界表达。';
+      note.style.color = '#555';
+      note.style.fontSize = '0.95em';
+      poissonApprox.insertAdjacentElement('afterend', note);
+    }
+
+    const nbViz = container.querySelector('h2#负二项分布略 + .stat-viz[data-type="poisson"]');
+    if (nbViz) nbViz.remove();
+
+    const nbHeading = container.querySelector('h2#负二项分布略');
+    if (nbHeading && !nbHeading.nextElementSibling) {
+      const note = document.createElement('p');
+      note.textContent = '本节暂略。本站当前未提供负二项分布专用组件，因此不再用泊松分布图替代展示，以免把两种分布混为一谈。';
+      note.style.color = '#555';
+      note.style.fontSize = '0.95em';
+      nbHeading.insertAdjacentElement('afterend', note);
+    } else if (nbHeading) {
+      const existing = Array.from(container.querySelectorAll('p')).find(p => p.textContent.includes('本站当前未提供负二项分布专用组件'));
+      if (!existing) {
+        const note = document.createElement('p');
+        note.textContent = '本节暂略。本站当前未提供负二项分布专用组件，因此不再用泊松分布图替代展示，以免把两种分布混为一谈。';
+        note.style.color = '#555';
+        note.style.fontSize = '0.95em';
+        nbHeading.insertAdjacentElement('afterend', note);
+      }
+    }
+  }
+
   if (filename === '1012-randomgroup.html') {
     container.querySelectorAll('.stat-viz[data-type="samplesizecalc"]').forEach(el => el.remove());
   }
