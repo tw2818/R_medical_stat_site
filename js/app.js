@@ -410,6 +410,15 @@ function pruneMisplacedChapterWidgets(container, filename) {
       rateHeading.insertAdjacentElement('afterend', widget);
     }
 
+    const poissonRateHeading = Array.from(container.querySelectorAll('h3')).find(h => h.textContent.includes('样本均数和总体均数的比较'));
+    if (poissonRateHeading && !container.querySelector('.stat-calc[data-type="poissonratecompare"]')) {
+      const widget = document.createElement('div');
+      widget.className = 'stat-calc';
+      widget.dataset.type = 'poissonratecompare';
+      widget.dataset.title = '泊松事件率比较';
+      poissonRateHeading.insertAdjacentElement('afterend', widget);
+    }
+
     const nbViz = container.querySelector('h2#负二项分布略 + .stat-viz[data-type="poisson"]');
     if (nbViz) nbViz.remove();
 
