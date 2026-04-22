@@ -17,28 +17,43 @@ function displayTTestResult(el, r) {
 
   let html = `<div class="result-table"><div class="result-row header"><span>项目</span><span>值</span></div>`;
 
-  const rows = r.type === 'one-sample t'
-    ? [
-        ['检验类型', r.type],
-        ['样本量 n', r.n],
-        ['样本均数 x̄', r.xbar],
-        ['标准差 s', r.s],
-        ['t 统计量', r.t],
-        ['自由度 df', r.df],
-        ['P 值（双侧）', `${r.pTwo} ${pTag}`],
-        ['95% CI', r.ci95],
-      ]
-    : [
-        ['检验类型', r.type],
-        ['组1 n', r.n1], ['组2 n', r.n2],
-        ['组1 均数', r.x1], ['组2 均数', r.x2],
-        ['组1 SD', r.s1], ['组2 SD', r.s2],
-        ['均数差 (组1-组2)', r.diff],
-        ['t 统计量', r.t],
-        ['自由度 df', r.df],
-        ['P 值（双侧）', `${r.pTwo} ${pTag}`],
-        ['95% CI', r.ci95],
-      ];
+  let rows;
+  if (r.type === 'one-sample t') {
+    rows = [
+      ['检验类型', r.type],
+      ['样本量 n', r.n],
+      ['样本均数 x̄', r.xbar],
+      ['标准差 s', r.s],
+      ['t 统计量', r.t],
+      ['自由度 df', r.df],
+      ['P 值（双侧）', `${r.pTwo} ${pTag}`],
+      ['95% CI', r.ci95],
+    ];
+  } else if (r.type === 'paired t') {
+    rows = [
+      ['检验类型', r.type],
+      ['配对对数 n', r.n],
+      ['差值均数 x̄d', r.meanDiff],
+      ['差值标准差 sd', r.sdDiff],
+      ['差值标准误 SE', r.seDiff],
+      ['t 统计量', r.t],
+      ['自由度 df', r.df],
+      ['P 值（双侧）', `${r.pTwo} ${pTag}`],
+      ['95% CI', r.ci95],
+    ];
+  } else {
+    rows = [
+      ['检验类型', r.type],
+      ['组1 n', r.n1], ['组2 n', r.n2],
+      ['组1 均数', r.x1], ['组2 均数', r.x2],
+      ['组1 SD', r.s1], ['组2 SD', r.s2],
+      ['均数差 (组1-组2)', r.diff],
+      ['t 统计量', r.t],
+      ['自由度 df', r.df],
+      ['P 值（双侧）', `${r.pTwo} ${pTag}`],
+      ['95% CI', r.ci95],
+    ];
+  }
 
   rows.forEach(([k, v]) => { html += `<div class="result-row"><span>${k}</span><span>${v}</span></div>`; });
   html += '</div>';
@@ -54,6 +69,7 @@ function renderTTest(el) {
     <div class="calc-tabs">
       <button class="calc-tab active" data-tab="one-sample">单样本 t 检验</button>
       <button class="calc-tab" data-tab="two-sample">两样本 t 检验</button>
+      <button class="calc-tab" data-tab="paired">配对 t 检验</button>
     </div>
     <div class="calc-body">
       <div class="calc-panel active" data-panel="one-sample">
@@ -77,6 +93,16 @@ function renderTTest(el) {
         </div>
         <div class="calc-field">
           <label><input type="checkbox" class="calc-check" data-input="equal-var"> 假设方差齐性（不勾选则用 Welch 校正）</label>
+        </div>
+      </div>
+      <div class="calc-panel" data-panel="paired">
+        <div class="calc-field">
+          <label>第一组数据（前后测"前"或"处理组"，空格或逗号分隔）</label>
+          <textarea class="calc-input" data-input="paired1" rows="2" placeholder="例如：2.1 1.5 3.2 0.9 ..."></textarea>
+        </div>
+        <div class="calc-field">
+          <label>第二组数据（前后测"后"或"对照组"，等长）</label>
+          <textarea class="calc-input" data-input="paired2" rows="2" placeholder="例如：1.8 2.3 1.1 3.5 ..."></textarea>
         </div>
       </div>
     </div>
@@ -133,7 +159,7 @@ function renderTTest(el) {
         pTwo: formatPValue(pTwo),
         ci95: `[${ci95[0].toFixed(3)}, ${ci95[1].toFixed(3)}]`
       };
-    } else {
+    } else if (tab === 'two-sample') {
       const g1 = parseNumbers(card.querySelector('[data-input="g1"]').value);
       const g2 = parseNumbers(card.querySelector('[data-input="g2"]').value);
       const equalVar = card.querySelector('[data-input="equal-var"]').checked;
@@ -178,6 +204,42 @@ function renderTTest(el) {
         diff: diff.toFixed(4),
         t: tStat.toFixed(4),
         df: Number.isInteger(df) ? df : df.toFixed(2),
+        pTwo: formatPValue(pTwo),
+        ci95: `[${ci95[0].toFixed(3)}, ${ci95[1].toFixed(3)}]`
+      };
+    } else if (tab === 'paired') {
+      const d1 = parseNumbers(card.querySelector('[data-input="paired1"]').value);
+      const d2 = parseNumbers(card.querySelector('[data-input="paired2"]').value);
+
+      if (d1.length < 2 || d2.length < 2) { alert('两组各至少输入2个数值'); return; }
+      if (d1.length !== d2.length) { alert('两组数据必须等长'); return; }
+
+      const n = d1.length;
+      const diffs = d1.map((v, i) => v - d2[i]);
+      const meanDiff = mean(diffs);
+      const sdDiff = sd(diffs);
+      const seDiff = sdDiff / Math.sqrt(n);
+      const df = n - 1;
+      const tStat = meanDiff / seDiff;
+
+      let pTwo = NaN;
+      let tCrit = 1.96;
+      if (window.jStat && window.jStat.studentt) {
+        pTwo = 2 * (1 - jStat.studentt.cdf(Math.abs(tStat), df));
+        if (typeof jStat.studentt.inv === 'function') {
+          tCrit = jStat.studentt.inv(0.975, df);
+        }
+      }
+      const ci95 = [meanDiff - tCrit * seDiff, meanDiff + tCrit * seDiff];
+
+      result = {
+        type: 'paired t',
+        n,
+        meanDiff: meanDiff.toFixed(4),
+        sdDiff: sdDiff.toFixed(4),
+        seDiff: seDiff.toFixed(4),
+        t: tStat.toFixed(4),
+        df,
         pTwo: formatPValue(pTwo),
         ci95: `[${ci95[0].toFixed(3)}, ${ci95[1].toFixed(3)}]`
       };
