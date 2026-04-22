@@ -31,7 +31,6 @@ function ensureJStat(el) {
   if (!already) {
     const warn = document.createElement('div');
     warn.className = 'jstat-warn';
-    warn.style = 'background:#fff3cd;color:#856404;padding:6px 12px;font-size:12px;text-align:center;border-radius:4px;margin-bottom:6px;';
     warn.textContent = '⚠️ jStat 未加载，图形为近似示意，数值不精确';
     el.insertBefore(warn, el.firstChild);
   }
@@ -40,8 +39,9 @@ function ensureJStat(el) {
 
 function makeCanvas(container, w, h) {
   const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  canvas.style.cssText = 'display:block;width:100%;max-width:600px;margin:0 auto;border-radius:8px;';
+  canvas.width = w;
+  canvas.height = h;
+  canvas.className = 'viz-canvas';
   container.appendChild(canvas);
   return canvas;
 }
