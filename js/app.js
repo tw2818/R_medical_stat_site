@@ -313,18 +313,15 @@ function updateNavGroupExpansion() {
 }
 
 // 注入/替换代码复制按钮
-// Quarto 已有 <button class="code-copy-button">，这里把它替换成带 inline onclick 的版本
 function injectCopyButtons(html) {
-  // 替换 Quarto 的复制按钮为我们的版本（带 hover 效果和 onclick）
   return html.replace(
     /<button([^>]*)class="code-copy-button"([^>]*)>[\s\S]*?<\/button>/g,
-    `<button$1class="code-copy-button"$2onclick="copyCodeBlock(this)" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" style="position:absolute;top:6px;right:8px;background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;opacity:0.7;transition:opacity 0.2s;z-index:5;" title="复制代码">📋</button>`
+    `<button$1class="code-copy-button chapter-copy-button"$2 type="button" title="复制代码" aria-label="复制代码">📋</button>`
   );
 }
 
 // ===== 代码复制 =====
-window.copyCodeBlock = function(btn) {
-  // 兼容 injectCopyButtons 生成的结构：btn 在 div 内部，pre 也在 div 内部
+function copyCodeBlock(btn) {
   const wrapper = btn.closest('div');
   const pre = wrapper ? wrapper.querySelector('pre') : btn.nextElementSibling;
   if (!pre || pre.tagName !== 'PRE') return;
@@ -342,10 +339,11 @@ window.copyCodeBlock = function(btn) {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
+    const original = btn.textContent;
     btn.textContent = '✅ 已复制';
-    setTimeout(() => { btn.textContent = '📋 复制'; }, 1500);
+    setTimeout(() => { btn.textContent = original; }, 1500);
   });
-};
+}
 
 // ===== 章节内交互（锚点、代码块等）=====
 function setupChapterInteractions(container) {
@@ -365,6 +363,10 @@ function setupChapterInteractions(container) {
         toggle.textContent = el.classList.contains('callout-collapsed') ? '▶' : '▼';
       });
     }
+  });
+
+  container.querySelectorAll('.chapter-copy-button').forEach(btn => {
+    btn.addEventListener('click', () => copyCodeBlock(btn));
   });
 
   // 折叠细节标签
