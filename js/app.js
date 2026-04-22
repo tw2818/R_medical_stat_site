@@ -297,6 +297,13 @@ function pruneMisplacedChapterWidgets(container, filename) {
     }
   }
 
+  if (filename === '1002-anova.html') {
+    const anovas = container.querySelectorAll('.stat-viz[data-type="anova"]');
+    if (anovas.length > 1) {
+      anovas[1].remove();
+    }
+  }
+
   if (filename === '1012-randomgroup.html') {
     container.querySelectorAll('.stat-viz[data-type="samplesizecalc"]').forEach(el => el.remove());
   }
