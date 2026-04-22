@@ -290,6 +290,13 @@ function injectCopyButtons(html) {
 }
 
 function pruneMisplacedChapterWidgets(container, filename) {
+  if (filename === '1001-ttest.html') {
+    const pvalues = container.querySelectorAll('.stat-viz[data-type="pvalue"]');
+    if (pvalues.length > 1) {
+      pvalues[0].remove();
+    }
+  }
+
   if (filename === '1012-randomgroup.html') {
     container.querySelectorAll('.stat-viz[data-type="samplesizecalc"]').forEach(el => el.remove());
   }
