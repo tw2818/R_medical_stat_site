@@ -547,9 +547,9 @@ registerViz('blandaltman', renderBlandAltman);
         const intensity = Math.abs(dval) / (maxAbs || 1);
 
         if (dval > 0) {
-          ctx.fillStyle = `rgba(52, 152, 219, ${0.15 + intensity * 0.7})`;
-        } else if (dval < 0) {
           ctx.fillStyle = `rgba(231, 76, 60, ${0.15 + intensity * 0.7})`;
+        } else if (dval < 0) {
+          ctx.fillStyle = `rgba(52, 152, 219, ${0.15 + intensity * 0.7})`;
         } else {
           ctx.fillStyle = '#f5f5f5';
         }
@@ -690,10 +690,10 @@ registerViz('contingency', renderContingency);
     ctx.fillText(colLabels[0] || '有效', pad.l + col1W / 2, pad.t + innerH + 14);
     ctx.fillText(colLabels[1] || '无效', pad.l + col1W + col2W / 2, pad.t + innerH + 14);
 
-    // 行标签
+    // 行标签（左侧，顶部=安慰剂组=row2，底部=治疗组=row1）
     ctx.textAlign = 'right';
     ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(rowLabels[0] || '治疗组', pad.l - 6, pad.t + row1H1 / 2 + 4);
-    ctx.fillText(rowLabels[1] || '安慰剂组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
+    ctx.fillText(rowLabels[1] || '治疗组', pad.l - 6, pad.t + row1H1 / 2 + 4);
+    ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
   }
 registerViz('mosaic', renderMosaic);

@@ -780,19 +780,25 @@ registerViz('fdist', renderFDist);
       let modeX = (df - 2) > 0 ? df - 2 : 0.1;
       let maxY = chiPdf(modeX, df);
 
-      const sx = x => pad.l + (x / 15) * iw;
-      const sy = y => pad.t + ih - (y / (maxY * 1.2)) * ih;
       const xMin = 0, xMax = Math.max(df * 3 + 5, 15);
+
+      const sx = x => pad.l + (x / xMax) * iw;
+      const sy = y => pad.t + ih - (y / (maxY * 1.2)) * ih;
 
       // 临界值
       let chiCrit = null;
       if (window.jStat && window.jStat.chisquare && window.jStat.chisquare.inv) {
         chiCrit = jStat.chisquare.inv(1 - alpha, df);
       } else {
-        // 简单数值搜索
-        for (let x = 0.01; x <= xMax; x += 0.01) {
-          if (chiPdf(x, df) < 0.0001) { chiCrit = x; break; }
+        // 数值搜索：找满足 CDF(x) >= 1-alpha 的最小 x
+        let lo = 0, hi = xMax;
+        for (let step = 0; step < 12; step++) {
+          const mid = (lo + hi) / 2;
+          let cum = 0;
+          for (let xi = 0; xi <= mid; xi += 0.01) cum += chiPdf(xi, df) * 0.01;
+          if (cum < 1 - alpha) lo = mid; else hi = mid;
         }
+        chiCrit = (lo + hi) / 2;
       }
 
       // 坐标轴
