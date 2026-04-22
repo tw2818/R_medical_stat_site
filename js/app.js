@@ -1,19 +1,13 @@
 "use strict";
 
+import { ALL_CHAPTERS, CHAPTERS, GROUP_CONFIG, saveProgress, updateProgressBar } from './chapters.js';
+
 // ===== 状态 =====
 let currentGroup = null;
 let currentIndex = 0;
 
 // ===== 章节内容缓存 =====
 const chapterCache = new Map();
-
-
-const GROUP_CONFIG = [
-  { key: 'basic', el: 'basic-chapters', label: '基础统计分析' },
-  { key: 'advanced', el: 'advanced-chapters', label: '高级统计分析' },
-  { key: 'literature', el: 'literature-chapters', label: '文献常见统计分析' },
-  { key: 'other', el: 'other-chapters', label: '其他合集' },
-];
 
 // ===== DOM =====
 const $ = id => document.getElementById(id);
@@ -37,12 +31,12 @@ function updateStaticCounts() {
   if (totalEl) totalEl.textContent = getTotalChapterCount();
 }
 
-// ===== 主题 =====
 function initTheme() {
   const saved = localStorage.getItem('rstat_theme');
   if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   updateThemeToggle();
 }
+
 function updateThemeToggle() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const btn = $('theme-toggle');
@@ -50,6 +44,7 @@ function updateThemeToggle() {
   btn.textContent = isDark ? '☀️' : '🌙';
   btn.setAttribute('aria-label', isDark ? '切换浅色模式' : '切换深色模式');
 }
+
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   if (isDark) {
@@ -61,7 +56,6 @@ function toggleTheme() {
   updateThemeToggle();
 }
 
-// ===== 导航 =====
 function buildNav() {
   GROUP_CONFIG.forEach(({ key, el }) => {
     const container = $(el);
@@ -86,7 +80,7 @@ function buildNav() {
 }
 
 function updateChapterCount() {
-  if (typeof updateProgressBar === 'function') updateProgressBar();
+  updateProgressBar();
 }
 
 function continueLearning() {
@@ -154,7 +148,6 @@ function navigateToChapter(groupKey, index) {
 
   const chapter = list[index];
 
-  // 避免重复加载同一章节（但仍更新状态）
   if (currentGroup === groupKey && currentIndex === index) {
     updateActiveLink(groupKey, index);
     const homeBtn = $('home-btn');
@@ -162,39 +155,22 @@ function navigateToChapter(groupKey, index) {
     return;
   }
 
-  // 更新 URL hash（用于书签/分享）
   history.replaceState(null, '', '#' + chapter.id);
-
-  // Track visited chapter
-  if (typeof saveProgress === 'function') {
-    saveProgress(chapter.id);
-  } else {
-    const visited = JSON.parse(localStorage.getItem('rstat_visited') || '[]');
-    if (!visited.includes(chapter.id)) {
-      visited.push(chapter.id);
-      localStorage.setItem('rstat_visited', JSON.stringify(visited));
-    }
-    updateChapterCount();
-  }
+  saveProgress(chapter.id);
 
   currentGroup = groupKey;
   currentIndex = index;
 
-  // 更新侧边栏激活状态
   updateActiveLink(groupKey, index);
 
-  // 更新顶部标题
   const titleEl = $('current-chapter-title');
   if (titleEl) titleEl.textContent = chapter.title;
 
-  // 显示返回首页按钮
   const homeBtn = $('home-btn');
   if (homeBtn) homeBtn.style.display = 'inline-block';
 
-  // 加载章节内容
   loadChapter(chapter.file);
 
-  // 关闭侧边栏（移动端）
   const sidebar = $('sidebar');
   if (sidebar) sidebar.classList.remove('open');
 }
@@ -251,7 +227,7 @@ async function loadChapter(filename) {
   const welcome = $('welcome');
   if (!wrapper) return;
 
-  welcome && welcome.classList.remove('active');
+  if (welcome) welcome.classList.remove('active');
   wrapper.innerHTML = '<div class="loading">加载中...</div>';
   wrapper.classList.add('active');
 
@@ -264,13 +240,11 @@ async function loadChapter(filename) {
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const html = await resp.text();
 
-      // 解析完整文档，只提取主要章节内容（避开 Quarto 的 head/nav/footer）
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       const main = doc.getElementById('quarto-document-content');
       if (!main) throw new Error('无法解析章节内容');
 
-      // 移除所有内联脚本，避免污染全局命名空间
       main.querySelectorAll('script').forEach(s => s.remove());
 
       contentHtml = main.innerHTML;
@@ -282,15 +256,12 @@ async function loadChapter(filename) {
     pruneMisplacedChapterWidgets(wrapper, filename);
     rewriteChapterLinks(wrapper);
 
-    // 渲染完成后注入交互
     Prism.highlightAll();
     setupChapterInteractions(wrapper);
 
-    // 初始化统计可视化组件，并启动 MutationObserver 监听动态内容
     if (window.initStatViz) window.initStatViz();
     if (window.setupStatVizObserver) window.setupStatVizObserver();
 
-    // 更新章节计数（进度条、圆环、最近章节等）
     updateChapterCount();
     updateNavGroupExpansion();
   } catch (err) {
@@ -300,7 +271,6 @@ async function loadChapter(filename) {
 
 function updateNavGroupExpansion() {
   if (!currentGroup) return;
-  // 自动展开当前分组
   GROUP_CONFIG.forEach(({ key }) => {
     const btn = document.querySelector(`.nav-group-header[data-group="${key}"]`);
     const content = document.getElementById(`${key}-chapters`);
@@ -312,7 +282,6 @@ function updateNavGroupExpansion() {
   });
 }
 
-// 注入/替换代码复制按钮
 function injectCopyButtons(html) {
   return html.replace(
     /<button([^>]*)class="code-copy-button"([^>]*)>[\s\S]*?<\/button>/g,
@@ -326,7 +295,6 @@ function pruneMisplacedChapterWidgets(container, filename) {
   }
 }
 
-// ===== 代码复制 =====
 function copyCodeBlock(btn) {
   const wrapper = btn.closest('div');
   const pre = wrapper ? wrapper.querySelector('pre') : btn.nextElementSibling;
@@ -351,12 +319,9 @@ function copyCodeBlock(btn) {
   });
 }
 
-// ===== 章节内交互（锚点、代码块等）=====
 function setupChapterInteractions(container) {
-  // 展开/折叠 callout（Quarto 用 class="callout-warning/note/tip"，不用 data-callout）
   container.querySelectorAll('.callout-warning, .callout-note, .callout-tip, .callout-important').forEach(el => {
     el.classList.add('callout-collapsed');
-    // 找到已有的 .callout-header，追加 toggle 按钮并绑定点击
     const header = el.querySelector('.callout-header');
     if (header) {
       const toggle = document.createElement('span');
@@ -375,7 +340,6 @@ function setupChapterInteractions(container) {
     btn.addEventListener('click', () => copyCodeBlock(btn));
   });
 
-  // 折叠细节标签
   container.querySelectorAll('details').forEach(d => {
     if (!d.querySelector('summary')) {
       const summary = document.createElement('summary');
@@ -385,7 +349,6 @@ function setupChapterInteractions(container) {
   });
 }
 
-// ===== 搜索 =====
 function initSearch() {
   const input = $('search-input');
   const results = $('search-results');
@@ -393,13 +356,17 @@ function initSearch() {
 
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
-    if (!q) { results.innerHTML = ''; return; }
+    if (!q) {
+      results.innerHTML = '';
+      return;
+    }
     const matches = ALL_CHAPTERS.filter(ch =>
-      [ch.title, ch.groupName, ch.file, String(ch.num)].some(field =>
-        String(field).toLowerCase().includes(q)
-      )
+      [ch.title, ch.groupName, ch.file, String(ch.num)].some(field => String(field).toLowerCase().includes(q))
     ).slice(0, 8);
-    if (!matches.length) { results.innerHTML = '<div class="search-empty">无结果</div>'; return; }
+    if (!matches.length) {
+      results.innerHTML = '<div class="search-empty">无结果</div>';
+      return;
+    }
     results.innerHTML = matches.map(ch =>
       `<a href="#" class="search-result" data-nav-group="${ch.group}" data-nav-index="${ch.index}">${ch.title}<span class="search-result-meta">${ch.groupName}</span></a>`
     ).join('');
@@ -414,12 +381,11 @@ function initSearch() {
     });
   });
 
-  input.addEventListener('blur', () => setTimeout(() => { results.innerHTML = ''; }, 200));
+  input.addEventListener('blur', () => setTimeout(() => {
+    results.innerHTML = '';
+  }, 200));
 }
 
-// ===== 进度 =====
-
-// ===== Toast =====
 window.showToast = function showToast(msg) {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
@@ -434,18 +400,15 @@ window.showToast = function showToast(msg) {
   }, 2000);
 };
 
-// ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   buildNav();
   initSearch();
   initGlobalActions();
 
-  // 主题切换
   const themeBtn = $('theme-toggle');
   if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
-  // 移动端菜单
   const menuToggle = $('menu-toggle');
   const sidebar = $('sidebar');
   if (menuToggle && sidebar) {
@@ -455,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 分组展开/折叠
   document.querySelectorAll('.nav-group-header').forEach(btn => {
     btn.addEventListener('click', () => {
       const group = btn.dataset.group;
@@ -469,7 +431,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateChapterCount();
   updateStaticCounts();
 
-  // 学习路线 tab 切换
   document.querySelectorAll('.path-tab').forEach(tab => {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.path-tab').forEach(t => t.classList.remove('active'));
@@ -480,14 +441,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ===== Hash 路由 =====
-  // 页面加载时检查 hash（用 setTimeout 确保 buildNav 已完成）
   if (window.location.hash) {
     setTimeout(navigateByHash, 0);
   }
 });
 
-// ===== Hash 路由 =====
 function navigateByHash() {
   const hash = window.location.hash.replace('#', '');
   if (!hash) return;
@@ -495,7 +453,6 @@ function navigateByHash() {
     const idx = list.findIndex(ch => ch.id === hash);
     if (idx !== -1) {
       if (currentGroup === groupKey && currentIndex === idx) return;
-      // 用 navigateToChapter 统一处理（含 home-btn 显示）
       navigateToChapter(groupKey, idx);
       return;
     }
@@ -504,14 +461,16 @@ function navigateByHash() {
 
 window.addEventListener('hashchange', navigateByHash);
 
-// ===== 返回首页 =====
 window.showWelcome = function() {
   history.replaceState(null, '', window.location.pathname);
   currentGroup = null;
   currentIndex = 0;
   const wrapper = $('chapter-content');
   const welcome = $('welcome');
-  if (wrapper) { wrapper.innerHTML = ''; wrapper.classList.remove('active'); }
+  if (wrapper) {
+    wrapper.innerHTML = '';
+    wrapper.classList.remove('active');
+  }
   if (welcome) welcome.classList.add('active');
   document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));
   const titleEl = $('current-chapter-title');
