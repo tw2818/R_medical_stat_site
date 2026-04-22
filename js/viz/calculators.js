@@ -1,4 +1,4 @@
-import { registerViz } from './_core.js';
+import { registerViz, ensureJStat } from './_core.js';
 
 // ==========================================================
 // CALCULATORS - 统计可视化模块
@@ -9,6 +9,7 @@ import { registerViz } from './_core.js';
 // ============================================================
 
   function renderPower(el) {
+    if (!ensureJStat(el)) return;
     const id = 'power-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '功效分析';
     const test = el.dataset.test || 'ttest';
@@ -197,6 +198,7 @@ registerViz('power', renderPower);
 registerViz('coefci', renderCoefCI);
 
   function renderSampleSizeCalc(el) {
+    if (!ensureJStat(el)) return;
     const id = 'ss-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '样本量计算器';
 
