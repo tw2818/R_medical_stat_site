@@ -516,10 +516,10 @@ registerViz('blandaltman', renderBlandAltman);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:480px;height:220px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:#f8f9fa;border-top:1px solid #eee;font-size:22px;color:#555;">
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:#f8f9fa;border-top:1px solid #eee;font-size:12px;color:#555;">
           <span>格内：<strong>实测 (期望)</strong>，颜色深浅 = 观测-期望 差值</span>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:22px;color:#666;">
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
           <span style="background:#ffd0d0;padding:2px 8px;border-radius:4px;">■ 正偏差（实测&gt;期望）</span>
           <span style="background:#c8e6ff;padding:2px 8px;border-radius:4px;">■ 负偏差（实测&lt;期望）</span>
           <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;">■ 无偏差</span>
@@ -610,7 +610,7 @@ registerViz('contingency', renderContingency);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:520px;height:240px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:22px;color:#666;">
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
           <span style="background:#aed6f1;padding:2px 8px;border-radius:4px;">■ 有效</span>
           <span style="background:#fadbd8;padding:2px 8px;border-radius:4px;">■ 无效</span>
         </div>
