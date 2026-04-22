@@ -218,6 +218,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 ## 更新日志
 
+### 2026-04-22 — 移除 t 检验计算器中方向不明确的单侧 P 值
+- **修复范围**：`ttest` 计算器结果表
+- **修复内容**：两样本 t 检验结果中不再显示 `P 值（单侧）`
+- **原因**：原实现没有提供备择假设方向选择，却显示了单侧 P 值，容易导致结果解释不严谨
+- **效果**：保留双侧 P 值、均数差和 95% CI，使单样本与两样本输出口径更一致
+
 ### 2026-04-22 — 优化统计组件与计算器的移动端布局
 - **修复范围**：移动端下的统计可视化和计算器通用样式
 - **修复内容**：调整组件标题栏换行、滑块区纵向布局、P 值结果块单列显示、统计说明与图例堆叠、计算器 tab 换行、结果表改为更适合窄屏的纵向展示
@@ -308,7 +314,7 @@ GitHub (main) → Vercel → https://r.tweb.one
 ### 2026-04-22 — 删除 legacy hypothesis 文件
 - **仓库清理**：删除 `js/viz/hypothesis.js`
 - **状态收口**：假设检验相关代码现在完全由 `hypothesis-nonparametric.js` 与 `hypothesis-remaining.js` 承担
-- **README 同步**：删除对 legacy 文件的引用，更新当前最终模块结构
+- **README 同步**：删除对 legacy文件的引用，更新当前最终模块结构
 
 ### 2026-04-22 — 运行路径脱离 legacy hypothesis 模块
 - **新增模块**：`js/viz/hypothesis-remaining.js`，承接 ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
