@@ -1197,6 +1197,7 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   transition: all 0.2s;
 }
 .calc-tab:hover { color: var(--text, #1e293b); background: rgba(0,0,0,0.03); }
+[data-theme="dark"] .calc-tab:hover { color: #e2e8f0; background: rgba(255,255,255,0.05); }
 .calc-tab.active {
   color: #569cd6;
   border-bottom-color: #569cd6;
@@ -1267,6 +1268,10 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
 .result-row span:first-child { flex: 0 0 130px; color: var(--text-muted, #64748b); }
 .result-row span:last-child { flex: 1; font-family: 'JetBrains Mono', monospace; color: var(--text, #1e293b); }
 [data-theme="dark"] .result-row span:last-child { color: #e2e8f0; }
+[data-theme="dark"] .calc-input { background: #1e2535; border-color: #2d3748; color: #e2e8f0; }
+[data-theme="dark"] .calc-run { background: #3b82f6; }
+[data-theme="dark"] .calc-run:hover { background: #2563eb; }
+[data-theme="dark"] .calc-tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
 .result-sig { color: #ef4444; font-weight: 700; }
 .result-ns { color: var(--text-muted, #64748b); }
 .calc-note {
@@ -1366,4 +1371,48 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
 /* ===== path-content 过渡 ===== */
 .path-content {
   transition: opacity 0.2s ease;
+}
+
+/* ===== 图片点击放大（lightbox） ===== */
+#lightbox-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+#lightbox-overlay.show {
+  display: flex;
+}
+#lightbox-overlay img {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+#lightbox-overlay .lightbox-close {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  font-size: 2rem;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+#lightbox-overlay .lightbox-close:hover { color: #fff; }
+#lightbox-overlay .lightbox-hint {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  pointer-events: none;
 }

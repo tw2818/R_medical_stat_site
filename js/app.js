@@ -591,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildNav();
   initSearch();
   initGlobalActions();
+  initLightbox();
 
   const themeBtn = $('theme-toggle');
   if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
@@ -631,6 +632,43 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(navigateByHash, 0);
   }
 });
+
+// ===== 图片点击放大（lightbox） =====
+function initLightbox() {
+  const overlay = document.getElementById('lightbox-overlay');
+  const img = overlay ? overlay.querySelector('img') : null;
+  if (!overlay || !img) return;
+
+  function openLightbox(src, alt) {
+    img.src = src;
+    img.alt = alt || '';
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+    setTimeout(() => { img.src = ''; img.alt = ''; }, 200);
+  }
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay || e.target.classList.contains('lightbox-close')) {
+      closeLightbox();
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay.classList.contains('show')) closeLightbox();
+  });
+
+  document.addEventListener('click', e => {
+    const target = e.target.closest('#chapter-content img');
+    if (target) {
+      e.preventDefault();
+      openLightbox(target.src, target.alt);
+    }
+  });
+}
 
 function navigateByHash() {
   const hash = window.location.hash.replace('#', '');
