@@ -14,7 +14,7 @@
 - **📱 移动端适配** — 响应式布局，手机/平板可用
 - **🔍 章节搜索** — 侧边栏实时搜索
 - **✅ 学习进度追踪** — 自动记录已访问章节
-- **🧪 轻量验证基线** — 为关键统计计算器保留回归校验样例
+- **🧪 轻量验证基线** — 为关键统计计算器保留回归校验样例与可执行脚本
 
 ---
 
@@ -95,6 +95,7 @@ R_medical_stat_site/
 │   └── *_files/                   # 各章节关联图片
 ├── tests/                         # 轻量回归校验基线
 │   ├── README.md                  # 校验工作流说明
+│   ├── run_validation.js          # 零依赖可执行校验脚本
 │   └── stat_calculator_cases.json # 关键统计组件验证样例
 ├── figs/                          # 网站页面用到的独立图片资源
 │   └── *.png / *.jpg
@@ -134,6 +135,7 @@ R_medical_stat_site/
 仓库现在包含一个不依赖测试框架的回归校验基线：
 
 - `tests/stat_calculator_cases.json`
+- `tests/run_validation.js`
 - `tests/README.md`
 
 它的目标不是替代正式自动化测试，而是先把关键统计组件的：
@@ -147,6 +149,12 @@ R_medical_stat_site/
 - 手工回归
 - Playwright 接入
 - Node 脚本校验
+
+当前最小可执行方式：
+
+```bash
+node tests/run_validation.js
+```
 
 目前优先覆盖：
 - `ttest`
@@ -201,6 +209,12 @@ GitHub (main) → Vercel → https://r.tweb.one
 ---
 
 ## 更新日志
+
+### 2026-04-22 — 增加可执行的轻量验证脚本
+- **新增脚本**：`tests/run_validation.js`
+- **当前能力**：检查 case JSON 合法性、重复 id、关键输入结构，以及部分基线数值
+- **运行方式**：`node tests/run_validation.js`
+- **意义**：把原来的“文档化验证基线”推进到“最小可执行验证器”阶段
 
 ### 2026-04-22 — 增加轻量验证基线
 - **新增目录**：`tests/`
