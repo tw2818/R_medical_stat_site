@@ -516,10 +516,10 @@ registerViz('blandaltman', renderBlandAltman);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:480px;height:220px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:#f8f9fa;border-top:1px solid #eee;font-size:12px;color:#555;">
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:#f8f9fa;border-top:1px solid #eee;font-size:22px;color:#555;">
           <span>格内：<strong>实测 (期望)</strong>，颜色深浅 = 观测-期望 差值</span>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:22px;color:#666;">
           <span style="background:#ffd0d0;padding:2px 8px;border-radius:4px;">■ 正偏差（实测&gt;期望）</span>
           <span style="background:#c8e6ff;padding:2px 8px;border-radius:4px;">■ 负偏差（实测&lt;期望）</span>
           <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;">■ 无偏差</span>
@@ -560,23 +560,23 @@ registerViz('blandaltman', renderBlandAltman);
         ctx.strokeRect(x + 2, y + 2, cellW - 4, cellH - 4);
 
         ctx.fillStyle = '#1e293b';
-        ctx.font = 'bold 18px JetBrains Mono, monospace';
+        ctx.font = 'bold 36px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
         ctx.fillText(obs[i][j], x + cellW / 2, y + cellH / 2 - 8);
-        ctx.font = '13px JetBrains Mono, monospace';
+        ctx.font = '26px JetBrains Mono, monospace';
         ctx.fillStyle = '#888';
         ctx.fillText(`(${expected[i][j].toFixed(1)})`, x + cellW / 2, y + cellH / 2 + 12);
 
         // 列标签（顶部）
         if (i === 0) {
           ctx.fillStyle = '#444';
-          ctx.font = 'bold 13px sans-serif';
+          ctx.font = 'bold 26px sans-serif';
           ctx.fillText(colLabels[j] || '', x + cellW / 2, y - 6);
         }
         // 行标签（左侧）
         if (j === 0) {
           ctx.fillStyle = '#444';
-          ctx.font = 'bold 13px sans-serif';
+          ctx.font = 'bold 26px sans-serif';
           ctx.textAlign = 'right';
           ctx.fillText(rowLabels[i] || '', x - 8, y + cellH / 2 + 5);
           ctx.textAlign = 'center';
@@ -610,7 +610,7 @@ registerViz('contingency', renderContingency);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:520px;height:240px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:22px;color:#666;">
           <span style="background:#aed6f1;padding:2px 8px;border-radius:4px;">■ 有效</span>
           <span style="background:#fadbd8;padding:2px 8px;border-radius:4px;">■ 无效</span>
         </div>
@@ -671,7 +671,7 @@ registerViz('contingency', renderContingency);
     ctx.stroke();
 
     // 频数标注
-    ctx.font = 'bold 14px JetBrains Mono, monospace';
+    ctx.font = 'bold 28px JetBrains Mono, monospace';
     ctx.textAlign = 'center';
     const cells2 = [
       { v: a, x: pad.l + col1W / 2, y: pad.t + row1H1 / 2 },
@@ -685,14 +685,14 @@ registerViz('contingency', renderContingency);
     });
 
     // 列标签
-    ctx.font = 'bold 12px sans-serif';
+    ctx.font = 'bold 24px sans-serif';
     ctx.fillStyle = '#555';
     ctx.fillText(colLabels[0] || '有效', pad.l + col1W / 2, pad.t + innerH + 14);
     ctx.fillText(colLabels[1] || '无效', pad.l + col1W + col2W / 2, pad.t + innerH + 14);
 
     // 行标签（左侧，顶部=安慰剂组=row1，底部=治疗组=row2）
     ctx.textAlign = 'right';
-    ctx.font = 'bold 12px sans-serif';
+    ctx.font = 'bold 24px sans-serif';
     ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 6, pad.t + row1H1 / 2 + 4);
     ctx.fillText(rowLabels[1] || '治疗组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
   }

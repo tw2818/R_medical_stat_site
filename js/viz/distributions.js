@@ -828,7 +828,7 @@ registerViz('fdist', renderFDist);
         ctx.beginPath(); ctx.moveTo(sx(chiCrit), pad.t); ctx.lineTo(sx(chiCrit), pad.t + ih); ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = '#f9826c';
-        ctx.font = 'bold 12px JetBrains Mono, monospace';
+        ctx.font = 'bold 24px JetBrains Mono, monospace';
         ctx.fillText(`χ²* = ${chiCrit.toFixed(2)}`, Math.min(sx(chiCrit) + 6, W - 110), 16);
         ctx.fillStyle = 'rgba(214,105,105,0.9)';
         ctx.fillText(`拒绝域 α=${alpha}`, Math.min(sx(chiCrit) + 12, W - 100), 34);
@@ -847,7 +847,7 @@ registerViz('fdist', renderFDist);
 
       // X轴标签
       ctx.fillStyle = '#888';
-      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.font = '22px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
       for (let x = 0; x <= xMax; x += Math.ceil(xMax / 6)) {
         ctx.fillText(x.toFixed(0), sx(x), pad.t + ih + 16);
