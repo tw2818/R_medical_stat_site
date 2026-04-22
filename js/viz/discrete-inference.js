@@ -175,6 +175,7 @@ function renderPoissonRateCompare(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">下方组件可切换单样本事件率与两样本事件率比较；这里比较的是按单位观察量标准化后的事件率，而不是原始事件数。</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
         <button id="${id}-mode1" class="path-tab active" type="button">单样本事件率</button>
         <button id="${id}-mode2" class="path-tab" type="button">两样本事件率</button>
