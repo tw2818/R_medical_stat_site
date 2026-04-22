@@ -296,6 +296,9 @@ function pruneMisplacedChapterWidgets(container, filename) {
       pvalues[0].remove();
     }
 
+    const introBox = container.querySelector('.stat-viz[data-type="box"]');
+    if (introBox) introBox.remove();
+
     const startP = Array.from(container.querySelectorAll('p')).find(p =>
       p.textContent.includes('如果数据格式是两列数据')
     );
