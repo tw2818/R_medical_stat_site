@@ -1,6 +1,6 @@
 // ================================================================
 // stats-viz.js - 主入口，ES Module
-// 依赖: jStat (https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js)
+// 依赖: jStat (https://cdn.jsdelivr.net/npm/jstat@1.9.6/dist/jstat.min.js)
 // ================================================================
 
 import { init, setupObserver } from './viz/_core.js';
