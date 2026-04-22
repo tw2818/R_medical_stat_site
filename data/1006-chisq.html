@@ -545,6 +545,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><em>双向有序属性相同的R×C表资料</em> R×C表资料中的两个分类变量皆为有序且属性相同。实际上是配对四格表资料的扩展，即水平数≥3的配伍资料，如用两种检测方法同时对同一批样品的测定结果。其研究目的通常是分析两种检测方法的一致性，此时宜用一致性检验或称Kappa检验；也可用特殊模型分析方法（可用SAS软件）。</p></li>
 <li><p><em>双向有序属性不同的R×C表资料</em> R×C表资料中两个分类变量皆为有序的，但属性不同。对于该类资料，若研究目的为分析不同年龄组患者疗效之间有无差别时，可把它视为单向有序R×C表资料，选用秩转换的非参数检验；若研究目的为分析两个有序分类变量间是否存在相关关系，宜用等级相关分析：若研究目的为分析两个有序分类变量间是否存在线性变化趋势，宜用前述的双向有序分组资料的线性趋势检验(test for linear trend)。</p></li>
 </ol>
+<div class="stat-viz" data-type="chidist" data-df="1" data-title="χ² 分布 explorer — 拖动 df 观察分布形态变化" style="margin:20px 0;"></div>
 </section>
 <section id="四格表资料的卡方检验" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="四格表资料的卡方检验"><span class="header-section-number">4.2</span> 四格表资料的卡方检验</h2>
@@ -661,8 +662,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>可以看到这个函数直接给出所有结果，根据需要自己选择合适的即可。</p>
 <p>本例符合pearson卡方，卡方值为12.85707，p&lt;0.01，和课本一致。</p>
-
-<div class="stat-calc" data-type="chisq" style="margin:24px 0"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;">
+<div class="stat-viz" data-type="mosaic" data-a="75" data-b="21" data-c="99" data-d="5" data-row-labels="安慰剂组,治疗组" data-col-labels="有效,无效" data-title="马赛克图 — 矩形面积∝频数"></div>
+<div class="stat-viz" data-type="contingency" data-a="75" data-b="21" data-c="99" data-d="5" data-row-labels="安慰剂组,治疗组" data-col-labels="有效,无效" data-title="列联表热力图 — 颜色=实测−期望"></div>
+</div>
+<div class="stat-calc" data-type="chisq" style="margin:24px 0;"></div>
 
 </section>
 <section id="方法2" class="level3" data-number="4.2.2">
@@ -1031,7 +1035,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="多个样本率间的多重比较" class="level2" data-number="4.6">
 <h2 data-number="4.6" class="anchored" data-anchor-id="多个样本率间的多重比较"><span class="header-section-number">4.6</span> 多个样本率间的多重比较</h2>
-<div class="stat-viz" data-type="subgroupforest" data-title="多组率的多重比较 (Cochran Q检验)" data-labels="物理疗法,药物治疗,外用药物,总体" data-hr="0.966,0.765,0.812,0.848" data-lower="0.930,0.690,0.730,0.800" data-upper="1.000,0.840,0.880,0.890" data-event="199,153,162,514" data-total="206,200,199,605"></div>
 <p>主要有卡方分割法、Scheffe可信区间法、SNK法等，这里主要演示卡方分割法。</p>
 <p>其实非常简单，就是把多个组手动拆分为多个两个组，分别进行卡方检验，和P值比较，只不过这里的P值不再是0.05，而是和组数（比较次数）有关。</p>
 <p>使用<strong>例7-10</strong>的数据。</p>

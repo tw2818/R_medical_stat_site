@@ -486,3 +486,214 @@ function renderBlandAltman(el) {
   document.getElementById(id + '-stats').textContent = 'mean=' + meanVal.toFixed(2) + '  |  SD=' + sd.toFixed(2) + '  |  95%LoA: [' + (meanVal - 1.96 * sd).toFixed(2) + ', ' + (meanVal + 1.96 * sd).toFixed(2) + ']';
 }
 registerViz('blandaltman', renderBlandAltman);
+
+  // ── 列联表热力图（实测 vs 期望频数差异）──────────────────
+  // <div class="stat-viz" data-type="contingency"
+  //      data-a="75" data-b="21" data-c="99" data-d="5"
+  //      data-title="四格表列联表（实测 vs 期望）"></div>
+  function renderContingency(el) {
+    const a = parseInt(el.dataset.a || '75');
+    const b = parseInt(el.dataset.b || '21');
+    const c = parseInt(el.dataset.c || '99');
+    const d = parseInt(el.dataset.d || '5');
+    const title = el.dataset.title || '列联表热力图（实测 vs 期望）';
+    const rowLabels = (el.dataset.rowLabels || '治疗组,安慰剂组').split(',');
+    const colLabels = (el.dataset.colLabels || '有效,无效').split(',');
+
+    const obs = [[a, b], [c, d]];
+    const total = a + b + c + d;
+    const rowTotals = [a + b, c + d];
+    const colTotals = [a + c, b + d];
+    const expected = [
+      [(rowTotals[0] * colTotals[0]) / total, (rowTotals[0] * colTotals[1]) / total],
+      [(rowTotals[1] * colTotals[0]) / total, (rowTotals[1] * colTotals[1]) / total],
+    ];
+    const diff = obs.map((row, i) => row.map((v, j) => v - expected[i][j]));
+
+    el.innerHTML = `
+      <div class="viz-card">
+        <div class="viz-header">📊 ${title}</div>
+        <div class="viz-body">
+          <canvas class="viz-canvas" style="width:100%;max-width:480px;height:220px;display:block;margin:0 auto;"></canvas>
+        </div>
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:#f8f9fa;border-top:1px solid #eee;font-size:12px;color:#555;">
+          <span>格内：<strong>实测 (期望)</strong>，颜色深浅 = 观测-期望 差值</span>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
+          <span style="background:#c8e6ff;padding:2px 8px;border-radius:4px;">■ 正偏差（实测&gt;期望）</span>
+          <span style="background:#ffd0d0;padding:2px 8px;border-radius:4px;">■ 负偏差（实测&lt;期望）</span>
+          <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;">■ 无偏差</span>
+        </div>
+      </div>
+    `;
+
+    const canvas = el.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.offsetWidth * 2, H = 440;
+    canvas.width = W; canvas.height = H;
+    const pad = { l: 90, r: 20, t: 20, b: 20 };
+    const cellW = (W - pad.l - pad.r) / 2;
+    const cellH = (H - pad.t - pad.b) / 2;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const maxAbs = Math.max(...diff.map(r => Math.max(...r.map(Math.abs))));
+
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 2; j++) {
+        const x = pad.l + j * cellW;
+        const y = pad.t + i * cellH;
+        const dval = diff[i][j];
+        const intensity = Math.abs(dval) / (maxAbs || 1);
+
+        if (dval > 0) {
+          ctx.fillStyle = `rgba(52, 152, 219, ${0.15 + intensity * 0.7})`;
+        } else if (dval < 0) {
+          ctx.fillStyle = `rgba(231, 76, 60, ${0.15 + intensity * 0.7})`;
+        } else {
+          ctx.fillStyle = '#f5f5f5';
+        }
+        ctx.fillRect(x + 2, y + 2, cellW - 4, cellH - 4);
+
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 2, y + 2, cellW - 4, cellH - 4);
+
+        ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 18px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(obs[i][j], x + cellW / 2, y + cellH / 2 - 8);
+        ctx.font = '13px JetBrains Mono, monospace';
+        ctx.fillStyle = '#888';
+        ctx.fillText(`(${expected[i][j].toFixed(1)})`, x + cellW / 2, y + cellH / 2 + 12);
+
+        // 列标签（顶部）
+        if (i === 0) {
+          ctx.fillStyle = '#444';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.fillText(colLabels[j] || '', x + cellW / 2, y - 6);
+        }
+        // 行标签（左侧）
+        if (j === 0) {
+          ctx.fillStyle = '#444';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'right';
+          ctx.fillText(rowLabels[i] || '', x - 8, y + cellH / 2 + 5);
+          ctx.textAlign = 'center';
+        }
+      }
+    }
+  }
+registerViz('contingency', renderContingency);
+
+  // ── 马赛克图 ───────────────────────────────────────────
+  // <div class="stat-viz" data-type="mosaic"
+  //      data-a="75" data-b="21" data-c="99" data-d="5"
+  //      data-title="马赛克图（四格表频数）"></div>
+  function renderMosaic(el) {
+    const a = parseInt(el.dataset.a || '75');
+    const b = parseInt(el.dataset.b || '21');
+    const c = parseInt(el.dataset.c || '99');
+    const d = parseInt(el.dataset.d || '5');
+    const title = el.dataset.title || '马赛克图（四格表频数）';
+    const rowLabels = (el.dataset.rowLabels || '治疗组,安慰剂组').split(',');
+    const colLabels = (el.dataset.colLabels || '有效,无效').split(',');
+
+    const obs = [[a, b], [c, d]];
+    const total = a + b + c + d;
+    const colTotals = [a + c, b + d];
+    const rowTotals = [a + b, c + d];
+
+    el.innerHTML = `
+      <div class="viz-card">
+        <div class="viz-header">📊 ${title}</div>
+        <div class="viz-body">
+          <canvas class="viz-canvas" style="width:100%;max-width:520px;height:240px;display:block;margin:0 auto;"></canvas>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
+          <span style="background:#aed6f1;padding:2px 8px;border-radius:4px;">■ 有效</span>
+          <span style="background:#fadbd8;padding:2px 8px;border-radius:4px;">■ 无效</span>
+        </div>
+      </div>
+    `;
+
+    const canvas = el.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.offsetWidth * 2, H = 480;
+    canvas.width = W; canvas.height = H;
+    const pad = { l: 90, r: 20, t: 20, b: 20 };
+    const innerW = W - pad.l - pad.r;
+    const innerH = H - pad.t - pad.b;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // 列宽 = 列合计比例
+    const col1W = innerW * (colTotals[0] / total);
+    const col2W = innerW * (colTotals[1] / total);
+
+    // 行高 = 行合计比例（每列内）
+    const row1H1 = innerH * (rowTotals[0] / total) * (a / rowTotals[0]);
+    const row1H2 = innerH * (rowTotals[0] / total) * (b / rowTotals[0]);
+    const row2H1 = innerH * (rowTotals[1] / total) * (c / rowTotals[1]);
+    const row2H2 = innerH * (rowTotals[1] / total) * (d / rowTotals[1]);
+
+    const cells = [
+      [{ v: a, x: pad.l, y: pad.t, w: col1W, h: row1H1, fill: '#aed6f1' }],
+      [{ v: b, x: pad.l + col1W, y: pad.t, w: col2W, h: row1H2, fill: '#fadbd8' }],
+      [{ v: c, x: pad.l, y: pad.t + row1H1, w: col1W, h: row2H1, fill: '#aed6f1' }],
+      [{ v: d, x: pad.l + col1W, y: pad.t + row1H2, w: col2W, h: row2H2, fill: '#fadbd8' }],
+    ];
+
+    // 合并同行同列的矩形
+    // Row 1
+    ctx.fillStyle = '#aed6f1';
+    ctx.fillRect(pad.l, pad.t, col1W, row1H1);
+    ctx.fillStyle = '#fadbd8';
+    ctx.fillRect(pad.l + col1W, pad.t, col2W, row1H2);
+    // Row 2
+    ctx.fillStyle = '#aed6f1';
+    ctx.fillRect(pad.l, pad.t + row1H1, col1W, row2H1);
+    ctx.fillStyle = '#fadbd8';
+    ctx.fillRect(pad.l + col1W, pad.t + row1H2, col2W, row2H2);
+
+    // 边框
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    // 垂直分隔（列合计边界）
+    ctx.beginPath();
+    ctx.moveTo(pad.l + col1W, pad.t);
+    ctx.lineTo(pad.l + col1W, pad.t + innerH);
+    ctx.stroke();
+    // 水平分隔（行合计边界）
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t + row1H1 + row1H2);
+    ctx.lineTo(pad.l + innerW, pad.t + row1H1 + row1H2);
+    ctx.stroke();
+
+    // 频数标注
+    ctx.font = 'bold 14px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    const cells2 = [
+      { v: a, x: pad.l + col1W / 2, y: pad.t + row1H1 / 2 },
+      { v: b, x: pad.l + col1W + col2W / 2, y: pad.t + row1H2 / 2 },
+      { v: c, x: pad.l + col1W / 2, y: pad.t + row1H1 + row2H1 / 2 },
+      { v: d, x: pad.l + col1W + col2W / 2, y: pad.t + row1H2 + row2H2 / 2 },
+    ];
+    ctx.fillStyle = '#1e293b';
+    cells2.forEach(({ v, x, y }) => {
+      ctx.fillText(v, x, y + 5);
+    });
+
+    // 列标签
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = '#555';
+    ctx.fillText(colLabels[0] || '有效', pad.l + col1W / 2, pad.t + innerH + 14);
+    ctx.fillText(colLabels[1] || '无效', pad.l + col1W + col2W / 2, pad.t + innerH + 14);
+
+    // 行标签
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText(rowLabels[0] || '治疗组', pad.l - 6, pad.t + row1H1 / 2 + 4);
+    ctx.fillText(rowLabels[1] || '安慰剂组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
+  }
+registerViz('mosaic', renderMosaic);

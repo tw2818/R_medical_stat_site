@@ -713,6 +713,154 @@ registerViz('pvalue', renderPValue);
   }
 registerViz('fdist', renderFDist);
 
+  // ── 卡方分布 explorer ──────────────────────────────────
+  // <div class="stat-viz" data-type="chidist" data-df="1" data-title="χ² 分布 explorer"></div>
+  function renderChiDist(el) {
+    const initialDf = parseInt(el.dataset.df || '1');
+    const title = el.dataset.title || 'χ² 分布 explorer';
+
+    el.innerHTML = `
+      <div class="viz-card">
+        <div class="viz-header">📊 ${title}</div>
+        <div class="viz-body">
+          <canvas class="viz-canvas" style="width:100%;max-width:600px;height:260px;display:block;margin:0 auto;"></canvas>
+        </div>
+        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:#f8f9fa;border-top:1px solid #eee;">
+          <label>df = <span data-for="df" class="val-label">${initialDf}</span>
+            <input type="range" class="viz-slider" data-param="df" min="1" max="30" value="${initialDf}" style="width:140px;">
+          </label>
+          <label>α = <span data-for="alpha" class="val-label">0.05</span>
+            <select class="viz-alpha" style="width:90px;">
+              <option value="0.10">0.10</option>
+              <option value="0.05" selected>0.05</option>
+              <option value="0.01">0.01</option>
+            </select>
+          </label>
+        </div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:6px;color:#555;"></div>
+      </div>
+    `;
+
+    const canvas = el.querySelector('canvas');
+    const slider = el.querySelector('[data-param="df"]');
+    const alphaSel = el.querySelector('.viz-alpha');
+    const dfLabel = el.querySelector('[data-for="df"]');
+    const resultDiv = el.querySelector('.viz-result');
+
+    function chiPdf(x, df) {
+      if (x <= 0) return 0;
+      return Math.pow(x, df / 2 - 1) * Math.exp(-x / 2) / (Math.pow(2, df / 2) * gamma(df / 2));
+    }
+
+    function gamma(z) {
+      if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+      z -= 1;
+      const g = 7;
+      const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+      let x = c[0];
+      for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+      const t = z + g + 0.5;
+      return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+    }
+
+    function draw() {
+      const df = parseInt(slider.value, 10);
+      const alpha = parseFloat(alphaSel.value, 10);
+      dfLabel.textContent = df;
+
+      const ctx = canvas.getContext('2d');
+      const W = canvas.offsetWidth * 2, H = 520;
+      canvas.width = W; canvas.height = H;
+      const pad = { l: 52, r: 20, t: 20, b: 52 };
+      const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // 找峰值 x
+      let modeX = (df - 2) > 0 ? df - 2 : 0.1;
+      let maxY = chiPdf(modeX, df);
+
+      const sx = x => pad.l + (x / 15) * iw;
+      const sy = y => pad.t + ih - (y / (maxY * 1.2)) * ih;
+      const xMin = 0, xMax = Math.max(df * 3 + 5, 15);
+
+      // 临界值
+      let chiCrit = null;
+      if (window.jStat && window.jStat.chisquare && window.jStat.chisquare.inv) {
+        chiCrit = jStat.chisquare.inv(1 - alpha, df);
+      } else {
+        // 简单数值搜索
+        for (let x = 0.01; x <= xMax; x += 0.01) {
+          if (chiPdf(x, df) < 0.0001) { chiCrit = x; break; }
+        }
+      }
+
+      // 坐标轴
+      ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ih); ctx.lineTo(pad.l + iw, pad.t + ih); ctx.stroke();
+
+      // 填充拒绝域
+      if (chiCrit !== null) {
+        ctx.beginPath();
+        let started = false;
+        for (let px = 0; px <= W; px++) {
+          const x = xMin + (px / W) * (xMax - xMin);
+          if (x < chiCrit) continue;
+          const y = chiPdf(x, df);
+          if (!started) { ctx.moveTo(px, sy(y)); started = true; }
+          else ctx.lineTo(px, sy(y));
+        }
+        ctx.lineTo(sx(chiCrit), pad.t + ih);
+        ctx.lineTo(sx(chiCrit), sy(0));
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(214,105,105,0.35)';
+        ctx.fill();
+
+        ctx.strokeStyle = '#f9826c';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.moveTo(sx(chiCrit), pad.t); ctx.lineTo(sx(chiCrit), pad.t + ih); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#f9826c';
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
+        ctx.fillText(`χ²* = ${chiCrit.toFixed(2)}`, Math.min(sx(chiCrit) + 6, W - 110), 16);
+        ctx.fillStyle = 'rgba(214,105,105,0.9)';
+        ctx.fillText(`拒绝域 α=${alpha}`, Math.min(sx(chiCrit) + 12, W - 100), 34);
+      }
+
+      // 曲线
+      ctx.strokeStyle = '#569cd6';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let px = 0; px <= W; px++) {
+        const x = xMin + (px / W) * (xMax - xMin);
+        const y = chiPdf(x, df);
+        px === 0 ? ctx.moveTo(px, sy(y)) : ctx.lineTo(px, sy(y));
+      }
+      ctx.stroke();
+
+      // X轴标签
+      ctx.fillStyle = '#888';
+      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      for (let x = 0; x <= xMax; x += Math.ceil(xMax / 6)) {
+        ctx.fillText(x.toFixed(0), sx(x), pad.t + ih + 16);
+      }
+      ctx.textAlign = 'left';
+
+      // 结果文字
+      const pText = chiCrit !== null
+        ? `df=${df} 时，χ²(${alpha}, ${df}) ≈ ${chiCrit.toFixed(2)}，右侧阴影为拒绝域`
+        : `df=${df}，α=${alpha}（jStat 未加载，无法计算临界值）`;
+      resultDiv.textContent = pText;
+    }
+
+    draw();
+    slider.addEventListener('input', draw);
+    alphaSel.addEventListener('change', draw);
+  }
+registerViz('chidist', renderChiDist);
+
   // ── 二项分布可视化 ──────────────────────────────────
   // <div class="stat-viz" data-type="binom" data-n="20" data-p="0.5" data-title="二项分布 B(n,p)"></div>
 
