@@ -217,6 +217,11 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 ## 更新日志
 
+### 2026-04-22 — 重写附录页，使其回到本站定位
+- **内容重写**：将 `9999-appendix.html` 从外部资源与公众号导流页，改为本站自己的“站点说明与补充资源”页面
+- **内容范围调整**：保留站点定位、使用方式、验证入口、本地开发命令、参考来源与版权说明，移除不必要的外部合集导流内容
+- **意义**：让附录页与 `r.tweb.one` 的站点身份、使用场景和工程状态保持一致
+
 ### 2026-04-22 — 增加 package.json 并清理代码复制按钮 inline 行为
 - **开发入口**：新增最小 `package.json`，统一提供 `npm run preview` 和 `npm run validate`
 - **复制按钮整理**：将 Quarto 代码复制按钮的 inline `onclick / onmouseover / onmouseout / style` 移出 HTML 字符串，改为统一 class + JS 绑定 + CSS 样式
