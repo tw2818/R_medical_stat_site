@@ -297,6 +297,10 @@ function pruneMisplacedChapterWidgets(container, filename) {
   if (filename === '1038-p4trend.html') {
     container.querySelectorAll('.stat-viz[data-type="subgroupforest"]').forEach(el => el.remove());
   }
+
+  if (filename === '1039-nonlinear.html') {
+    container.querySelectorAll('.stat-viz[data-type="dose"]').forEach(el => el.remove());
+  }
 }
 
 function copyCodeBlock(btn) {
