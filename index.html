@@ -18,7 +18,6 @@
 </head>
 <body>
   <div id="app">
-    <!-- 侧边栏 -->
     <aside id="sidebar">
       <div class="sidebar-header">
         <h1>📊 R语言实战医学统计</h1>
@@ -29,28 +28,24 @@
         </div>
       </div>
       <nav id="chapter-nav">
-        <!-- 基础统计分析 -->
         <div class="nav-group">
           <button class="nav-group-header" data-group="basic" aria-expanded="false" aria-controls="basic-chapters">
             📈 基础统计分析 <span class="chapter-count" id="basic-count">0/13</span>
           </button>
           <div class="nav-group-content" id="basic-chapters"></div>
         </div>
-        <!-- 高级统计分析 -->
         <div class="nav-group">
           <button class="nav-group-header" data-group="advanced" aria-expanded="false" aria-controls="advanced-chapters">
             🔬 高级统计分析 <span class="chapter-count" id="advanced-count">0/23</span>
           </button>
           <div class="nav-group-content" id="advanced-chapters"></div>
         </div>
-        <!-- 文献常见统计分析 -->
         <div class="nav-group">
           <button class="nav-group-header" data-group="literature" aria-expanded="false" aria-controls="literature-chapters">
             📚 文献常见统计分析 <span class="chapter-count" id="literature-count">0/9</span>
           </button>
           <div class="nav-group-content" id="literature-chapters"></div>
         </div>
-        <!-- 其他 -->
         <div class="nav-group">
           <button class="nav-group-header" data-group="other" aria-expanded="false" aria-controls="other-chapters">
             📎 其他合集 <span class="chapter-count" id="other-count">0/1</span>
@@ -82,9 +77,7 @@
       </div>
     </aside>
 
-    <!-- 主内容区 -->
     <main id="main-content">
-      <!-- 顶部导航（移动端） -->
       <header id="topbar">
         <button id="menu-toggle" aria-label="打开章节导航">☰</button>
         <span id="current-chapter-title">R语言实战医学统计</span>
@@ -92,9 +85,7 @@
         <button id="theme-toggle" aria-label="切换深色模式">🌙</button>
       </header>
 
-      <!-- 章节内容 -->
       <div id="content-wrapper">
-        <!-- 欢迎页 -->
         <section id="welcome" class="chapter-section active">
           <div class="welcome-hero">
             <h1>R语言实战医学统计</h1>
@@ -112,70 +103,21 @@
             </div>
           </div>
 
-          <!-- 按研究问题查找 -->
           <div class="task-nav" id="task-nav">
             <h2>🔍 按研究问题查找</h2>
             <div class="task-grid">
-              <button class="task-item" data-nav-group="basic" data-nav-index="0">
-                <span class="task-icon">📊</span>
-                <span class="task-name">两组均值比较</span>
-                <span class="task-meta">t检验</span>
-              </button>
-              <button class="task-item" data-nav-group="basic" data-nav-index="1">
-                <span class="task-icon">📈</span>
-                <span class="task-name">多组均值比较</span>
-                <span class="task-meta">方差分析</span>
-              </button>
-              <button class="task-item" data-nav-group="basic" data-nav-index="3">
-                <span class="task-icon">📋</span>
-                <span class="task-name">分类数据分析</span>
-                <span class="task-meta">卡方检验</span>
-              </button>
-              <button class="task-item" data-nav-group="basic" data-nav-index="5">
-                <span class="task-icon">📉</span>
-                <span class="task-name">非正态数据</span>
-                <span class="task-meta">秩和检验</span>
-              </button>
-              <button class="task-item" data-nav-group="basic" data-nav-index="6">
-                <span class="task-icon">📈</span>
-                <span class="task-name">相关性分析</span>
-                <span class="task-meta">回归相关</span>
-              </button>
-              <button class="task-item" data-nav-group="advanced" data-nav-index="11">
-                <span class="task-icon">⚕️</span>
-                <span class="task-name">生存结局分析</span>
-                <span class="task-meta">KM曲线 / Cox</span>
-              </button>
-              <button class="task-item" data-nav-group="advanced" data-nav-index="7">
-                <span class="task-icon">📊</span>
-                <span class="task-name">分类结局建模</span>
-                <span class="task-meta">Logistic回归</span>
-              </button>
-              <button class="task-item" data-nav-group="literature" data-nav-index="1">
-                <span class="task-icon">⚖️</span>
-                <span class="task-name">混杂校正</span>
-                <span class="task-meta">倾向评分</span>
-              </button>
-              <button class="task-item" data-nav-group="literature" data-nav-index="6">
-                <span class="task-icon">🌲</span>
-                <span class="task-name">非线性关系</span>
-                <span class="task-meta">样条回归</span>
-              </button>
-              <button class="task-item" data-nav-group="literature" data-nav-index="7">
-                <span class="task-icon">🌲</span>
-                <span class="task-name">亚组分析</span>
-                <span class="task-meta">森林图</span>
-              </button>
-              <button class="task-item" data-nav-group="basic" data-nav-index="7">
-                <span class="task-icon">📊</span>
-                <span class="task-name">规范表格</span>
-                <span class="task-meta">三线表</span>
-              </button>
-              <button class="task-item" data-nav-group="literature" data-nav-index="0">
-                <span class="task-icon">⏱️</span>
-                <span class="task-name">竞争风险</span>
-                <span class="task-meta">Fine-Gray</span>
-              </button>
+              <button class="task-item" data-nav-group="basic" data-nav-index="0"><span class="task-icon">📊</span><span class="task-name">两组均值比较</span><span class="task-meta">t检验</span></button>
+              <button class="task-item" data-nav-group="basic" data-nav-index="1"><span class="task-icon">📈</span><span class="task-name">多组均值比较</span><span class="task-meta">方差分析</span></button>
+              <button class="task-item" data-nav-group="basic" data-nav-index="3"><span class="task-icon">📋</span><span class="task-name">分类数据分析</span><span class="task-meta">卡方检验</span></button>
+              <button class="task-item" data-nav-group="basic" data-nav-index="5"><span class="task-icon">📉</span><span class="task-name">非正态数据</span><span class="task-meta">秩和检验</span></button>
+              <button class="task-item" data-nav-group="basic" data-nav-index="6"><span class="task-icon">📈</span><span class="task-name">相关性分析</span><span class="task-meta">回归相关</span></button>
+              <button class="task-item" data-nav-group="advanced" data-nav-index="11"><span class="task-icon">⚕️</span><span class="task-name">生存结局分析</span><span class="task-meta">KM曲线 / Cox</span></button>
+              <button class="task-item" data-nav-group="advanced" data-nav-index="7"><span class="task-icon">📊</span><span class="task-name">分类结局建模</span><span class="task-meta">Logistic回归</span></button>
+              <button class="task-item" data-nav-group="literature" data-nav-index="1"><span class="task-icon">⚖️</span><span class="task-name">混杂校正</span><span class="task-meta">倾向评分</span></button>
+              <button class="task-item" data-nav-group="literature" data-nav-index="6"><span class="task-icon">🌲</span><span class="task-name">非线性关系</span><span class="task-meta">样条回归</span></button>
+              <button class="task-item" data-nav-group="literature" data-nav-index="7"><span class="task-icon">🌲</span><span class="task-name">亚组分析</span><span class="task-meta">森林图</span></button>
+              <button class="task-item" data-nav-group="basic" data-nav-index="7"><span class="task-icon">📊</span><span class="task-name">规范表格</span><span class="task-meta">三线表</span></button>
+              <button class="task-item" data-nav-group="literature" data-nav-index="0"><span class="task-icon">⏱️</span><span class="task-name">竞争风险</span><span class="task-meta">Fine-Gray</span></button>
             </div>
           </div>
 
@@ -217,38 +159,13 @@
           <div class="welcome-features">
             <h2>✨ 教程特色</h2>
             <div class="feature-list">
-              <div class="feature-item">
-                <span class="feature-icon">📋</span>
-                <div>
-                  <h4>代码一键复制</h4>
-                  <p>每段 R 代码均可一键复制到剪贴板，在本地 RStudio 中运行</p>
-                </div>
-              </div>
-              <div class="feature-item">
-                <span class="feature-icon">📊</span>
-                <div>
-                  <h4>配套教材原题</h4>
-                  <p>完全使用 R 语言复现孙振球《医学统计学》教材例题</p>
-                </div>
-              </div>
-              <div class="feature-item">
-                <span class="feature-icon">📈</span>
-                <div>
-                  <h4>统计概念详解</h4>
-                  <p>先讲统计原理，再配 R 实操，边学边记</p>
-                </div>
-              </div>
-              <div class="feature-item">
-                <span class="feature-icon">🔢</span>
-                <div>
-                  <h4>结果解读</h4>
-                  <p>每段代码配详细结果解读，三线表规范呈现</p>
-                </div>
-              </div>
+              <div class="feature-item"><span class="feature-icon">📋</span><div><h4>代码一键复制</h4><p>每段 R 代码均可一键复制到剪贴板，在本地 RStudio 中运行</p></div></div>
+              <div class="feature-item"><span class="feature-icon">📊</span><div><h4>配套教材原题</h4><p>完全使用 R 语言复现孙振球《医学统计学》教材例题</p></div></div>
+              <div class="feature-item"><span class="feature-icon">📈</span><div><h4>统计概念详解</h4><p>先讲统计原理，再配 R 实操，边学边记</p></div></div>
+              <div class="feature-item"><span class="feature-icon">🔢</span><div><h4>结果解读</h4><p>每段代码配详细结果解读，三线表规范呈现</p></div></div>
             </div>
           </div>
 
-          <!-- 学习路线 -->
           <div class="learning-paths" id="learning-paths">
             <h2>🎯 推荐学习路线</h2>
             <div class="path-tabs">
@@ -297,7 +214,6 @@
           </footer>
         </section>
 
-        <!-- 动态章节内容 -->
         <section id="chapter-content" class="chapter-section"></section>
       </div>
     </main>
@@ -306,8 +222,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-r.min.js"></script>
-  <script src="js/chapters.js"></script>
   <script type="module" src="js/stats-viz.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
