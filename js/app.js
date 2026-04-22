@@ -3,7 +3,6 @@
 // ===== 状态 =====
 let currentGroup = null;
 let currentIndex = 0;
-let currentChapterData = null;
 
 // ===== 章节内容缓存 =====
 const chapterCache = new Map();
