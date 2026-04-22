@@ -37,7 +37,11 @@ node tests/run_validation.js
 - 检查 JSON 是否合法
 - 检查 case 是否有重复 id
 - 检查关键组件输入结构是否合理
-- 校验部分基线数值，例如 one-sample t-test 的样本均值
+- 计算并校验部分真实统计量，例如：
+  - one-sample t-test 的样本均值、df、t 统计量是否可计算
+  - Welch t-test 的 df / t 统计量是否可计算
+  - 卡方表的 df / minimum expected count 是否合理
+  - Kruskal H / Friedman chi-square 近似量是否可计算
 
 ### 2. 手工校验页面组件
 每次修改统计组件后：
