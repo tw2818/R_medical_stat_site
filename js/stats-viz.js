@@ -4,26 +4,10 @@
 // ================================================================
 
 import { init, setupObserver } from './viz/_core.js';
-import './viz/distributions.js';
-import './viz/hypothesis-nonparametric.js';
-import './viz/hypothesis-remaining.js';
-import './viz/clinical-models.js';
-import './viz/structure-diagrams.js';
-import './viz/survival.js';
-import './viz/visualization.js';
-import './viz/advanced.js';
-import './viz/meta.js';
-import './viz/calculators.js';
-import './viz/discrete-inference.js';
-import './viz/categorical-trends.js';
-import './viz/categorical-tests.js';
-import './viz/categorical-displays.js';
-import './viz/baseline-table.js';
-import './viz/regression.js';
-import './viz/rank-correlation.js';
-import './viz/bivariate-extensions.js';
-import './viz/table-presentation.js';
-import './viz/overrides.js';
+import './viz/_bundle-core-modules.js';
+import './viz/_bundle-categorical-modules.js';
+import './viz/_bundle-bivariate-modules.js';
+import './viz/_bundle-presentation-modules.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;
