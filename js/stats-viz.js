@@ -21,6 +21,7 @@ import './viz/categorical-displays.js';
 import './viz/baseline-table.js';
 import './viz/regression.js';
 import './viz/rank-correlation.js';
+import './viz/bivariate-extensions.js';
 import './viz/overrides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
