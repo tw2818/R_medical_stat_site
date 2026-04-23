@@ -220,6 +220,13 @@ GitHub (main) → Vercel → https://r.tweb.one
 
 详细更新记录见 [附录页](/data/9999-appendix.html)（站内可折叠查看）。以下是近期重要改动：
 
+### 2026-04-23
+- **第一章（t 检验）计算器增强**：t 检验计算器新增第三 tab「配对 t 检验」，支持等长校验和差值单样本 t 检验；修复因缺少 `parseNumbers` 导入导致的计算器 `ReferenceError`
+- **第二章（方差分析）数据修正**：ANOVA 组件 mean/SD 数据修正为经实测验证的正确值（means: 3.4303/2.7153/2.698/1.9663，sds: 0.7151/0.6382/0.4972/0.7464）；删去 2.5 节格式错误的重复 ANOVA 组件
+- **第二章正文多处修正**：区组间 F 值 5.798 → 5.978；拉丁方残差 SS "0.0683.2" → 683.2；2.4 导语药物均值描述及 p 值解释修正；变量描述改为正确名称
+- **第一章正文修正**：方差齐性表述改为"未见显著证据反对方差相等假设"；1.4 节标题改为「方差齐性检验」
+- **Canvas 图表渲染修复**：删除 `.viz-canvas { height: auto }` CSS 覆盖规则，使 canvas 高度生效；马赛克图/热力图 canvas 内部高度与容器协调，修复显示裁剪问题
+
 ### 2026-04-22
 - **附录页与首页 UI 优化**：精简附录页正文内容，更新日志改为默认折叠，各 section 加左侧彩色竖线；首页学习路线 tab 加切换动画，footer 加分隔线
 - **桌面端 topbar 显示**：修复桌面端 Home/主题切换按钮缺失问题，`☰` 菜单键仅在移动端显示
@@ -228,9 +235,6 @@ GitHub (main) → Vercel → https://r.tweb.one
 - **代码复制按钮整理**：Quarto inline handler 全部移出 HTML，改为 class + JS 事件委托
 - **固定 jStat 版本**：CDN 从 `@latest` 改为明确版本号，避免上游波动
 - **轻量验证基线**：`tests/` 目录含可执行校验脚本，`npm run validate` 即可运行
-
-### 2026-04-21
-- **统计计算 bug 修复**：Kruskal-Wallis H / Friedman M / Kaplan-Meier / t 分布 fallback / F 分布 fallback 等硬编码值全部替换为动态计算
 
 ---
 
