@@ -18,6 +18,7 @@ import './viz/discrete-inference.js';
 import './viz/categorical-trends.js';
 import './viz/categorical-tests.js';
 import './viz/categorical-displays.js';
+import './viz/baseline-table.js';
 import './viz/overrides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
