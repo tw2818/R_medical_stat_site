@@ -520,9 +520,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="7.1" class="anchored" data-anchor-id="直线回归"><span class="header-section-number">7.1</span> 直线回归</h2>
 <p>例9-1。</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df9_1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">13</span>,<span class="dv">11</span>,<span class="dv">9</span>,<span class="dv">6</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">7</span>),</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">3.54</span>,<span class="fl">3.01</span>,<span class="fl">3.09</span>,<span class="fl">2.48</span>,<span class="fl">2.56</span>,<span class="fl">3.36</span>,<span class="fl">3.18</span>,<span class="fl">2.65</span>))</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df9_1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">13</span>,<span class="dv">11</span>,<span class="dv">9</span>,<span class="dv">6</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">7</span>),
+                    <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">3.54</span>,<span class="fl">3.01</span>,<span class="fl">3.09</span>,<span class="fl">2.48</span>,<span class="fl">2.56</span>,<span class="fl">3.36</span>,<span class="fl">3.18</span>,<span class="fl">2.65</span>))</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="regression" data-title="直线回归：例9-1 儿童年龄与骨龄" data-xlabel="年龄(岁)" data-ylabel="骨龄" data-xs="13,11,9,6,8,10,12,7" data-ys="3.54,3.01,3.09,2.48,2.56,3.36,3.18,2.65"></div>
 <p>建立回归方程：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> df9_1)</span>
@@ -706,7 +707,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="两条回归直线的比较" class="level2" data-number="7.4">
 <h2 data-number="7.4" class="anchored" data-anchor-id="两条回归直线的比较"><span class="header-section-number">7.4</span> 两条回归直线的比较</h2>
-<div class="stat-viz" data-type="scatter" data-title="两条回归直线比较：正常vs大骨节病儿童" data-xlabel="年龄(x)" data-ylabel="骨龄(y)" data-xs="13,11,9,6,8,10,12,7,4,5,9,7,6,10,7,8,6,9,11,8" data-ys="3.54,3.01,3.09,2.48,2.56,3.36,3.18,2.65,2.86,2.94,3.31,2.97,2.87,3.18,2.78,2.95,2.72,3.11,2.98,2.81" data-regression="true" data-grouplabels="正常儿童均值,大骨节病儿童均值" data-groupx="9,8" data-groupy="3.0,2.9"></div>
+<div class="stat-viz" data-type="scatter" data-title="两条回归直线比较：正常儿童 vs 大骨节病儿童" data-xlabel="年龄(岁)" data-ylabel="骨龄" data-group1xs="13,11,9,6,8,10,12,7" data-group1ys="3.54,3.01,3.09,2.48,2.56,3.36,3.18,2.65" data-group2xs="10,9,10,8,7,6,5,8,7,9,6,10" data-group2ys="3.01,2.83,2.97,2.72,2.68,2.69,2.58,2.86,2.94,3.31,2.87,3.18" data-grouplabels="正常儿童,大骨节病儿童"></div>
 <p>正常儿童数据见例9-1，大骨节病儿童数据见例9-9，问：回归直线是否不平行？</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 例9-1数据</span></span>

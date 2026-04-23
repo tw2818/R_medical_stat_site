@@ -112,6 +112,18 @@ function renderScatterPlot(el) {
       if (!isNaN(xsRaw[i]) && !isNaN(ysRaw[i])) points.push({ x: xsRaw[i], y: ysRaw[i] });
     }
   }
+  // 分组数据（用于两条回归线比较）
+  function parseGroup(ds, prefix) {
+    const xs = (ds[prefix + 'xs'] || '').split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+    const ys = (ds[prefix + 'ys'] || '').split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+    const n = Math.min(xs.length, ys.length);
+    return xs.slice(0, n).map((x, i) => ({ x, y: ys[i] }));
+  }
+  const group1Points = parseGroup(el.dataset, 'group1');
+  const group2Points = parseGroup(el.dataset, 'group2');
+  const hasTwoGroups = group1Points.length >= 2 && group2Points.length >= 2;
+  const allPoints = hasTwoGroups ? group1Points.concat(group2Points) : points;
+
   const groupCentroids = [];
   if (el.dataset.groupx && el.dataset.groupy) {
     const gxs = el.dataset.groupx.split(',').map(v => parseFloat(v.trim()));
@@ -122,6 +134,26 @@ function renderScatterPlot(el) {
       if (!isNaN(gxs[i]) && !isNaN(gys[i])) groupCentroids.push({ x: gxs[i], y: gys[i], label: glabels[i] || ('G' + (i+1)) });
     }
   }
+
+  // 计算一条回归线
+  function calcRegression(pts) {
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y), n = xs.length;
+    if (n < 2) return null;
+    const sumX = xs.reduce((a,b)=>a+b,0), sumY = ys.reduce((a,b)=>a+b,0);
+    const sumXY = xs.reduce((s,x,i)=>s+x*ys[i],0), sumX2 = xs.reduce((s,x)=>s+x*x,0);
+    const denom = n*sumX2 - sumX*sumX;
+    if (Math.abs(denom) < 1e-12) return null;
+    const slope = (n*sumXY - sumX*sumY) / denom;
+    const intercept = (sumY - slope*sumX) / n;
+    const meanX = sumX/n, meanY = sumY/n;
+    const numR = xs.reduce((s,x,i)=>s+(x-meanX)*(ys[i]-meanY),0);
+    const denR = Math.sqrt(xs.reduce((s,x)=>s+(x-meanX)**2,0) * ys.reduce((s,y)=>s+(y-meanY)**2,0));
+    const r = Math.abs(denR) < 1e-12 ? 0 : numR / denR;
+    return { slope, intercept, r };
+  }
+
+  const reg1 = hasTwoGroups ? calcRegression(group1Points) : null;
+  const reg2 = hasTwoGroups ? calcRegression(group2Points) : null;
   const W = 600, H = 360;
   const pad = { left: 60, right: 20, top: 40, bottom: 50 };
   const card = document.createElement('div');
@@ -157,12 +189,12 @@ function renderScatterPlot(el) {
   }
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    if (points.length < 2) {
+    if (allPoints.length < 2) {
       ctx.fillStyle = '#666'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('请提供至少2个数据点', W/2, H/2); return;
     }
-    const allX = points.map(p=>p.x).concat(groupCentroids.map(g=>g.x));
-    const allY = points.map(p=>p.y).concat(groupCentroids.map(g=>g.y));
+    const allX = allPoints.map(p=>p.x).concat(groupCentroids.map(g=>g.x));
+    const allY = allPoints.map(p=>p.y).concat(groupCentroids.map(g=>g.y));
     const xMin = Math.min(...allX), xMax = Math.max(...allX);
     const yMin = Math.min(...allY), yMax = Math.max(...allY);
     const xPad = (xMax - xMin) * 0.15 || 1;
@@ -209,8 +241,35 @@ function renderScatterPlot(el) {
         drawEllipse(ctx, ecx, ecy, erx, ery, ell.theta); ctx.setLineDash([]); ctx.restore();
       }
     }
-    ctx.fillStyle = '#569cd6';
-    points.forEach(p => { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI * 2); ctx.fill(); });
+    // 绘制散点
+    if (hasTwoGroups) {
+      const colors = ['#569cd6', '#e06c75'];
+      const groups = [group1Points, group2Points];
+      const labels = (el.dataset.grouplabels || '组1,组2').split(',');
+      const regs = [reg1, reg2];
+      groups.forEach((grp, gi) => {
+        ctx.fillStyle = colors[gi];
+        grp.forEach(p => { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI * 2); ctx.fill(); });
+        const reg = regs[gi];
+        if (reg) {
+          const x1 = xMin - xPad, x2 = xMax + xPad;
+          ctx.strokeStyle = colors[gi]; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(sx(x1), sy(reg.slope*x1+reg.intercept));
+          ctx.lineTo(sx(x2), sy(reg.slope*x2+reg.intercept));
+          ctx.stroke();
+          ctx.fillStyle = colors[gi]; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText(`ŷ=${reg.slope.toFixed(3)}x+${reg.intercept.toFixed(2)}`, sx(xMin+xPad*2), sy(reg.slope*(xMin+xPad*2)+reg.intercept)-8);
+        }
+        // 图例
+        ctx.fillStyle = colors[gi]; ctx.beginPath(); ctx.arc(pad.left + gi*120, pad.top - 12, 5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(labels[gi] || ('组'+(gi+1)), pad.left + gi*120 + 9, pad.top - 8);
+      });
+    } else {
+      ctx.fillStyle = '#569cd6';
+      points.forEach(p => { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI * 2); ctx.fill(); });
+    }
     if (groupCentroids.length > 0) {
       const colors = ['#e74c3c','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e91e63'];
       groupCentroids.forEach((g, i) => {
@@ -220,7 +279,8 @@ function renderScatterPlot(el) {
         ctx.fillStyle = color; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(g.label, cx + 10, cy - 6);
       });
     }
-    const showRegression = points.length >= 5 && (el.dataset.regression !== 'false');
+    // 单一回归线（非双组模式）
+    const showRegression = !hasTwoGroups && points.length >= 5 && (el.dataset.regression !== 'false');
     if (showRegression) {
       const xs = points.map(p=>p.x), ys = points.map(p=>p.y), n = xs.length;
       const sumX = xs.reduce((a,b)=>a+b,0), sumY = ys.reduce((a,b)=>a+b,0), sumXY = xs.reduce((s,x,i)=>s+x*ys[i],0), sumX2 = xs.reduce((s,x)=>s+x*x,0);
