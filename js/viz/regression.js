@@ -83,7 +83,7 @@ function renderRegression(el) {
     </div>` : ''}
     <div class="reg-footer">
       <p>例中数据：年龄 x = [${xsRaw.join(',')}]，骨龄 y = [${ysRaw.join(',')}]</p>
-      <p>截距 a = ${stats ? stats.intercept.toFixed(5) : '—}（即 x=0 时 ŷ 的预测值）；斜率 b = ${stats ? stats.slope.toFixed(5) : '—}（x 每增加1，ŷ 平均变化 b 个单位）</p>
+      <p>截距 a = ${stats ? stats.intercept.toFixed(5) : '—'}（即 x=0 时 ŷ 的预测值）；斜率 b = ${stats ? stats.slope.toFixed(5) : '—'}（x 每增加1，ŷ 平均变化 b 个单位）</p>
     </div>
   `;
   el.appendChild(card);
