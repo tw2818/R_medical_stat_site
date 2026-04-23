@@ -10,11 +10,12 @@
 
 - **📖 46 个专题章节** — 从基础 t 检验到高级生存分析全覆盖
 - **📋 代码可复制** — 所有 R 代码一键复制到剪贴板
-- **📊 67 个交互式可视化/计算器组件** — 内置统计图形 + 实时参数调节
+- **📊 多个交互式可视化/计算器组件** — 内置统计图形 + 实时参数调节
 - **📱 移动端适配** — 响应式布局，手机/平板可用
 - **🔍 章节搜索** — 侧边栏实时搜索
 - **✅ 学习进度追踪** — 自动记录已访问章节
 - **🧪 轻量验证基线** — 为关键统计计算器保留回归校验样例与可执行脚本
+- **🧩 章节定向修补层** — 允许对个别章节做文本修补、组件插入和组件移除，而不继续挤压总站入口文件
 
 ---
 
@@ -31,7 +32,7 @@ Fine-Gray检验和竞争风险模型 · 倾向性评分（匹配/回归和分层
 
 ---
 
-## 交互式可视化组件
+## 代表性交互式组件
 
 统计计算基于 [jStat](https://github.com/jstat/jstat) 库，图形使用 Canvas 2D API 纯前端渲染，无需服务器。
 
@@ -40,24 +41,24 @@ Fine-Gray检验和竞争风险模型 · 倾向性评分（匹配/回归和分层
 | 1 | 📊 | 正态分布 explorer（μ/σ 滑块） | t检验 |
 | 2 | 📊 | t 分布 vs 正态分布对比（df 滑块） | t检验 |
 | 3 | 📊 | P 值可视化器（点击设定 t 值） | t检验 |
-| 4 | 🧮 | t 检验计算器（单样本/双样本） | t检验 |
+| 4 | 🧮 | t 检验计算器（单样本/双样本/配对） | t检验 |
 | 5 | 🧮 | 卡方检验 + Fisher 精确检验计算器 | 卡方检验 |
-| 6 | 📊 | 散点图 + 回归直线（n/r 滑块） | 双变量相关 |
-| 7 | 📊 | ANOVA 条形图（3 组 means±SD） | 方差分析 |
-| 8 | 📊 | F 分布 explorer（df1/df2 滑块） | 方差分析 |
-| 9 | 📊 | PCA 碎石图（累积方差线） | 主成分分析 |
-| 10 | 📊 | 二项分布 B(n,p) 条形图（n/p 滑块） | 离散分布 |
-| 11 | 📊 | 泊松分布 P(λ) 条形图（λ 滑块） | 离散分布 |
-| 12 | 📊 | Kaplan-Meier 生存曲线（含截尾标记） | 生存分析 |
-| 13 | 📊 | Wilcoxon 符号秩检验图（柱状图+秩次标注） | 秩转换非参数检验 |
-| 14 | 📊 | Kruskal-Wallis H 检验箱线图（动态 H/P 值） | 秩转换非参数检验 |
-| 15 | 📊 | Friedman M 检验连线图（动态 M/P 值） | 秩转换非参数检验 |
+| 6 | 📊 | 配对四格表 McNemar 组件 | 卡方检验 |
+| 7 | 🧩 | 马赛克图（面积 + Pearson 残差） | 卡方检验 |
+| 8 | 🔥 | 列联表热力图（观察值/期望值/残差切换） | 卡方检验 |
+| 9 | 📈 | Cochran-Armitage 趋势检验组件 | Cochran-Armitage检验 |
+| 10 | 📊 | 散点图 + 回归直线（相关/回归） | 双变量回归与相关 |
+| 11 | 📈 | Pearson / Spearman / Kendall 对比组件 | 双变量回归与相关 |
+| 12 | 📉 | 曲线拟合比较（线性/二次/对数） | 双变量回归与相关 |
+| 13 | 🧾 | 基线资料三线表示例 | 三线表绘制 |
+| 14 | 🧾 | 三线表成品布局演示 | 三线表绘制 |
+| 15 | 📊 | 二项分布 / 泊松分布与率比较组件 | 离散分布 |
 
 ---
 
 ## 项目结构
 
-```
+```text
 R_medical_stat_site/
 ├── index.html                     # SPA 入口页面
 ├── manifest.json                  # PWA manifest
@@ -70,28 +71,41 @@ R_medical_stat_site/
 ├── js/
 │   ├── app.js                     # 主应用逻辑（ES Module）
 │   ├── chapters.js                # 46 个章节元数据 + 进度工具（ES Module）
+│   ├── chapter-patches.js         # 章节 patch 组合入口
+│   ├── chapter-patches-text.js    # 章节文字修补
+│   ├── chapter-patches-widgets.js # 章节组件插入 / 移除修补
 │   ├── stats-viz.js               # 可视化模块加载入口
 │   └── viz/                       # 可视化模块（ES Module 拆分）
 │       ├── _core.js               # 注册表、init()、setupObserver()
+│       ├── _bundle-core-modules.js       # 基础统计 / 推断组件分组入口
+│       ├── _bundle-categorical-modules.js# 分类资料组件分组入口
+│       ├── _bundle-bivariate-modules.js  # 双变量 / 回归组件分组入口
+│       ├── _bundle-presentation-modules.js # 表格与覆盖层分组入口
 │       ├── distributions.js       # 正态/t/F/二项/泊松分布 explorer
-│       ├── hypothesis-nonparametric.js # 非参数检验 + 重复测量交互效应
-│       ├── hypothesis-remaining.js     # ANOVA / 散点图 / Q-Q 图 / 交互图 / Bland-Altman
+│       ├── hypothesis-nonparametric.js   # 非参数检验 + 重复测量交互效应
+│       ├── hypothesis-remaining.js       # ANOVA / 散点图 / Q-Q 图 / Bland-Altman
 │       ├── clinical-models.js     # Logistic / ROC / Cox / 列线图
 │       ├── structure-diagrams.js  # 偏相关 / 聚类树状图 / SEM / 自相关图
 │       ├── survival.js            # Kaplan-Meier 生存曲线
 │       ├── calculators.js         # 其他计算器组件
+│       ├── discrete-inference.js  # 离散分布推断类组件
+│       ├── categorical-trends.js  # Cochran-Armitage 趋势与相关注入逻辑
+│       ├── categorical-tests.js   # McNemar 等分类检验组件
+│       ├── categorical-displays.js# 马赛克图 / 列联表热力图
+│       ├── baseline-table.js      # Table 1 / 基线资料表
+│       ├── bivariate-extensions.js# 秩相关 / 曲线拟合组件
+│       ├── table-presentation.js  # 三线表布局演示组件
 │       ├── advanced.js            # 高级可视化
 │       ├── visualization.js       # 通用图表组件
 │       ├── meta.js                # 配色、工具函数
-│       └── overrides.js           # 对 t 检验 / 卡方-Fisher 计算器的精度覆盖修复
+│       └── overrides.js           # 对关键计算器的精度覆盖修复
 ├── data/                          # 章节内容 + 关联图片
 │   ├── 1001-ttest.html            # t 检验
 │   ├── 1002-anova.html            # 方差分析
 │   ├── 1006-chisq.html            # 卡方检验
+│   ├── 1015-twocorrelation.html   # 双变量回归与相关
+│   ├── table3.html                # 三线表绘制
 │   ├── discrete.html              # 离散分布
-│   ├── 1032-survival.html         # 生存分析
-│   ├── plotting.html              # 统计绘图
-│   ├── roc.html                   # ROC 曲线
 │   ├── *.html                     # 46 个章节 HTML 文件
 │   └── *_files/                   # 各章节关联图片
 ├── tests/                         # 轻量回归校验基线
@@ -114,24 +128,31 @@ R_medical_stat_site/
 - **jStat CDN** — 统计函数库（正态/t/F/卡方分布的 PDF、CDF、逆函数）
 
 ### ES Module 模块设计
-`stats-viz.js` 作为入口加载器，当前运行路径加载：
-- **`viz/_core.js`** — 注册表、`init()` 初始化、`setupObserver()` 动态挂载监听
-- **`viz/distributions.js`** — 正态/t/F/二项/泊松分布 explorer
-- **`viz/hypothesis-nonparametric.js`** — Wilcoxon、Kruskal-Wallis、Friedman、重复测量交互效应
-- **`viz/hypothesis-remaining.js`** — ANOVA、散点图、PCA 碎石图、Q-Q 图、析因交互图、Bland-Altman
-- **`viz/clinical-models.js`** — Logistic OR 森林图、ROC/ROC 对比、Cox HR 森林图、列线图
-- **`viz/structure-diagrams.js`** — 偏相关、聚类树状图、SEM、自相关图
-- **`viz/survival.js`** — Kaplan-Meier 生存曲线
-- **`viz/overrides.js`** — 通过 registry 覆盖 `ttest` 和 `chisq` 两个计算器，避免直接硬改大文件
+`stats-viz.js` 作为总入口，但不再自己维护一长串组件路径，而是按职责分组导入：
 
-> 目前可视化模块边界已经比最初清晰得多：假设检验、临床建模、结构示意和生存分析都已分离。
+- **`viz/_bundle-core-modules.js`** — 基础统计 / 推断 / 通用图表
+- **`viz/_bundle-categorical-modules.js`** — 分类资料、列联表、Table 1
+- **`viz/_bundle-bivariate-modules.js`** — 双变量、相关、回归、曲线拟合
+- **`viz/_bundle-presentation-modules.js`** — 表格展示与覆盖层修复
 
-### 章节加载机制
+底层仍由 `viz/_core.js` 统一管理组件注册表、`init()` 初始化和 `setupObserver()` 动态挂载监听。
+
+### 章节加载与 patch 机制
 1. 用户点击侧边栏 → `navigateToChapter(id)` → 更新 URL hash
 2. `loadChapter(file)` → `fetch('data/xxx.html')` → `DOMParser` 提取 `<main id="quarto-document-content">`
-3. `setupChapterInteractions()` → `initStatViz()` 扫描 `.stat-viz` / `.stat-calc` 标记，按 `data-type` 分发渲染
-4. Quarto 代码复制按钮会在章节内容注入后被替换为站内统一样式按钮，并通过 JS 统一绑定复制行为
-5. `chapters.js` 现已改为 ES Module，由 `app.js` 显式导入章节数据与进度工具，而不再依赖全局挂载
+3. `applyChapterPatches(container, filename)` 统一调度章节定向修补
+4. `initStatViz()` 扫描 `.stat-viz` / `.stat-calc` 标记，按 `data-type` 分发渲染
+5. 代码复制按钮和 callout 折叠逻辑在章节内容注入后统一绑定
+
+章节定向修补现在不再继续堆在 `app.js` 里，而是拆成：
+- **`chapter-patches-text.js`** — 文字修补
+- **`chapter-patches-widgets.js`** — 组件增删修补
+- **`chapter-patches.js`** — patch 组合入口
+
+这使后续维护时可以更明确地区分：
+- 文字问题
+- 组件位置问题
+- 组件移除问题
 
 ### 轻量验证基线
 仓库现在包含一个不依赖测试框架的回归校验基线：
@@ -141,13 +162,11 @@ R_medical_stat_site/
 - `tests/README.md`
 
 它的目标不是替代正式自动化测试，而是先把关键统计组件的：
-
 - 输入样例
 - 关键输出约束
 - 高风险回归点
 
 固化下来，方便后续：
-
 - 手工回归
 - Playwright 接入
 - Node 脚本校验
@@ -181,9 +200,10 @@ node tests/run_validation.js
 
 ### 添加新的可视化组件
 
-1. 在 `viz/*.js` 中编写渲染函数并调用 `registerViz('typename', renderFn)`
-2. 在对应章节的 `.html` 文件中加入 `<div class="stat-viz" data-type="typename">` 标记
-3. jStat 提供以下可用分布：`normal`, `studentt`, `chisquare`, `centralF`, `binomial`, `poisson`, `beta`, `gamma`
+1. 在合适的 `viz/*.js` 中编写渲染函数并调用 `registerViz('typename', renderFn)`
+2. 若组件适合复用，可放入对应 bundle 归属组；若组件只是章节定向插入，可通过 `chapter-patches-widgets.js` 或组件模块内的注入逻辑接入
+3. 在对应章节的 `.html` 文件中加入 `<div class="stat-viz" data-type="typename">` 标记，或通过章节 patch / 组件注入逻辑运行时挂载
+4. jStat 提供以下可用分布：`normal`, `studentt`, `chisquare`, `centralF`, `binomial`, `poisson`, `beta`, `gamma`
 
 ### 本地开发
 
@@ -208,7 +228,7 @@ python3 -m http.server 8000
 
 项目通过 GitHub 连接到 Vercel，每次推送到 `main` 分支自动触发部署。
 
-```
+```text
 GitHub (main) → Vercel → https://r.tweb.one
 ```
 
@@ -219,6 +239,14 @@ GitHub (main) → Vercel → https://r.tweb.one
 ## 更新日志
 
 详细更新记录见 [附录页](/data/9999-appendix.html)（站内可折叠查看）。以下是近期重要改动：
+
+### 2026-04-24
+- **维护性重构**：将 `app.js` 中的章节定向修补逻辑抽离到 `chapter-patches.js`，并继续细分为 `chapter-patches-text.js` 与 `chapter-patches-widgets.js`
+- **可视化入口整理**：`stats-viz.js` 改为通过 bundle 文件分组导入组件模块，降低入口文件复杂度
+- **第八章增强**：补入 `baseline-table` 成品示例，并新增 `tablelayoutdemo` 三线表布局演示组件
+- **第七章增强**：新增 `rankcorrelation` 与 `curvefit` 两个后半章专属组件，分别对应秩相关和曲线拟合
+- **第四章增强**：新增 McNemar 组件，并重做马赛克图与列联表热力图
+- **第五章增强**：新增 Cochran-Armitage 趋势检验组件，补足有序率趋势检验的交互层
 
 ### 2026-04-23
 - **第一章（t 检验）计算器增强**：t 检验计算器新增第三 tab「配对 t 检验」，支持等长校验和差值单样本 t 检验；修复因缺少 `parseNumbers` 导入导致的计算器 `ReferenceError`
