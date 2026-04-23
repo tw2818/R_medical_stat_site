@@ -754,6 +754,7 @@ th {
 
   .viz-canvas {
     max-width: 100%;
+    overflow-x: auto;
   }
 
   .viz-sliders {

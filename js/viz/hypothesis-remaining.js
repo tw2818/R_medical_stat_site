@@ -536,7 +536,17 @@ registerViz('blandaltman', renderBlandAltman);
     const containerW = canvas.offsetWidth;
     const isNarrow = containerW < 400;
     const scale = isNarrow ? Math.max(containerW / 400, 0.6) : 1;
-    const pad = { l: isNarrow ? Math.round(55 * scale) : 90, r: 20, t: 20, b: isNarrow ? 30 : 20 };
+    const basePadL = isNarrow ? Math.round(55 * scale) : 90;
+    const baseFont = Math.round(26 * scale);
+
+    // 动态计算 pad.l：必须能容纳最宽行标签的宽度
+    ctx.font = `bold ${baseFont}px sans-serif`;
+    const longestLabel = Math.max(
+      ctx.measureText(rowLabels[0] || '治疗组').width,
+      ctx.measureText(rowLabels[1] || '安慰剂组').width
+    );
+    const minPadL = Math.ceil(longestLabel / 2) + 14;
+    const pad = { l: Math.max(basePadL, minPadL), r: 20, t: 20, b: isNarrow ? 30 : 20 };
     const cellW = (W - pad.l - pad.r) / 2;
     const cellH = (H - pad.t - pad.b) / 2;
 
@@ -578,12 +588,12 @@ registerViz('blandaltman', renderBlandAltman);
           ctx.font = `bold ${Math.round(26 * scale)}px sans-serif`;
           ctx.fillText(colLabels[j] || '', x + cellW / 2, y - 6);
         }
-        // 行标签（左侧）
+        // 行标签（左侧，固定在内容区左边界内侧）
         if (j === 0) {
           ctx.fillStyle = '#444';
           ctx.font = `bold ${Math.round(26 * scale)}px sans-serif`;
           ctx.textAlign = 'right';
-          ctx.fillText(rowLabels[i] || '', x - 8, y + cellH / 2 + 5);
+          ctx.fillText(rowLabels[i] || '', pad.l - 10, y + cellH / 2 + 5);
           ctx.textAlign = 'center';
         }
       }
@@ -631,7 +641,19 @@ registerViz('contingency', renderContingency);
     const containerW = canvas.offsetWidth;
     const isNarrow = containerW < 400;
     const scale = isNarrow ? Math.max(containerW / 400, 0.6) : 1;
-    const pad = { l: isNarrow ? Math.round(55 * scale) : 90, r: 20, t: 20, b: isNarrow ? 30 : 20 };
+    const basePadL = isNarrow ? Math.round(55 * scale) : 90;
+    const baseFont = Math.round(24 * scale);
+
+    // 动态计算 pad.l：必须能容纳最宽行标签的宽度
+    ctx.font = `bold ${baseFont}px sans-serif`;
+    const longestLabel = Math.max(
+      ctx.measureText(rowLabels[0] || '安慰剂组').width,
+      ctx.measureText(rowLabels[1] || '治疗组').width
+    );
+    // 行标签画在 pad.l - 10，需要 pad.l >= 文字宽度(canvas物理像素) + 10
+    const minPadL = Math.ceil(longestLabel / 2) + 14; // longestLabel 是物理像素，canvas 是 2x，所以 /2
+    const pad = { l: Math.max(basePadL, minPadL), r: 20, t: 20, b: isNarrow ? 30 : 20 };
+
     const innerW = W - pad.l - pad.r;
     const innerH = H - pad.t - pad.b;
 
@@ -703,7 +725,7 @@ registerViz('contingency', renderContingency);
     // 行标签（左侧，顶部=安慰剂组=row1，底部=治疗组=row2）
     ctx.textAlign = 'right';
     ctx.font = `bold ${Math.round(24 * scale)}px sans-serif`;
-    ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 6, pad.t + row1H1 / 2 + 4);
-    ctx.fillText(rowLabels[1] || '治疗组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
+    ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 12, pad.t + row1H1 / 2 + 4);
+    ctx.fillText(rowLabels[1] || '治疗组', pad.l - 12, pad.t + row1H1 + row2H1 / 2 + 4);
   }
 registerViz('mosaic', renderMosaic);
