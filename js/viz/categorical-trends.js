@@ -189,3 +189,47 @@ function renderCochranTrend(el) {
 }
 
 registerViz('cochrantrend', renderCochranTrend);
+
+function injectCochranTrendWidget() {
+  const root = document.getElementById('chapter-content');
+  if (!root) return;
+  const title = root.querySelector('h1 .chapter-title');
+  if (!title || !title.textContent.includes('Cochran-Armitage检验')) return;
+  if (root.querySelector('.stat-calc[data-type="cochrantrend"]')) return;
+
+  const anchor = Array.from(root.querySelectorAll('.stat-viz[data-type="scatter"]')).find(node =>
+    (node.dataset.title || '').includes('Cochran-Armitage')
+  );
+  if (!anchor) return;
+
+  const note = document.createElement('p');
+  note.textContent = '上图先用剂量与有效率给出趋势直觉。下方组件再按“各组阳性数/总数 + 有序分值”的形式演示 Cochran-Armitage 趋势检验，更贴近本章真正的 2×k 有序列联表语境。';
+  note.style.color = '#555';
+  note.style.fontSize = '0.95em';
+
+  const widget = document.createElement('div');
+  widget.className = 'stat-calc';
+  widget.dataset.type = 'cochrantrend';
+  widget.dataset.title = 'Cochran-Armitage 趋势检验';
+  widget.dataset.labels = '50mg,100mg,200mg,300mg,500mg';
+  widget.dataset.successes = '87,119,133,177,167';
+  widget.dataset.totals = '1000,1000,1000,1000,1000';
+  widget.dataset.scores = '50,100,200,300,500';
+
+  anchor.insertAdjacentElement('afterend', note);
+  note.insertAdjacentElement('afterend', widget);
+}
+
+function setupCochranTrendInjection() {
+  injectCochranTrendWidget();
+  const root = document.getElementById('chapter-content');
+  if (!root) return;
+  const observer = new MutationObserver(() => injectCochranTrendWidget());
+  observer.observe(root, { childList: true, subtree: true });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupCochranTrendInjection, { once: true });
+} else {
+  setupCochranTrendInjection();
+}
