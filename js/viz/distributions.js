@@ -771,7 +771,17 @@ registerViz('fdist', renderFDist);
       const ctx = canvas.getContext('2d');
       const W = canvas.offsetWidth * 2, H = 520;
       canvas.width = W; canvas.height = H;
-      const pad = { l: 52, r: 20, t: 20, b: 52 };
+
+      // 窄屏自适应：容器宽度 < 400px 时收紧留白并缩小字体
+      const containerW = canvas.offsetWidth;
+      const isNarrow = containerW < 400;
+      const scale = isNarrow ? Math.max(containerW / 400, 0.55) : 1;
+      const pad = {
+        l: isNarrow ? Math.round(52 * scale) : 52,
+        r: 20,
+        t: isNarrow ? Math.round(20 * scale) : 20,
+        b: isNarrow ? Math.round(60 * scale) : 52
+      };
       const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
 
       ctx.clearRect(0, 0, W, H);
@@ -828,7 +838,7 @@ registerViz('fdist', renderFDist);
         ctx.beginPath(); ctx.moveTo(sx(chiCrit), pad.t); ctx.lineTo(sx(chiCrit), pad.t + ih); ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = '#f9826c';
-        ctx.font = 'bold 24px JetBrains Mono, monospace';
+        ctx.font = `bold ${Math.round(24 * scale)}px JetBrains Mono, monospace`;
         ctx.fillText(`χ²* = ${chiCrit.toFixed(2)}`, Math.min(sx(chiCrit) + 6, W - 110), 16);
         ctx.fillStyle = 'rgba(214,105,105,0.9)';
         ctx.fillText(`拒绝域 α=${alpha}`, Math.min(sx(chiCrit) + 12, W - 100), 34);
@@ -847,7 +857,7 @@ registerViz('fdist', renderFDist);
 
       // X轴标签
       ctx.fillStyle = '#888';
-      ctx.font = '22px JetBrains Mono, monospace';
+      ctx.font = `${Math.round(22 * scale)}px JetBrains Mono, monospace`;
       ctx.textAlign = 'center';
       for (let x = 0; x <= xMax; x += Math.ceil(xMax / 6)) {
         ctx.fillText(x.toFixed(0), sx(x), pad.t + ih + 16);

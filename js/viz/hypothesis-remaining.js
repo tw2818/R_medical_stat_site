@@ -531,7 +531,12 @@ registerViz('blandaltman', renderBlandAltman);
     const ctx = canvas.getContext('2d');
     const W = canvas.offsetWidth * 2, H = 440;
     canvas.width = W; canvas.height = H;
-    const pad = { l: 90, r: 20, t: 20, b: 20 };
+
+    // 窄屏自适应
+    const containerW = canvas.offsetWidth;
+    const isNarrow = containerW < 400;
+    const scale = isNarrow ? Math.max(containerW / 400, 0.6) : 1;
+    const pad = { l: isNarrow ? Math.round(55 * scale) : 90, r: 20, t: 20, b: isNarrow ? 30 : 20 };
     const cellW = (W - pad.l - pad.r) / 2;
     const cellH = (H - pad.t - pad.b) / 2;
 
@@ -560,23 +565,23 @@ registerViz('blandaltman', renderBlandAltman);
         ctx.strokeRect(x + 2, y + 2, cellW - 4, cellH - 4);
 
         ctx.fillStyle = '#1e293b';
-        ctx.font = 'bold 36px JetBrains Mono, monospace';
+        ctx.font = `bold ${Math.round(36 * scale)}px JetBrains Mono, monospace`;
         ctx.textAlign = 'center';
         ctx.fillText(obs[i][j], x + cellW / 2, y + cellH / 2 - 8);
-        ctx.font = '26px JetBrains Mono, monospace';
+        ctx.font = `${Math.round(26 * scale)}px JetBrains Mono, monospace`;
         ctx.fillStyle = '#888';
         ctx.fillText(`(${expected[i][j].toFixed(1)})`, x + cellW / 2, y + cellH / 2 + 12);
 
         // 列标签（顶部）
         if (i === 0) {
           ctx.fillStyle = '#444';
-          ctx.font = 'bold 26px sans-serif';
+          ctx.font = `bold ${Math.round(26 * scale)}px sans-serif`;
           ctx.fillText(colLabels[j] || '', x + cellW / 2, y - 6);
         }
         // 行标签（左侧）
         if (j === 0) {
           ctx.fillStyle = '#444';
-          ctx.font = 'bold 26px sans-serif';
+          ctx.font = `bold ${Math.round(26 * scale)}px sans-serif`;
           ctx.textAlign = 'right';
           ctx.fillText(rowLabels[i] || '', x - 8, y + cellH / 2 + 5);
           ctx.textAlign = 'center';
@@ -621,7 +626,12 @@ registerViz('contingency', renderContingency);
     const ctx = canvas.getContext('2d');
     const W = canvas.offsetWidth * 2, H = 480;
     canvas.width = W; canvas.height = H;
-    const pad = { l: 90, r: 20, t: 20, b: 20 };
+
+    // 窄屏自适应
+    const containerW = canvas.offsetWidth;
+    const isNarrow = containerW < 400;
+    const scale = isNarrow ? Math.max(containerW / 400, 0.6) : 1;
+    const pad = { l: isNarrow ? Math.round(55 * scale) : 90, r: 20, t: 20, b: isNarrow ? 30 : 20 };
     const innerW = W - pad.l - pad.r;
     const innerH = H - pad.t - pad.b;
 
@@ -671,7 +681,7 @@ registerViz('contingency', renderContingency);
     ctx.stroke();
 
     // 频数标注
-    ctx.font = 'bold 28px JetBrains Mono, monospace';
+    ctx.font = `bold ${Math.round(28 * scale)}px JetBrains Mono, monospace`;
     ctx.textAlign = 'center';
     const cells2 = [
       { v: a, x: pad.l + col1W / 2, y: pad.t + row1H1 / 2 },
@@ -685,14 +695,14 @@ registerViz('contingency', renderContingency);
     });
 
     // 列标签
-    ctx.font = 'bold 24px sans-serif';
+    ctx.font = `bold ${Math.round(24 * scale)}px sans-serif`;
     ctx.fillStyle = '#555';
     ctx.fillText(colLabels[0] || '有效', pad.l + col1W / 2, pad.t + innerH + 14);
     ctx.fillText(colLabels[1] || '无效', pad.l + col1W + col2W / 2, pad.t + innerH + 14);
 
     // 行标签（左侧，顶部=安慰剂组=row1，底部=治疗组=row2）
     ctx.textAlign = 'right';
-    ctx.font = 'bold 24px sans-serif';
+    ctx.font = `bold ${Math.round(24 * scale)}px sans-serif`;
     ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 6, pad.t + row1H1 / 2 + 4);
     ctx.fillText(rowLabels[1] || '治疗组', pad.l - 6, pad.t + row1H1 + row2H1 / 2 + 4);
   }
