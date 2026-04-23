@@ -663,10 +663,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>可以看到这个函数直接给出所有结果，根据需要自己选择合适的即可。</p>
 <p>本例是独立样本四格表，主要解读 <strong>Pearson 卡方</strong>（χ²=12.85707，p&lt;0.01）或<strong>Fisher 精确检验</strong>；<strong>McNemar 检验</strong>仅适用于配对四格表，本例不适用，不作为结论依据。</p>
 <div style="margin:20px 0;">
-<div class="stat-viz" data-type="mosaic" data-a="75" data-b="21" data-c="99" data-d="5" data-row-labels="安慰剂组,治疗组" data-col-labels="有效,无效" data-title="马赛克图 — 矩形面积∝频数"></div>
-</div>
-<div style="margin:20px 0;">
-<div class="stat-viz" data-type="contingency" data-a="75" data-b="21" data-c="99" data-d="5" data-row-labels="安慰剂组,治疗组" data-col-labels="有效,无效" data-title="列联表热力图 — 颜色=实测−期望"></div>
+<div class="stat-viz" data-type="mosaic" data-title="马赛克图 — 矩形面积∝频数" data-row-labels="安慰剂组,治疗组" data-col-labels="有效,无效" data-matrix="75,21;99,5"></div>
+<div class="stat-viz" data-type="contingencyheatmap" data-title="列联表热力图 — 颜色=实测−期望" data-row-labels="安慰剂组,治疗组" data-col-labels="有效,无效" data-matrix="75,21;99,5"></div>
 </div>
 <div class="stat-calc" data-type="chisq" style="margin:24px 0;"></div>
 
