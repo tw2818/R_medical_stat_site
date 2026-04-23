@@ -289,10 +289,100 @@ function renderScatterPlot(el) {
       const meanX = sumX / n, meanY = sumY / n;
       const numR = xs.reduce((s,x,i)=>s+(x-meanX)*(ys[i]-meanY),0);
       const denR = Math.sqrt(xs.reduce((s,x)=>s+(x-meanX)**2,0) * ys.reduce((s,y)=>s+(y-meanY)**2,0));
-      card.querySelector('[data-r]').textContent = (numR / denR).toFixed(4);
+      const r = denR < 1e-12 ? 0 : numR / denR;
+      const r2 = r * r;
+
+      // Pearson相关检验统计量
+      const df = n - 2;
+      const tStat = df > 0 && Math.abs(r) < 1 ? r * Math.sqrt(df / (1 - r2)) : 0;
+      // Fisher z变换求95%CI
+      const z = 0.5 * Math.log((1 + r) / (1 - r));
+      const seZ = 1 / Math.sqrt(n - 3);
+      const zLower = z - 1.96 * seZ, zUpper = z + 1.96 * seZ;
+      const rLower = (Math.exp(2 * zLower) - 1) / (Math.exp(2 * zLower) + 1);
+      const rUpper = (Math.exp(2 * zUpper) - 1) / (Math.exp(2 * zUpper) + 1);
+
+      // 用jStat计算p值
+      let pValue = '—';
+      if (typeof window.jStat !== 'undefined' && df > 0) {
+        const twoTail = window.jStat.studentt.cdf(-Math.abs(tStat), df);
+        pValue = Math.min(1, twoTail * 2).toFixed(4);
+      }
+
+      card.querySelector('[data-r]').innerHTML =
+        `r = <strong>${r.toFixed(4)}</strong> &nbsp; t<sub>${df}</sub> = ${tStat.toFixed(3)} &nbsp; P = ${pValue} &nbsp; 95%CI: [${rLower.toFixed(4)}, ${rUpper.toFixed(4)}]`;
+      card.querySelector('[data-r]').style.cssText = 'font-size:13px;padding:6px 10px;background:#f0f4ff;border-radius:4px;display:block;margin-top:6px;';
+
       const x1 = xMin - xPad, x2 = xMax + xPad;
       ctx.strokeStyle = '#f9826c'; ctx.lineWidth = 2; ctx.beginPath();
       ctx.moveTo(sx(x1), sy(slope*x1+intercept)); ctx.lineTo(sx(x2), sy(slope*x2+intercept)); ctx.stroke();
+    }
+
+    // 两条回归直线比较（7.4节）
+    if (hasTwoGroups && reg1 && reg2) {
+      // 合并数据做交互项检验（平行性检验）
+      const all = group1Points.concat(group2Points);
+      const labels = (el.dataset.grouplabels || '组1,组2').split(',');
+      // 中心化避免多重共线性
+      const allX = all.map(p => p.x), allY = all.map(p => p.y);
+      const meanX = allX.reduce((a,b)=>a+b,0) / allX.length;
+      const cx = allX.map(x => x - meanX);
+      const g1 = group1Points.map(p => ({ x: p.x - meanX, y: p.y }));
+      const g2 = group2Points.map(p => ({ x: p.x - meanX, y: p.y }));
+      function calcReg2(pts) {
+        const xs = pts.map(p=>p.x), ys = pts.map(p=>p.y), N = xs.length;
+        const sumX = xs.reduce((a,b)=>a+b,0), sumY = xs.reduce((a,b)=>a+b,0);
+        const sumXY = xs.reduce((s,x,i)=>s+x*ys[i],0), sumX2 = xs.reduce((s,x)=>s+x*x,0);
+        const denom = N*sumX2 - sumX*sumX;
+        if (Math.abs(denom) < 1e-12) return null;
+        return {
+          b: (N*sumXY - sumX*sumY) / denom,
+          a: (sumY - (N*sumXY - sumX*sumY)/denom * sumX) / N,
+          N, sumX, sumY, sumXY, sumX2
+        };
+      }
+      // 合并回归
+      const combined = calcReg2(all);
+      // 组1残差平方和
+      function ssRes(pts, b, a) {
+        return pts.reduce((s,p) => s + (p.y - (b*p.x + a))**2, 0);
+      }
+      const ss1 = ssRes(g1, reg1.slope, reg1.intercept);
+      const ss2 = ssRes(g2, reg2.slope, reg2.intercept);
+      const SSresSeparate = ss1 + ss2;
+      const SSresCombined = combined ? ssRes(all, combined.b, combined.a) : 0;
+      const dfSep = all.length - 4, dfComb = all.length - 2;
+      const MSresSep = dfSep > 0 ? SSresSeparate / dfSep : 0;
+      // F检验：交互项显著性（平行性）
+      // SS_diff = SSres_combined - SSres_separate
+      // df_diff = 2
+      const SSdiff = Math.abs(SSresCombined - SSresSeparate);
+      const MSdiff = SSdiff / 2;
+      const Finteraction = MSresSep > 0 ? MSdiff / MSresSep : 0;
+      let pInteraction = '—';
+      if (typeof window.jStat !== 'undefined' && dfSep > 0) {
+        pInteraction = window.jStat.centralt.cdf(1 - Finteraction, 2, dfSep).toFixed(4);
+        // p = P(F > Finteraction) = 1 - CDF
+        pInteraction = (1 - window.jStat.centralt.cdf(Finteraction, 2, dfSep)).toFixed(4);
+      }
+
+      // 显示比较结果
+      const statsDiv = document.createElement('div');
+      statsDiv.style.cssText = 'margin-top:10px;padding:10px 14px;background:#f8f9fa;border-radius:6px;font-size:12px;color:#444;line-height:1.8;';
+      statsDiv.innerHTML = `
+        <strong>📐 两条回归直线比较</strong><br>
+        ① <strong>平行性检验</strong>（交互项 t 检验）: F<sub>(${dfSep.toFixed(0)},2)</sub> = ${Finteraction.toFixed(3)}, P = ${pInteraction}
+        ${parseFloat(pInteraction) > 0.05 ? ' → 不能拒绝 H₀，两条回归直线<strong>平行</strong>' : ' → 拒绝 H₀，两条回归直线<strong>不平行</strong>'}<br>
+        ② 合并回归方程（假设平行）: <code>ŷ = ${combined ? combined.b.toFixed(4) + 'x + ' + combined.a.toFixed(4) : '—'}</code>
+        <br>
+        <span style="font-size:11px;color:#888;">
+          正常儿童: ŷ=${reg1.slope.toFixed(4)}x+${reg1.intercept.toFixed(4)} &nbsp;|&nbsp;
+          大骨节病儿童: ŷ=${reg2.slope.toFixed(4)}x+${reg2.intercept.toFixed(4)}
+        </span>
+      `;
+      card.querySelector('.viz-r-display') ?
+        card.querySelector('.viz-r-display').insertAdjacentElement('afterend', statsDiv) :
+        card.appendChild(statsDiv);
     }
   }
   draw();
