@@ -1068,7 +1068,265 @@ registerViz('binom', renderBinomial);
     lambdaInput.addEventListener('input', draw);
     draw();
   }
-registerViz('poisson', renderPoisson);
+registerViz('binom-ci', renderBinomCI);
+registerViz('poisson-ci', renderPoissonCI);
+  // <div class="stat-viz" data-type="binom-ci" data-x="6" data-n="13" data-title="..."></div>
+  function renderBinomCI(el) {
+    if (!ensureJStat(el)) return;
+    const defaultX = parseInt(el.dataset.x || '6');
+    const defaultN = parseInt(el.dataset.n || '13');
+    const title = el.dataset.title || '二项分布置信区间';
+    const uid = 'bc-' + Math.random().toString(36).slice(2, 8);
+
+    el.innerHTML = `
+    <div class="viz-card">
+      <div class="viz-header">🎯 ${title}</div>
+      <div style="margin:6px 0 8px;text-align:center;font-size:12px;color:#666;">拖动蓝色滑块设置成功次数 x 和试验次数 n，观察 95% 置信区间的变化。蓝色区间为 Clopper-Pearson 精确区间，灰色竖条为正态近似区间。</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+        <div style="text-align:center;">
+          <div style="font-size:13px;color:#2c3e50;margin-bottom:4px;">成功次数 x = <span id="${uid}-xv" style="font-weight:bold;color:#2980b9;">${defaultX}</span></div>
+          <input type="range" class="ci-x" min="0" max="${defaultN}" value="${defaultX}" style="width:90%;">
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:13px;color:#2c3e50;margin-bottom:4px;">试验次数 n = <span id="${uid}-nv" style="font-weight:bold;color:#2980b9;">${defaultN}</span></div>
+          <input type="range" class="ci-n" min="1" max="200" value="${defaultN}" style="width:90%;">
+        </div>
+      </div>
+      <canvas id="${uid}-canvas" style="display:block;margin:0 auto;max-width:100%;"></canvas>
+      <div id="${uid}-result" style="margin-top:8px;text-align:center;font-size:13px;color:#2c3e50;"></div>
+    </div>`;
+
+    const xInput = el.querySelector('.ci-x');
+    const nInput = el.querySelector('.ci-n');
+    const xvSpan = el.querySelector(`#${uid}-xv`);
+    const nvSpan = el.querySelector(`#${uid}-nv`);
+    const canvas = document.getElementById(uid + '-canvas');
+    const result = document.getElementById(uid + '-result');
+
+    function compute(x, n, conf) {
+      const alpha = 1 - conf;
+      const p = x / n;
+      // Clopper-Pearson exact interval using beta inverse
+      const lo = x === 0 ? 0 : jStat.beta.inv(alpha / 2, x, n - x + 1);
+      const hi = x === n ? 1 : jStat.beta.inv(1 - alpha / 2, x + 1, n - x);
+      // Normal approximation
+      const z = jStat.normal.inv(1 - alpha / 2, 0, 1);
+      const sp = Math.sqrt(p * (1 - p) / n);
+      const normLo = Math.max(0, p - z * sp);
+      const normHi = Math.min(1, p + z * sp);
+      return { p, lo, hi, normLo, normHi };
+    }
+
+    function draw(x, n) {
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.parentElement.clientWidth;
+      const H = 160;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, W, H);
+
+      const pad = { l: 50, r: 20, t: 30, b: 36 };
+      const plotW = W - pad.l - pad.r;
+
+      const { p, lo, hi, normLo, normHi } = compute(x, n, 0.95);
+      const xMin = 0, xMax = 1;
+
+      function toX(v) { return pad.l + (v - xMin) / (xMax - xMin) * plotW; }
+
+      // Title
+      ctx.fillStyle = '#2c3e50';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('二项率 p̂ = x/n  的 95% 置信区间', W / 2, 18);
+
+      // Axis
+      ctx.strokeStyle = '#555';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, pad.t + 20);
+      ctx.lineTo(W - pad.r, pad.t + 20);
+      ctx.stroke();
+      ctx.fillStyle = '#555';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      for (let v = 0; v <= 1; v += 0.2) {
+        const tx = toX(v);
+        ctx.beginPath(); ctx.moveTo(tx, pad.t + 16); ctx.lineTo(tx, pad.t + 24); ctx.stroke();
+        ctx.fillText(v.toFixed(1), tx, pad.t + 36);
+      }
+      ctx.textAlign = 'left';
+      ctx.fillText('0', pad.l, pad.t + 36);
+      ctx.textAlign = 'right';
+      ctx.fillText('1', W - pad.r, pad.t + 36);
+
+      // Normal approx bar (gray)
+      ctx.fillStyle = 'rgba(150,150,150,0.4)';
+      ctx.fillRect(toX(normLo), pad.t + 4, toX(normHi) - toX(normLo), 10);
+      ctx.strokeStyle = '#888';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(toX(normLo), pad.t + 4, toX(normHi) - toX(normLo), 10);
+
+      // Clopper-Pearson bar (blue)
+      ctx.fillStyle = 'rgba(52,152,219,0.5)';
+      ctx.fillRect(toX(lo), pad.t + 18, toX(hi) - toX(lo), 10);
+      ctx.strokeStyle = '#2980b9';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(toX(lo), pad.t + 18, toX(hi) - toX(lo), 10);
+
+      // Point estimate dot
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.arc(toX(p), pad.t + 23, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Legend
+      ctx.fillStyle = '#666';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillRect(pad.l, H - 16, 10, 8); ctx.fillStyle = 'rgba(52,152,219,0.6)'; ctx.fillRect(pad.l, H - 16, 10, 8); ctx.fillStyle = '#555'; ctx.fillText('Clopper-Pearson 精确区间', pad.l + 14, H - 9);
+      ctx.fillRect(pad.l + 160, H - 16, 10, 8); ctx.fillStyle = 'rgba(150,150,150,0.5)'; ctx.fillRect(pad.l + 160, H - 16, 10, 8); ctx.fillStyle = '#555'; ctx.fillText('正态近似区间', pad.l + 174, H - 9);
+
+      result.innerHTML = `<strong>x=${x}, n=${n}, p̂=${p.toFixed(4)}</strong> &nbsp;|&nbsp; Clopper-Pearson: (${lo.toFixed(4)}, ${hi.toFixed(4)}) &nbsp;|&nbsp; 正态近似: (${normLo.toFixed(4)}, ${normHi.toFixed(4)})`;
+    }
+
+    xInput.addEventListener('input', () => {
+      const n = parseInt(nInput.value);
+      const xv = parseInt(xInput.value);
+      xvSpan.textContent = xv;
+      nInput.max = Math.max(n, xv);
+      nvSpan.textContent = n;
+      draw(xv, n);
+    });
+    nInput.addEventListener('input', () => {
+      const n = parseInt(nInput.value);
+      const xv = parseInt(xInput.value);
+      xvSpan.textContent = xv;
+      nInput.max = Math.max(n, xv);
+      if (xv > n) { xInput.value = n; xvSpan.textContent = n; }
+      nvSpan.textContent = n;
+      draw(xv > n ? n : xv, n);
+    });
+
+    const ro = new ResizeObserver(() => draw(parseInt(xInput.value), parseInt(nInput.value)));
+    ro.observe(canvas.parentElement);
+    draw(defaultX, defaultN);
+  }
+
+  // ── 泊松分布置信区间 ───────────────────────────────────
+  // <div class="stat-viz" data-type="poisson-ci" data-x="21" data-title="..."></div>
+  function renderPoissonCI(el) {
+    if (!ensureJStat(el)) return;
+    const defaultX = parseInt(el.dataset.x || '21');
+    const title = el.dataset.title || '泊松分布置信区间';
+    const uid = 'pc-' + Math.random().toString(36).slice(2, 8);
+
+    el.innerHTML = `
+    <div class="viz-card">
+      <div class="viz-header">🎯 ${title}</div>
+      <div style="margin:6px 0 8px;text-align:center;font-size:12px;color:#666;">拖动蓝色滑块设置事件数 x，观察 95% Poisson 置信区间（基于 γ 分布的精确区间）。</div>
+      <div style="text-align:center;margin-bottom:8px;">
+        <div style="font-size:13px;color:#2c3e50;margin-bottom:4px;">事件数 x = <span id="${uid}-xv" style="font-weight:bold;color:#27ae60;">${defaultX}</span></div>
+        <input type="range" class="ci-x" min="0" max="100" value="${defaultX}" style="width:60%;">
+      </div>
+      <canvas id="${uid}-canvas" style="display:block;margin:0 auto;max-width:100%;"></canvas>
+      <div id="${uid}-result" style="margin-top:8px;text-align:center;font-size:13px;color:#2c3e50;"></div>
+    </div>`;
+
+    const xInput = el.querySelector('.ci-x');
+    const xvSpan = document.getElementById(uid + '-xv');
+    const canvas = document.getElementById(uid + '-canvas');
+    const result = document.getElementById(uid + '-result');
+
+    function computePoissonCI(x, conf) {
+      const alpha = 1 - conf;
+      if (x === 0) {
+        return { lo: 0, hi: -Math.log(alpha) };
+      }
+      const lo = x > 0 ? jStat.gamma.inv(alpha / 2, x, 1) : 0;
+      const hi = jStat.gamma.inv(1 - alpha / 2, x + 1, 1);
+      return { lo, hi };
+    }
+
+    function draw(x) {
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.parentElement.clientWidth;
+      const H = 150;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, W, H);
+
+      const pad = { l: 50, r: 20, t: 28, b: 36 };
+      const plotW = W - pad.l - pad.r;
+
+      const { lo, hi } = computePoissonCI(x, 0.95);
+      const xMin = 0;
+      const xMax = Math.max(hi * 1.3, x * 2.5);
+
+      function toX(v) { return pad.l + (v - xMin) / (xMax - xMin) * plotW; }
+
+      ctx.fillStyle = '#2c3e50';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Poisson(λ=x)  事件数 x=${x}  的 95% 置信区间`, W / 2, 18);
+
+      ctx.strokeStyle = '#555';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, pad.t + 20);
+      ctx.lineTo(W - pad.r, pad.t + 20);
+      ctx.stroke();
+      ctx.fillStyle = '#555';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      for (let v = 0; v <= xMax; v += Math.ceil(xMax / 5)) {
+        const tx = toX(v);
+        ctx.beginPath(); ctx.moveTo(tx, pad.t + 16); ctx.lineTo(tx, pad.t + 24); ctx.stroke();
+        ctx.fillText(v.toFixed(0), tx, pad.t + 36);
+      }
+
+      // CI bar
+      ctx.fillStyle = 'rgba(39,174,96,0.45)';
+      ctx.fillRect(toX(lo), pad.t + 4, toX(hi) - toX(lo), 12);
+      ctx.strokeStyle = '#27ae60';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(toX(lo), pad.t + 4, toX(hi) - toX(lo), 12);
+
+      // Point estimate
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.arc(toX(x), pad.t + 10, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#e74c3c';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`x=${x}`, toX(x), pad.t + 30);
+
+      ctx.fillStyle = '#666';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`95% CI: (${lo.toFixed(2)}, ${hi.toFixed(2)})    点估计 λ̂ = ${x}`, pad.l, H - 10);
+
+      result.innerHTML = `<strong>x=${x}</strong> &nbsp;|&nbsp; 精确 Poisson 95% CI: <strong>(${lo.toFixed(4)}, ${hi.toFixed(4)})</strong>`;
+    }
+
+    xInput.addEventListener('input', () => {
+      const xv = parseInt(xInput.value);
+      xvSpan.textContent = xv;
+      draw(xv);
+    });
+
+    const ro = new ResizeObserver(() => draw(parseInt(xInput.value)));
+    ro.observe(canvas.parentElement);
+    draw(defaultX);
+  }
 
   // ── Wilcoxon符号秩检验可视化 ─────────────────────────
   // <div class="stat-viz" data-type="wilcoxon" data-title="配对样本Wilcoxon符号秩检验"></div>
