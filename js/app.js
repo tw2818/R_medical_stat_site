@@ -2,21 +2,25 @@
 
 import { ALL_CHAPTERS, CHAPTERS, GROUP_CONFIG, saveProgress, updateProgressBar, clearProgress } from './chapters.js';
 import { applyChapterPatches } from './chapter-patches.js';
+import { createAppState } from './app/state.js';
+import { createChapterLookupMaps, findChapterByHref, getHashChapterTarget, injectCopyButtons } from './app/chapter-content.js';
+import { initTheme as initThemeState, toggleTheme as toggleThemeState } from './app/theme.js';
+import { findMatchingChapters } from './app/search.js';
+import { resolveNavigationTarget, shouldSkipNavigation, getActiveLinkSelector } from './app/navigation.js';
+import { createLoaderLifecycle, shouldUseCachedChapter, createChapterProgressTimer } from './app/chapter-loader.js';
+import { findCodeBlockText, ensureDetailsHaveSummary, prepareCallouts } from './app/chapter-interactions.js';
+import { getWelcomeAction, shouldOpenSidebarFromOverlayClick } from './app/ui-shell.js';
+import { shouldCloseLightboxOnClick, shouldCloseLightboxOnEscape, shouldOpenLightboxForTarget } from './app/lightbox.js';
+import { parseChapterMainContent, removeBreadcrumbs } from './app/chapter-dom.js';
+import { createToastLifecycle } from './app/toast.js';
+import { getNextExpandedState, getPathTargetId } from './app/nav-shell.js';
 
 // ===== 状态 =====
-let currentGroup = null;
-let currentIndex = 0;
-let progressTimer = null;
-
-// ===== 章节内容缓存 =====
-const chapterCache = new Map();
+const appState = createAppState();
 
 // ===== DOM =====
 const $ = id => document.getElementById(id);
-const CHAPTER_BY_FILE = new Map(ALL_CHAPTERS.map(ch => [ch.file, ch]));
-const CHAPTER_BY_TITLE_FILE = new Map(
-  ALL_CHAPTERS.map(ch => [`${ch.title}.html`, ch])
-);
+const chapterLookupMaps = createChapterLookupMaps(ALL_CHAPTERS);
 
 function getTotalChapterCount() {
   return ALL_CHAPTERS.length;
@@ -34,28 +38,19 @@ function updateStaticCounts() {
 }
 
 function initTheme() {
-  const saved = localStorage.getItem('rstat_theme');
-  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  updateThemeToggle();
-}
-
-function updateThemeToggle() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const btn = $('theme-toggle');
-  if (!btn) return;
-  btn.textContent = isDark ? '🌙' : '☀️';
-  btn.setAttribute('aria-label', isDark ? '切换浅色模式' : '切换深色模式');
+  initThemeState({
+    root: document.documentElement,
+    button: $('theme-toggle'),
+    storage: localStorage,
+  });
 }
 
 function toggleTheme() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  if (isDark) {
-    document.documentElement.removeAttribute('data-theme');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
-  localStorage.setItem('rstat_theme', isDark ? 'light' : 'dark');
-  updateThemeToggle();
+  toggleThemeState({
+    root: document.documentElement,
+    button: $('theme-toggle'),
+    storage: localStorage,
+  });
 }
 
 function buildNav() {
@@ -110,12 +105,13 @@ function expandAllChapterGroups() {
 }
 
 function handleWelcomeAction(action) {
-  if (action === 'scroll-task-nav') {
+  const normalizedAction = getWelcomeAction(action);
+  if (normalizedAction === 'scroll-task-nav') {
     const taskNav = $('task-nav');
     if (taskNav) taskNav.scrollIntoView({ behavior: 'smooth' });
     return;
   }
-  if (action === 'open-all-chapters') {
+  if (normalizedAction === 'open-all-chapters') {
     expandAllChapterGroups();
   }
 }
@@ -151,12 +147,13 @@ function initGlobalActions() {
 }
 
 function navigateToChapter(groupKey, index) {
-  const list = CHAPTERS[groupKey] || [];
-  if (!list[index]) return;
+  const target = resolveNavigationTarget(groupKey, index, CHAPTERS);
+  if (!target) return;
 
-  const chapter = list[index];
+  const { chapter } = target;
+  const currentPosition = appState.getCurrentPosition();
 
-  if (currentGroup === groupKey && currentIndex === index) {
+  if (shouldSkipNavigation(currentPosition, groupKey, index)) {
     updateActiveLink(groupKey, index);
     const homeBtn = $('home-btn');
     if (homeBtn) homeBtn.style.display = 'inline-block';
@@ -165,8 +162,7 @@ function navigateToChapter(groupKey, index) {
 
   history.replaceState(null, '', '#' + chapter.id);
 
-  currentGroup = groupKey;
-  currentIndex = index;
+  appState.setCurrentPosition(groupKey, index);
 
   updateActiveLink(groupKey, index);
 
@@ -184,29 +180,8 @@ function navigateToChapter(groupKey, index) {
 
 function updateActiveLink(groupKey, index) {
   document.querySelectorAll('.chapter-link').forEach(a => a.classList.remove('active'));
-  const activeLink = document.querySelector(`.chapter-link[data-group="${groupKey}"][data-index="${index}"]`);
+  const activeLink = document.querySelector(getActiveLinkSelector(groupKey, index));
   if (activeLink) activeLink.classList.add('active');
-}
-
-function findChapterByHref(href) {
-  if (!href) return null;
-  const cleaned = href.split('#')[0].replace(/^\.\//, '').trim();
-  if (!cleaned || cleaned === 'index.html') return { type: 'home' };
-
-  if (cleaned.startsWith('data/')) {
-    const file = cleaned.slice('data/'.length);
-    const chapter = CHAPTER_BY_FILE.get(file);
-    if (chapter) return { type: 'chapter', chapter };
-  }
-
-  const fileCandidate = cleaned.split('/').pop();
-  const byFile = CHAPTER_BY_FILE.get(fileCandidate);
-  if (byFile) return { type: 'chapter', chapter: byFile };
-
-  const byTitleFile = CHAPTER_BY_TITLE_FILE.get(fileCandidate);
-  if (byTitleFile) return { type: 'chapter', chapter: byTitleFile };
-
-  return null;
 }
 
 function rewriteChapterLinks(container) {
@@ -214,7 +189,7 @@ function rewriteChapterLinks(container) {
     const rawHref = link.getAttribute('href');
     if (!rawHref || rawHref.startsWith('#') || /^(https?:|mailto:|javascript:|data:)/i.test(rawHref)) return;
 
-    const target = findChapterByHref(rawHref);
+    const target = findChapterByHref(rawHref, chapterLookupMaps);
     if (!target) return;
 
     link.href = '#';
@@ -229,21 +204,12 @@ function rewriteChapterLinks(container) {
   });
 }
 
-function stripBreadcrumbLinks(container) {
-  container.querySelectorAll('.quarto-page-breadcrumbs').forEach(breadcrumb => {
-    breadcrumb.remove();
-  });
-}
-
 async function loadChapter(filename, chapterId) {
   const wrapper = $('chapter-content');
   const welcome = $('welcome');
   if (!wrapper) return;
 
-  if (progressTimer) {
-    clearTimeout(progressTimer);
-    progressTimer = null;
-  }
+  createLoaderLifecycle(appState, clearTimeout).beforeLoad();
 
   if (welcome) welcome.classList.remove('active');
   wrapper.innerHTML = '<div class="loading">加载中...</div>';
@@ -251,29 +217,22 @@ async function loadChapter(filename, chapterId) {
 
   try {
     let contentHtml;
-    if (chapterCache.has(filename)) {
-      contentHtml = chapterCache.get(filename);
+    if (shouldUseCachedChapter(appState, filename)) {
+      contentHtml = appState.getCachedChapter(filename);
     } else {
       const resp = await fetch(`data/${filename}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const html = await resp.text();
 
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const main = doc.getElementById('quarto-document-content');
-      if (!main) throw new Error('无法解析章节内容');
-
-      main.querySelectorAll('script').forEach(s => s.remove());
-
-      contentHtml = main.innerHTML;
+      contentHtml = parseChapterMainContent(html);
       contentHtml = injectCopyButtons(contentHtml);
-      chapterCache.set(filename, contentHtml);
+      appState.cacheChapter(filename, contentHtml);
     }
 
     wrapper.innerHTML = contentHtml;
     applyChapterPatches(wrapper, filename);
     rewriteChapterLinks(wrapper);
-    stripBreadcrumbLinks(wrapper);
+    removeBreadcrumbs(wrapper);
 
     Prism.highlightAll();
     setupChapterInteractions(wrapper);
@@ -284,18 +243,19 @@ async function loadChapter(filename, chapterId) {
     updateChapterCount();
     updateNavGroupExpansion();
 
-    if (chapterId) {
-      progressTimer = setTimeout(() => {
-        saveProgress(chapterId);
-        progressTimer = null;
-      }, 30000);
-    }
+    createChapterProgressTimer({
+      chapterId,
+      appState,
+      schedule: setTimeout,
+      saveProgress,
+    });
   } catch (err) {
     wrapper.innerHTML = `<div class="error">加载失败：${err.message}</div>`;
   }
 }
 
 function updateNavGroupExpansion() {
+  const { group: currentGroup } = appState.getCurrentPosition();
   if (!currentGroup) return;
   GROUP_CONFIG.forEach(({ key }) => {
     const btn = document.querySelector(`.nav-group-header[data-group="${key}"]`);
@@ -308,19 +268,9 @@ function updateNavGroupExpansion() {
   });
 }
 
-function injectCopyButtons(html) {
-  return html.replace(
-    /<button([^>]*)class="code-copy-button"([^>]*)>[\s\S]*?<\/button>/g,
-    `<button$1class="code-copy-button chapter-copy-button"$2 type="button" title="复制代码" aria-label="复制代码">📋</button>`
-  );
-}
-
 function copyCodeBlock(btn) {
-  const wrapper = btn.closest('div');
-  const pre = wrapper ? wrapper.querySelector('pre') : btn.nextElementSibling;
-  if (!pre || pre.tagName !== 'PRE') return;
-  const code = pre.querySelector('code');
-  const text = code ? code.textContent : pre.textContent;
+  const text = findCodeBlockText(btn);
+  if (!text) return;
   navigator.clipboard.writeText(text).then(() => {
     const original = btn.textContent;
     btn.textContent = '✅ 已复制';
@@ -340,33 +290,13 @@ function copyCodeBlock(btn) {
 }
 
 function setupChapterInteractions(container) {
-  container.querySelectorAll('.callout-warning, .callout-note, .callout-tip, .callout-important').forEach(el => {
-    el.classList.add('callout-collapsed');
-    const header = el.querySelector('.callout-header');
-    if (header) {
-      const toggle = document.createElement('span');
-      toggle.className = 'callout-toggle';
-      toggle.textContent = '▶';
-      toggle.style.cursor = 'pointer';
-      header.appendChild(toggle);
-      header.addEventListener('click', () => {
-        el.classList.toggle('callout-collapsed');
-        toggle.textContent = el.classList.contains('callout-collapsed') ? '▶' : '▼';
-      });
-    }
-  });
+  prepareCallouts(Array.from(container.querySelectorAll('.callout-warning, .callout-note, .callout-tip, .callout-important')));
 
   container.querySelectorAll('.chapter-copy-button').forEach(btn => {
     btn.addEventListener('click', () => copyCodeBlock(btn));
   });
 
-  container.querySelectorAll('details').forEach(d => {
-    if (!d.querySelector('summary')) {
-      const summary = document.createElement('summary');
-      summary.textContent = '详情';
-      d.insertBefore(summary, d.firstChild);
-    }
-  });
+  ensureDetailsHaveSummary(Array.from(container.querySelectorAll('details')));
 }
 
 function initSearch() {
@@ -375,16 +305,9 @@ function initSearch() {
   if (!input || !results) return;
 
   input.addEventListener('input', () => {
-    const q = input.value.trim().toLowerCase();
-    if (!q) {
-      results.innerHTML = '';
-      return;
-    }
-    const matches = ALL_CHAPTERS.filter(ch =>
-      [ch.title, ch.groupName, ch.file, String(ch.num)].some(field => String(field).toLowerCase().includes(q))
-    ).slice(0, 8);
+    const matches = findMatchingChapters(input.value, ALL_CHAPTERS);
     if (!matches.length) {
-      results.innerHTML = '<div class="search-empty">无结果</div>';
+      results.innerHTML = input.value.trim() ? '<div class="search-empty">无结果</div>' : '';
       return;
     }
     results.innerHTML = matches.map(ch =>
@@ -407,17 +330,7 @@ function initSearch() {
 }
 
 window.showToast = function showToast(msg) {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.classList.add('show'), 10);
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 2000);
+  createToastLifecycle().show(msg);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -435,17 +348,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (menuToggle && sidebar) {
     menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
     sidebar.addEventListener('click', e => {
-      if (e.target === sidebar) sidebar.classList.remove('open');
+      if (shouldOpenSidebarFromOverlayClick(e.target, sidebar)) sidebar.classList.remove('open');
     });
   }
 
   document.querySelectorAll('.nav-group-header').forEach(btn => {
     btn.addEventListener('click', () => {
       const group = btn.dataset.group;
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!expanded));
+      const expanded = getNextExpandedState(btn.getAttribute('aria-expanded'));
+      btn.setAttribute('aria-expanded', String(expanded));
       const content = document.getElementById(`${group}-chapters`);
-      if (content) content.style.display = expanded ? 'none' : 'block';
+      if (content) content.style.display = expanded ? 'block' : 'none';
     });
   });
 
@@ -457,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.path-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.path-content').forEach(c => c.classList.remove('active'));
       this.classList.add('active');
-      const target = document.getElementById('path-' + this.dataset.path);
+      const target = document.getElementById(getPathTargetId(this.dataset.path));
       if (target) target.classList.add('active');
     });
   });
@@ -486,16 +399,16 @@ function initLightbox() {
   }
 
   overlay.addEventListener('click', e => {
-    if (e.target === overlay || e.target.classList.contains('lightbox-close')) {
+    if (shouldCloseLightboxOnClick(e.target, overlay)) {
       closeLightbox();
     }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && overlay.classList.contains('show')) closeLightbox();
+    if (shouldCloseLightboxOnEscape(e, overlay)) closeLightbox();
   });
 
   document.addEventListener('click', e => {
-    const target = e.target.closest('#chapter-content img');
+    const target = shouldOpenLightboxForTarget(e);
     if (target) {
       e.preventDefault();
       openLightbox(target.src, target.alt);
@@ -506,22 +419,21 @@ function initLightbox() {
 function navigateByHash() {
   const hash = window.location.hash.replace('#', '');
   if (!hash) return;
-  for (const [groupKey, list] of Object.entries(CHAPTERS)) {
-    const idx = list.findIndex(ch => ch.id === hash);
-    if (idx !== -1) {
-      if (currentGroup === groupKey && currentIndex === idx) return;
-      navigateToChapter(groupKey, idx);
-      return;
-    }
-  }
+
+  const target = getHashChapterTarget(hash, ALL_CHAPTERS);
+  if (!target) return;
+
+  const currentPosition = appState.getCurrentPosition();
+  if (currentPosition.group === target.group && currentPosition.index === target.index) return;
+
+  navigateToChapter(target.group, target.index);
 }
 
 window.addEventListener('hashchange', navigateByHash);
 
 window.showWelcome = function() {
   history.replaceState(null, '', window.location.pathname);
-  currentGroup = null;
-  currentIndex = 0;
+  appState.resetCurrentPosition();
   const wrapper = $('chapter-content');
   const welcome = $('welcome');
   if (wrapper) {
