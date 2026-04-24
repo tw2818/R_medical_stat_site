@@ -175,7 +175,7 @@ function injectChapter8Widgets() {
     table1.dataset.title = '基线资料三线表示例';
     table1.dataset.groups = '3';
     table1.dataset.labels = '["1995","2000","2005"]';
-    table1.dataset.ns = '[689,726,879]';
+    table1.dataset.ns = '[431,786,1077]';
 
     detailHeading.insertAdjacentElement('afterend', note1);
     note1.insertAdjacentElement('afterend', table1);

@@ -9,7 +9,7 @@ function renderBaselineTable(el) {
   const title = el.dataset.title || '基线资料表示例';
   const groups = parseInt(el.dataset.groups || '3');
   const groupLabels = JSON.parse(el.dataset.labels || '["1995","2000","2005"]');
-  const ns = JSON.parse(el.dataset.ns || '[689,726,879]');
+  const ns = JSON.parse(el.dataset.ns || '[431,786,1077]');
 
   const card = document.createElement('div');
   card.className = 'viz-card';
