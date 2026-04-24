@@ -39,6 +39,29 @@ function renderBaselineTable(el) {
     { var: '体能活动', unit: 'Kcal/wk', type: 'num', values: ['2876±812','2412±756','1987±698'], p: '<0.001', sig: true },
   ];
 
+  // 计算 Total 列的值
+  const totalN = ns.reduce((a, b) => a + b, 0);
+  const calcTotal = (row) => {
+    if (row.type === 'num') {
+      // 数值变量：加权平均 ± 合并SD
+      const parts = row.values.map(v => v.split('±').map(p => parseFloat(p)));
+      const wmean = parts.reduce((a, p, i) => a + p[0] * ns[i], 0) / totalN;
+      // 合并方差（简化版：加权方差）
+      const wvar = parts.reduce((a, p, i) => a + ns[i] * Math.pow(p[1], 2), 0) / totalN;
+      const wsd = Math.sqrt(wvar);
+      return `${wmean.toFixed(1)}±${wsd.toFixed(1)}`;
+    } else {
+      // 分类变量：合计 n(%)
+      const totals = row.values.map(v => {
+        const m = v.match(/^(\d+)/);
+        return m ? parseInt(m[1]) : 0;
+      });
+      const total = totals.reduce((a, b) => a + b, 0);
+      const pct = (total / totalN * 100).toFixed(1);
+      return `${total}(${pct})`;
+    }
+  };
+
   const trs = rows.map(row => {
     const pClass = row.sig ? 'p-sig' : 'p-ns';
     const tooltip = row.note ? `<span class="tbl-note" title="${row.note}">ⓘ</span>` : '';
@@ -46,7 +69,7 @@ function renderBaselineTable(el) {
     const valuesTd = row.values.slice(0, groups).map(v => `<td>${v}</td>`).join('');
     return `<tr>
       <td class="tbl-var">${row.var} ${tooltip} ${unit}</td>
-      <td>${row.values.reduce((a,b,i)=>{const parts=b.split('±');const n=ns[i];return a+(parts[1]?parseFloat(parts[0])*n:0);},0)/ns.reduce((a,b)=>a+b,0) || '—'}</td>
+      <td>${calcTotal(row)}</td>
       ${valuesTd}
       <td class="${pClass}">${row.p}</td>
     </tr>`;
@@ -89,8 +112,9 @@ function renderBaselineTable(el) {
   style.textContent = `
     .baseline-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
     .baseline-table th{background:#f5f5f5;padding:8px 10px;text-align:left;border-bottom:2px solid #333;font-weight:600;}
-    .baseline-table td{padding:7px 10px;border-bottom:1px solid #eee;}
-    .baseline-table .tbl-var{color:#333;}
+    .baseline-table td{padding:7px 10px;border-bottom:1px solid #eee;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+    .baseline-table .tbl-var{color:#333;min-width:160px;}
+    .baseline-table th:not(.tbl-var){min-width:80px;}
     .baseline-table .tbl-unit{color:#999;font-size:11px;margin-left:3px;}
     .baseline-table .tbl-note{cursor:help;color:#3498db;margin-left:3px;font-size:11px;}
     .baseline-table tr:hover td{background:#f8faff;}
