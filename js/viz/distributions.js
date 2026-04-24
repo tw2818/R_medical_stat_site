@@ -985,6 +985,7 @@ registerViz('binom', renderBinomial);
   // times: 生存时间，status: 1=事件发生(死亡)，0=截尾
 
   function renderPoisson(el) {
+    if (!ensureJStat(el)) return;
     const lambda = parseFloat(el.dataset.lambda || '5');
     const title = el.dataset.title || `泊松分布 P(${lambda})`;
 
@@ -1069,6 +1070,7 @@ registerViz('binom', renderBinomial);
     draw();
   }
 registerViz('binom-ci', renderBinomCI);
+registerViz('poisson', renderPoisson);
 registerViz('poisson-ci', renderPoissonCI);
   // <div class="stat-viz" data-type="binom-ci" data-x="6" data-n="13" data-title="..."></div>
   function renderBinomCI(el) {

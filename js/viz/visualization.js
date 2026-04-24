@@ -1,4 +1,4 @@
-import { registerViz, mean, sd } from './_core.js';
+import { registerViz, mean, sd, ensureJStat } from './_core.js';
 
 // ==========================================================
 // VISUALIZATION - 统计可视化模块
@@ -9,6 +9,7 @@ import { registerViz, mean, sd } from './_core.js';
 // ============================================================
 
   function renderHistogram(el) {
+    if (!ensureJStat(el)) return;
     const id = 'hist-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '直方图与正态分布';
     const rawData = el.dataset.data || '72,80,85,88,90,92,95,97,98,100,102,104,105,107,108,110,112,115,118,120,125';

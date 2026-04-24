@@ -1,8 +1,11 @@
 export function resolveNavigationTarget(groupKey, index, chapters) {
   const list = chapters[groupKey] || [];
-  const chapter = list[index];
-  if (!chapter) return null;
-  return { groupKey, index, chapter };
+  const numericIndex = Number(index);
+  if (!Number.isInteger(numericIndex) || numericIndex < 0) return null;
+
+  const chapter = list[numericIndex];
+  if (!chapter || !chapter.file || !chapter.id) return null;
+  return { groupKey, index: numericIndex, chapter };
 }
 
 export function shouldSkipNavigation(currentPosition, groupKey, index) {

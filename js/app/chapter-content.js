@@ -1,8 +1,18 @@
+const LEGACY_TITLE_FILE_ALIASES = new Map([
+  ['亚组分析和多因素回归的森林图.html', '1041-subgroupanalysis'],
+]);
+
 export function createChapterLookupMaps(allChapters) {
-  return {
-    byFile: new Map(allChapters.map(chapter => [chapter.file, chapter])),
-    byTitleFile: new Map(allChapters.map(chapter => [`${chapter.title}.html`, chapter])),
-  };
+  const byFile = new Map(allChapters.map(chapter => [chapter.file, chapter]));
+  const byTitleFile = new Map(allChapters.map(chapter => [`${chapter.title}.html`, chapter]));
+  const byId = new Map(allChapters.map(chapter => [chapter.id, chapter]));
+
+  LEGACY_TITLE_FILE_ALIASES.forEach((chapterId, legacyTitleFile) => {
+    const chapter = byId.get(chapterId);
+    if (chapter) byTitleFile.set(legacyTitleFile, chapter);
+  });
+
+  return { byFile, byTitleFile };
 }
 
 export function findChapterByHref(href, lookupMaps) {

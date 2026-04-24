@@ -878,4 +878,3 @@ registerViz('contingency', renderContingency);
     ctx.fillText(rowLabels[0] || '安慰剂组', pad.l - 12, pad.t + row1H1 / 2 + 4);
     ctx.fillText(rowLabels[1] || '治疗组', pad.l - 12, pad.t + row1H1 + row2H1 / 2 + 4);
   }
-registerViz('mosaic', renderMosaic);

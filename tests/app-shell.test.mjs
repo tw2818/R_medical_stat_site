@@ -33,6 +33,12 @@ test('findChapterByHref resolves title-based html filenames used by Quarto nav',
   assert.equal(result?.chapter?.file, '1001-ttest.html');
 });
 
+test('findChapterByHref resolves legacy Quarto alias filenames', () => {
+  const result = findChapterByHref('./亚组分析和多因素回归的森林图.html', lookup);
+  assert.equal(result?.type, 'chapter');
+  assert.equal(result?.chapter?.file, '1041-subgroupanalysis.html');
+});
+
 test('findChapterByHref resolves home link', () => {
   const result = findChapterByHref('index.html', lookup);
   assert.deepEqual(result, { type: 'home' });

@@ -65,13 +65,16 @@ export function registerViz(type, fn) {
 // ── renderComponent ───────────────────────────────────────
 function renderComponent(el) {
   const type = el.dataset.type;
-  if (!type) return;
+  if (!type) return true;
   const fn = StatVizRegistry[type];
   if (fn) {
     fn(el);
-  } else {
-    console.warn('[stats-viz] Unknown type:', type);
+    return true;
   }
+
+  console.warn('[stats-viz] Unknown type:', type);
+  el.innerHTML = `<div class="viz-card viz-error">⚠️ 未注册的统计组件：${type}</div>`;
+  return true;
 }
 
 // ── init ──────────────────────────────────────────────────

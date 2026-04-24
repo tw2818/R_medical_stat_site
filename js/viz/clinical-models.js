@@ -1,4 +1,4 @@
-import { registerViz } from './_core.js';
+import { registerViz, ensureJStat } from './_core.js';
 
 function renderLogisticOR(el) {
   const id = 'logistic-or-' + Math.random().toString(36).slice(2, 8);
@@ -44,6 +44,7 @@ function renderLogisticOR(el) {
 registerViz('logistic', renderLogisticOR);
 
 function renderROC(el) {
+  if (!ensureJStat(el)) return;
   const id = 'roc-' + Math.random().toString(36).slice(2, 8);
   const title = el.dataset.title || 'ROC 曲线 & AUC';
   el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="560" height="340" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:#333;">AUC = <strong id="${id}-auc">0.00</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">灵敏度 = <strong id="${id}-sens">--</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">特异度 = <strong id="${id}-spec">--</strong></span></div><div style="text-align:center;margin-top:6px;"><span style="font-size:12px;color:#888;">点击曲线查看对应 cutoff 点的灵敏度和特异度</span></div></div>`;
@@ -68,6 +69,7 @@ function renderROC(el) {
 registerViz('roc', renderROC);
 
 function renderROCCompare(el) {
+  if (!ensureJStat(el)) return;
   const id = 'roc-compare-' + Math.random().toString(36).slice(2, 8); const title = el.dataset.title || 'ROC 曲线对比'; const auc1 = parseFloat(el.dataset.auc1 || '0.82'); const auc2 = parseFloat(el.dataset.auc2 || '0.75'); const label1 = el.dataset.label1 || '模型1'; const label2 = el.dataset.label2 || '模型2';
   el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="560" height="380" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:#2980b9;"><strong>${label1}</strong> AUC = ${auc1.toFixed(3)}</span><span style="margin-left:24px;font-size:14px;color:#e74c3c;"><strong>${label2}</strong> AUC = ${auc2.toFixed(3)}</span></div></div>`;
   const canvas = document.getElementById(id), ctx = canvas.getContext('2d'); const W = 560, H = 380; const padL = 55, padR = 15, padT = 25, padB = 45; const plotW = W - padL - padR, plotH = H - padT - padB; ctx.clearRect(0, 0, W, H);

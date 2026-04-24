@@ -13,6 +13,7 @@ test('resolveNavigationTarget returns chapter metadata by group/index', () => {
 test('resolveNavigationTarget returns null for missing chapter', () => {
   assert.equal(resolveNavigationTarget('basic', 999, CHAPTERS), null);
   assert.equal(resolveNavigationTarget('missing', 0, CHAPTERS), null);
+  assert.equal(resolveNavigationTarget('basic', 'not-a-number', CHAPTERS), null);
 });
 
 test('shouldSkipNavigation detects same current position', () => {
