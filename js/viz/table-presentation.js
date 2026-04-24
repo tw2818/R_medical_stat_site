@@ -14,17 +14,25 @@ function renderTableLayoutDemo(el) {
   el.innerHTML = `
     <div class="viz-card table-demo-card">
       <div class="viz-header">🧾 ${title}</div>
-      <div style="margin:6px 0 12px;text-align:center;font-size:12px;color:#666;">这个组件不教统计检验本身，而是演示“同一份统计结果如何排成更像样的三线表成品”。</div>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;">
-        <button id="${id}-g2" class="path-tab" type="button">两组版式</button>
-        <button id="${id}-g3" class="path-tab active" type="button">三组版式</button>
-        <button id="${id}-total" class="path-tab active" type="button">显示 Total</button>
-        <button id="${id}-p" class="path-tab active" type="button">显示 P 值</button>
-        <button id="${id}-note" class="path-tab active" type="button">显示脚注</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start;">
-        <div id="${id}-summary" style="background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;"></div>
-        <div id="${id}-preview" style="overflow:auto;"></div>
+      <div class="table-demo-intro">这个组件不教统计检验本身，而是演示「同一份统计结果如何排成更像样的三线表成品」。</div>
+      <div class="table-demo-layout">
+        <div class="table-demo-controls">
+          <div class="ctrl-group">
+            <span class="ctrl-label">分组版式</span>
+            <button id="${id}-g2" class="path-tab" type="button">两组</button>
+            <button id="${id}-g3" class="path-tab active" type="button">三组</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">显示选项</span>
+            <button id="${id}-total" class="path-tab active" type="button">Total 列</button>
+            <button id="${id}-p" class="path-tab active" type="button">P 值</button>
+            <button id="${id}-note" class="path-tab active" type="button">脚注</button>
+          </div>
+        </div>
+        <div class="table-demo-body">
+          <div id="${id}-summary" class="table-demo-summary"></div>
+          <div id="${id}-preview" class="table-demo-preview"></div>
+        </div>
       </div>
     </div>`;
 
@@ -81,16 +89,14 @@ function renderTableLayoutDemo(el) {
       : '';
 
     summary.innerHTML = `
-      <div style="font-weight:600;margin-bottom:8px;color:#1f2937;">这张三线表当前的排版决策</div>
-      <div style="font-size:13px;line-height:1.8;color:#4b5563;">
-        <div>• 当前版式：<strong>${state.groups === 3 ? '三组比较表' : '两组比较表'}</strong></div>
-        <div>• Total 列：<strong>${state.showTotal ? '保留' : '隐藏'}</strong></div>
-        <div>• P 值列：<strong>${state.showP ? '保留' : '隐藏'}</strong></div>
-        <div>• 脚注说明：<strong>${state.showNote ? '保留' : '隐藏'}</strong></div>
+      <div class="summary-title">当前排版决策</div>
+      <div class="summary-body">
+        <div class="summary-item"><span class="summary-key">版式</span><span class="summary-val">${state.groups === 3 ? '三组比较表' : '两组比较表'}</span></div>
+        <div class="summary-item"><span class="summary-key">Total 列</span><span class="summary-val">${state.showTotal ? '保留' : '隐藏'}</span></div>
+        <div class="summary-item"><span class="summary-key">P 值</span><span class="summary-val">${state.showP ? '保留' : '隐藏'}</span></div>
+        <div class="summary-item"><span class="summary-key">脚注</span><span class="summary-val">${state.showNote ? '保留' : '隐藏'}</span></div>
       </div>
-      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #d1d5db;font-size:12px;color:#6b7280;line-height:1.7;">
-        这章的重点不是“再算一次统计量”，而是把已经得到的结果整理成结构清楚、脚注规范、投稿时更像样的 Table 1 / 三线表。
-      </div>`;
+      <div class="summary-footer">三线表的重点不是「再算一次统计量」，而是把已经得到的结果整理成结构清楚、脚注规范、投稿时更像样的 Table 1。</div>`;
 
     preview.innerHTML = `
       <div class="table-demo-shell">
@@ -98,9 +104,9 @@ function renderTableLayoutDemo(el) {
         <table class="table-demo">
           <thead>
             <tr>
-              <th style="min-width:180px">变量</th>
+              <th class="th-var">变量</th>
               ${totalHead}
-              ${groupHeaders.map(g => `<th>${g.label}<br><span style="font-weight:400;font-size:11px;">n=${g.n}</span></th>`).join('')}
+              ${groupHeaders.map(g => `<th class="th-group">${g.label}<br><span class="th-n">n=${g.n}</span></th>`).join('')}
               ${pHead}
             </tr>
           </thead>
@@ -112,42 +118,56 @@ function renderTableLayoutDemo(el) {
       </div>`;
   }
 
-  btnG2.addEventListener('click', () => {
-    state.groups = 2;
-    render();
-  });
-  btnG3.addEventListener('click', () => {
-    state.groups = 3;
-    render();
-  });
-  btnTotal.addEventListener('click', () => {
-    state.showTotal = !state.showTotal;
-    render();
-  });
-  btnP.addEventListener('click', () => {
-    state.showP = !state.showP;
-    render();
-  });
-  btnNote.addEventListener('click', () => {
-    state.showNote = !state.showNote;
-    render();
-  });
+  btnG2.addEventListener('click', () => { state.groups = 2; render(); });
+  btnG3.addEventListener('click', () => { state.groups = 3; render(); });
+  btnTotal.addEventListener('click', () => { state.showTotal = !state.showTotal; render(); });
+  btnP.addEventListener('click', () => { state.showP = !state.showP; render(); });
+  btnNote.addEventListener('click', () => { state.showNote = !state.showNote; render(); });
 
   render();
 
   const style = document.createElement('style');
   style.textContent = `
-    .table-demo-shell{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px;}
-    .table-demo-title{font-weight:600;color:#1f2937;text-align:center;margin-bottom:10px;}
-    .table-demo{width:100%;border-collapse:collapse;font-size:13px;table-layout:auto;}
-    .table-demo thead th{padding:8px 10px;text-align:left;border-top:2px solid #333;border-bottom:1.5px solid #333;background:#fafafa;}
-    .table-demo tbody td{padding:8px 10px;border-bottom:1px solid #ececec;}
-    .table-demo tbody tr:last-child td{border-bottom:2px solid #333;}
-    .table-demo .td-var{color:#1f2937;font-weight:500;}
+    .table-demo-card{padding:16px;}
+    .table-demo-intro{margin:6px 0 14px;text-align:center;font-size:13px;color:#6b7280;line-height:1.6;}
+    .table-demo-layout{display:flex;flex-direction:column;gap:14px;}
+    .table-demo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;}
+    .ctrl-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .ctrl-label{font-size:12px;font-weight:600;color:#374151;margin-right:2px;}
+    .path-tab{padding:4px 12px;border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#374151;font-size:12px;cursor:pointer;transition:all .15s;}
+    .path-tab:hover{background:#f3f4f6;}
+    .path-tab.active{background:#2c7874;color:#fff;border-color:#2c7874;font-weight:500;}
+    .table-demo-body{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:start;}
+    .table-demo-summary{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;padding:14px;}
+    .summary-title{font-weight:600;color:#1f2937;margin-bottom:10px;font-size:13px;}
+    .summary-body{display:flex;flex-direction:column;gap:6px;}
+    .summary-item{display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+    .summary-key{color:#6b7280;}
+    .summary-val{font-weight:600;color:#1f2937;}
+    .summary-footer{margin-top:12px;padding-top:10px;border-top:1px dashed #d1d5db;font-size:11px;color:#9ca3af;line-height:1.7;}
+    .table-demo-preview{overflow:hidden;}
+    .table-demo-shell{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;}
+    .table-demo-title{font-weight:600;color:#1f2937;text-align:center;margin-bottom:12px;font-size:14px;}
+    .table-demo{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+    .table-demo thead th{padding:7px 10px;text-align:center;border-top:2px solid #222;border-bottom:1.5px solid #222;background:#fafafa;font-weight:600;color:#1f2937;}
+    .table-demo thead th.th-var{text-align:left;border-left:2px solid #222;border-right:2px solid #222;}
+    .table-demo thead th.th-group{border-right:1px solid #e5e7eb;}
+    .table-demo thead th.th-group:last-of-type{border-right:2px solid #222;}
+    .table-demo tbody td{padding:7px 10px;border-bottom:1px solid #ececec;border-right:1px solid #ececec;text-align:center;}
+    .table-demo tbody td:first-child{border-left:2px solid #ececec;}
+    .table-demo tbody td.td-var{text-align:left;font-weight:500;color:#1f2937;border-left:2px solid #ececec;}
+    .table-demo tbody tr:last-child td{border-bottom:2px solid #222;}
+    .table-demo tbody tr:last-child td:first-child{border-bottom:2px solid #222;}
+    .table-demo .td-var{color:#1f2937;}
     .table-demo .td-psig{color:#c0392b;font-weight:600;}
-    .table-demo .td-pns{color:#4b5563;}
-    .table-demo-note{margin-top:10px;font-size:12px;color:#555;line-height:1.7;background:#f8f9fb;border-left:3px solid #60a5fa;padding:8px 10px;}
-    .table-demo-card code{background:#eef2f7;padding:1px 5px;border-radius:4px;}
+    .table-demo .td-pns{color:#6b7280;}
+    .table-demo-note{margin-top:12px;font-size:12px;color:#555;line-height:1.75;background:#f8f9fb;border-left:3px solid #60a5fa;padding:8px 12px;border-radius:0 6px 6px 0;}
+    .table-demo-card code{background:#eef2f7;padding:1px 5px;border-radius:4px;font-size:11px;}
+    @media(max-width:640px){
+      .table-demo-body{grid-template-columns:1fr;}
+      .table-demo-shell{padding:12px;}
+      .table-demo{font-size:12px;}
+    }
   `;
   el.appendChild(style);
 }
