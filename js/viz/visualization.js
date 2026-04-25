@@ -666,285 +666,364 @@ registerViz('gauge', renderGaugeChart);
   function renderSankey(el) {
     const id = 'sankey-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '患者状态转移流向图';
-    // data-nodes: comma-separated labels
-    // data-links: format "source->target:value,source->target:value"
-    const nodes = (el.dataset.nodes || '入院,在院,转院,出院,死亡').split(',');
-    const linksRaw = (el.dataset.links || '入院->在院:120,入院->转院:30,入院->出院:80,入院->死亡:20,在院->出院:80,在院->转院:25,在院->死亡:15,转院->出院:20,转院->死亡:5,出院->在院:10').split(',');
+    const nodes = (el.dataset.nodes || '入院,治疗中,好转,转院,出院,死亡').split(',');
+    const linksRaw = (el.dataset.links || '0->1:150,0->2:40,0->3:25,0->5:10,1->2:80,1->3:30,1->5:20,2->4:70,2->1:20,3->4:30,3->5:10,4->0:15').split(',');
 
-    el.innerHTML = `<div class="viz-card">
+    const W = 580, H = 420;
+    const padL = 80, padR = 80, padT = 40, padB = 40;
+    const nodeW = 20;
+    const nodeLevels = [0, 1, 1, 2, 2, 2];
+    const colCount = 3;
+    const colX = [padL, padL + (W - padL - padR - nodeW) / 2, W - padR - nodeW];
+
+    el.innerHTML = `<div class="viz-card" style="position:relative;">
       <div class="viz-header">📊 ${title}</div>
-      <svg id="${id}" width="520" height="420" style="display:block;margin:0 auto;"></svg>
+      <svg id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></svg>
+      <div id="${id}-tooltip" style="position:absolute;pointer-events:none;background:rgba(40,40,40,0.9);color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;line-height:1.4;display:none;z-index:100;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>
     </div>`;
 
     const svg = document.getElementById(id);
-    const W = 520, H = 420;
-    const padL = 50, padR = 50, padT = 30, padB = 30;
-    const nodeCount = nodes.length;
-    const nodeH = (H - padT - padB) / nodeCount;
-    const nodeW = 24;
-    const levels = 3; // source | middle | target
+    const tooltip = document.getElementById(id + '-tooltip');
 
-    // Assign levels: 0=入院(source), 1=治疗中/好转(middle), 2=转院/出院/死亡(target)
-    const nodeLevels = [0, 1, 1, 2, 2, 2];
-
-    const xPos = (level) => padL + level * ((W - padL - padR - nodeW) / 2);
-
-    // Draw links (curved paths)
     const linkData = linksRaw.map(l => {
       const [fromTo, val] = l.split(':');
       const [src, tgt] = fromTo.split('->');
       return { source: parseInt(src), target: parseInt(tgt), value: parseFloat(val) };
     });
-    const maxVal = Math.max(...linkData.map(d => d.value));
 
-    const nodeInOut = nodes.map((_, i) => {
+    const totalFlow = linkData.reduce((s, l) => s + l.value, 0);
+    const maxLinkVal = Math.max(...linkData.map(l => l.value));
+    const minLinkVal = Math.min(...linkData.map(l => l.value));
+
+    const nodeFlow = nodes.map((_, i) => {
       let inflow = 0, outflow = 0;
       linkData.forEach(l => {
         if (l.target === i) inflow += l.value;
         if (l.source === i) outflow += l.value;
       });
-      return { inflow, outflow };
+      return inflow + outflow;
     });
 
+    const maxNodeFlow = Math.max(...nodeFlow);
+    const plotH = H - padT - padB;
+
+    const nodeHeights = nodeFlow.map(f => {
+      const ratio = f / maxNodeFlow;
+      return Math.max(40, Math.min(120, ratio * plotH * 0.5));
+    });
+
+    function getInitNodeY() {
+      const levelGroups = [[], [], []];
+      nodes.forEach((_, i) => levelGroups[nodeLevels[i]].push(i));
+
+      const levelHeight = plotH / (levelGroups[1].length + 1);
+      const result = new Array(nodes.length);
+
+      levelGroups.forEach((group, lvl) => {
+        const totalH = group.reduce((s, i) => s + nodeHeights[i], 0);
+        const gap = (plotH - totalH) / (group.length + 1);
+        let y = padT + gap;
+        group.forEach(idx => {
+          result[idx] = y;
+          y += nodeHeights[idx] + gap;
+        });
+      });
+
+      for (let pass = 0; pass < 3; pass++) {
+        linkData.forEach(link => {
+          const s = link.source, t = link.target;
+          const overlap = (nodeHeights[s] + nodeHeights[t]) / 2 + 10;
+          const midS = result[s] + nodeHeights[s] / 2;
+          const midT = result[t] + nodeHeights[t] / 2;
+          if (Math.abs(midS - midT) < overlap) {
+            const shift = (overlap - Math.abs(midS - midT)) / 2 + 5;
+            if (midS < midT) {
+              result[s] = Math.max(padT, result[s] - shift);
+              result[t] = Math.min(H - padB - nodeHeights[t], result[t] + shift);
+            } else {
+              result[s] = Math.min(H - padB - nodeHeights[s], result[s] + shift);
+              result[t] = Math.max(padT, result[t] - shift);
+            }
+          }
+        });
+      }
+
+      return result.map(y => Math.max(padT, Math.min(H - padB - nodeHeights[nodes.indexOf(_)], y)));
+    }
+
+    const nodeY = getInitNodeY();
+
+    function colorScale(value) {
+      const t = (value - minLinkVal) / (maxLinkVal - minLinkVal || 1);
+      const r = Math.round(100 + t * 80);
+      const g = Math.round(140 + t * 60);
+      const b = Math.round(220 - t * 100);
+      return `rgb(${r},${g},${b})`;
+    }
+
     let lockedLink = null, lockedNode = null;
-    let draggingNode = null;
-    let dragging = false;
-    let dragStartY = 0;
-    let dragNodeStartY = 0;
-
-    const nodeY = [30, 110, 210, 270, 310, 330];
-
-    function resetLinks() {
-      linkPaths.forEach(p => {
-        p.path.setAttribute('stroke-width', p.baseWidth);
-        p.path.setAttribute('stroke-opacity', 1);
-      });
-    }
-    function resetNodes() {
-      nodeRects.forEach(r => {
-        r.rect.setAttribute('fill', r.baseColor);
-      });
-    }
-
-    function updateLinkPath(linkObj) {
-      const x1 = xPos(nodeLevels[linkObj.source]) + nodeW;
-      const y1 = nodeY[linkObj.source] + nodeH / 2;
-      const x2 = xPos(nodeLevels[linkObj.target]);
-      const y2 = nodeY[linkObj.target] + nodeH / 2;
-      const midX = (x1 + x2) / 2;
-      linkObj.path.setAttribute('d', `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`);
-      const labelY = (y1 + y2) / 2;
-      linkObj.text.setAttribute('y', labelY - 4);
-    }
-
-    function updateNodePosition(nodeIdx, newY) {
-      const clampedY = Math.max(padT, Math.min(H - padB - nodeH, newY));
-      nodeY[nodeIdx] = clampedY;
-      const rect = nodeRects[nodeIdx].rect;
-      rect.setAttribute('y', clampedY + 2);
-      nodeRects[nodeIdx].text.setAttribute('y', clampedY + nodeH / 2 + 4);
-      linkPaths.forEach(p => {
-        if (p.source === nodeIdx || p.target === nodeIdx) {
-          updateLinkPath(p);
-        }
-      });
-    }
+    let draggingNode = null, dragStartY = 0, dragNodeStartY = 0;
 
     const linkPaths = [];
-    const linkTexts = [];
-    linkData.forEach(link => {
-      const x1 = xPos(nodeLevels[link.source]) + nodeW;
-      const y1 = nodeY[link.source] + nodeH / 2;
-      const x2 = xPos(nodeLevels[link.target]);
-      const y2 = nodeY[link.target] + nodeH / 2;
-      const midX = (x1 + x2) / 2;
-      const op = 0.3 + 0.5 * (link.value / maxVal);
-      const color = `rgba(52,152,219,${op})`;
-      const baseWidth = Math.max(2, (link.value / maxVal) * 12);
+
+    function buildLinkPath(sx, sy, tx, ty, sh, th) {
+      const dx = tx - sx;
+      const curvature = Math.min(0.5, Math.abs(dx) / 400);
+      const cp1x = sx + dx * curvature;
+      const cp2x = tx - dx * curvature;
+      return `M${sx},${sy + sh/2} C${cp1x},${sy + sh/2} ${cp2x},${ty + th/2} ${tx},${ty + th/2}`;
+    }
+
+    linkData.forEach((link, idx) => {
+      const sl = nodeLevels[link.source], tl = nodeLevels[link.target];
+      const sx = colX[sl] + nodeW, tx = colX[tl];
+      const sy = nodeY[link.source], ty = nodeY[link.target];
+      const sh = nodeHeights[link.source], th = nodeHeights[link.target];
+
+      const linkWidth = Math.max(2, (link.value / maxLinkVal) * 30);
+      const color = colorScale(link.value);
+
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`);
+      path.setAttribute('d', buildLinkPath(colX[sl], sy, colX[tl], ty, sh, th));
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', color);
-      path.setAttribute('stroke-width', baseWidth);
+      path.setAttribute('stroke-width', linkWidth);
+      path.setAttribute('stroke-opacity', 0.75);
       path.setAttribute('cursor', 'pointer');
-      path._linkIndex = linkPaths.length;
+      path.setAttribute('stroke-linecap', 'round');
       svg.appendChild(path);
 
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = `${nodes[link.source]} → ${nodes[link.target]}: ${link.value}人`;
-      path.appendChild(title);
+      const labelX = (colX[sl] + nodeW + colX[tl]) / 2;
+      const labelY = (sy + sh/2 + ty + th/2) / 2;
 
-      const labelX = midX;
-      const labelY = (y1 + y2) / 2;
-      const fontSize = link.value > maxVal * 0.5 ? 9 : 10;
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', labelX);
-      text.setAttribute('y', labelY - 4);
+      text.setAttribute('y', labelY);
       text.setAttribute('text-anchor', 'middle');
-      text.setAttribute('font-size', fontSize);
-      text.setAttribute('fill', '#555');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.setAttribute('font-size', '10');
+      text.setAttribute('fill', '#333');
+      text.setAttribute('pointer-events', 'none');
       text.textContent = link.value;
       svg.appendChild(text);
 
-      linkPaths.push({ path, baseWidth, source: link.source, target: link.target, text });
-      linkTexts.push(text);
+      linkPaths.push({ path, baseWidth: linkWidth, baseColor: color, source: link.source, target: link.target, text, labelX, labelY });
 
-      path.addEventListener('mouseenter', () => {
-        if (lockedLink !== null || dragging) return;
+      path.addEventListener('mouseenter', (e) => {
+        if (lockedLink !== null || lockedNode !== null) return;
         linkPaths.forEach((p, i) => {
-          if (i === path._linkIndex) {
-            p.path.setAttribute('stroke-width', p.baseWidth + 3);
-            p.path.setAttribute('stroke-opacity', 1);
-          } else {
-            p.path.setAttribute('stroke-opacity', 0.15);
-          }
+          const highlighted = i === idx;
+          p.path.setAttribute('stroke-width', highlighted ? p.baseWidth + 4 : p.baseWidth);
+          p.path.setAttribute('stroke-opacity', highlighted ? 1 : 0.15);
+          p.text.setAttribute('fill', highlighted ? '#000' : '#aaa');
         });
+        tooltip.innerHTML = `${nodes[link.source]} → ${nodes[link.target]}: <b>${link.value}人</b>`;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + labelX + 10) + 'px';
+        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + labelY - 20) + 'px';
       });
+
+      path.addEventListener('mousemove', (e) => {
+        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + labelX + 10) + 'px';
+        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + labelY - 20) + 'px';
+      });
+
       path.addEventListener('mouseleave', () => {
-        if (lockedLink !== null || dragging) return;
-        resetLinks();
+        if (lockedLink !== null || lockedNode !== null) return;
+        linkPaths.forEach(p => {
+          p.path.setAttribute('stroke-width', p.baseWidth);
+          p.path.setAttribute('stroke-opacity', 0.75);
+          p.text.setAttribute('fill', '#333');
+        });
+        tooltip.style.display = 'none';
       });
+
       path.addEventListener('click', (e) => {
-        if (dragging) return;
         e.stopPropagation();
-        if (lockedLink === path._linkIndex) {
+        if (lockedLink === idx) {
           lockedLink = null;
-          resetLinks();
+          linkPaths.forEach(p => {
+            p.path.setAttribute('stroke-width', p.baseWidth);
+            p.path.setAttribute('stroke-opacity', 0.75);
+            p.text.setAttribute('fill', '#333');
+          });
         } else {
-          lockedLink = path._linkIndex;
+          lockedLink = idx;
           lockedNode = null;
-          resetNodes();
           linkPaths.forEach((p, i) => {
-            if (i === lockedLink) {
-              p.path.setAttribute('stroke-width', p.baseWidth + 3);
-              p.path.setAttribute('stroke-opacity', 1);
-            } else {
-              p.path.setAttribute('stroke-opacity', 0.15);
-            }
+            const hl = i === idx;
+            p.path.setAttribute('stroke-width', hl ? p.baseWidth + 4 : p.baseWidth);
+            p.path.setAttribute('stroke-opacity', hl ? 1 : 0.15);
+            p.text.setAttribute('fill', hl ? '#000' : '#aaa');
           });
         }
       });
     });
 
-const nodeRects = [];
+    const nodeRects = [];
+    const levelColors = ['#3498db', '#e67e22', '#27ae60'];
+
     nodes.forEach((node, i) => {
-      const x = xPos(nodeLevels[i]);
+      const x = colX[nodeLevels[i]];
       const y = nodeY[i];
+      const h = nodeHeights[i];
+
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rect.setAttribute('x', x);
-      rect.setAttribute('y', y + 2);
+      rect.setAttribute('y', y);
       rect.setAttribute('width', nodeW);
-      rect.setAttribute('height', nodeH - 4);
-      rect.setAttribute('rx', 4);
-      const colors = ['#3498db', '#f39c12', '#2ecc71'];
-      const baseColor = colors[nodeLevels[i]];
-      rect.setAttribute('fill', baseColor);
-      rect.setAttribute('cursor', 'pointer');
+      rect.setAttribute('height', h);
+      rect.setAttribute('rx', 6);
+      rect.setAttribute('fill', levelColors[nodeLevels[i]]);
+      rect.setAttribute('cursor', 'grab');
       svg.appendChild(rect);
 
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = `${node} | 转入: ${nodeInOut[i].inflow}人 转出: ${nodeInOut[i].outflow}人`;
-      rect.appendChild(title);
-
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      text.setAttribute('x', nodeLevels[i] === 1 ? x + nodeW / 2 : (nodeLevels[i] === 0 ? x + nodeW + 6 : x - 6));
-      text.setAttribute('y', y + nodeH / 2 + 4);
-      text.setAttribute('text-anchor', nodeLevels[i] === 2 ? 'end' : 'start');
+      const tx = nodeLevels[i] === 0 ? x + nodeW + 8 : (nodeLevels[i] === 2 ? x - 8 : x + nodeW / 2);
+      const ta = nodeLevels[i] === 0 ? 'start' : (nodeLevels[i] === 2 ? 'end' : 'middle');
+      text.setAttribute('x', tx);
+      text.setAttribute('y', y + h / 2);
+      text.setAttribute('text-anchor', ta);
+      text.setAttribute('dominant-baseline', 'middle');
       text.setAttribute('font-size', '12');
-      text.setAttribute('fill', '#333');
+      text.setAttribute('fill', '#222');
+      text.setAttribute('pointer-events', 'none');
       text.textContent = node;
       svg.appendChild(text);
 
-      nodeRects.push({ rect, baseColor, index: i, text });
+      nodeRects.push({ rect, baseColor: levelColors[nodeLevels[i]], index: i, text, nodeH: h });
 
-      rect.addEventListener('mouseenter', () => {
-        if (lockedNode !== null || dragging) return;
+      rect.addEventListener('mouseenter', (e) => {
+        if (lockedNode !== null || lockedLink !== null) return;
         linkPaths.forEach(p => {
-          if (p.source === i || p.target === i) {
-            p.path.setAttribute('stroke-opacity', 1);
-            p.path.setAttribute('stroke-width', p.baseWidth + 2);
-          } else {
-            p.path.setAttribute('stroke-opacity', 0.15);
-          }
+          const related = p.source === i || p.target === i;
+          p.path.setAttribute('stroke-width', related ? p.baseWidth + 3 : p.baseWidth);
+          p.path.setAttribute('stroke-opacity', related ? 1 : 0.15);
+          p.text.setAttribute('fill', related ? '#000' : '#aaa');
         });
-        rect.setAttribute('fill', nodeLevels[i] === 0 ? '#2980b9' : (nodeLevels[i] === 1 ? '#d68910' : '#27ae60'));
+        rect.setAttribute('fill', levelColors[nodeLevels[i]] === '#3498db' ? '#2980b9' :
+          levelColors[nodeLevels[i]] === '#e67e22' ? '#d35400' : '#1e8449');
+        tooltip.innerHTML = `<b>${node}</b><br>流入: ${nodeFlow[i] - linkData.filter(l => l.source === i).reduce((s, l) => s + l.value, 0)}人 | 流出的总流量: ${nodeFlow[i]}人`;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + x + nodeW / 2 + 10) + 'px';
+        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + y + h / 2 - 20) + 'px';
       });
+
+      rect.addEventListener('mousemove', (e) => {
+        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + x + nodeW / 2 + 10) + 'px';
+        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + y + h / 2 - 20) + 'px';
+      });
+
       rect.addEventListener('mouseleave', () => {
-        if (lockedNode !== null || dragging) return;
-        resetLinks();
-        rect.setAttribute('fill', baseColor);
+        if (lockedNode !== null || lockedLink !== null) return;
+        linkPaths.forEach(p => {
+          p.path.setAttribute('stroke-width', p.baseWidth);
+          p.path.setAttribute('stroke-opacity', 0.75);
+          p.text.setAttribute('fill', '#333');
+        });
+        rect.setAttribute('fill', levelColors[nodeLevels[i]]);
+        tooltip.style.display = 'none';
       });
+
       rect.addEventListener('click', (e) => {
-        if (dragging) return;
         e.stopPropagation();
         if (lockedNode === i) {
           lockedNode = null;
-          resetLinks();
-          rect.setAttribute('fill', baseColor);
+          linkPaths.forEach(p => {
+            p.path.setAttribute('stroke-width', p.baseWidth);
+            p.path.setAttribute('stroke-opacity', 0.75);
+            p.text.setAttribute('fill', '#333');
+          });
         } else {
           lockedNode = i;
           lockedLink = null;
-          resetLinks();
-          resetNodes();
           linkPaths.forEach(p => {
-            if (p.source === i || p.target === i) {
-              p.path.setAttribute('stroke-opacity', 1);
-              p.path.setAttribute('stroke-width', p.baseWidth + 2);
-            } else {
-              p.path.setAttribute('stroke-opacity', 0.15);
-            }
+            const related = p.source === i || p.target === i;
+            p.path.setAttribute('stroke-width', related ? p.baseWidth + 3 : p.baseWidth);
+            p.path.setAttribute('stroke-opacity', related ? 1 : 0.15);
+            p.text.setAttribute('fill', related ? '#000' : '#aaa');
           });
-          rect.setAttribute('fill', nodeLevels[i] === 0 ? '#2980b9' : (nodeLevels[i] === 1 ? '#d68910' : '#27ae60'));
         }
       });
 
       rect.addEventListener('mousedown', (e) => {
+        e.preventDefault();
         e.stopPropagation();
-        dragging = true;
         draggingNode = i;
         dragStartY = e.clientY;
         dragNodeStartY = nodeY[i];
         lockedNode = null;
         lockedLink = null;
-        resetLinks();
-        resetNodes();
+        linkPaths.forEach(p => {
+          p.path.setAttribute('stroke-width', p.baseWidth);
+          p.path.setAttribute('stroke-opacity', 0.75);
+          p.text.setAttribute('fill', '#333');
+        });
+        rect.style.cursor = 'grabbing';
       });
 
       text.addEventListener('mousedown', (e) => {
+        e.preventDefault();
         e.stopPropagation();
-        dragging = true;
         draggingNode = i;
         dragStartY = e.clientY;
         dragNodeStartY = nodeY[i];
         lockedNode = null;
         lockedLink = null;
-        resetLinks();
-        resetNodes();
+        linkPaths.forEach(p => {
+          p.path.setAttribute('stroke-width', p.baseWidth);
+          p.path.setAttribute('stroke-opacity', 0.75);
+          p.text.setAttribute('fill', '#333');
+        });
       });
     });
 
     svg.addEventListener('mousemove', (e) => {
-      if (!dragging || draggingNode === null) return;
+      if (draggingNode === null) return;
       const newY = dragNodeStartY + (e.clientY - dragStartY);
-      updateNodePosition(draggingNode, newY);
+      const clampedY = Math.max(padT, Math.min(H - padB - nodeHeights[draggingNode], newY));
+      nodeY[draggingNode] = clampedY;
+
+      const nr = nodeRects[draggingNode];
+      nr.rect.setAttribute('y', clampedY);
+      nr.text.setAttribute('y', clampedY + nr.nodeH / 2);
+
+      linkPaths.forEach(p => {
+        if (p.source === draggingNode || p.target === draggingNode) {
+          const sl = nodeLevels[p.source], tl = nodeLevels[p.target];
+          const sy = nodeY[p.source], ty = nodeY[p.target];
+          const sh = nodeHeights[p.source], th = nodeHeights[p.target];
+          p.path.setAttribute('d', buildLinkPath(colX[sl], sy, colX[tl], ty, sh, th));
+          p.labelY = (sy + sh/2 + ty + th/2) / 2;
+          p.text.setAttribute('y', p.labelY);
+        }
+      });
     });
 
     svg.addEventListener('mouseup', () => {
-      dragging = false;
+      if (draggingNode !== null) {
+        nodeRects[draggingNode].rect.style.cursor = 'grab';
+      }
       draggingNode = null;
     });
 
     svg.addEventListener('mouseleave', () => {
-      dragging = false;
+      if (draggingNode !== null) {
+        nodeRects[draggingNode].rect.style.cursor = 'grab';
+      }
       draggingNode = null;
+      tooltip.style.display = 'none';
     });
 
     svg.addEventListener('click', () => {
       if (lockedLink !== null || lockedNode !== null) {
         lockedLink = null;
         lockedNode = null;
-        resetLinks();
-        resetNodes();
+        linkPaths.forEach(p => {
+          p.path.setAttribute('stroke-width', p.baseWidth);
+          p.path.setAttribute('stroke-opacity', 0.75);
+          p.text.setAttribute('fill', '#333');
+        });
       }
     });
   }
