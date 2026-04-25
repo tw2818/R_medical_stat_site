@@ -673,25 +673,19 @@ registerViz('gauge', renderGaugeChart);
 
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
-      <svg id="${id}" width="520" height="300" style="display:block;margin:0 auto;"></svg>
+      <svg id="${id}" width="520" height="420" style="display:block;margin:0 auto;"></svg>
     </div>`;
 
     const svg = document.getElementById(id);
-    const W = 520, H = 300;
+    const W = 520, H = 420;
     const padL = 50, padR = 50, padT = 30, padB = 30;
     const nodeCount = nodes.length;
     const nodeH = (H - padT - padB) / nodeCount;
     const nodeW = 24;
     const levels = 3; // source | middle | target
 
-    // Assign levels: first 2 = source, middle, last 2 = target
-    const nodeLevels = [];
-    const mid = Math.floor(nodeCount / 2);
-    nodes.forEach((_, i) => {
-      if (i < mid) nodeLevels.push(0);
-      else if (i === mid) nodeLevels.push(1);
-      else nodeLevels.push(2);
-    });
+    // Assign levels: 0=入院(source), 1=治疗中/好转(middle), 2=转院/出院/死亡(target)
+    const nodeLevels = [0, 1, 1, 2, 2, 2];
 
     const xPos = (level) => padL + level * ((W - padL - padR - nodeW) / 2);
 
@@ -718,7 +712,7 @@ registerViz('gauge', renderGaugeChart);
     let dragStartY = 0;
     let dragNodeStartY = 0;
 
-    const nodeY = nodes.map((_, i) => padT + nodeH * i);
+    const nodeY = [30, 110, 210, 270, 310, 330];
 
     function resetLinks() {
       linkPaths.forEach(p => {
