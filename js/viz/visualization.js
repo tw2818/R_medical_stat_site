@@ -601,7 +601,6 @@ registerViz('radar', renderRadarChart);
     const plotW = W - padL - padR;
 
     // Compute global x range so groups are comparable on the same axis
-    const allMeans = dists.map(g => mean(g));
     const globalXMin = Math.min(...dists.flat()) - 5;
     const globalXMax = Math.max(...dists.flat()) + 5;
 
