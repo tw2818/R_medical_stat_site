@@ -703,6 +703,30 @@ registerViz('gauge', renderGaugeChart);
     });
     const maxVal = Math.max(...linkData.map(d => d.value));
 
+    const nodeInOut = nodes.map((_, i) => {
+      let inflow = 0, outflow = 0;
+      linkData.forEach(l => {
+        if (l.target === i) inflow += l.value;
+        if (l.source === i) outflow += l.value;
+      });
+      return { inflow, outflow };
+    });
+
+    let lockedLink = null, lockedNode = null;
+
+    function resetLinks() {
+      linkPaths.forEach(p => {
+        p.path.setAttribute('stroke-width', p.baseWidth);
+        p.path.setAttribute('stroke-opacity', 1);
+      });
+    }
+    function resetNodes() {
+      nodeRects.forEach(r => {
+        r.rect.setAttribute('fill', r.baseColor);
+      });
+    }
+
+    const linkPaths = [];
     linkData.forEach(link => {
       const x1 = xPos(nodeLevels[link.source]) + nodeW;
       const y1 = padT + nodeH * link.source + nodeH / 2;
@@ -711,29 +735,71 @@ registerViz('gauge', renderGaugeChart);
       const midX = (x1 + x2) / 2;
       const op = 0.3 + 0.5 * (link.value / maxVal);
       const color = `rgba(52,152,219,${op})`;
+      const baseWidth = Math.max(2, (link.value / maxVal) * 12);
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`);
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', color);
-      path.setAttribute('stroke-width', Math.max(2, (link.value / maxVal) * 12));
+      path.setAttribute('stroke-width', baseWidth);
+      path.setAttribute('cursor', 'pointer');
+      path._linkIndex = linkPaths.length;
       svg.appendChild(path);
 
-      // Label on link
-      if (link.value > maxVal * 0.2) {
-        const labelX = midX;
-        const labelY = (y1 + y2) / 2;
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', labelX);
-        text.setAttribute('y', labelY - 4);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('font-size', '10');
-        text.setAttribute('fill', '#555');
-        text.textContent = link.value;
-        svg.appendChild(text);
-      }
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = `${nodes[link.source]} → ${nodes[link.target]}: ${link.value}人`;
+      path.appendChild(title);
+
+      linkPaths.push({ path, baseWidth, source: link.source, target: link.target });
+
+      const labelX = midX;
+      const labelY = (y1 + y2) / 2;
+      const fontSize = link.value > maxVal * 0.5 ? 9 : 10;
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', labelX);
+      text.setAttribute('y', labelY - 4);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-size', fontSize);
+      text.setAttribute('fill', '#555');
+      text.textContent = link.value;
+      svg.appendChild(text);
+
+      path.addEventListener('mouseenter', () => {
+        if (lockedLink !== null) return;
+        linkPaths.forEach((p, i) => {
+          if (i === path._linkIndex) {
+            p.path.setAttribute('stroke-width', p.baseWidth + 3);
+            p.path.setAttribute('stroke-opacity', 1);
+          } else {
+            p.path.setAttribute('stroke-opacity', 0.15);
+          }
+        });
+      });
+      path.addEventListener('mouseleave', () => {
+        if (lockedLink !== null) return;
+        resetLinks();
+      });
+      path.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (lockedLink === path._linkIndex) {
+          lockedLink = null;
+          resetLinks();
+        } else {
+          lockedLink = path._linkIndex;
+          lockedNode = null;
+          resetNodes();
+          linkPaths.forEach((p, i) => {
+            if (i === lockedLink) {
+              p.path.setAttribute('stroke-width', p.baseWidth + 3);
+              p.path.setAttribute('stroke-opacity', 1);
+            } else {
+              p.path.setAttribute('stroke-opacity', 0.15);
+            }
+          });
+        }
+      });
     });
 
-    // Draw nodes
+    const nodeRects = [];
     nodes.forEach((node, i) => {
       const x = xPos(nodeLevels[i]);
       const y = padT + nodeH * i;
@@ -744,8 +810,56 @@ registerViz('gauge', renderGaugeChart);
       rect.setAttribute('height', nodeH - 4);
       rect.setAttribute('rx', 4);
       const colors = ['#3498db', '#f39c12', '#2ecc71'];
-      rect.setAttribute('fill', colors[nodeLevels[i]]);
+      const baseColor = colors[nodeLevels[i]];
+      rect.setAttribute('fill', baseColor);
+      rect.setAttribute('cursor', 'pointer');
       svg.appendChild(rect);
+
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = `${node} | 转入: ${nodeInOut[i].inflow}人 转出: ${nodeInOut[i].outflow}人`;
+      rect.appendChild(title);
+
+      nodeRects.push({ rect, baseColor, index: i });
+
+      rect.addEventListener('mouseenter', () => {
+        if (lockedNode !== null) return;
+        linkPaths.forEach(p => {
+          if (p.source === i || p.target === i) {
+            p.path.setAttribute('stroke-opacity', 1);
+            p.path.setAttribute('stroke-width', p.baseWidth + 2);
+          } else {
+            p.path.setAttribute('stroke-opacity', 0.15);
+          }
+        });
+        rect.setAttribute('fill', nodeLevels[i] === 0 ? '#2980b9' : (nodeLevels[i] === 1 ? '#d68910' : '#27ae60'));
+      });
+      rect.addEventListener('mouseleave', () => {
+        if (lockedNode !== null) return;
+        resetLinks();
+        rect.setAttribute('fill', baseColor);
+      });
+      rect.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (lockedNode === i) {
+          lockedNode = null;
+          resetLinks();
+          rect.setAttribute('fill', baseColor);
+        } else {
+          lockedNode = i;
+          lockedLink = null;
+          resetLinks();
+          resetNodes();
+          linkPaths.forEach(p => {
+            if (p.source === i || p.target === i) {
+              p.path.setAttribute('stroke-opacity', 1);
+              p.path.setAttribute('stroke-width', p.baseWidth + 2);
+            } else {
+              p.path.setAttribute('stroke-opacity', 0.15);
+            }
+          });
+          rect.setAttribute('fill', nodeLevels[i] === 0 ? '#2980b9' : (nodeLevels[i] === 1 ? '#d68910' : '#27ae60'));
+        }
+      });
 
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', nodeLevels[i] === 1 ? x + nodeW / 2 : (nodeLevels[i] === 0 ? x + nodeW + 6 : x - 6));
@@ -755,6 +869,15 @@ registerViz('gauge', renderGaugeChart);
       text.setAttribute('fill', '#333');
       text.textContent = node;
       svg.appendChild(text);
+    });
+
+    svg.addEventListener('click', () => {
+      if (lockedLink !== null || lockedNode !== null) {
+        lockedLink = null;
+        lockedNode = null;
+        resetLinks();
+        resetNodes();
+      }
     });
   }
 registerViz('sankey', renderSankey);
