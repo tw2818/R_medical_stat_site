@@ -919,7 +919,7 @@ registerViz('gauge', renderGaugeChart);
         });
       }
 
-      return result.map(y => Math.max(padT, Math.min(H - padB - nodeHeights[nodes.indexOf(_)], y)));
+      return result.map((y, i) => Math.max(padT, Math.min(H - padB - nodeHeights[i], y)));
     }
 
     const nodeY = getInitNodeY();
