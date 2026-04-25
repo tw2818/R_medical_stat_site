@@ -813,6 +813,24 @@ registerViz('gauge', renderGaugeChart);
         });
       }
 
+      // Enforce minimum spacing between nodes in the same level (even without direct links)
+      for (let lvl = 0; lvl < levelGroups.length; lvl++) {
+        const group = levelGroups[lvl];
+        for (let i = 0; i < group.length; i++) {
+          for (let j = i + 1; j < group.length; j++) {
+            const a = group[i], b = group[j];
+            const minGap = 12;
+            const aBottom = result[a] + nodeHeights[a];
+            const bTop = result[b];
+            if (bTop - aBottom < minGap) {
+              const shift = (minGap - (bTop - aBottom)) / 2;
+              result[a] -= shift;
+              result[b] += shift;
+            }
+          }
+        }
+      }
+
       return result.map((y, i) => Math.max(padT, Math.min(H - padB - nodeHeights[i], y)));
     }
 
