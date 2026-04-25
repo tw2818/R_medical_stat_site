@@ -600,13 +600,16 @@ registerViz('radar', renderRadarChart);
     const bandH = 50;
     const plotW = W - padL - padR;
 
+    // Compute global x range so groups are comparable on the same axis
+    const allMeans = dists.map(g => mean(g));
+    const globalXMin = Math.min(...dists.flat()) - 5;
+    const globalXMax = Math.max(...dists.flat()) + 5;
+
     dists.forEach((data, i) => {
       const yBase = padT + i * 55 + bandH;
       const color = colors[i % colors.length];
       const m = mean(data), s = sd(data);
-      const xMin = m - 3.5 * s, xMax = m + 3.5 * s;
 
-      // Draw filled density shape
       ctx.beginPath();
       const steps = 60;
       const pts = [];
@@ -614,7 +617,7 @@ registerViz('radar', renderRadarChart);
       const scale = bandH * 0.8;
       for (let k = 0; k <= steps; k++) {
         const xFrac = k / steps;
-        const xVal = xMin + xFrac * (xMax - xMin);
+        const xVal = globalXMin + xFrac * (globalXMax - globalXMin);
         const density = (1 / (s * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((xVal - m) / s) ** 2);
         const px = padL + xFrac * plotW;
         const py = yBase - (density / maxDensity) * scale;
