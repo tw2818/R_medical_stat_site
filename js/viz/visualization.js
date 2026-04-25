@@ -886,13 +886,13 @@ registerViz('gauge', renderGaugeChart);
     });
 
     function getInitNodeY() {
-      const levelGroups = [[], [], []];
+      const maxLevel = Math.max(...nodeLevels);
+      const levelGroups = Array.from({ length: maxLevel + 1 }, () => []);
       nodes.forEach((_, i) => levelGroups[nodeLevels[i]].push(i));
 
-      const levelHeight = plotH / (levelGroups[1].length + 1);
       const result = new Array(nodes.length);
 
-      levelGroups.forEach((group, lvl) => {
+      levelGroups.forEach((group) => {
         const totalH = group.reduce((s, i) => s + nodeHeights[i], 0);
         const gap = (plotH - totalH) / (group.length + 1);
         let y = padT + gap;
