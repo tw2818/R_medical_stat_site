@@ -1773,18 +1773,32 @@ registerViz('spine', renderSpinePlot);
     const fontSize = 13;
     const rowH = 22;
     const stemW = 35;
-    const leafW = 20;
     const lineH = rowH;
-    const W = stemW + leafW + 60;
-    const H = rows.length * lineH + 60;
 
+    // Create canvas first with provisional width to get ctx for measuring
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
-      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+      <canvas id="${id}" style="display:block;margin:0 auto;"></canvas>
     </div>`;
 
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
+
+    // Dynamically calculate canvas width based on longest leaf string
+    let maxLeafWidth = 0;
+    rows.forEach(row => {
+      const leafText = row.leaves.join(' ');
+      if (leafText.length > 0) {
+        ctx.font = `${fontSize}px monospace`;
+        maxLeafWidth = Math.max(maxLeafWidth, ctx.measureText(leafText).width);
+      }
+    });
+    const leafW = Math.max(maxLeafWidth + 20, 60);
+    const W = stemW + leafW + 60;
+    const H = rows.length * lineH + 60;
+
+    canvas.width = W;
+    canvas.height = H;
     ctx.clearRect(0, 0, W, H);
 
     ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
@@ -1800,6 +1814,7 @@ registerViz('spine', renderSpinePlot);
     ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(sepX, padT); ctx.lineTo(sepX, padT + rows.length * lineH); ctx.stroke();
 
+    const leafEls = [];
     rows.forEach((row, i) => {
       const y = padT + i * lineH + lineH / 2 + 4;
 
@@ -1808,19 +1823,20 @@ registerViz('spine', renderSpinePlot);
 
       ctx.fillStyle = '#2c5aa0'; ctx.font = `${fontSize}px monospace`; ctx.textAlign = 'left';
       ctx.fillText(row.leaves.join(' '), sepX + 8, y);
+
+      // Precise leaf x positions using measureText
+      let xCursor = sepX + 8;
+      row.leaves.forEach((leaf, li) => {
+        if (li > 0) xCursor += ctx.measureText(' ').width;
+        const leafW = ctx.measureText(leaf).width;
+        const x = xCursor + leafW / 2;
+        leafEls.push({ x, y, stem: row.stem, leaf, ri: i, li });
+        xCursor += leafW;
+      });
     });
 
     const card = canvas.parentElement;
     const tip = createTooltip(card);
-    const leafEls = [];
-
-    rows.forEach((row, ri) => {
-      row.leaves.forEach((leaf, li) => {
-        const y = padT + ri * lineH + lineH / 2 + 4;
-        const x = sepX + 8 + li * (fontSize * 0.6 + 3);
-        leafEls.push({ x, y, stem: row.stem, leaf, ri, li });
-      });
-    });
 
     canvas.addEventListener('mousemove', e => {
       const rect = canvas.getBoundingClientRect();
@@ -1831,7 +1847,7 @@ registerViz('spine', renderSpinePlot);
       });
       if (found !== null) {
         const l = leafEls[found];
-        tip.show(`茎=${l.stem}, 叶=${l.leaf}`);
+        tip.show(`数值: ${l.stem}.${l.leaf}`);
         tip.move(e);
       } else {
         tip.hide();
