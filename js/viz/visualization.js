@@ -1793,8 +1793,12 @@ registerViz('spine', renderSpinePlot);
         maxLeafWidth = Math.max(maxLeafWidth, ctx.measureText(leafText).width);
       }
     });
+    // Also measure title width to ensure it's not clipped
+    ctx.font = 'bold 13px sans-serif';
+    const titleWidth = ctx.measureText(title).width;
+
     const leafW = Math.max(maxLeafWidth + 20, 60);
-    const W = stemW + leafW + 60;
+    const W = Math.max(stemW + leafW + 60, titleWidth + 40);
     const H = rows.length * lineH + 60;
 
     canvas.width = W;
