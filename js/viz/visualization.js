@@ -1,4 +1,4 @@
-import { registerViz, mean, sd, ensureJStat } from './_core.js';
+import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
 
 // ==========================================================
 // VISUALIZATION - 统计可视化模块
@@ -73,34 +73,96 @@ import { registerViz, mean, sd, ensureJStat } from './_core.js';
 
     // Bars
     const barW = plotW / nbins * 0.8;
+    const barData = [];
     bins.forEach((count, i) => {
       const barH = (count / maxCount) * plotH * 0.85;
       const x = padL + (i / nbins) * plotW + (plotW / nbins) * 0.1;
       const y = padT + plotH - barH;
+      barData.push({ x, y, w: barW, h: barH, binRange: `${(minD + i * binWidth).toFixed(1)}–${(minD + (i + 1) * binWidth).toFixed(1)}`, count });
       ctx.fillStyle = '#3498db'; ctx.fillRect(x, y, barW, barH);
     });
 
-    // Normal curve overlay
-    ctx.beginPath();
-    ctx.strokeStyle = '#e74c3c';
-    ctx.lineWidth = 2.5;
+    // Tooltip
+    const card = canvas.parentElement;
+    const tip = createTooltip(card);
+    let hoveredBar = null;
     const xRange = maxD - minD || 1;
     const safeMaxCount = Math.max(maxCount, 1);
     const safeBins = Math.max(nbins, 1);
-    for (let px = 0; px <= plotW; px++) {
-      const v = minD + (px / plotW) * xRange;
-      const density = jStat.normal.pdf(v, mean, sd) * binWidth;
-      const y = padT + plotH - (density / (safeMaxCount / n) / safeBins * plotH * 0.85);
-      if (px === 0) ctx.moveTo(padL + px, y);
-      else ctx.lineTo(padL + px, y);
-    }
-    ctx.stroke();
 
-    // Labels
-    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('数值', padL + plotW / 2, H - 4);
-    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillText('频数', 0, 0); ctx.restore();
+    function drawBars(hlIndex) {
+      ctx.clearRect(padL, padT, plotW, plotH);
+      // Grid
+      ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH;
+        ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+      }
+      // Axes
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+      // X tick labels
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      for (let i = 0; i <= nbins; i += Math.ceil(nbins / 8)) {
+        const x = padL + (i / nbins) * plotW;
+        ctx.fillText((minD + i * binWidth).toFixed(0), x, padT + plotH + 16);
+      }
+      // Y tick labels
+      ctx.textAlign = 'right';
+      for (let i = 0; i <= 5; i++) {
+        ctx.fillText(Math.round((i / 5) * maxCount), padL - 6, padT + (i / 5) * plotH + 4);
+      }
+      // Bars
+      barData.forEach((b, i) => {
+        ctx.fillStyle = i === hlIndex ? '#2980b9' : '#3498db';
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+      });
+      // Normal curve overlay
+      ctx.beginPath();
+      ctx.strokeStyle = '#e74c3c';
+      ctx.lineWidth = 2.5;
+      for (let px = 0; px <= plotW; px++) {
+        const v = minD + (px / plotW) * xRange;
+        const density = jStat.normal.pdf(v, mean, sd) * binWidth;
+        const y = padT + plotH - (density / (safeMaxCount / n) / safeBins * plotH * 0.85);
+        if (px === 0) ctx.moveTo(padL + px, y);
+        else ctx.lineTo(padL + px, y);
+      }
+      ctx.stroke();
+      // Labels
+      ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('数值', padL + plotW / 2, H - 4);
+      ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+      ctx.fillText('频数', 0, 0); ctx.restore();
+    }
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      let found = null;
+      barData.forEach((b, i) => {
+        if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) found = i;
+      });
+      if (found !== hoveredBar) {
+        hoveredBar = found;
+        drawBars(found);
+      }
+      if (found !== null) {
+        const b = barData[found];
+        tip.show(`${b.binRange} | 频数: ${b.count}`);
+        tip.move(e);
+      } else {
+        tip.hide();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      hoveredBar = null;
+      drawBars(-1);
+      tip.hide();
+    });
   }
 registerViz('hist', renderHistogram);
 
@@ -268,10 +330,12 @@ registerViz('box', renderBoxplot);
     }
 
     // Bars
+    const barData = [];
     values.forEach((val, i) => {
       const barH = (val / maxVal) * plotH * 0.9;
       const x = padL + gap + i * (barW + gap);
       const y = padT + plotH - barH;
+      barData.push({ x, y, w: barW, h: barH, label: labels[i], value: val });
       ctx.fillStyle = colors[i % colors.length];
       ctx.fillRect(x, y, barW, barH);
       // Value label
@@ -280,6 +344,68 @@ registerViz('box', renderBoxplot);
       // X label
       ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
       ctx.fillText(labels[i], x + barW / 2, padT + plotH + 18);
+    });
+
+    const card = canvas.parentElement;
+    const tip = createTooltip(card);
+    let hoveredIdx = null;
+
+    function drawBars(hlIdx) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(title, W / 2, 22);
+      ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const y = padT + (i / 5) * plotH;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+      }
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+      ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('数值', 0, 0); ctx.restore();
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      for (let i = 0; i <= 5; i++) {
+        const y = padT + (i / 5) * plotH;
+        const v = Math.round(maxVal * (1 - i / 5));
+        ctx.fillText(v, padL - 6, y + 4);
+      }
+      barData.forEach((b, i) => {
+        ctx.fillStyle = i === hlIdx ? '#2980b9' : colors[i % colors.length];
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(b.value, b.x + b.w / 2, b.y - 8);
+        ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+        ctx.fillText(b.label, b.x + b.w / 2, padT + plotH + 18);
+      });
+    }
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      let found = null;
+      barData.forEach((b, i) => {
+        if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) found = i;
+      });
+      if (found !== hoveredIdx) {
+        hoveredIdx = found;
+        drawBars(found);
+      }
+      if (found !== null) {
+        const b = barData[found];
+        tip.show(`${b.label}: ${b.value}`);
+        tip.move(e);
+      } else {
+        tip.hide();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      hoveredIdx = null;
+      drawBars(-1);
+      tip.hide();
     });
   }
 registerViz('bar', renderBarChart);
@@ -311,49 +437,97 @@ registerViz('bar', renderBarChart);
     const radius = Math.min(W, H) / 2 - 40;
     const legendBoxW = 100, legendBoxH = labels.length * 20;
 
-    ctx.clearRect(0, 0, W, H);
-
-    // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(title, W / 2, 22);
-
+    const sliceData = [];
     let startAngle = -Math.PI / 2;
     values.forEach((val, i) => {
       const sliceAngle = (val / total) * Math.PI * 2;
       const endAngle = startAngle + sliceAngle;
-
-      // Slice
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, radius, startAngle, endAngle);
-      ctx.closePath();
-      ctx.fillStyle = colors[i % colors.length];
-      ctx.fill();
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Percentage label
-      const midAngle = startAngle + sliceAngle / 2;
-      const labelR = radius * 0.65;
-      const lx = cx + labelR * Math.cos(midAngle);
-      const ly = cy + labelR * Math.sin(midAngle);
-      const pct = ((val / total) * 100).toFixed(1);
-      if (pct > 5) {
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(pct + '%', lx, ly);
-      }
-
+      sliceData.push({ startAngle, endAngle, label: labels[i], value: val, color: colors[i % colors.length] });
       startAngle = endAngle;
     });
 
-    // Legend
-    const legX = W - legendBoxW - 15, legY = cy - legendBoxH / 2;
-    values.forEach((val, i) => {
-      const ly = legY + i * 20 + 12;
-      ctx.fillStyle = colors[i % colors.length];
-      ctx.fillRect(legX, ly - 8, 12, 12);
-      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(labels[i] + ' (' + val + ')', legX + 18, ly + 2);
+    function drawPie(hlIdx) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(title, W / 2, 22);
+
+      sliceData.forEach((s, i) => {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, i === hlIdx ? radius + 6 : radius, s.startAngle, s.endAngle);
+        ctx.closePath();
+        ctx.fillStyle = i === hlIdx ? '#5d9cec' : s.color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.stroke();
+
+        if (i !== hlIdx) {
+          const midAngle = s.startAngle + (s.endAngle - s.startAngle) / 2;
+          const labelR = radius * 0.65;
+          const lx = cx + labelR * Math.cos(midAngle);
+          const ly = cy + labelR * Math.sin(midAngle);
+          const pct = ((s.value / total) * 100).toFixed(1);
+          if (pct > 5) {
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(pct + '%', lx, ly);
+          }
+        }
+      });
+
+      const legX = W - legendBoxW - 15, legY = cy - legendBoxH / 2;
+      values.forEach((val, i) => {
+        const ly = legY + i * 20 + 12;
+        ctx.fillStyle = i === hlIdx ? '#5d9cec' : colors[i % colors.length];
+        ctx.fillRect(legX, ly - 8, 12, 12);
+        ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(labels[i] + ' (' + val + ')', legX + 18, ly + 2);
+      });
+    }
+
+    drawPie(-1);
+
+    const card = canvas.parentElement;
+    const tip = createTooltip(card);
+    let hoveredIdx = null;
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left - cx;
+      const my = e.clientY - rect.top - cy;
+      const dist = Math.sqrt(mx * mx + my * my);
+      if (dist <= radius) {
+        let angle = Math.atan2(my, mx);
+        if (angle < -Math.PI / 2) angle += Math.PI * 2;
+        angle += Math.PI / 2;
+        if (angle < 0) angle += Math.PI * 2;
+        let found = null;
+        sliceData.forEach((s, i) => {
+          if (angle >= s.startAngle && angle < s.endAngle) found = i;
+        });
+        if (found !== hoveredIdx) {
+          hoveredIdx = found;
+          drawPie(found);
+        }
+        if (found !== null) {
+          const s = sliceData[found];
+          tip.show(`${s.label}: ${s.value} (${((s.value / total) * 100).toFixed(1)}%)`);
+          tip.move(e);
+        } else {
+          tip.hide();
+        }
+      } else {
+        if (hoveredIdx !== null) {
+          hoveredIdx = null;
+          drawPie(-1);
+        }
+        tip.hide();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      hoveredIdx = null;
+      drawPie(-1);
+      tip.hide();
     });
   }
 registerViz('pie', renderPieChart);
@@ -1378,15 +1552,18 @@ registerViz('ldascatter', renderLDAScatter);
     // Spine bars (horizontal stacked)
     const barH = Math.min(36, totalH / categories.length * 0.6);
     const gap = (totalH - barH * categories.length) / (categories.length + 1);
+    const barX = padL + plotW * 0.05;
+    const trackW = plotW * 0.9;
 
+    const segData = [];
     categories.forEach((cat, i) => {
       const barY = padT + gap + i * (barH + gap);
-      const barW = props[i] * plotW * 0.9;
-      const barX = padL + plotW * 0.05;
+      const barW = props[i] * trackW;
+      segData.push({ barX, barY, barW, barH, label: cat, prop: props[i] });
 
       // Background track
       ctx.fillStyle = '#f0f0f0';
-      ctx.fillRect(barX, barY, plotW * 0.9, barH);
+      ctx.fillRect(barX, barY, trackW, barH);
 
       // Filled portion
       ctx.fillStyle = colors[i % colors.length];
@@ -1407,6 +1584,35 @@ registerViz('ldascatter', renderLDAScatter);
       const y = padT + (i / 4) * totalH;
       ctx.fillText((i / 4 * 100).toFixed(0) + '%', padL - 6, y + 4);
     }
+
+    const card = canvas.parentElement;
+    const tip = createTooltip(card);
+    let hoveredIdx = null;
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      let found = null;
+      segData.forEach((s, i) => {
+        if (mx >= s.barX && mx <= s.barX + trackW && my >= s.barY && my <= s.barY + s.barH) found = i;
+      });
+      if (found !== hoveredIdx) {
+        hoveredIdx = found;
+      }
+      if (found !== null) {
+        const s = segData[found];
+        tip.show(`${s.label}: ${(s.prop * 100).toFixed(1)}%`);
+        tip.move(e);
+      } else {
+        tip.hide();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      hoveredIdx = null;
+      tip.hide();
+    });
   }
 registerViz('spine', renderSpinePlot);
 

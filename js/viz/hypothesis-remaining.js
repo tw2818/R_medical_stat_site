@@ -1,4 +1,4 @@
-import { registerViz } from './_core.js';
+import { registerViz, createTooltip } from './_core.js';
 
 function renderANOVA(el) {
   let means = [], sds = [], ns = [], labels = [];
@@ -187,6 +187,7 @@ function renderScatterPlot(el) {
     ctx.save(); ctx.translate(cx, cy); ctx.rotate(theta);
     ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI*2); ctx.stroke(); ctx.restore();
   }
+  let sxScale, syScale, pointPositions = [];
   function draw() {
     ctx.clearRect(0, 0, W, H);
     if (allPoints.length < 2) {
@@ -242,6 +243,7 @@ function renderScatterPlot(el) {
       }
     }
     // 绘制散点
+    pointPositions = [];
     if (hasTwoGroups) {
       const colors = ['#569cd6', '#e06c75'];
       const groups = [group1Points, group2Points];
@@ -249,7 +251,11 @@ function renderScatterPlot(el) {
       const regs = [reg1, reg2];
       groups.forEach((grp, gi) => {
         ctx.fillStyle = colors[gi];
-        grp.forEach(p => { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI * 2); ctx.fill(); });
+        grp.forEach(p => {
+          const cx = sx(p.x), cy = sy(p.y);
+          pointPositions.push({ cx, cy, x: p.x, y: p.y });
+          ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
+        });
         const reg = regs[gi];
         if (reg) {
           const x1 = xMin - xPad, x2 = xMax + xPad;
@@ -268,7 +274,11 @@ function renderScatterPlot(el) {
       });
     } else {
       ctx.fillStyle = '#569cd6';
-      points.forEach(p => { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI * 2); ctx.fill(); });
+      points.forEach(p => {
+        const cx = sx(p.x), cy = sy(p.y);
+        pointPositions.push({ cx, cy, x: p.x, y: p.y });
+        ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
+      });
     }
     if (groupCentroids.length > 0) {
       const colors = ['#e74c3c','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e91e63'];
@@ -386,6 +396,45 @@ function renderScatterPlot(el) {
     }
   }
   draw();
+
+  const tip = createTooltip(card);
+  let hoveredIdx = null;
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    let nearest = null, minDist = 15;
+    pointPositions.forEach((p, i) => {
+      const d = Math.sqrt((mx - p.cx) ** 2 + (my - p.cy) ** 2);
+      if (d < minDist) { minDist = d; nearest = i; }
+    });
+    if (nearest !== hoveredIdx) {
+      hoveredIdx = nearest;
+      draw();
+      if (nearest !== null) {
+        const p = pointPositions[nearest];
+        ctx.strokeStyle = '#f9826c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(p.cx, p.cy, 8, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    if (nearest !== null) {
+      const p = pointPositions[nearest];
+      tip.show(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`);
+      tip.move(e);
+    } else {
+      tip.hide();
+    }
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    hoveredIdx = null;
+    draw();
+    tip.hide();
+  });
 }
 registerViz('scatter', renderScatterPlot);
 

@@ -54,6 +54,28 @@ function makeCanvas(container, w, h) {
   return canvas;
 }
 
+// ── Tooltip 工具 ──────────────────────────────────────────
+function createTooltip(parent) {
+  const el = document.createElement('div');
+  el.className = 'viz-tooltip';
+  el.style.cssText = 'position:absolute;pointer-events:none;background:rgba(40,40,40,0.9);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;line-height:1.4;display:none;z-index:100;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+  parent.appendChild(el);
+  return {
+    el,
+    show(text) { el.textContent = text; el.style.display = 'block'; },
+    hide() { el.style.display = 'none'; },
+    move(e) {
+      const rect = parent.getBoundingClientRect();
+      let x = e.clientX - rect.left + 12;
+      let y = e.clientY - rect.top - 10;
+      if (x + el.offsetWidth > rect.width) x = e.clientX - rect.left - el.offsetWidth - 12;
+      if (y < 0) y = 0;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+  };
+}
+
 // ── 注册表 ────────────────────────────────────────────────
 export const StatVizRegistry = {};
 let vizObserver = null;
@@ -118,4 +140,4 @@ function setupObserver() {
   vizObserver.observe(target, { childList: true, subtree: true });
 }
 
-export { $, parseNumbers, parseNumbersStrict, mean, sd, sum, ensureJStat, makeCanvas, renderComponent, init, setupObserver };
+export { $, parseNumbers, parseNumbersStrict, mean, sd, sum, ensureJStat, makeCanvas, createTooltip, renderComponent, init, setupObserver };
