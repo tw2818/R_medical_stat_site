@@ -187,7 +187,7 @@ function renderScatterPlot(el) {
     ctx.save(); ctx.translate(cx, cy); ctx.rotate(theta);
     ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI*2); ctx.stroke(); ctx.restore();
   }
-  let sxScale, syScale, pointPositions = [];
+  let sxScale, syScale, pointPositions = [], statsDiv = null;
   function draw(highlightIdx) {
     ctx.clearRect(0, 0, W, H);
     if (allPoints.length < 2) {
@@ -377,9 +377,7 @@ function renderScatterPlot(el) {
       }
 
       // 显示比较结果
-      const statsDiv = document.createElement('div');
-      statsDiv.style.cssText = 'margin-top:10px;padding:10px 14px;background:#f8f9fa;border-radius:6px;font-size:12px;color:#444;line-height:1.8;';
-      statsDiv.innerHTML = `
+      const statsHtml = `
         <strong>📐 两条回归直线比较</strong><br>
         ① <strong>平行性检验</strong>（交互项 t 检验）: F<sub>(${dfSep.toFixed(0)},2)</sub> = ${Finteraction.toFixed(3)}, P = ${pInteraction}
         ${parseFloat(pInteraction) > 0.05 ? ' → 不能拒绝 H₀，两条回归直线<strong>平行</strong>' : ' → 拒绝 H₀，两条回归直线<strong>不平行</strong>'}<br>
@@ -390,9 +388,14 @@ function renderScatterPlot(el) {
           大骨节病儿童: ŷ=${reg2.slope.toFixed(4)}x+${reg2.intercept.toFixed(4)}
         </span>
       `;
-      card.querySelector('.viz-r-display') ?
-        card.querySelector('.viz-r-display').insertAdjacentElement('afterend', statsDiv) :
-        card.appendChild(statsDiv);
+      if (!statsDiv) {
+        statsDiv = document.createElement('div');
+        statsDiv.style.cssText = 'margin-top:10px;padding:10px 14px;background:#f8f9fa;border-radius:6px;font-size:12px;color:#444;line-height:1.8;';
+        card.querySelector('.viz-r-display') ?
+          card.querySelector('.viz-r-display').insertAdjacentElement('afterend', statsDiv) :
+          card.appendChild(statsDiv);
+      }
+      statsDiv.innerHTML = statsHtml;
     }
     if (highlightIdx !== null && highlightIdx !== undefined && pointPositions[highlightIdx]) {
       const p = pointPositions[highlightIdx];

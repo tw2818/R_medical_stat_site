@@ -125,7 +125,7 @@ import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
       for (let px = 0; px <= plotW; px++) {
         const v = minD + (px / plotW) * xRange;
         const density = jStat.normal.pdf(v, mean, sd) * binWidth;
-        const y = padT + plotH - (density / (safeMaxCount / n) / safeBins * plotH * 0.85);
+        const y = padT + plotH - (density * n / safeMaxCount * plotH * 0.85);
         if (px === 0) ctx.moveTo(padL + px, y);
         else ctx.lineTo(padL + px, y);
       }
@@ -461,17 +461,15 @@ registerViz('bar', renderBarChart);
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
         ctx.stroke();
 
-        if (i !== hlIdx) {
-          const midAngle = s.startAngle + (s.endAngle - s.startAngle) / 2;
+        const midAngle = s.startAngle + (s.endAngle - s.startAngle) / 2;
           const labelR = radius * 0.65;
           const lx = cx + labelR * Math.cos(midAngle);
           const ly = cy + labelR * Math.sin(midAngle);
           const pct = ((s.value / total) * 100).toFixed(1);
           if (pct > 5) {
-            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillStyle = i === hlIdx ? '#fff' : '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(pct + '%', lx, ly);
           }
-        }
       });
 
       const legX = W - legendBoxW - 15, legY = cy - legendBoxH / 2;
@@ -497,9 +495,8 @@ registerViz('bar', renderBarChart);
       const dist = Math.sqrt(mx * mx + my * my);
       if (dist <= radius) {
         let angle = Math.atan2(my, mx);
-        if (angle < -Math.PI / 2) angle += Math.PI * 2;
-        angle += Math.PI / 2;
         if (angle < 0) angle += Math.PI * 2;
+        angle = (angle + Math.PI / 2) % (Math.PI * 2);
         let found = null;
         sliceData.forEach((s, i) => {
           if (angle >= s.startAngle && angle < s.endAngle) found = i;
@@ -648,7 +645,7 @@ registerViz('heatmap', renderHeatmap);
       ctx.strokeStyle = frac === 1 ? '#aaa' : '#ddd'; ctx.lineWidth = 1;
       ctx.stroke();
       ctx.fillStyle = '#777'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText((maxVal * frac).toFixed(0), cx, cy - r * frac + 10);
+      ctx.fillText((maxVal * frac).toFixed(0), cx, cy + r * frac + 10);
     });
 
     // Draw axes and labels
@@ -727,7 +724,7 @@ registerViz('radar', renderRadarChart);
         const xFrac = k / steps;
         const xVal = xMin + xFrac * (xMax - xMin);
         // Simple Gaussian approximation for display
-        const density = Math.exp(-0.5 * ((xVal - m) / s) ** 2);
+        const density = (1 / (s * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((xVal - m) / s) ** 2);
         const px = padL + xFrac * plotW;
         const py = yBase - density * bandH * 0.85;
         pts.push({ x: px, y: py });
@@ -829,7 +826,7 @@ registerViz('ridgeline', renderRidgeline);
 
     // Value display
     ctx.fillStyle = '#2980b9'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(value + unit, cx, cy - 30);
+    ctx.fillText(value + unit, cx, cy - 55);
   }
 registerViz('gauge', renderGaugeChart);
 
@@ -1136,20 +1133,7 @@ registerViz('gauge', renderGaugeChart);
         rect.style.cursor = 'grabbing';
       });
 
-      text.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        draggingNode = i;
-        dragStartY = e.clientY;
-        dragNodeStartY = nodeY[i];
-        lockedNode = null;
-        lockedLink = null;
-        linkPaths.forEach(p => {
-          p.path.setAttribute('stroke-width', p.baseWidth);
-          p.path.setAttribute('stroke-opacity', 0.75);
-          p.text.setAttribute('fill', '#333');
-        });
-      });
+      
     });
 
     svg.addEventListener('mousemove', (e) => {
@@ -1170,6 +1154,7 @@ registerViz('gauge', renderGaugeChart);
           p.path.setAttribute('d', buildLinkPath(colX[sl], sy, colX[tl], ty, sh, th));
           p.labelY = (sy + sh/2 + ty + th/2) / 2;
           p.text.setAttribute('y', p.labelY);
+          p.text.setAttribute('x', (colX[sl] + colX[tl]) / 2);
         }
       });
     });
@@ -1552,7 +1537,7 @@ registerViz('ldascatter', renderLDAScatter);
     const barX = padL + plotW * 0.05;
     const trackW = plotW * 0.9;
 
-    const segData = [];
+    let segData = [];
     categories.forEach((cat, i) => {
       const barY = padT + gap + i * (barH + gap);
       const barW = props[i] * trackW;
