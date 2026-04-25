@@ -874,7 +874,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>china_map <span class="ot">&lt;-</span> china_map <span class="sc">%&gt;%</span> </span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name_short=</span><span class="fu">substr</span>(name,<span class="dv">1</span>,<span class="dv">2</span>),</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">number =</span> <span class="fu">sample</span>(<span class="dv">10</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">35</span>,<span class="at">replace=</span>F),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">number =</span> <span class="fu">sample</span>(<span class="dv">10</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">35</span>,<span class="at">replace=</span><span class="ot">FALSE</span>),</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">group =</span> <span class="fu">sample</span>(<span class="fu">paste0</span>(<span class="st">"group"</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>),<span class="dv">35</span>,<span class="at">replace=</span>T))</span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>china_map<span class="sc">$</span>name_short[<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">8</span>)] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"内蒙古"</span>,<span class="st">"黑龙江"</span>)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1028,7 +1028,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"分组"</span>,<span class="at">y=</span><span class="st">"95%CI"</span>)<span class="sc">+</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
 <span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"black"</span>,<span class="at">size =</span> <span class="dv">15</span>))</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
@@ -1041,8 +1040,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>📊 交互式误差条图演示：</p>
 <div class="stat-viz" data-type="errorbar" data-title="新药临床试验95%CI（例10-14）" data-labels="安慰剂组,新药2.4mg,新药4.8mg,新药7.2mg" data-means="3.43,2.72,2.70,1.97" data-lower="3.17,2.49,2.52,1.70" data-upper="3.69,2.94,2.88,2.23"></div>
 
-<section id="面积图" class="level2" data-number="9.12">
-<h2 data-number="9.12" class="anchored" data-anchor-id="面积图"><span class="header-section-number">9.12</span> 堆叠面积图</h2>
+<section id="堆叠面积图" class="level2" data-number="9.12">
+<h2 data-number="9.12" class="anchored" data-anchor-id="堆叠面积图"><span class="header-section-number">9.12</span> 堆叠面积图</h2>
 <p>面积图（Area Chart）常用于展示随时间变化的累积趋势，适合展示多类别数据在不同时点的总量变化。在R中可用 <code>geom_area()</code> 配合 <code>ggplot2</code> 实现。</p>
 <p>📊 交互式堆叠面积图演示（模拟患者状态变化趋势）：</p>
 <div class="stat-viz" data-type="area" data-title="某医院患者治疗结果月度变化趋势" data-labels="1月,2月,3月,4月,5月,6月" data-series="治愈,好转,住院中" data-values="120,135,150,140,160,175:80,95,110,105,120,130:45,50,55,60,58,62"></div>
@@ -1130,7 +1129,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>📊 交互式Q-Q图演示（正态性检验）：</p>
-<div class="stat-viz" data-type="scatter" data-title="花萼长度Q-Q图（正态性检验）" data-data="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00,5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70,6.30,5.80,7.10,6.30,6.50,7.60,4.90,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
+<div class="stat-viz" data-type="scatter" data-title="花萼长度Q-Q图（正态性检验）" data-xs="-1.86,-1.63,-1.48,-1.36,-1.26,-1.17,-1.08,-1.00,-0.93,-0.86,-0.80,-0.74,-0.68,-0.62,-0.56,-0.51,-0.46,-0.40,-0.35,-0.30,-0.26,-0.21,-0.16,-0.11,-0.07,-0.02,0.02,0.07,0.11,0.16,0.21,0.26,0.30,0.35,0.40,0.46,0.51,0.56,0.62,0.68,0.74,0.80,0.86,0.93,1.00,1.08,1.17,1.26,1.36,1.48,1.63,1.86" data-ys="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00,5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70,6.30,5.80,7.10,6.30,6.50,7.60,4.90,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
 </section>
 
 <section id="Bland-Altman图" class="level2" data-number="9.20">
@@ -1161,7 +1160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>📊 交互式Bland-Altman图演示（两种仪器一致性评价）：</p>
-<div class="stat-viz" data-type="scatter" data-title="Bland-Altman一致性评价图" data-label-x="两种方法测量均值" data-label-y="差值（方法1-方法2）" data-means="10.2,12.5,11.8,13.1,10.9,14.2,11.5,12.8,10.6,13.5" data-diffs="0.3,-0.2,0.5,-0.1,0.4,0.1,0.2,-0.3,0.4,-0.2"></div>
+<div class="stat-viz" data-type="scatter" data-title="Bland-Altman一致性评价图" data-xs="10.2,12.5,11.8,13.1,10.9,14.2,11.5,12.8,10.6,13.5" data-ys="0.3,-0.2,0.5,-0.1,0.4,0.1,0.2,-0.3,0.4,-0.2" data-xlabel="两种方法测量均值" data-ylabel="差值（方法1-方法2）"></div>
 </section>
 
 <section id="相关章节" class="level2" data-number="9.21">
