@@ -713,6 +713,12 @@ registerViz('gauge', renderGaugeChart);
     });
 
     let lockedLink = null, lockedNode = null;
+    let draggingNode = null;
+    let dragging = false;
+    let dragStartY = 0;
+    let dragNodeStartY = 0;
+
+    const nodeY = nodes.map((_, i) => padT + nodeH * i);
 
     function resetLinks() {
       linkPaths.forEach(p => {
@@ -726,12 +732,37 @@ registerViz('gauge', renderGaugeChart);
       });
     }
 
+    function updateLinkPath(linkObj) {
+      const x1 = xPos(nodeLevels[linkObj.source]) + nodeW;
+      const y1 = nodeY[linkObj.source] + nodeH / 2;
+      const x2 = xPos(nodeLevels[linkObj.target]);
+      const y2 = nodeY[linkObj.target] + nodeH / 2;
+      const midX = (x1 + x2) / 2;
+      linkObj.path.setAttribute('d', `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`);
+      const labelY = (y1 + y2) / 2;
+      linkObj.text.setAttribute('y', labelY - 4);
+    }
+
+    function updateNodePosition(nodeIdx, newY) {
+      const clampedY = Math.max(padT, Math.min(H - padB - nodeH, newY));
+      nodeY[nodeIdx] = clampedY;
+      const rect = nodeRects[nodeIdx].rect;
+      rect.setAttribute('y', clampedY + 2);
+      nodeRects[nodeIdx].text.setAttribute('y', clampedY + nodeH / 2 + 4);
+      linkPaths.forEach(p => {
+        if (p.source === nodeIdx || p.target === nodeIdx) {
+          updateLinkPath(p);
+        }
+      });
+    }
+
     const linkPaths = [];
+    const linkTexts = [];
     linkData.forEach(link => {
       const x1 = xPos(nodeLevels[link.source]) + nodeW;
-      const y1 = padT + nodeH * link.source + nodeH / 2;
+      const y1 = nodeY[link.source] + nodeH / 2;
       const x2 = xPos(nodeLevels[link.target]);
-      const y2 = padT + nodeH * link.target + nodeH / 2;
+      const y2 = nodeY[link.target] + nodeH / 2;
       const midX = (x1 + x2) / 2;
       const op = 0.3 + 0.5 * (link.value / maxVal);
       const color = `rgba(52,152,219,${op})`;
@@ -749,8 +780,6 @@ registerViz('gauge', renderGaugeChart);
       title.textContent = `${nodes[link.source]} → ${nodes[link.target]}: ${link.value}人`;
       path.appendChild(title);
 
-      linkPaths.push({ path, baseWidth, source: link.source, target: link.target });
-
       const labelX = midX;
       const labelY = (y1 + y2) / 2;
       const fontSize = link.value > maxVal * 0.5 ? 9 : 10;
@@ -763,8 +792,11 @@ registerViz('gauge', renderGaugeChart);
       text.textContent = link.value;
       svg.appendChild(text);
 
+      linkPaths.push({ path, baseWidth, source: link.source, target: link.target, text });
+      linkTexts.push(text);
+
       path.addEventListener('mouseenter', () => {
-        if (lockedLink !== null) return;
+        if (lockedLink !== null || dragging) return;
         linkPaths.forEach((p, i) => {
           if (i === path._linkIndex) {
             p.path.setAttribute('stroke-width', p.baseWidth + 3);
@@ -775,10 +807,11 @@ registerViz('gauge', renderGaugeChart);
         });
       });
       path.addEventListener('mouseleave', () => {
-        if (lockedLink !== null) return;
+        if (lockedLink !== null || dragging) return;
         resetLinks();
       });
       path.addEventListener('click', (e) => {
+        if (dragging) return;
         e.stopPropagation();
         if (lockedLink === path._linkIndex) {
           lockedLink = null;
@@ -799,10 +832,10 @@ registerViz('gauge', renderGaugeChart);
       });
     });
 
-    const nodeRects = [];
+const nodeRects = [];
     nodes.forEach((node, i) => {
       const x = xPos(nodeLevels[i]);
-      const y = padT + nodeH * i;
+      const y = nodeY[i];
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rect.setAttribute('x', x);
       rect.setAttribute('y', y + 2);
@@ -819,10 +852,19 @@ registerViz('gauge', renderGaugeChart);
       title.textContent = `${node} | 转入: ${nodeInOut[i].inflow}人 转出: ${nodeInOut[i].outflow}人`;
       rect.appendChild(title);
 
-      nodeRects.push({ rect, baseColor, index: i });
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', nodeLevels[i] === 1 ? x + nodeW / 2 : (nodeLevels[i] === 0 ? x + nodeW + 6 : x - 6));
+      text.setAttribute('y', y + nodeH / 2 + 4);
+      text.setAttribute('text-anchor', nodeLevels[i] === 2 ? 'end' : 'start');
+      text.setAttribute('font-size', '12');
+      text.setAttribute('fill', '#333');
+      text.textContent = node;
+      svg.appendChild(text);
+
+      nodeRects.push({ rect, baseColor, index: i, text });
 
       rect.addEventListener('mouseenter', () => {
-        if (lockedNode !== null) return;
+        if (lockedNode !== null || dragging) return;
         linkPaths.forEach(p => {
           if (p.source === i || p.target === i) {
             p.path.setAttribute('stroke-opacity', 1);
@@ -834,11 +876,12 @@ registerViz('gauge', renderGaugeChart);
         rect.setAttribute('fill', nodeLevels[i] === 0 ? '#2980b9' : (nodeLevels[i] === 1 ? '#d68910' : '#27ae60'));
       });
       rect.addEventListener('mouseleave', () => {
-        if (lockedNode !== null) return;
+        if (lockedNode !== null || dragging) return;
         resetLinks();
         rect.setAttribute('fill', baseColor);
       });
       rect.addEventListener('click', (e) => {
+        if (dragging) return;
         e.stopPropagation();
         if (lockedNode === i) {
           lockedNode = null;
@@ -861,14 +904,45 @@ registerViz('gauge', renderGaugeChart);
         }
       });
 
-      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      text.setAttribute('x', nodeLevels[i] === 1 ? x + nodeW / 2 : (nodeLevels[i] === 0 ? x + nodeW + 6 : x - 6));
-      text.setAttribute('y', y + nodeH / 2 + 4);
-      text.setAttribute('text-anchor', nodeLevels[i] === 2 ? 'end' : 'start');
-      text.setAttribute('font-size', '12');
-      text.setAttribute('fill', '#333');
-      text.textContent = node;
-      svg.appendChild(text);
+      rect.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        dragging = true;
+        draggingNode = i;
+        dragStartY = e.clientY;
+        dragNodeStartY = nodeY[i];
+        lockedNode = null;
+        lockedLink = null;
+        resetLinks();
+        resetNodes();
+      });
+
+      text.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        dragging = true;
+        draggingNode = i;
+        dragStartY = e.clientY;
+        dragNodeStartY = nodeY[i];
+        lockedNode = null;
+        lockedLink = null;
+        resetLinks();
+        resetNodes();
+      });
+    });
+
+    svg.addEventListener('mousemove', (e) => {
+      if (!dragging || draggingNode === null) return;
+      const newY = dragNodeStartY + (e.clientY - dragStartY);
+      updateNodePosition(draggingNode, newY);
+    });
+
+    svg.addEventListener('mouseup', () => {
+      dragging = false;
+      draggingNode = null;
+    });
+
+    svg.addEventListener('mouseleave', () => {
+      dragging = false;
+      draggingNode = null;
     });
 
     svg.addEventListener('click', () => {
@@ -880,7 +954,7 @@ registerViz('gauge', renderGaugeChart);
       }
     });
   }
-registerViz('sankey', renderSankey);
+  registerViz('sankey', renderSankey);
 
   // ============================================================
   // Spine Plot (Ordinal Categorical Data)
