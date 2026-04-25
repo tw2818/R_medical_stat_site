@@ -512,11 +512,9 @@ registerViz('bar', renderBarChart);
         } else {
           tip.hide();
         }
-      } else {
-        if (hoveredIdx !== null) {
-          hoveredIdx = null;
-          drawPie(-1);
-        }
+      } else if (hoveredIdx !== null) {
+        hoveredIdx = null;
+        drawPie(-1);
         tip.hide();
       }
     });
@@ -855,6 +853,10 @@ registerViz('gauge', renderGaugeChart);
 
     const svg = document.getElementById(id);
     const tooltip = document.getElementById(id + '-tooltip');
+    const svgRect = svg.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const svgOffsetX = svgRect.left - elRect.left;
+    const svgOffsetY = svgRect.top - elRect.top;
 
     const linkData = linksRaw.map(l => {
       const [fromTo, val] = l.split(':');
@@ -933,7 +935,7 @@ registerViz('gauge', renderGaugeChart);
     }
 
     let lockedLink = null, lockedNode = null;
-    let draggingNode = null, dragStartY = 0, dragNodeStartY = 0;
+    let draggingNode = null, dragStartY = 0, dragNodeStartY = 0, dragOriginalY = 0;
 
     const linkPaths = [];
 
@@ -990,13 +992,13 @@ registerViz('gauge', renderGaugeChart);
         });
         tooltip.innerHTML = `${nodes[link.source]} → ${nodes[link.target]}: <b>${link.value}人</b>`;
         tooltip.style.display = 'block';
-        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + labelX + 10) + 'px';
-        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + labelY - 20) + 'px';
+        tooltip.style.left = (svgOffsetX + labelX + 10) + 'px';
+        tooltip.style.top = (svgOffsetY + labelY - 20) + 'px';
       });
 
-      path.addEventListener('mousemove', (e) => {
-        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + labelX + 10) + 'px';
-        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + labelY - 20) + 'px';
+      path.addEventListener('mousemove', () => {
+        tooltip.style.left = (svgOffsetX + labelX + 10) + 'px';
+        tooltip.style.top = (svgOffsetY + labelY - 20) + 'px';
       });
 
       path.addEventListener('mouseleave', () => {
@@ -1074,15 +1076,15 @@ registerViz('gauge', renderGaugeChart);
         });
         rect.setAttribute('fill', levelColors[nodeLevels[i]] === '#3498db' ? '#2980b9' :
           levelColors[nodeLevels[i]] === '#e67e22' ? '#d35400' : '#1e8449');
-        tooltip.innerHTML = `<b>${node}</b><br>流入: ${nodeFlow[i] - linkData.filter(l => l.source === i).reduce((s, l) => s + l.value, 0)}人 | 流出的总流量: ${nodeFlow[i]}人`;
+        tooltip.innerHTML = `<b>${node}</b><br>流入: ${nodeFlow[i] - linkData.filter(l => l.source === i).reduce((s, l) => s + l.value, 0)}人 | 流出: ${linkData.filter(l => l.source === i).reduce((s, l) => s + l.value, 0)}人`;
         tooltip.style.display = 'block';
-        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + x + nodeW / 2 + 10) + 'px';
-        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + y + h / 2 - 20) + 'px';
+        tooltip.style.left = (svgOffsetX + x + nodeW / 2 + 10) + 'px';
+        tooltip.style.top = (svgOffsetY + y + h / 2 - 20) + 'px';
       });
 
-      rect.addEventListener('mousemove', (e) => {
-        tooltip.style.left = (e.target.ownerSVGElement.offsetLeft + x + nodeW / 2 + 10) + 'px';
-        tooltip.style.top = (e.target.ownerSVGElement.offsetTop + y + h / 2 - 20) + 'px';
+      rect.addEventListener('mousemove', () => {
+        tooltip.style.left = (svgOffsetX + x + nodeW / 2 + 10) + 'px';
+        tooltip.style.top = (svgOffsetY + y + h / 2 - 20) + 'px';
       });
 
       rect.addEventListener('mouseleave', () => {
@@ -1123,6 +1125,7 @@ registerViz('gauge', renderGaugeChart);
         draggingNode = i;
         dragStartY = e.clientY;
         dragNodeStartY = nodeY[i];
+        dragOriginalY = nodeY[i];
         lockedNode = null;
         lockedLink = null;
         linkPaths.forEach(p => {
@@ -1166,8 +1169,30 @@ registerViz('gauge', renderGaugeChart);
       }
     });
 
+    document.addEventListener('mouseup', () => {
+      if (draggingNode !== null) {
+        nodeRects[draggingNode].rect.style.cursor = 'grab';
+        draggingNode = null;
+      }
+    });
+
     svg.addEventListener('mouseleave', () => {
-      draggingNode = null;
+      if (draggingNode !== null) {
+        const nr = nodeRects[draggingNode];
+        nr.rect.setAttribute('y', dragOriginalY);
+        nr.text.setAttribute('y', dragOriginalY + nr.nodeH / 2);
+        linkPaths.forEach(p => {
+          if (p.source === draggingNode || p.target === draggingNode) {
+            const sl = nodeLevels[p.source], tl = nodeLevels[p.target];
+            const sy = p.source === draggingNode ? dragOriginalY : nodeY[p.source];
+            const ty = p.target === draggingNode ? dragOriginalY : nodeY[p.target];
+            const sh = nodeHeights[p.source], th = nodeHeights[p.target];
+            p.path.setAttribute('d', buildLinkPath(colX[sl] + nodeW, sy, colX[tl], ty, sh, th));
+          }
+        });
+        nodeY[draggingNode] = dragOriginalY;
+        draggingNode = null;
+      }
       tooltip.style.display = 'none';
     });
 
