@@ -188,7 +188,7 @@ function renderScatterPlot(el) {
     ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI*2); ctx.stroke(); ctx.restore();
   }
   let sxScale, syScale, pointPositions = [];
-  function draw() {
+  function draw(highlightIdx) {
     ctx.clearRect(0, 0, W, H);
     if (allPoints.length < 2) {
       ctx.fillStyle = '#666'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
@@ -394,6 +394,14 @@ function renderScatterPlot(el) {
         card.querySelector('.viz-r-display').insertAdjacentElement('afterend', statsDiv) :
         card.appendChild(statsDiv);
     }
+    if (highlightIdx !== null && highlightIdx !== undefined && pointPositions[highlightIdx]) {
+      const p = pointPositions[highlightIdx];
+      ctx.strokeStyle = '#f9826c';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(p.cx, p.cy, 8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
   }
   draw();
 
@@ -411,15 +419,7 @@ function renderScatterPlot(el) {
     });
     if (nearest !== hoveredIdx) {
       hoveredIdx = nearest;
-      draw();
-      if (nearest !== null) {
-        const p = pointPositions[nearest];
-        ctx.strokeStyle = '#f9826c';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(p.cx, p.cy, 8, 0, Math.PI * 2);
-        ctx.stroke();
-      }
+      draw(hoveredIdx);
     }
     if (nearest !== null) {
       const p = pointPositions[nearest];

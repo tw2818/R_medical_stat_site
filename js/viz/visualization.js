@@ -1177,14 +1177,11 @@ registerViz('gauge', renderGaugeChart);
     svg.addEventListener('mouseup', () => {
       if (draggingNode !== null) {
         nodeRects[draggingNode].rect.style.cursor = 'grab';
+        draggingNode = null;
       }
-      draggingNode = null;
     });
 
     svg.addEventListener('mouseleave', () => {
-      if (draggingNode !== null) {
-        nodeRects[draggingNode].rect.style.cursor = 'grab';
-      }
       draggingNode = null;
       tooltip.style.display = 'none';
     });
@@ -1589,6 +1586,44 @@ registerViz('ldascatter', renderLDAScatter);
     const tip = createTooltip(card);
     let hoveredIdx = null;
 
+    function drawWithHighlight(idx) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(title, W / 2, 22);
+      ctx.save(); ctx.translate(14, padT + totalH / 2); ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('累积比例', 0, 0); ctx.restore();
+      ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = padT + (i / 4) * totalH;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+      }
+      const barH = Math.min(36, totalH / categories.length * 0.6);
+      const gap = (totalH - barH * categories.length) / (categories.length + 1);
+      const barX = padL + plotW * 0.05;
+      const trackW = plotW * 0.9;
+      const newSegData = [];
+      categories.forEach((cat, i) => {
+        const barY = padT + gap + i * (barH + gap);
+        const barW = props[i] * trackW;
+        newSegData.push({ barX, barY, barW, barH, label: cat, prop: props[i] });
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(barX, barY, trackW, barH);
+        ctx.fillStyle = idx === i ? colors[i % colors.length] + 'dd' : colors[i % colors.length];
+        ctx.fillRect(barX, barY, barW, barH);
+        ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText(cat, padL - 8, barY + barH / 2 + 4);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+        if (barW > 30) ctx.fillText((props[i] * 100).toFixed(1) + '%', barX + barW / 2, barY + barH / 2 + 4);
+      });
+      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      for (let i = 0; i <= 4; i++) {
+        const y = padT + (i / 4) * totalH;
+        ctx.fillText((i / 4 * 100).toFixed(0) + '%', padL - 6, y + 4);
+      }
+      return newSegData;
+    }
+
     canvas.addEventListener('mousemove', e => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
@@ -1599,6 +1634,7 @@ registerViz('ldascatter', renderLDAScatter);
       });
       if (found !== hoveredIdx) {
         hoveredIdx = found;
+        segData = drawWithHighlight(hoveredIdx);
       }
       if (found !== null) {
         const s = segData[found];
@@ -1611,6 +1647,7 @@ registerViz('ldascatter', renderLDAScatter);
 
     canvas.addEventListener('mouseleave', () => {
       hoveredIdx = null;
+      drawWithHighlight(null);
       tip.hide();
     });
   }

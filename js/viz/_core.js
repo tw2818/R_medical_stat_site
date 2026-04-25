@@ -66,9 +66,14 @@ function createTooltip(parent) {
     hide() { el.style.display = 'none'; },
     move(e) {
       const rect = parent.getBoundingClientRect();
+      el.style.left = '-9999px';
+      el.style.top = '-9999px';
+      const tempW = el.offsetWidth || 200;
+      const tempH = el.offsetHeight || 40;
       let x = e.clientX - rect.left + 12;
       let y = e.clientY - rect.top - 10;
-      if (x + el.offsetWidth > rect.width) x = e.clientX - rect.left - el.offsetWidth - 12;
+      if (x + tempW > rect.width) x = e.clientX - rect.left - tempW - 12;
+      if (y + tempH > rect.height) y = e.clientY - rect.top - tempH - 10;
       if (y < 0) y = 0;
       el.style.left = x + 'px';
       el.style.top = y + 'px';
