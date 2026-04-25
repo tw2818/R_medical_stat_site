@@ -610,13 +610,14 @@ registerViz('radar', renderRadarChart);
       ctx.beginPath();
       const steps = 60;
       const pts = [];
+      const maxDensity = 1 / (s * Math.sqrt(2 * Math.PI));
+      const scale = bandH * 0.8;
       for (let k = 0; k <= steps; k++) {
         const xFrac = k / steps;
         const xVal = xMin + xFrac * (xMax - xMin);
-        // Simple Gaussian approximation for display
         const density = (1 / (s * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((xVal - m) / s) ** 2);
         const px = padL + xFrac * plotW;
-        const py = yBase - density * bandH * 0.85;
+        const py = yBase - (density / maxDensity) * scale;
         pts.push({ x: px, y: py });
       }
       // Build closed path
