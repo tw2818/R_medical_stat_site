@@ -594,13 +594,13 @@ registerViz('ridgeline', renderRidgeline);
 
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
-      <canvas id="${id}" width="360" height="220" style="display:block;margin:0 auto;"></canvas>
+      <canvas id="${id}" width="360" height="280" style="display:block;margin:0 auto;"></canvas>
     </div>`;
 
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
-    const W = 360, H = 220;
-    const cx = W / 2, cy = H - 50;
+    const W = 360, H = 280;
+    const cx = W / 2, cy = 140;
     const radius = 100;
 
     ctx.clearRect(0, 0, W, H);
