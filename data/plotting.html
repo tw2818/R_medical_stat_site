@@ -496,6 +496,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#箱线图" id="toc-箱线图" class="nav-link" data-scroll-target="#箱线图"><span class="header-section-number">9.9</span> 箱线图</a></li>
   <li><a href="#茎叶图" id="toc-茎叶图" class="nav-link" data-scroll-target="#茎叶图"><span class="header-section-number">9.10</span> 茎叶图</a></li>
   <li><a href="#误差条图" id="toc-误差条图" class="nav-link" data-scroll-target="#误差条图"><span class="header-section-number">9.11</span> 误差条图</a></li>
+  <li><a href="#堆叠面积图" id="toc-堆叠面积图" class="nav-link" data-scroll-target="#堆叠面积图"><span class="header-section-number">9.12</span> 堆叠面积图</a></li>
+  <li><a href="#热图" id="toc-热图" class="nav-link" data-scroll-target="#热图"><span class="header-section-number">9.13</span> 热图</a></li>
+  <li><a href="#峰峦图" id="toc-峰峦图" class="nav-link" data-scroll-target="#峰峦图"><span class="header-section-number">9.14</span> 峰峦图</a></li>
+  <li><a href="#雷达图" id="toc-雷达图" class="nav-link" data-scroll-target="#雷达图"><span class="header-section-number">9.15</span> 雷达图</a></li>
   <li><a href="#散点图与回归线" id="toc-散点图与回归线" class="nav-link" data-scroll-target="#散点图与回归线"><span class="header-section-number">9.16</span> 散点图与回归线</a></li>
   <li><a href="#密度图" id="toc-密度图" class="nav-link" data-scroll-target="#密度图"><span class="header-section-number">9.17</span> 密度图</a></li>
   <li><a href="#小提琴图" id="toc-小提琴图" class="nav-link" data-scroll-target="#小提琴图"><span class="header-section-number">9.18</span> 小提琴图</a></li>
@@ -1071,7 +1075,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>wt, <span class="at">y=</span>mpg), <span class="at">data=</span>mtcars)<span class="sc">+</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>mtcars, <span class="fu">aes</span>(<span class="at">x=</span>wt, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>,<span class="at">se=</span><span class="cn">TRUE</span>)<span class="sc">+</span></span>
 <span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"车重（千磅）"</span>, <span class="at">y=</span><span class="st">"油耗（英里/加仑）"</span>)<span class="sc">+</span></span>
@@ -1087,13 +1091,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Sepal.Length, <span class="at">fill=</span>Species), <span class="at">data=</span>iris)<span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>iris, <span class="fu">aes</span>(<span class="at">x=</span>Sepal.Length, <span class="at">fill=</span>Species))<span class="sc">+</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha=</span><span class="fl">0.5</span>)<span class="sc">+</span></span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"花萼长度"</span>, <span class="at">y=</span><span class="st">"密度"</span>)<span class="sc">+</span></span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>📊 交互式密度图演示（iris花萼长度分布）：</p>
-<div class="stat-viz" data-type="density" data-title="不同品种花萼长度密度分布（iris）" data-labels="setosa,versicolor,virginica" data-data="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00|5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70|6.30,5.80,7.10,6.30,6.50,7.60,4.90,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
+<div class="stat-viz" data-type="hist" data-title="不同品种花萼长度密度分布（iris）" data-labels="setosa,versicolor,virginica" data-data="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00|5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70|6.30,5.80,7.10,6.30,6.50,7.60,4.90,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
 </section>
 
 <section id="小提琴图" class="level2" data-number="9.18">
@@ -1102,14 +1106,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Species, <span class="at">y=</span>Sepal.Length, <span class="at">fill=</span>Species), <span class="at">data=</span>iris)<span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>iris, <span class="fu">aes</span>(<span class="at">x=</span>Species, <span class="at">y=</span>Sepal.Length, <span class="at">fill=</span>Species))<span class="sc">+</span></span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>()<span class="sc">+</span></span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">width=</span><span class="fl">0.2</span>)<span class="sc">+</span></span>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"品种"</span>, <span class="at">y=</span><span class="st">"花萼长度"</span>)<span class="sc">+</span></span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>📊 交互式小提琴图演示（iris花萼长度分布）：</p>
-<div class="stat-viz" data-type="violin" data-title="不同品种花萼长度分布（iris）" data-labels="setosa,versicolor,virginica" data-data="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00|5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70|6.30,5.80,7.10,6.30,6.50,7.60,4.90,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
+<div class="stat-viz" data-type="box" data-title="不同品种花萼长度分布（iris）" data-labels="setosa,versicolor,virginica" data-data="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00|5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70|6.30,5.80,7.10,6.30,6.50,7.60,4.9,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
 </section>
 
 <section id="Q-Q图" class="level2" data-number="9.19">
@@ -1119,14 +1123,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用 ggplot2 的 stat_qq()</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample=</span>Sepal.Length), <span class="at">data=</span>iris)<span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>iris, <span class="fu">aes</span>(<span class="at">sample=</span>Sepal.Length))<span class="sc">+</span></span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>()<span class="sc">+</span></span>
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>(<span class="at">color=</span><span class="st">"red"</span>)<span class="sc">+</span></span>
 <span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"理论分位值"</span>, <span class="at">y=</span><span class="st">"样本分位值"</span>)<span class="sc">+</span></span>
 <span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>📊 交互式Q-Q图演示（正态性检验）：</p>
-<div class="stat-viz" data-type="qq" data-title="花萼长度Q-Q图（正态性检验）" data-data="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00,5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70,6.30,5.80,7.10,6.30,6.50,7.60,4.90,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
+<div class="stat-viz" data-type="scatter" data-title="花萼长度Q-Q图（正态性检验）" data-data="5.01,4.29,4.70,4.30,5.10,4.80,4.61,5.00,5.20,4.70,4.80,5.10,4.80,5.10,5.00,4.50,4.60,5.00,4.80,4.60,5.30,5.00,5.20,5.50,5.10,4.90,5.00,4.80,5.10,5.00,5.90,6.70,4.90,5.00,6.60,5.00,5.70,5.50,5.80,6.00,5.40,5.60,6.10,5.10,5.60,5.50,5.10,5.50,5.80,5.90,6.00,5.70,6.20,5.10,5.50,6.00,5.80,5.40,5.60,5.70,6.30,5.80,7.10,6.30,6.50,7.60,4.90,7.30,6.70,7.20,6.50,6.40,6.80,5.70,5.80,6.40,6.50,7.70,7.30,6.70,7.20,6.50,6.20,6.00,6.90,5.60,6.10,6.30,6.40,6.60"></div>
 </section>
 
 <section id="Bland-Altman图" class="level2" data-number="9.20">
@@ -1157,14 +1161,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>📊 交互式Bland-Altman图演示（两种仪器一致性评价）：</p>
-<div class="stat-viz" data-type="blandaltman" data-title="Bland-Altman一致性评价图" data-label-x="两种方法测量均值" data-label-y="差值（方法1-方法2）" data-means="10.2,12.5,11.8,13.1,10.9,14.2,11.5,12.8,10.6,13.5" data-diffs="0.3,-0.2,0.5,-0.1,0.4,0.1,0.2,-0.3,0.4,-0.2"></div>
+<div class="stat-viz" data-type="scatter" data-title="Bland-Altman一致性评价图" data-label-x="两种方法测量均值" data-label-y="差值（方法1-方法2）" data-means="10.2,12.5,11.8,13.1,10.9,14.2,11.5,12.8,10.6,13.5" data-diffs="0.3,-0.2,0.5,-0.1,0.4,0.1,0.2,-0.3,0.4,-0.2"></div>
 </section>
 
 <section id="相关章节" class="level2" data-number="9.21">
 <h2 data-number="9.21" class="anchored" data-anchor-id="相关章节"><span class="header-section-number">9.21</span> 相关章节</h2>
 <p>以下是其他章节中与统计绘图相关的内容推荐：</p>
 <ul>
-<li>ROC曲线：见 <a href="./ROC曲线.html">第12章 ROC曲线</a></li>
+<li>ROC曲线：见 <a href="./roc.html">第12章 ROC曲线</a></li>
 <li>生存曲线（Kaplan-Meier）：见 <a href="./1033-survivalvis.html">第26章 生存曲线可视化</a></li>
 <li>森林图（亚组分析）：见 <a href="./1041-subgroupanalysis.html">第44章 亚组分析及森林图绘制</a></li>
 <li>校准曲线：参考 <a href="./1018-logistic.html">第21章 Logistic回归</a> 中的校准曲线内容</li>
