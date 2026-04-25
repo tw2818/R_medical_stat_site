@@ -687,7 +687,10 @@ function renderBlandAltman(el) {
   delta.forEach((d, i) => { const x = xOf(meanVals[i]), y = yOf(d); ctx.fillStyle = Math.abs(d) > 1.96 * sd ? '#e74c3c' : '#3498db'; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); });
   document.getElementById(id + '-stats').textContent = 'mean=' + meanVal.toFixed(2) + '  |  SD=' + sd.toFixed(2) + '  |  95%LoA: [' + (meanVal - 1.96 * sd).toFixed(2) + ', ' + (meanVal + 1.96 * sd).toFixed(2) + ']';
 }
-registerViz('blandaltman', renderBlandAltman);
+// Legacy alias — blandaltman renderer moved to visualization.js
+// (old registration removed)
+// Old implementation below kept for reference only (not registered):
+// function renderBlandAltman(el) { ... }
 
   // ── 列联表热力图（实测 vs 期望频数差异）──────────────────
   // <div class="stat-viz" data-type="contingency"

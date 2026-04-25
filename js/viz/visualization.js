@@ -467,7 +467,7 @@ registerViz('bar', renderBarChart);
           const ly = cy + labelR * Math.sin(midAngle);
           const pct = ((s.value / total) * 100).toFixed(1);
           if (pct > 5) {
-            ctx.fillStyle = i === hlIdx ? '#fff' : '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(pct + '%', lx, ly);
           }
       });
@@ -1666,3 +1666,268 @@ registerViz('spine', renderSpinePlot);
   // ============================================================
   // Error Bar Chart (Mean ± CI)
   // ============================================================
+
+  function renderQQPlot(el) {
+    const id = 'qq-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Q-Q图（正态性检验）';
+    const rawXs = el.dataset.xs || '-1.86,-1.63,-1.33,-1.00,-0.67,-0.32,0.00,0.32,0.67,1.00,1.33,1.63,1.86';
+    const rawYs = el.dataset.ys || '4.29,4.30,4.50,4.70,4.90,5.10,5.30,5.50,5.70,5.90,6.10,6.30,6.60';
+    const sw = el.dataset.sw;
+    const xs = rawXs.split(',').map(Number);
+    const ys = rawYs.split(',').map(Number);
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="480" height="420" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:6px;font-size:12px;color:#555;"></div>
+    </div>`;
+
+    const infoDiv = el.querySelector('div:last-child');
+    if (sw) infoDiv.innerHTML = `Shapiro-Wilk W = ${parseFloat(sw).toFixed(4)}`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 480, H = 420;
+    const padL = 60, padR = 20, padT = 30, padB = 50;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    const yMin = Math.min(...ys), yMax = Math.max(...ys);
+    const xRange = xMax - xMin || 1, yRange = yMax - yMin || 1;
+
+    const sx = v => padL + ((v - xMin) / xRange) * plotW;
+    const sy = v => padT + plotH - ((v - yMin) / yRange) * plotH;
+
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 18);
+
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.5;
+    for (let i = 0; i <= 6; i++) {
+      const x = padL + (i / 6) * plotW; ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+      const y = padT + (i / 6) * plotH; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+    const refMin = Math.max(xMin, yMin), refMax = Math.min(xMax, yMax);
+    const x0 = sx(refMin), x1 = sx(refMax), y0 = sy(refMin), y1 = sy(refMax);
+    ctx.setLineDash([6, 4]); ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    const midX = (x0 + x1) / 2, midY = (y0 + y1) / 2;
+    ctx.save(); ctx.translate(midX - 30, midY - 10); ctx.rotate(-Math.PI / 4);
+    ctx.fillText('理论分位数=样本分位数', 0, 0); ctx.restore();
+
+    ctx.fillStyle = '#3498db';
+    xs.forEach((xi, i) => {
+      ctx.beginPath(); ctx.arc(sx(xi), sy(ys[i]), 5, 0, Math.PI * 2); ctx.fill();
+    });
+
+    const tickVals = [-2, -1, 0, 1, 2].filter(v => v >= xMin && v <= xMax);
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    tickVals.forEach(v => { ctx.fillText(v.toString(), sx(v), padT + plotH + 18); });
+    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('理论正态分位数', padL + plotW / 2, H - 6);
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('样本值', 0, 0); ctx.restore();
+
+    ctx.fillStyle = '#888'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(`min=(${xMin.toFixed(2)}, ${yMin.toFixed(2)})`, padL + plotW - 5, padT + plotH - 5);
+  }
+  registerViz('qqplot', renderQQPlot);
+
+  function renderBlandAltman(el) {
+    const id = 'ba-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || 'Bland-Altman一致性评价';
+    const rawX1 = el.dataset.x1 || '10.2,12.5,11.8,13.1,10.9,14.2,11.5,12.8,10.6,13.5';
+    const rawX2 = el.dataset.x2 || '10.5,12.3,12.3,13.0,11.3,14.1,11.7,12.5,11.0,13.3';
+    const x1 = rawX1.split(',').map(Number);
+    const x2 = rawX2.split(',').map(Number);
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="480" height="380" style="display:block;margin:0 auto;"></canvas>
+      <div style="text-align:center;margin-top:6px;font-size:12px;color:#555;"></div>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const W = 480, H = 380;
+    const padL = 60, padR = 20, padT = 30, padB = 50;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+
+    const means = x1.map((v, i) => (v + x2[i]) / 2);
+    const diffs = x1.map((v, i) => v - x2[i]);
+    const meanDiff = mean(diffs);
+    const sdDiff = sd(diffs);
+    const upper = meanDiff + 1.96 * sdDiff;
+    const lower = meanDiff - 1.96 * sdDiff;
+
+    const allVals = means.concat(diffs);
+    const xMin = Math.min(...means), xMax = Math.max(...means);
+    const yMin = Math.min(...diffs, lower), yMax = Math.max(...diffs, upper);
+    const xRange = xMax - xMin || 1, yRange = yMax - yMin || 1;
+
+    const sx = v => padL + ((v - xMin) / xRange) * plotW;
+    const sy = v => padT + plotH - ((v - yMin) / yRange) * plotH;
+
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 18);
+
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.5;
+    for (let i = 0; i <= 5; i++) {
+      const x = padL + (i / 5) * plotW; ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+      const y = padT + (i / 5) * plotH; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+    const zeroY = sy(0);
+    ctx.setLineDash([4, 3]); ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, zeroY); ctx.lineTo(padL + plotW, zeroY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const meanLineY = sy(meanDiff);
+    ctx.setLineDash([6, 4]); ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, meanLineY); ctx.lineTo(padL + plotW, meanLineY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#2980b9'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(`Mean=${meanDiff.toFixed(2)}`, padL + plotW - 100, meanLineY - 6);
+
+    const upperY = sy(upper), lowerY = sy(lower);
+    ctx.setLineDash([6, 4]); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, upperY); ctx.lineTo(padL + plotW, upperY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padL, lowerY); ctx.lineTo(padL + plotW, lowerY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#e74c3c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(`+1.96 SD=${upper.toFixed(2)}`, padL + plotW - 100, upperY - 6);
+    ctx.fillText(`-1.96 SD=${lower.toFixed(2)}`, padL + plotW - 100, lowerY + 12);
+
+    const card = canvas.parentElement;
+    const tip = createTooltip(card);
+    const pointData = [];
+
+    means.forEach((m, i) => {
+      const px = sx(m), py = sy(diffs[i]);
+      ctx.fillStyle = '#555'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+      pointData.push({ px, py, mean: m, diff: diffs[i] });
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      let found = null;
+      pointData.forEach((p, i) => {
+        if (Math.abs(p.px - mx) < 8 && Math.abs(p.py - my) < 8) found = i;
+      });
+      if (found !== null) {
+        const p = pointData[found];
+        tip.show(`均值=${p.mean.toFixed(2)}, 差值=${p.diff.toFixed(2)}`);
+        tip.move(e);
+      } else {
+        tip.hide();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => tip.hide());
+
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('两种方法测量均值', padL + plotW / 2, H - 6);
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('差值 (方法1 - 方法2)', 0, 0); ctx.restore();
+  }
+  registerViz('blandaltman', renderBlandAltman);
+
+  function renderStemLeaf(el) {
+    const id = 'sl-' + Math.random().toString(36).slice(2, 8);
+    const title = el.dataset.title || '茎叶图';
+    const rawStems = el.dataset.stems || '2,3,4,5,6,7,8';
+    const rawLeaves = el.dataset.leaves || '3 7,1 4 8,0 2 5 9,1 3 6,2 5 8,0 4 7,1 5';
+    const stems = rawStems.split(',');
+    const leafGroups = rawLeaves.split(',');
+
+    const rows = stems.map((stem, i) => ({
+      stem,
+      leaves: (leafGroups[i] || '').split(' ').filter(v => v.length > 0)
+    }));
+
+    const fontSize = 13;
+    const rowH = 22;
+    const stemW = 35;
+    const leafW = 20;
+    const lineH = rowH;
+    const W = stemW + leafW + 60;
+    const H = rows.length * lineH + 60;
+
+    el.innerHTML = `<div class="viz-card">
+      <div class="viz-header">📊 ${title}</div>
+      <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
+    </div>`;
+
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 22);
+
+    const padT = 35, padL = 15;
+    const sepX = padL + stemW;
+
+    ctx.fillStyle = '#555'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('茎', padL + stemW / 2, padT - 8);
+    ctx.fillText('叶', sepX + 15, padT - 8);
+
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sepX, padT); ctx.lineTo(sepX, padT + rows.length * lineH); ctx.stroke();
+
+    rows.forEach((row, i) => {
+      const y = padT + i * lineH + lineH / 2 + 4;
+
+      ctx.fillStyle = '#333'; ctx.font = `${fontSize}px monospace`; ctx.textAlign = 'right';
+      ctx.fillText(row.stem, sepX - 8, y);
+
+      ctx.fillStyle = '#2c5aa0'; ctx.font = `${fontSize}px monospace`; ctx.textAlign = 'left';
+      ctx.fillText(row.leaves.join(' '), sepX + 8, y);
+    });
+
+    const card = canvas.parentElement;
+    const tip = createTooltip(card);
+    const leafEls = [];
+
+    rows.forEach((row, ri) => {
+      row.leaves.forEach((leaf, li) => {
+        const y = padT + ri * lineH + lineH / 2 + 4;
+        const x = sepX + 8 + li * (fontSize * 0.6 + 3);
+        leafEls.push({ x, y, stem: row.stem, leaf, ri, li });
+      });
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      let found = null;
+      leafEls.forEach((l, i) => {
+        if (Math.abs(l.x - mx) < 10 && Math.abs(l.y - my) < 10) found = i;
+      });
+      if (found !== null) {
+        const l = leafEls[found];
+        tip.show(`茎=${l.stem}, 叶=${l.leaf}`);
+        tip.move(e);
+      } else {
+        tip.hide();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => tip.hide());
+  }
+  registerViz('stemleaf', renderStemLeaf);
