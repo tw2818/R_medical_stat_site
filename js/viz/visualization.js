@@ -79,7 +79,6 @@ import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
       const x = padL + (i / nbins) * plotW + (plotW / nbins) * 0.1;
       const y = padT + plotH - barH;
       barData.push({ x, y, w: barW, h: barH, binRange: `${(minD + i * binWidth).toFixed(1)}–${(minD + (i + 1) * binWidth).toFixed(1)}`, count });
-      ctx.fillStyle = '#3498db'; ctx.fillRect(x, y, barW, barH);
     });
 
     // Tooltip
@@ -136,6 +135,7 @@ import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
       ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
       ctx.fillText('频数', 0, 0); ctx.restore();
     }
+    drawBars(-1);
 
     canvas.addEventListener('mousemove', e => {
       const rect = canvas.getBoundingClientRect();
@@ -955,7 +955,7 @@ registerViz('gauge', renderGaugeChart);
       const color = colorScale(link.value);
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', buildLinkPath(colX[sl], sy, colX[tl], ty, sh, th));
+      path.setAttribute('d', buildLinkPath(colX[sl] + nodeW, sy, colX[tl], ty, sh, th));
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', color);
       path.setAttribute('stroke-width', linkWidth);
@@ -1151,10 +1151,10 @@ registerViz('gauge', renderGaugeChart);
           const sl = nodeLevels[p.source], tl = nodeLevels[p.target];
           const sy = nodeY[p.source], ty = nodeY[p.target];
           const sh = nodeHeights[p.source], th = nodeHeights[p.target];
-          p.path.setAttribute('d', buildLinkPath(colX[sl], sy, colX[tl], ty, sh, th));
+          p.path.setAttribute('d', buildLinkPath(colX[sl] + nodeW, sy, colX[tl], ty, sh, th));
           p.labelY = (sy + sh/2 + ty + th/2) / 2;
           p.text.setAttribute('y', p.labelY);
-          p.text.setAttribute('x', (colX[sl] + colX[tl]) / 2);
+          p.text.setAttribute('x', (colX[sl] + nodeW + colX[tl]) / 2);
         }
       });
     });
