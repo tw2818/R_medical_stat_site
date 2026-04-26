@@ -1,10 +1,37 @@
 import { registerViz } from './_core.js';
 
-function normalInv975(conf = 0.95) {
-  if (window.jStat?.normal?.inv) return window.jStat.normal.inv(0.5 + conf / 2, 0, 1);
-  if (Math.abs(conf - 0.99) < 1e-9) return 2.575829;
-  if (Math.abs(conf - 0.90) < 1e-9) return 1.644854;
-  return 1.959964;
+function inverseNormal(p) {
+  if (window.jStat?.normal?.inv) return window.jStat.normal.inv(p, 0, 1);
+  if (p <= 0) return -Infinity;
+  if (p >= 1) return Infinity;
+
+  // Acklam's rational approximation for the inverse standard normal CDF.
+  const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.3577518672690, -30.66479806614716, 2.506628277459239];
+  const b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572];
+  const c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416];
+  const plow = 0.02425;
+  const phigh = 1 - plow;
+
+  if (p < plow) {
+    const q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  if (p > phigh) {
+    const q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+
+  const q = p - 0.5;
+  const r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q /
+    (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+}
+
+function zForConfidence(conf = 0.95) {
+  return inverseNormal(0.5 + conf / 2);
 }
 
 function logChoose(n, k) {
@@ -89,7 +116,7 @@ function renderBinomialCIFixed(el) {
       </div>
       <div id="${id}-stats" class="viz-stats" style="line-height:1.7;"></div>
       <div style="font-size:12px;color:#64748b;text-align:center;margin-top:8px;">
-        拖动 n 时会自动约束 x ≤ n；x = 0 或 x = n 时仅精确区间能给出合理边界，正态近似会退化。
+        拖动 n 时会自动约束 x ≤ n；x = 0 或 x = n 时精确区间可给出边界，正态近似会退化。
       </div>
     </div>`;
 
@@ -139,7 +166,7 @@ function renderBinomialCIFixed(el) {
     }
   }
 
-  function drawInterval(label, lo, hi, y, color, sx) {
+  function drawInterval(label, lo, hi, y, color, sx, W) {
     ctx.strokeStyle = color;
     ctx.lineWidth = 5;
     ctx.lineCap = 'round';
@@ -159,15 +186,22 @@ function renderBinomialCIFixed(el) {
     ctx.textAlign = 'right';
     ctx.fillText(label, sx(0) - 12, y + 4);
     ctx.font = '12px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(`[${pct(lo)}, ${pct(hi)}]`, sx(hi) + 8, y + 4);
+    const text = `[${pct(lo)}, ${pct(hi)}]`;
+    const rightEdge = sx(hi) + 8 + ctx.measureText(text).width;
+    if (rightEdge > W - 6) {
+      ctx.textAlign = 'right';
+      ctx.fillText(text, W - 8, y + 4);
+    } else {
+      ctx.textAlign = 'left';
+      ctx.fillText(text, sx(hi) + 8, y + 4);
+    }
   }
 
   function draw(x, n, conf) {
     const W = canvas.width, H = canvas.height;
     const pad = { l: 125, r: 110, t: 36, b: 44 };
     const alpha = 1 - conf;
-    const z = normalInv975(conf);
+    const z = zForConfidence(conf);
     const pHat = x / n;
     const exact = clopperPearson(x, n, alpha);
     const normal = normalApproxCI(x, n, z);
@@ -198,8 +232,8 @@ function renderBinomialCIFixed(el) {
     ctx.textAlign = 'center';
     ctx.fillText('p̂', sx(pHat), pad.t + 4);
 
-    drawInterval('精确区间', exact[0], exact[1], 100, '#2563eb', sx);
-    drawInterval('正态近似', normal[0], normal[1], 166, '#dc2626', sx);
+    drawInterval('精确区间', exact[0], exact[1], 100, '#2563eb', sx, W);
+    drawInterval('正态近似', normal[0], normal[1], 166, '#dc2626', sx, W);
 
     const degenerate = x === 0 || x === n;
     stats.innerHTML = `
