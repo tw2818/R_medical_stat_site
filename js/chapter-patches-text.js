@@ -142,29 +142,77 @@ function patchAnovaText(container) {
   }
 }
 
+function addNoteAfterHeading(container, headingText, selector, text) {
+  const heading = Array.from(container.querySelectorAll('h1, h2, h3')).find(h => h.textContent.includes(headingText));
+  if (!heading || container.querySelector(selector)) return;
+  const note = document.createElement('p');
+  const dataName = selector.match(/data-([^=]+)=/)?.[1];
+  if (dataName) note.dataset[dataName.replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = 'true';
+  note.textContent = text;
+  heading.insertAdjacentElement('afterend', note);
+}
+
 function patchDiscreteText(container) {
   const discretePs = Array.from(container.querySelectorAll('p'));
+
+  addNoteAfterHeading(
+    container,
+    '几种离散型变量的分布及其应用',
+    '[data-discrete-intro-note="true"]',
+    '本章讨论离散型资料的常见分布。固定样本量中的阳性数通常对应二项分布；固定观察时间、面积或人年中的事件数通常对应泊松分布；当计数资料的方差明显大于均数时，需要考虑负二项分布。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '二项分布',
+    '[data-binomial-note="true"]',
+    '二项分布适用于固定试验次数 n 下的成功次数 X，例如阳性人数、治愈人数或某结局发生人数。它的核心参数是总体率 p。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '样本率和总体率的比较',
+    '[data-ratecompare-note="true"]',
+    '下方组件可切换单样本率比较和两样本率比较；3.1.2 关注样本率与给定总体率的比较，3.1.3 关注两个独立样本率之间的比较。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '泊松分布',
+    '[data-poisson-note="true"]',
+    '泊松分布适用于固定观察量内的事件次数。这里的“均数”通常指单位观察量下的期望事件数或事件率参数，不是 t 检验、方差分析中的连续变量均数。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '样本均数和总体均数的比较',
+    '[data-poissonrate-note="true"]',
+    '泊松资料的比较应注意观察量或暴露量。下方组件比较的是标准化后的事件率，既可用于单样本事件率与参考值比较，也可用于两样本事件率比较。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '负二项分布',
+    '[data-nb-note="true"]',
+    '负二项分布主要用于过度离散的计数资料。若计数资料的方差明显大于均数，泊松分布的“均数 = 方差”假设可能过强。'
+  );
+
   const poissonApprox = discretePs.find(p => p.textContent.includes('例6-11。正态近似法。直接根据公式（6-18）计算。'));
-  if (poissonApprox) {
+  if (poissonApprox && !container.querySelector('[data-poisson-approx-fix="true"]')) {
     const note = document.createElement('p');
+    note.dataset.poissonApproxFix = 'true';
     note.textContent = '按正态近似法，99%可信区间应写为 68 ± 2.58×√68；也就是下限用减号、上限用加号。这里保留思路说明，但不再用错误的重复下界表达。';
     note.style.color = '#555';
     note.style.fontSize = '0.95em';
     poissonApprox.insertAdjacentElement('afterend', note);
   }
 
-  const nbHeading = container.querySelector('h2#负二项分布略');
-  if (nbHeading && !nbHeading.nextElementSibling) {
-    const note = document.createElement('p');
-    note.textContent = '本节暂略。本站当前未提供负二项分布专用组件，因此不再用泊松分布图替代展示，以免把两种分布混为一谈。';
-    note.style.color = '#555';
-    note.style.fontSize = '0.95em';
-    nbHeading.insertAdjacentElement('afterend', note);
-  } else if (nbHeading) {
+  const nbHeading = Array.from(container.querySelectorAll('h2')).find(h => h.textContent.includes('负二项分布'));
+  if (nbHeading) {
     const existing = Array.from(container.querySelectorAll('p')).find(p => p.textContent.includes('本站当前未提供负二项分布专用组件'));
     if (!existing) {
       const note = document.createElement('p');
-      note.textContent = '本节暂略。本站当前未提供负二项分布专用组件，因此不再用泊松分布图替代展示，以免把两种分布混为一谈。';
+      note.textContent = '本站当前未提供负二项分布的完整推断计算组件，因此不再用泊松分布图替代展示，以免把两种分布混为一谈。';
       note.style.color = '#555';
       note.style.fontSize = '0.95em';
       nbHeading.insertAdjacentElement('afterend', note);
