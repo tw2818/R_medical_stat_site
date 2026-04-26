@@ -130,6 +130,29 @@ function removePoissonWidgetsFromNegativeBinomialSection(container) {
   }
 }
 
+function replaceBinomialCIWidget(container) {
+  const candidates = Array.from(container.querySelectorAll('.stat-viz, .stat-calc')).filter(el => {
+    const title = el.dataset.title || '';
+    const type = (el.dataset.type || '').toLowerCase();
+    return title.includes('二项分布置信区间') || title.includes('Clopper-Pearson') || type.includes('binomci') || type.includes('binomialci');
+  });
+
+  candidates.forEach(el => {
+    el.classList.remove('stat-calc');
+    el.classList.add('stat-viz');
+    el.dataset.type = 'binomialcifixed';
+    el.dataset.title = '二项分布置信区间 — Clopper-Pearson 精确区间 & 正态近似';
+    delete el.dataset.rendered;
+  });
+
+  if (!candidates.length && !container.querySelector('.stat-viz[data-type="binomialcifixed"]')) {
+    const ciHeading = findHeading(container, '总体率的区间估计');
+    const widget = makeDiscreteViz('binomialcifixed', '二项分布置信区间 — Clopper-Pearson 精确区间 & 正态近似', { x: '2', n: '20', conf: '0.95' });
+    widget.classList.remove('discrete-teaching-widget');
+    insertAfter(ciHeading, widget);
+  }
+}
+
 function insertDiscreteWidgetOnce(container, selector, anchor, type, title, attrs = {}) {
   if (container.querySelector(selector)) return;
   insertAfter(anchor, makeDiscreteViz(type, title, attrs));
@@ -137,6 +160,7 @@ function insertDiscreteWidgetOnce(container, selector, anchor, type, title, attr
 
 function patchDiscreteWidgets(container) {
   removePoissonWidgetsFromNegativeBinomialSection(container);
+  replaceBinomialCIWidget(container);
 
   const chapterHeading = findHeading(container, '几种离散型变量的分布及其应用') || container.querySelector('h1');
   insertDiscreteWidgetOnce(
