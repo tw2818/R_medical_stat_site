@@ -39,6 +39,63 @@ function patchTTestWidgets(container) {
   }
 }
 
+function makeViz(type, title, attrs = {}) {
+  const widget = document.createElement('div');
+  widget.className = 'stat-viz anova-teaching-widget';
+  widget.dataset.type = type;
+  widget.dataset.title = title;
+  Object.entries(attrs).forEach(([key, value]) => {
+    widget.dataset[key] = value;
+  });
+  return widget;
+}
+
+function insertAfter(anchor, ...nodes) {
+  if (!anchor || !nodes.length) return;
+  let current = anchor;
+  nodes.forEach(node => {
+    current.insertAdjacentElement('afterend', node);
+    current = node;
+  });
+}
+
+function findHeading(container, text) {
+  return Array.from(container.querySelectorAll('h1, h2, h3')).find(h => h.textContent.includes(text));
+}
+
+function patchAnovaWidgets(container) {
+  if (container.querySelector('.anova-teaching-widget')) return;
+
+  const completelyRandomHeading = findHeading(container, '完全随机设计资料的方差分析');
+  if (completelyRandomHeading) {
+    insertAfter(
+      completelyRandomHeading,
+      makeViz('anovadecomp', 'ANOVA 核心逻辑：总变异 = 组间变异 + 组内变异'),
+      makeViz('anovadesign', '完全随机设计结构示意', { design: 'crd' })
+    );
+  }
+
+  const blockHeading = findHeading(container, '随机区组设计资料的方差分析');
+  if (blockHeading) {
+    insertAfter(blockHeading, makeViz('anovadesign', '随机区组设计结构示意', { design: 'block' }));
+  }
+
+  const latinHeading = findHeading(container, '拉丁方设计方差分析');
+  if (latinHeading) {
+    insertAfter(latinHeading, makeViz('anovadesign', '拉丁方设计结构示意', { design: 'latin' }));
+  }
+
+  const crossoverHeading = findHeading(container, '两阶段交叉设计资料方差分析');
+  if (crossoverHeading) {
+    insertAfter(crossoverHeading, makeViz('anovadesign', '两阶段交叉设计结构示意', { design: 'crossover' }));
+  }
+
+  const multipleCompareHeading = findHeading(container, '多个样本均数间的多重比较');
+  if (multipleCompareHeading) {
+    insertAfter(multipleCompareHeading, makeViz('multiplecompareguide', '多重比较选择指南'));
+  }
+}
+
 function patchDiscreteWidgets(container) {
   const rateHeading = Array.from(container.querySelectorAll('h3')).find(h => h.textContent.includes('样本率和总体率的比较'));
   if (rateHeading && !container.querySelector('.stat-calc[data-type="ratecompare"]')) {
@@ -96,6 +153,7 @@ function removeByType(container, selector) {
 
 export const CHAPTER_WIDGET_PATCHES = {
   '1001-ttest.html': [patchTTestWidgets],
+  '1002-anova.html': [patchAnovaWidgets],
   'plotting.html': [patchPlottingWidgets],
   'discrete.html': [patchDiscreteWidgets],
   '1012-randomgroup.html': [container => removeByType(container, '.stat-viz[data-type="samplesizecalc"]')],
