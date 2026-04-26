@@ -164,6 +164,35 @@ function replaceBinomialCIWidget(container) {
   }
 }
 
+function replaceBinomialDistributionWidget(container) {
+  const candidates = Array.from(container.querySelectorAll('.stat-viz, .stat-calc')).filter(el => {
+    const title = el.dataset.title || '';
+    const type = (el.dataset.type || '').toLowerCase();
+    if (type.includes('binomci') || type.includes('binomialci')) return false;
+    return title.includes('二项分布') || type === 'binom' || type === 'binomial' || type === 'binomdist' || type === 'binomialdist';
+  });
+
+  candidates.forEach(el => {
+    const title = el.dataset.title || '';
+    if (title.includes('置信区间') || title.includes('Clopper-Pearson')) return;
+    el.classList.remove('stat-calc');
+    el.classList.add('stat-viz');
+    el.dataset.type = 'binomialdistfixed';
+    el.dataset.title = '二项分布 B(n, p)：成功次数的分布';
+    if (!el.dataset.n) el.dataset.n = '20';
+    if (!el.dataset.p) el.dataset.p = '0.30';
+    if (!el.dataset.k) el.dataset.k = '6';
+    delete el.dataset.rendered;
+  });
+
+  if (!container.querySelector('.stat-viz[data-type="binomialdistfixed"]')) {
+    const binomialHeading = findHeading(container, '二项分布');
+    const widget = makeDiscreteViz('binomialdistfixed', '二项分布 B(n, p)：成功次数的分布', { n: '20', p: '0.30', k: '6' });
+    widget.classList.remove('discrete-teaching-widget');
+    insertAfter(insertionAnchor(binomialHeading, '[data-binomial-note="true"]'), widget);
+  }
+}
+
 function insertDiscreteWidgetOnce(container, selector, anchor, type, title, attrs = {}) {
   if (container.querySelector(selector)) return;
   insertAfter(anchor, makeDiscreteViz(type, title, attrs));
@@ -172,6 +201,7 @@ function insertDiscreteWidgetOnce(container, selector, anchor, type, title, attr
 function patchDiscreteWidgets(container) {
   removePoissonWidgetsFromNegativeBinomialSection(container);
   replaceBinomialCIWidget(container);
+  replaceBinomialDistributionWidget(container);
 
   const chapterHeading = findHeading(container, '几种离散型变量的分布及其应用') || container.querySelector('h1');
   insertDiscreteWidgetOnce(
