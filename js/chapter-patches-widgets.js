@@ -193,6 +193,34 @@ function replaceBinomialDistributionWidget(container) {
   }
 }
 
+function replacePoissonDistributionWidget(container) {
+  const candidates = Array.from(container.querySelectorAll('.stat-viz, .stat-calc')).filter(el => {
+    const title = el.dataset.title || '';
+    const type = (el.dataset.type || '').toLowerCase();
+    if (type.includes('poissonrate') || type.includes('ratecompare')) return false;
+    return title.includes('泊松分布') || type === 'poisson' || type === 'poissondist' || type === 'poissondistribution';
+  });
+
+  candidates.forEach(el => {
+    const title = el.dataset.title || '';
+    if (title.includes('事件率比较') || title.includes('率比较')) return;
+    el.classList.remove('stat-calc');
+    el.classList.add('stat-viz');
+    el.dataset.type = 'poissondistfixed';
+    el.dataset.title = '泊松分布 Poisson(λ)：单位观察量内事件数';
+    if (!el.dataset.lambda) el.dataset.lambda = el.dataset.rate || '4';
+    if (!el.dataset.k) el.dataset.k = '4';
+    delete el.dataset.rendered;
+  });
+
+  if (!container.querySelector('.stat-viz[data-type="poissondistfixed"]')) {
+    const poissonHeading = findHeading(container, '泊松分布');
+    const widget = makeDiscreteViz('poissondistfixed', '泊松分布 Poisson(λ)：单位观察量内事件数', { lambda: '4', k: '4' });
+    widget.classList.remove('discrete-teaching-widget');
+    insertAfter(insertionAnchor(poissonHeading, '[data-poisson-note="true"]'), widget);
+  }
+}
+
 function insertDiscreteWidgetOnce(container, selector, anchor, type, title, attrs = {}) {
   if (container.querySelector(selector)) return;
   insertAfter(anchor, makeDiscreteViz(type, title, attrs));
@@ -202,6 +230,7 @@ function patchDiscreteWidgets(container) {
   removePoissonWidgetsFromNegativeBinomialSection(container);
   replaceBinomialCIWidget(container);
   replaceBinomialDistributionWidget(container);
+  replacePoissonDistributionWidget(container);
 
   const chapterHeading = findHeading(container, '几种离散型变量的分布及其应用') || container.querySelector('h1');
   insertDiscreteWidgetOnce(
