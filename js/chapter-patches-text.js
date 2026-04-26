@@ -83,6 +83,54 @@ function patchTTestText(container) {
 function patchAnovaText(container) {
   const anovaPs = Array.from(container.querySelectorAll('p'));
 
+  const firstHeading = Array.from(container.querySelectorAll('h1, h2')).find(h => h.textContent.includes('多样本均数比较的方差分析'));
+  if (firstHeading && !container.querySelector('[data-anova-intro-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.anovaIntroNote = 'true';
+    note.innerHTML = '方差分析用于比较三个及以上总体均数。它的基本思路不是反复做两两 t 检验，而是先进行总体 F 检验：把总变异分解为处理因素解释的组间变异和随机误差造成的组内变异。若总体检验提示多组均数不全相等，再根据研究目的选择合适的多重比较方法。';
+    firstHeading.insertAdjacentElement('afterend', note);
+  }
+
+  const completelyRandomHeading = Array.from(container.querySelectorAll('h2')).find(h => h.textContent.includes('完全随机设计资料的方差分析'));
+  if (completelyRandomHeading && !container.querySelector('[data-crd-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.crdNote = 'true';
+    note.textContent = '完全随机设计只考虑一个主要处理因素，适用于多个相互独立处理组的均数比较。分析重点是判断处理组之间的均数差异是否明显大于组内随机波动。';
+    completelyRandomHeading.insertAdjacentElement('afterend', note);
+  }
+
+  const blockHeading = Array.from(container.querySelectorAll('h2')).find(h => h.textContent.includes('随机区组设计资料的方差分析'));
+  if (blockHeading && !container.querySelector('[data-block-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.blockNote = 'true';
+    note.textContent = '随机区组设计的目的，是在比较处理效应的同时控制区组间差异。区组可以是受试对象、批次、中心、时间段等已知会影响结果的因素。';
+    blockHeading.insertAdjacentElement('afterend', note);
+  }
+
+  const latinHeading = Array.from(container.querySelectorAll('h2')).find(h => h.textContent.includes('拉丁方设计方差分析'));
+  if (latinHeading && !container.querySelector('[data-latin-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.latinNote = 'true';
+    note.textContent = '拉丁方设计用于同时控制两个方向的干扰因素，例如行因素和列因素。每种处理在每一行、每一列各出现一次，从而把行效应、列效应和处理效应分开估计。';
+    latinHeading.insertAdjacentElement('afterend', note);
+  }
+
+  const crossoverHeading = Array.from(container.querySelectorAll('h2')).find(h => h.textContent.includes('两阶段交叉设计资料方差分析'));
+  if (crossoverHeading && !container.querySelector('[data-crossover-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.crossoverNote = 'true';
+    note.textContent = '两阶段交叉设计通常让同一受试者在不同阶段接受不同处理。分析时需要区分处理效应、阶段效应和受试者个体差异；若存在残留效应，处理效应解释要更谨慎。';
+    crossoverHeading.insertAdjacentElement('afterend', note);
+  }
+
+  const multiCompareHeading = Array.from(container.querySelectorAll('h2')).find(h => h.textContent.includes('多个样本均数间的多重比较'));
+  if (multiCompareHeading && !container.querySelector('[data-multiple-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.multipleNote = 'true';
+    note.textContent = '多重比较回答的是“具体哪些组不同”。通常先完成总体 ANOVA，再根据比较目的选择方法：所有组两两比较、多个实验组与同一对照组比较，或按均数排序进行分层比较。';
+    multiCompareHeading.insertAdjacentElement('afterend', note);
+  }
+
   const crossoverHint = anovaPs.find(p => p.textContent.includes('进行两阶段交叉设计资料方差分析：'));
   if (crossoverHint) {
     crossoverHint.textContent = '进行两阶段交叉设计资料方差分析：这里的 phase 表示阶段效应，type 表示处理（药物）效应，testid 用来控制受试对象之间的个体差异。';
