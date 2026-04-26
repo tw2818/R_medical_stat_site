@@ -697,7 +697,8 @@ registerViz('riskdist', renderRiskScoreDist);
       const p1 = parseFloat(document.getElementById(id + '-p1val').textContent);
       const p2 = parseFloat(document.getElementById(id + '-p2val').textContent);
       const alpha = parseFloat(document.getElementById(id + '-aval').textContent);
-      return { p1, p2, alpha };
+      const power = parseFloat(document.getElementById(id + '-pwrval').textContent);
+      return { p1, p2, alpha, power };
     }
 
     function drawPowerCurve() {
@@ -725,10 +726,10 @@ registerViz('riskdist', renderRiskScoreDist);
       const scaleX = n => padL + (n / maxN) * plotW;
       const scaleY = pw => padT + (1 - pw) * plotH;
 
-      // Reference line at power=0.8
+      // Reference line at power
       ctx.setLineDash([4, 4]);
       ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(padL, scaleY(0.8)); ctx.lineTo(padL + plotW, scaleY(0.8)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(padL, scaleY(power)); ctx.lineTo(padL + plotW, scaleY(power)); ctx.stroke();
       ctx.setLineDash([]);
 
       // Power curve
@@ -738,8 +739,8 @@ registerViz('riskdist', renderRiskScoreDist);
         const seAlt = Math.sqrt(p1 * (1 - p1) / n + p2 * (1 - p2) / n);
         const seNull = Math.sqrt(2 * poolP * (1 - poolP) / n);
         const z = diff / seAlt;
-        const power = 1 - jStat.normal.cdf(zAlpha - z, 0, 1);
-        const x = scaleX(n), y = scaleY(Math.min(power, 0.999));
+        const curvePower = 1 - jStat.normal.cdf(zAlpha - z, 0, 1);
+        const x = scaleX(n), y = scaleY(Math.min(curvePower, 0.999));
         if (n === 5) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
       ctx.stroke();
@@ -759,7 +760,7 @@ registerViz('riskdist', renderRiskScoreDist);
 
       // Annotate
       ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText('power=0.8', padL + plotW + 2, scaleY(0.8) + 4);
+      ctx.fillText('power=' + power.toFixed(2), padL + plotW + 2, scaleY(power) + 4);
       ctx.fillStyle = '#555'; ctx.font = '11px sans-serif';
       ctx.fillText(`p₁=${p1.toFixed(2)}, p₂=${p2.toFixed(2)}, Δ=${diff.toFixed(2)}`, padL + 5, padT + 15);
     }
@@ -784,8 +785,7 @@ registerViz('riskdist', renderRiskScoreDist);
     });
 
     document.getElementById(id + '-calc').addEventListener('click', () => {
-      const { p1, p2, alpha } = getParams();
-      const power = 0.80;
+      const { p1, p2, alpha, power } = getParams();
       const zAlpha = jStat.normal.inv(1 - alpha / 2, 0, 1);
       const zBeta = jStat.normal.inv(power, 0, 1);
       // Kelley & Maxwell formula for two-proportion z-test
@@ -1036,6 +1036,11 @@ registerViz('corrpower', renderCorrPower);
       ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
+      // Draw bars
+      const barW = plotW / (metrics.length + 1);
+      const maxValue = Math.max(...metrics.map(m => m.value));
+      const normScale = maxValue > 0 ? (plotH - 20) / maxValue * 0.9 : 1;
+
       // Reference lines for effect size interpretation
       const interpretation = [
         { threshold: 0.01, label: '小', color: '#27ae60' },
@@ -1046,7 +1051,7 @@ registerViz('corrpower', renderCorrPower);
       ctx.setLineDash([4, 4]);
       ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
       [0.01, 0.06, 0.14].forEach((t, i) => {
-        const y = padT + plotH - t * plotH * 2.5;
+        const y = padT + plotH - t * normScale;
         if (y > padT) {
           ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
           ctx.fillStyle = '#aaa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
@@ -1054,11 +1059,6 @@ registerViz('corrpower', renderCorrPower);
         }
       });
       ctx.setLineDash([]);
-
-      // Draw bars
-      const barW = plotW / (metrics.length + 1);
-      const maxValue = Math.max(...metrics.map(m => m.value));
-      const normScale = maxValue > 0 ? (plotH - 20) / maxValue * 0.9 : 1;
       metrics.forEach((m, i) => {
         const x = padL + (i + 0.5) * barW + barW * 0.2;
         const barHeight = Math.min(m.value * normScale, plotH - 10);
