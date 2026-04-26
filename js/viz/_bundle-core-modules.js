@@ -16,3 +16,4 @@ import './binomial-ci-fix.js';
 import './chisq-tutorial.js';
 import './binomial-distribution-fix.js';
 import './poisson-distribution-fix.js';
+import './poisson-ci-fix.js';
