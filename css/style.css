@@ -1467,3 +1467,68 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   background: var(--card-bg, #1e293b);
   border-color: var(--border, #334155);
 }
+
+/* 章节小标题 TOC */
+.pw-chevron {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  font-size: 0.65rem;
+  padding: 0 2px;
+  transition: color 0.2s;
+}
+
+.pw-chevron:hover {
+  color: var(--primary, #3498db);
+}
+
+.pw-toc {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  margin-top: 6px;
+  padding: 8px 0;
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .pw-toc {
+  background: var(--card-bg, #1e293b);
+  border-color: var(--border, #334155);
+}
+
+.pw-toc-empty {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.pw-toc-item {
+  font-size: 0.78rem;
+  color: var(--text, #1e293b);
+  padding: 5px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pw-toc-item:hover {
+  background: var(--primary, #3498db22);
+  color: var(--primary, #3498db);
+}
+
+.pw-toc-h3 {
+  padding-left: 22px;
+  font-size: 0.73rem;
+  color: var(--text-muted, #64748b);
+}
+
+.pw-toc-h3:hover {
+  color: var(--primary, #3498db);
+}
