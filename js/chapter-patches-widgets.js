@@ -63,13 +63,20 @@ function findHeading(container, text) {
   return Array.from(container.querySelectorAll('h1, h2, h3')).find(h => h.textContent.includes(text));
 }
 
+function insertionAnchor(heading, noteSelector) {
+  if (!heading) return null;
+  const next = heading.nextElementSibling;
+  if (noteSelector && next && next.matches(noteSelector)) return next;
+  return heading;
+}
+
 function patchAnovaWidgets(container) {
   if (container.querySelector('.anova-teaching-widget')) return;
 
   const completelyRandomHeading = findHeading(container, '完全随机设计资料的方差分析');
   if (completelyRandomHeading) {
     insertAfter(
-      completelyRandomHeading,
+      insertionAnchor(completelyRandomHeading, '[data-crd-note="true"]'),
       makeViz('anovadecomp', 'ANOVA 核心逻辑：总变异 = 组间变异 + 组内变异'),
       makeViz('anovadesign', '完全随机设计结构示意', { design: 'crd' })
     );
@@ -77,22 +84,22 @@ function patchAnovaWidgets(container) {
 
   const blockHeading = findHeading(container, '随机区组设计资料的方差分析');
   if (blockHeading) {
-    insertAfter(blockHeading, makeViz('anovadesign', '随机区组设计结构示意', { design: 'block' }));
+    insertAfter(insertionAnchor(blockHeading, '[data-block-note="true"]'), makeViz('anovadesign', '随机区组设计结构示意', { design: 'block' }));
   }
 
   const latinHeading = findHeading(container, '拉丁方设计方差分析');
   if (latinHeading) {
-    insertAfter(latinHeading, makeViz('anovadesign', '拉丁方设计结构示意', { design: 'latin' }));
+    insertAfter(insertionAnchor(latinHeading, '[data-latin-note="true"]'), makeViz('anovadesign', '拉丁方设计结构示意', { design: 'latin' }));
   }
 
   const crossoverHeading = findHeading(container, '两阶段交叉设计资料方差分析');
   if (crossoverHeading) {
-    insertAfter(crossoverHeading, makeViz('anovadesign', '两阶段交叉设计结构示意', { design: 'crossover' }));
+    insertAfter(insertionAnchor(crossoverHeading, '[data-crossover-note="true"]'), makeViz('anovadesign', '两阶段交叉设计结构示意', { design: 'crossover' }));
   }
 
   const multipleCompareHeading = findHeading(container, '多个样本均数间的多重比较');
   if (multipleCompareHeading) {
-    insertAfter(multipleCompareHeading, makeViz('multiplecompareguide', '多重比较选择指南'));
+    insertAfter(insertionAnchor(multipleCompareHeading, '[data-multiple-note="true"]'), makeViz('multiplecompareguide', '多重比较选择指南'));
   }
 }
 
