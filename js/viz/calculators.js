@@ -114,9 +114,10 @@ import { registerViz, ensureJStat } from './_core.js';
       ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
       ctx.fillText('功效 (1-β)', 0, 0); ctx.restore();
 
-      // Annotate 0.8 line
+      // Annotate power reference line
+      const selPower = parseFloat(document.getElementById(id + '-pwrval').textContent);
       ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText('power=0.8', padL + plotW + 2, scaleY(0.8) + 4);
+      ctx.fillText('power=' + selPower.toFixed(2), padL + plotW + 2, scaleY(selPower) + 4);
     }
 
     drawPowerCurve();
@@ -132,6 +133,7 @@ import { registerViz, ensureJStat } from './_core.js';
     });
     pwrSlider.addEventListener('input', () => {
       document.getElementById(id + '-pwrval').textContent = (pwrSlider.value / 100).toFixed(2);
+      drawPowerCurve();
     });
     aSlider.addEventListener('input', () => {
       document.getElementById(id + '-aval').textContent = (aSlider.value / 100).toFixed(2);
@@ -706,9 +708,8 @@ registerViz('riskdist', renderRiskScoreDist);
       ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('功效曲线 (两组率比较)', W / 2, 20);
 
-      const { p1, p2, alpha } = getParams();
+      const { p1, p2, alpha, power } = getParams();
       const diff = Math.abs(p1 - p2);
-      const poolP = (p1 + p2) / 2;
 
       // Grid
       ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
@@ -737,7 +738,6 @@ registerViz('riskdist', renderRiskScoreDist);
       ctx.beginPath(); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5;
       for (let n = 5; n <= maxN; n++) {
         const seAlt = Math.sqrt(p1 * (1 - p1) / n + p2 * (1 - p2) / n);
-        const seNull = Math.sqrt(2 * poolP * (1 - poolP) / n);
         const z = diff / seAlt;
         const curvePower = 1 - jStat.normal.cdf(zAlpha - z, 0, 1);
         const x = scaleX(n), y = scaleY(Math.min(curvePower, 0.999));
