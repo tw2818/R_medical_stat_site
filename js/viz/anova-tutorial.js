@@ -3,6 +3,8 @@ import { registerViz } from './_core.js';
 const boxStyle = 'border:1px solid rgba(148,163,184,.35);border-radius:12px;background:#fff;padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);';
 const muted = 'color:#64748b;font-size:13px;line-height:1.6;';
 const badge = 'display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700;margin-right:6px;';
+const twoColGrid = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;align-items:stretch;';
+const threeColGrid = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:stretch;';
 
 function card(title, body) {
   return `
@@ -24,7 +26,7 @@ function miniTable(headers, rows) {
 function renderAnovaDecomposition(el) {
   const title = el.dataset.title || '方差分析的核心：把总变异拆开';
   el.innerHTML = card(title, `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch;">
+    <div style="${twoColGrid}">
       <div style="${boxStyle}">
         <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">1. 变异来源</div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 12px;">
@@ -78,7 +80,7 @@ function renderAnovaDesign(el) {
   let body = '';
   if (design === 'block') {
     body = `
-      <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:12px;">
+      <div style="${twoColGrid}">
         <div style="${boxStyle}">
           ${miniTable(['区组', '处理 A', '处理 B', '处理 C'], [
             ['区组1', 'A₁', 'B₁', 'C₁'], ['区组2', 'A₂', 'B₂', 'C₂'], ['区组3', 'A₃', 'B₃', 'C₃'], ['区组4', 'A₄', 'B₄', 'C₄']
@@ -93,7 +95,7 @@ function renderAnovaDesign(el) {
       </div>`;
   } else if (design === 'latin') {
     body = `
-      <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:12px;">
+      <div style="${twoColGrid}">
         <div style="${boxStyle}">
           ${miniTable(['', '列1', '列2', '列3'], [
             ['行1', 'A', 'B', 'C'], ['行2', 'B', 'C', 'A'], ['行3', 'C', 'A', 'B']
@@ -108,7 +110,7 @@ function renderAnovaDesign(el) {
       </div>`;
   } else if (design === 'crossover') {
     body = `
-      <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:12px;">
+      <div style="${twoColGrid}">
         <div style="${boxStyle}">
           ${miniTable(['序列', '阶段1', '阶段2'], [
             ['AB', '处理 A', '处理 B'], ['BA', '处理 B', '处理 A']
@@ -123,8 +125,8 @@ function renderAnovaDesign(el) {
       </div>`;
   } else {
     body = `
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-        ${['处理 A', '处理 B', '处理 C'].map((g, i) => `
+      <div style="${threeColGrid}">
+        ${['处理 A', '处理 B', '处理 C'].map(g => `
           <div style="${boxStyle};text-align:center;">
             <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">${g}</div>
             <div style="font-size:24px;line-height:1.5;color:#334155;">● ● ●<br>● ● ●</div>
@@ -144,7 +146,7 @@ registerViz('anovadesign', renderAnovaDesign);
 function renderMultipleCompareGuide(el) {
   const title = el.dataset.title || '多重比较怎么选';
   el.innerHTML = card(title, `
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+    <div style="${threeColGrid}">
       <div style="${boxStyle}">
         <div style="${badge}">总体检验</div>
         <div style="font-weight:700;color:#0f172a;margin:8px 0;">先看 ANOVA</div>
