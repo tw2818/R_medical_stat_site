@@ -17,6 +17,13 @@ function patchTTestWidgets(container) {
     pairedScatter.dataset.title = '配对 t 检验可视化：连线图与差值图';
   }
 
+  const blandAltmanWidgets = Array.from(container.querySelectorAll('.stat-viz')).filter(el =>
+    (el.dataset.type || '').toLowerCase().includes('bland') ||
+    (el.dataset.title || '').toLowerCase().includes('bland-altman') ||
+    (el.dataset.title || '').includes('一致性分析')
+  );
+  blandAltmanWidgets.forEach(el => el.remove());
+
   const startP = Array.from(container.querySelectorAll('p')).find(p =>
     p.textContent.includes('如果数据格式是两列数据')
   );

@@ -30,6 +30,14 @@ function patchTTestText(container) {
     pairedConclusion.textContent = '在 t.test() 中，第 1 个向量是用药前，第 2 个向量是用药后，paired = TRUE 表示按配对资料处理。此时 R 实际检验的是每一对差值的均数是否为 0，而不是检验用药前和用药后两列数据是否相关。';
   }
 
+  const blandAltmanLead = introPs.find(p =>
+    p.textContent.includes('Bland-Altman') &&
+    p.textContent.includes('一致性')
+  );
+  if (blandAltmanLead) {
+    blandAltmanLead.remove();
+  }
+
   const twoSampleRead = introPs.find(p => p.textContent.trim() === '首先是读取数据.');
   if (twoSampleRead) {
     twoSampleRead.textContent = '首先读取数据。';
