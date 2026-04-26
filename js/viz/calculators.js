@@ -85,11 +85,17 @@ import { registerViz, ensureJStat } from './_core.js';
       // Power curve
       ctx.beginPath(); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5;
       for (let n = 2; n <= maxN; n++) {
-        // Approximate power for two-sample t-test
-        const se = Math.sqrt(2 * (d * d) / n); // simplified
-        const zAlpha = jStat.normal.inv(1 - alpha / 2, 0, 1);
-        const zPower = zAlpha - d * Math.sqrt(n / 2);
-        const power = 1 - jStat.normal.cdf(zPower, 0, 1);
+        let power;
+        if (testType === 'ttest2') {
+          // 两样本 t: n 每组
+          power = 1 - jStat.normal.cdf(jStat.normal.inv(1 - alpha / 2, 0, 1) - d * Math.sqrt(n / 2), 0, 1);
+        } else if (testType === 'ttest1') {
+          // 单样本 t: n 为样本量
+          power = 1 - jStat.normal.cdf(jStat.normal.inv(1 - alpha / 2, 0, 1) - d * Math.sqrt(n), 0, 1);
+        } else {
+          // 配对 t: n 为配对数
+          power = 1 - jStat.normal.cdf(jStat.normal.inv(1 - alpha / 2, 0, 1) - d * Math.sqrt(n), 0, 1);
+        }
         const x = scaleX(n), y = scaleY(Math.min(power, 0.999));
         if (n === 2) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
@@ -780,13 +786,10 @@ registerViz('riskdist', renderRiskScoreDist);
     document.getElementById(id + '-calc').addEventListener('click', () => {
       const { p1, p2, alpha } = getParams();
       const power = 0.80;
-      const diff = Math.abs(p1 - p2);
-      const poolP = (p1 + p2) / 2;
       const zAlpha = jStat.normal.inv(1 - alpha / 2, 0, 1);
       const zBeta = jStat.normal.inv(power, 0, 1);
-      // n = ((z_alpha + z_beta) / (arcsin(sqrt(p1)) - arcsin(sqrt(p2))))^2 * 2
-      const z = jStat.normal.inv(0.975, 0, 1); // simplified using normal approximation
-      const n = Math.ceil(2 * Math.pow((zAlpha + zBeta) / (2 * Math.asin(Math.sqrt(p1)) - 2 * Math.asin(Math.sqrt(p2))), 2));
+      // Kelley & Maxwell formula for two-proportion z-test
+      const n = Math.ceil(Math.pow(zAlpha + zBeta, 2) * (p1 * (1 - p1) + p2 * (1 - p2)) / Math.pow(p1 - p2, 2));
       document.getElementById(id + '-result').textContent = '每组所需样本量 n ≈ ' + n + ' (总 N ≈ ' + (n * 2) + ')';
     });
   }
@@ -920,6 +923,10 @@ registerViz('proppower', renderPropPower);
     document.getElementById(id + '-calc').addEventListener('click', () => {
       const { r, alpha, power } = getParams();
       const fisherZ = 0.5 * Math.log((1 + r) / (1 - r));
+      if (Math.abs(fisherZ) < 0.001) {
+        document.getElementById(id + '-result').textContent = '相关系数 r 过小，请调大 r 值';
+        return;
+      }
       const zAlpha = jStat.normal.inv(1 - alpha / 2, 0, 1);
       const zBeta = jStat.normal.inv(power, 0, 1);
       const n = Math.ceil(3 + Math.pow((zAlpha + zBeta) / fisherZ, 2));
@@ -1050,9 +1057,11 @@ registerViz('corrpower', renderCorrPower);
 
       // Draw bars
       const barW = plotW / (metrics.length + 1);
+      const maxValue = Math.max(...metrics.map(m => m.value));
+      const normScale = maxValue > 0 ? (plotH - 20) / maxValue * 0.9 : 1;
       metrics.forEach((m, i) => {
         const x = padL + (i + 0.5) * barW + barW * 0.2;
-        const barHeight = Math.min(m.value * plotH * 2.5, plotH - 10);
+        const barHeight = Math.min(m.value * normScale, plotH - 10);
         const y = padT + plotH - barHeight;
 
         // Bar
@@ -1065,11 +1074,7 @@ registerViz('corrpower', renderCorrPower);
         ctx.fillText(m.value.toFixed(3), x + barW * 0.3, y + barHeight + 14);
 
         // Interpretation badge
-        let interp = '';
-        if (m.value < 0.01) interp = '极小';
-        else if (m.value < 0.06) interp = '小';
-        else if (m.value < 0.14) interp = '中';
-        else interp = '大';
+        let interp = m.value < 0 ? '~0' : m.value < 0.01 ? '极小' : m.value < 0.06 ? '小' : m.value < 0.14 ? '中' : '大';
 
         ctx.fillStyle = '#666'; ctx.font = '10px sans-serif';
         ctx.fillText('(' + interp + ')', x + barW * 0.3, y + barHeight + 26);
@@ -1085,7 +1090,7 @@ registerViz('corrpower', renderCorrPower);
       // Update result display
       const resultEl = document.getElementById(id + '-result');
       resultEl.innerHTML = metrics.map(m => {
-        const interp = m.value < 0.01 ? '极小' : m.value < 0.06 ? '小' : m.value < 0.14 ? '中' : '大';
+        const interp = m.value < 0 ? '~0' : m.value < 0.01 ? '极小' : m.value < 0.06 ? '小' : m.value < 0.14 ? '中' : '大';
         return `<span style="color:${m.color};font-weight:bold;">${m.label}: ${m.value.toFixed(4)} (${interp})</span>`;
       }).join('');
     }
@@ -1122,7 +1127,7 @@ registerViz('corrpower', renderCorrPower);
       const varWithin = parseFloat(document.getElementById(id + '-vwval').textContent);
       const { etaSq, partialEtaSq, cohensF, omegaSq, dfBetween, dfWithin } = computeEffectSizes(k, n, varBetween, varWithin);
 
-      const interp = (v) => v < 0.01 ? '极小' : v < 0.06 ? '小' : v < 0.14 ? '中' : '大';
+      const interp = (v) => v < 0 ? '~0' : v < 0.01 ? '极小' : v < 0.06 ? '小' : v < 0.14 ? '中' : '大';
 
       document.getElementById(id + '-result').innerHTML = `
         <span style="color:#3498db;font-weight:bold;">η² = ${etaSq.toFixed(4)} (${interp(etaSq)})</span>
