@@ -193,17 +193,42 @@ function replaceBinomialDistributionWidget(container) {
   }
 }
 
+function replacePoissonCIWidget(container) {
+  const candidates = Array.from(container.querySelectorAll('.stat-viz, .stat-calc')).filter(el => {
+    const title = el.dataset.title || '';
+    const type = (el.dataset.type || '').toLowerCase();
+    return title.includes('泊松分布置信区间') || title.includes('泊松均数') && title.includes('区间') || title.includes('Poisson') && title.includes('CI') || type.includes('poissonci') || type.includes('poissoncinterval');
+  });
+
+  candidates.forEach(el => {
+    el.classList.remove('stat-calc');
+    el.classList.add('stat-viz');
+    el.dataset.type = 'poissoncifixed';
+    el.dataset.title = '泊松分布置信区间 — Garwood 精确区间 & 正态近似';
+    if (!el.dataset.x) el.dataset.x = '68';
+    if (!el.dataset.exposure) el.dataset.exposure = el.dataset.t || '1';
+    if (!el.dataset.conf) el.dataset.conf = '0.99';
+    delete el.dataset.rendered;
+  });
+
+  if (!container.querySelector('.stat-viz[data-type="poissoncifixed"]')) {
+    const ciHeading = findHeading(container, '总体均数的区间估计');
+    const widget = makeDiscreteViz('poissoncifixed', '泊松分布置信区间 — Garwood 精确区间 & 正态近似', { x: '68', exposure: '1', conf: '0.99' });
+    widget.classList.remove('discrete-teaching-widget');
+    insertAfter(ciHeading, widget);
+  }
+}
+
 function replacePoissonDistributionWidget(container) {
   const candidates = Array.from(container.querySelectorAll('.stat-viz, .stat-calc')).filter(el => {
     const title = el.dataset.title || '';
     const type = (el.dataset.type || '').toLowerCase();
-    if (type.includes('poissonrate') || type.includes('ratecompare')) return false;
+    if (type.includes('poissonrate') || type.includes('ratecompare') || type.includes('poissonci')) return false;
+    if (title.includes('置信区间') || title.includes('区间') || title.includes('事件率比较') || title.includes('率比较')) return false;
     return title.includes('泊松分布') || type === 'poisson' || type === 'poissondist' || type === 'poissondistribution';
   });
 
   candidates.forEach(el => {
-    const title = el.dataset.title || '';
-    if (title.includes('事件率比较') || title.includes('率比较')) return;
     el.classList.remove('stat-calc');
     el.classList.add('stat-viz');
     el.dataset.type = 'poissondistfixed';
@@ -230,6 +255,7 @@ function patchDiscreteWidgets(container) {
   removePoissonWidgetsFromNegativeBinomialSection(container);
   replaceBinomialCIWidget(container);
   replaceBinomialDistributionWidget(container);
+  replacePoissonCIWidget(container);
   replacePoissonDistributionWidget(container);
 
   const chapterHeading = findHeading(container, '几种离散型变量的分布及其应用') || container.querySelector('h1');
