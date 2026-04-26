@@ -111,6 +111,11 @@ function updateScrollProgress(el) {
 
 export function initProgressWidget() {
   const build = () => {
+    // 移除旧 widget，防止章节切换后残留
+    if (widget) {
+      widget.remove();
+      widget = null;
+    }
     widget = buildWidget();
 
     const observer = new MutationObserver(() => {
