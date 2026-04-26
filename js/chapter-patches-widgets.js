@@ -61,6 +61,17 @@ function makeDiscreteViz(type, title, attrs = {}) {
   return widget;
 }
 
+function makeChisqViz(type, title, attrs = {}) {
+  const widget = document.createElement('div');
+  widget.className = 'stat-viz chisq-teaching-widget';
+  widget.dataset.type = type;
+  widget.dataset.title = title;
+  Object.entries(attrs).forEach(([key, value]) => {
+    widget.dataset[key] = value;
+  });
+  return widget;
+}
+
 function insertAfter(anchor, ...nodes) {
   if (!anchor || !nodes.length) return;
   let current = anchor;
@@ -219,6 +230,57 @@ function patchDiscreteWidgets(container) {
   }
 }
 
+function insertChisqWidgetOnce(container, selector, anchor, type, title, attrs = {}) {
+  if (container.querySelector(selector)) return;
+  insertAfter(anchor, makeChisqViz(type, title, attrs));
+}
+
+function patchChisqWidgets(container) {
+  const choiceHeading = findHeading(container, '不同类型卡方检验的选择') || container.querySelector('h1');
+  insertChisqWidgetOnce(
+    container,
+    '.chisq-teaching-widget[data-type="chisqchoiceguide"]',
+    insertionAnchor(choiceHeading, '[data-chisq-intro-note="true"]'),
+    'chisqchoiceguide',
+    '卡方检验选择指南'
+  );
+
+  const independentHeading = findHeading(container, '四格表资料的卡方检验');
+  insertChisqWidgetOnce(
+    container,
+    '.chisq-teaching-widget[data-type="chisq2x2"]',
+    insertionAnchor(independentHeading, '[data-chisq-2x2-note="true"]'),
+    'chisq2x2',
+    '独立四格表：观察频数、理论频数与 χ² 贡献'
+  );
+
+  const pairedHeading = findHeading(container, '配对四格表资料的卡方检验');
+  insertChisqWidgetOnce(
+    container,
+    '.chisq-teaching-widget[data-type="mcnemarguide"]',
+    insertionAnchor(pairedHeading, '[data-mcnemar-note="true"]'),
+    'mcnemarguide',
+    '配对四格表：McNemar 检验只看不一致格子'
+  );
+
+  const fisherHeading = findHeading(container, 'Fisher确切概率法');
+  if (fisherHeading && !container.querySelector('[data-fisher-widget-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.fisherWidgetNote = 'true';
+    note.textContent = 'Fisher 确切概率法适合小样本 2×2 表。它不依赖大样本 χ² 近似，因此在理论频数过小或总例数较少时更稳健。';
+    fisherHeading.insertAdjacentElement('afterend', note);
+  }
+
+  const rcHeading = findHeading(container, '行 x 列表资料的卡方检验');
+  insertChisqWidgetOnce(
+    container,
+    '.chisq-teaching-widget[data-type="chisqresidualheatmap"]',
+    insertionAnchor(rcHeading, '[data-rc-chisq-note="true"]'),
+    'chisqresidualheatmap',
+    'R×C 表：用标准化残差定位主要贡献格子'
+  );
+}
+
 function patchPlottingWidgets(container) {
   if (container.querySelector('.stat-viz[data-type="blandaltman"]')) return;
 
@@ -254,6 +316,7 @@ function removeByType(container, selector) {
 export const CHAPTER_WIDGET_PATCHES = {
   '1001-ttest.html': [patchTTestWidgets],
   '1002-anova.html': [patchAnovaWidgets],
+  '1006-chisq.html': [patchChisqWidgets],
   'plotting.html': [patchPlottingWidgets],
   'discrete.html': [patchDiscreteWidgets],
   '1012-randomgroup.html': [container => removeByType(container, '.stat-viz[data-type="samplesizecalc"]')],
