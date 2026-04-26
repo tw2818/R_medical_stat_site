@@ -62,12 +62,41 @@ function patchDiscreteWidgets(container) {
   if (nbViz) nbViz.remove();
 }
 
+function patchPlottingWidgets(container) {
+  if (container.querySelector('.stat-viz[data-type="blandaltman"]')) return;
+
+  const anchor = Array.from(container.querySelectorAll('h2, h3')).find(h =>
+    h.textContent.includes('散点图') || h.textContent.includes('点线图')
+  );
+
+  const note = document.createElement('p');
+  note.innerHTML = '<strong>Bland-Altman 图</strong>用于评价两种测量方法的一致性：横轴为两种方法的均值，纵轴为两种方法的差值；重点观察平均差异和 95% 一致性限。它不用于替代配对 t 检验的前后差异检验。';
+
+  const widget = document.createElement('div');
+  widget.className = 'stat-viz';
+  widget.dataset.type = 'blandaltman';
+  widget.dataset.title = 'Bland-Altman 一致性分析：两种测量方法比较';
+  widget.dataset.method1 = '110,118,120,125,130,128,140,138,145,150';
+  widget.dataset.method2 = '112,116,123,124,133,126,143,136,148,151';
+  widget.dataset.xlabel = '两种方法测量均值';
+  widget.dataset.ylabel = '差值（方法1 - 方法2）';
+
+  if (anchor) {
+    anchor.insertAdjacentElement('afterend', widget);
+    anchor.insertAdjacentElement('afterend', note);
+  } else {
+    container.appendChild(note);
+    container.appendChild(widget);
+  }
+}
+
 function removeByType(container, selector) {
   container.querySelectorAll(selector).forEach(el => el.remove());
 }
 
 export const CHAPTER_WIDGET_PATCHES = {
   '1001-ttest.html': [patchTTestWidgets],
+  'plotting.html': [patchPlottingWidgets],
   'discrete.html': [patchDiscreteWidgets],
   '1012-randomgroup.html': [container => removeByType(container, '.stat-viz[data-type="samplesizecalc"]')],
   '1038-p4trend.html': [container => removeByType(container, '.stat-viz[data-type="subgroupforest"]')],
