@@ -30,16 +30,15 @@ function binomCDF(k, n, p) {
 }
 
 function betaInvFallback(q, a, b) {
-  // Fallback via the Clopper-Pearson beta/binomial identity.
-  // It is sufficient for the small educational ranges used in this component.
+  // Fallback via the beta/binomial identity:
+  // I_x(a,b) = P(Y >= a), Y ~ Binomial(a+b-1, x), for positive integer a and b.
   let lo = 0;
   let hi = 1;
   for (let iter = 0; iter < 70; iter++) {
     const mid = (lo + hi) / 2;
-    // I_x(a,b) = P(Y >= a), Y ~ Binomial(a+b-1, x)
     const n = a + b - 1;
-    const cdf = 1 - binomCDF(a - 1, n, mid) + binomPMF(a - 1, n, mid);
-    if (cdf < q) lo = mid;
+    const betaCdf = 1 - binomCDF(a - 1, n, mid);
+    if (betaCdf < q) lo = mid;
     else hi = mid;
   }
   return (lo + hi) / 2;
@@ -104,7 +103,7 @@ function renderBinomialCIFixed(el) {
   const cVal = document.getElementById(`${id}-cv`);
   const stats = document.getElementById(`${id}-stats`);
 
-  function syncFromInputs(changed) {
+  function syncFromInputs() {
     let n = Math.max(1, parseInt(nInput.value, 10) || 1);
     let x = Math.max(0, parseInt(xInput.value, 10) || 0);
     if (x > n) x = n;
@@ -185,7 +184,6 @@ function renderBinomialCIFixed(el) {
     ctx.textAlign = 'center';
     ctx.fillText(`样本率 p̂ = ${x}/${n} = ${pct(pHat)}`, W / 2, 22);
 
-    // p-hat reference line
     ctx.save();
     ctx.strokeStyle = '#64748b';
     ctx.setLineDash([5, 4]);
@@ -210,18 +208,18 @@ function renderBinomialCIFixed(el) {
       <span><strong>正态近似</strong>: [${normal[0].toFixed(4)}, ${normal[1].toFixed(4)}]${degenerate ? '；边界样本下近似区间会退化' : ''}</span>`;
   }
 
-  xInput.addEventListener('input', () => syncFromInputs('x'));
-  nInput.addEventListener('input', () => syncFromInputs('n'));
-  confInput.addEventListener('input', () => syncFromInputs('conf'));
+  xInput.addEventListener('input', syncFromInputs);
+  nInput.addEventListener('input', syncFromInputs);
+  confInput.addEventListener('input', syncFromInputs);
   document.getElementById(`${id}-reset`).addEventListener('click', () => {
     nInput.value = String(initialN);
     xInput.max = String(initialN);
     xInput.value = String(initialX);
     confInput.value = String(initialConf);
-    syncFromInputs('reset');
+    syncFromInputs();
   });
 
-  syncFromInputs('init');
+  syncFromInputs();
 }
 
 registerViz('binomialcifixed', renderBinomialCIFixed);
