@@ -1,5 +1,24 @@
 import { registerViz } from './_core.js';
 
+function erfApprox(x) {
+  const sign = x >= 0 ? 1 : -1;
+  const ax = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * ax);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-ax * ax);
+  return sign * y;
+}
+
+function normalCDF(x) {
+  if (window.jStat?.normal?.cdf) return window.jStat.normal.cdf(x, 0, 1);
+  return 0.5 * (1 + erfApprox(x / Math.SQRT2));
+}
+
+function formatPValue(p) {
+  if (!Number.isFinite(p)) return '—';
+  if (p < 0.001) return '< 0.001';
+  return Math.min(1, Math.max(0, p)).toFixed(4);
+}
+
 function renderRateCompare(el) {
   const id = 'ratecmp-' + Math.random().toString(36).slice(2, 8);
   const title = el.dataset.title || '率比较可视化';
@@ -49,7 +68,7 @@ function renderRateCompare(el) {
     mode2Btn.classList.toggle('active', !one);
   }
 
-  function drawBars(values, labels, target = null, titleText = '率比较示意', yMax = 1, suffix = '%', formatter = v => (v * 100).toFixed(1) + '%') {
+  function drawBars(values, labels, target = null, titleText = '率比较示意', yMax = 1, suffix = '', formatter = v => (v * 100).toFixed(1) + '%') {
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
     const pad = { l: 60, r: 30, t: 25, b: 45 };
@@ -97,7 +116,7 @@ function renderRateCompare(el) {
     for (let i = 0; i <= 4; i++) {
       const val = yMax * (1 - i / 4);
       const y = pad.t + (i / 4) * plotH;
-      ctx.fillText(val.toFixed(yMax <= 1 ? 2 : 1) + (suffix || ''), pad.l - 6, y + 4);
+      ctx.fillText(formatter(val), pad.l - 6, y + 4);
     }
   }
 
@@ -120,14 +139,14 @@ function renderRateCompare(el) {
     const p = x / n;
     const se0 = Math.sqrt((p0 * (1 - p0)) / n);
     const z = se0 > 0 ? (p - p0) / se0 : 0;
-    const pval = Math.min(1, 2 * (1 - jStat.normal.cdf(Math.abs(z), 0, 1)));
+    const pval = Math.min(1, 2 * (1 - normalCDF(Math.abs(z))));
     const [lo, hi] = wilsonCI(x, n);
     drawBars([p, p0], ['样本率', '比较值 p₀'], p0);
     result.innerHTML = `
       <div><strong>样本率</strong> p̂ = ${p.toFixed(4)} (${(p * 100).toFixed(1)}%)</div>
       <div><strong>95% CI</strong> ≈ [${lo.toFixed(4)}, ${hi.toFixed(4)}]</div>
       <div><strong>与 p₀ 的差值</strong> = ${(p - p0).toFixed(4)}</div>
-      <div><strong>近似 z 检验</strong>: z = ${z.toFixed(3)}, P ≈ ${pval.toFixed(4)}</div>`;
+      <div><strong>近似 z 检验</strong>: z = ${z.toFixed(3)}, P ≈ ${formatPValue(pval)}</div>`;
   }
 
   function calcTwo() {
@@ -144,7 +163,7 @@ function renderRateCompare(el) {
     const pooled = (x1 + x2) / (n1 + n2);
     const se = Math.sqrt(pooled * (1 - pooled) * (1 / n1 + 1 / n2));
     const z = se > 0 ? (p1 - p2) / se : 0;
-    const pval = Math.min(1, 2 * (1 - jStat.normal.cdf(Math.abs(z), 0, 1)));
+    const pval = Math.min(1, 2 * (1 - normalCDF(Math.abs(z))));
     const diff = p1 - p2;
     const seDiff = Math.sqrt((p1 * (1 - p1)) / n1 + (p2 * (1 - p2)) / n2);
     const lo = diff - 1.96 * seDiff;
@@ -154,7 +173,7 @@ function renderRateCompare(el) {
       <div><strong>组1率</strong> p̂₁ = ${p1.toFixed(4)} (${(p1 * 100).toFixed(1)}%)；<strong>组2率</strong> p̂₂ = ${p2.toFixed(4)} (${(p2 * 100).toFixed(1)}%)</div>
       <div><strong>率差</strong> p̂₁ - p̂₂ = ${diff.toFixed(4)}</div>
       <div><strong>95% CI</strong> ≈ [${lo.toFixed(4)}, ${hi.toFixed(4)}]</div>
-      <div><strong>两样本率近似 z 检验</strong>: z = ${z.toFixed(3)}, P ≈ ${pval.toFixed(4)}</div>`;
+      <div><strong>两样本率近似 z 检验</strong>: z = ${z.toFixed(3)}, P ≈ ${formatPValue(pval)}</div>`;
   }
 
   mode1Btn.addEventListener('click', () => { setMode(1); calcOne(); });
@@ -274,15 +293,15 @@ function renderPoissonRateCompare(el) {
     const seLog = x > 0 ? 1 / Math.sqrt(x) : Infinity;
     const lo = x > 0 ? rate * Math.exp(-1.96 * seLog) : 0;
     const hi = x > 0 ? rate * Math.exp(1.96 * seLog) : 0;
-    const se0 = T > 0 ? Math.sqrt((r0 * T)) / T : 0;
+    const se0 = r0 > 0 && T > 0 ? Math.sqrt((r0 * T)) / T : 0;
     const z = se0 > 0 ? (rate - r0) / se0 : 0;
-    const pval = Math.min(1, 2 * (1 - jStat.normal.cdf(Math.abs(z), 0, 1)));
+    const pval = se0 > 0 ? Math.min(1, 2 * (1 - normalCDF(Math.abs(z)))) : NaN;
     drawRates([rate, r0], ['样本率', '参考率 r₀'], r0);
     result.innerHTML = `
       <div><strong>事件率</strong> = ${rate.toFixed(4)} /单位观察量</div>
       <div><strong>近似 95% CI</strong> ≈ [${lo.toFixed(4)}, ${hi.toFixed(4)}]</div>
       <div><strong>与 r₀ 的差值</strong> = ${(rate - r0).toFixed(4)}</div>
-      <div><strong>近似 z 检验</strong>: z = ${z.toFixed(3)}, P ≈ ${pval.toFixed(4)}</div>`;
+      <div><strong>近似 z 检验</strong>: z = ${Number.isFinite(z) ? z.toFixed(3) : '—'}, P ≈ ${formatPValue(pval)}</div>`;
   }
 
   function calcTwo() {
@@ -302,16 +321,16 @@ function renderPoissonRateCompare(el) {
     const loDiff = diff - 1.96 * seDiff;
     const hiDiff = diff + 1.96 * seDiff;
     const seLogRR = (x1 > 0 && x2 > 0) ? Math.sqrt(1 / x1 + 1 / x2) : Infinity;
-    const loRR = (x1 > 0 && x2 > 0) ? Math.exp(Math.log(ratio) - 1.96 * seLogRR) : 0;
-    const hiRR = (x1 > 0 && x2 > 0) ? Math.exp(Math.log(ratio) + 1.96 * seLogRR) : 0;
-    const z = seLogRR < Infinity ? Math.log(ratio) / seLogRR : 0;
-    const pval = Math.min(1, 2 * (1 - jStat.normal.cdf(Math.abs(z), 0, 1)));
+    const loRR = (x1 > 0 && x2 > 0) ? Math.exp(Math.log(ratio) - 1.96 * seLogRR) : NaN;
+    const hiRR = (x1 > 0 && x2 > 0) ? Math.exp(Math.log(ratio) + 1.96 * seLogRR) : NaN;
+    const z = seLogRR < Infinity ? Math.log(ratio) / seLogRR : NaN;
+    const pval = Number.isFinite(z) ? Math.min(1, 2 * (1 - normalCDF(Math.abs(z)))) : NaN;
     drawRates([r1, r2], ['组1', '组2']);
     result.innerHTML = `
       <div><strong>组1事件率</strong> = ${r1.toFixed(4)}；<strong>组2事件率</strong> = ${r2.toFixed(4)} /单位观察量</div>
       <div><strong>事件率差</strong> = ${diff.toFixed(4)}，近似 95% CI ≈ [${loDiff.toFixed(4)}, ${hiDiff.toFixed(4)}]</div>
-      <div><strong>事件率比 RR</strong> = ${ratio.toFixed(4)}，近似 95% CI ≈ [${loRR.toFixed(4)}, ${hiRR.toFixed(4)}]</div>
-      <div><strong>两样本事件率近似检验</strong>: z = ${z.toFixed(3)}, P ≈ ${pval.toFixed(4)}</div>`;
+      <div><strong>事件率比 RR</strong> = ${Number.isFinite(ratio) ? ratio.toFixed(4) : '—'}，近似 95% CI ≈ [${Number.isFinite(loRR) ? loRR.toFixed(4) : '—'}, ${Number.isFinite(hiRR) ? hiRR.toFixed(4) : '—'}]</div>
+      <div><strong>两样本事件率近似检验</strong>: z = ${Number.isFinite(z) ? z.toFixed(3) : '—'}, P ≈ ${formatPValue(pval)}</div>`;
   }
 
   mode1Btn.addEventListener('click', () => { setMode(1); calcOne(); });
