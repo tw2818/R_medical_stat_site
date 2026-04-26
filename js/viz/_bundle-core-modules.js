@@ -11,3 +11,4 @@ import './calculators.js';
 import './discrete-inference.js';
 import './paired-ttest-tutorial.js';
 import './anova-tutorial.js';
+import './discrete-teaching.js';
