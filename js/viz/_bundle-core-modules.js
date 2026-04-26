@@ -9,3 +9,4 @@ import './advanced.js';
 import './meta.js';
 import './calculators.js';
 import './discrete-inference.js';
+import './paired-ttest-tutorial.js';

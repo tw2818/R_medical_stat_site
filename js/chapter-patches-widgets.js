@@ -7,6 +7,16 @@ function patchTTestWidgets(container) {
   const introBox = container.querySelector('.stat-viz[data-type="box"]');
   if (introBox) introBox.remove();
 
+  const pairedScatter = Array.from(container.querySelectorAll('.stat-viz[data-type="scatter"]')).find(el =>
+    (el.dataset.title || '').includes('配对数据') ||
+    (el.dataset.xlabel || '').includes('用药前') ||
+    (el.dataset.ylabel || '').includes('用药后')
+  );
+  if (pairedScatter) {
+    pairedScatter.dataset.type = 'pairedttestviz';
+    pairedScatter.dataset.title = '配对 t 检验可视化：连线图与差值图';
+  }
+
   const startP = Array.from(container.querySelectorAll('p')).find(p =>
     p.textContent.includes('如果数据格式是两列数据')
   );

@@ -2,32 +2,57 @@ function patchTTestText(container) {
   const introPs = Array.from(container.querySelectorAll('p'));
   const introLead = introPs.find(p => p.textContent.includes('t检验主要适用于1组或2组的均数的比较'));
   if (introLead) {
-    introLead.textContent = 't检验用于比较一组均数、配对差值均数或两组均数。经典两样本 t 检验通常要求数据近似正态且方差齐；若两组方差不齐，可使用 Welch t 检验。这里不展开推导，只聚焦如何用 R 完成常见 t 检验。';
+    introLead.textContent = 't 检验用于比较一组均数、配对差值均数或两组均数。本章对应三种常见场景：单样本 t 检验、配对样本 t 检验和两独立样本 t 检验。经典 t 检验要求资料为定量资料，样本来自近似正态总体；两独立样本 t 检验还通常要求方差齐。若两组方差不齐，可使用 Welch t 检验。这里不展开推导，重点说明如何在 R 中完成常见 t 检验并解释输出。';
   }
 
   const introExplore = introPs.find(p => p.textContent.trim() === '正态性检验与分布探索：');
   if (introExplore) {
-    introExplore.textContent = '先用图形直观感受正态分布和样本分布：';
+    introExplore.textContent = '先用图形直观感受正态分布、t 分布和 P 值的含义：';
   }
 
   const introFunc = introPs.find(p => p.textContent.includes('在R中进行t检验非常简单，就是'));
   if (introFunc) {
-    introFunc.textContent = '在 R 中进行 t 检验非常简单，核心函数就是 t.test()。单样本、配对样本和两样本 t 检验都可以通过这个函数完成。';
+    introFunc.textContent = '在 R 中进行 t 检验，核心函数是 t.test()。单样本、配对样本和两样本 t 检验都可以通过这个函数完成，关键是根据研究设计正确设置参数。';
   }
 
   const oneSampleResult = introPs.find(p => p.textContent.includes('结果显示t=-2.1367'));
   if (oneSampleResult) {
-    oneSampleResult.textContent = '结果显示 t = -2.1367，df = 35，P = 0.03969，和课本一致。下面两个组件分别用于直观看 P 值所在位置，以及自己动手改参数体会 t 检验结果如何变化。';
+    oneSampleResult.textContent = '结果显示 t = -2.1367，df = 35，P = 0.03969，和课本一致。这里 t 值为负，表示样本均数低于假设总体均数；P < 0.05，提示差异有统计学意义。下面两个组件分别用于直观看 P 值所在位置，以及自己动手改参数体会 t 检验结果如何变化。';
   }
 
   const pairedData = introPs.find(p => p.textContent.includes('数据一共3列10行，第1列是样本编号'));
   if (pairedData) {
-    pairedData.textContent = '数据一共 3 列 10 行：第 1 列是样本编号，第 2 列和第 3 列分别是配对比较的两次测量值。';
+    pairedData.textContent = '数据一共 3 列 10 行：第 1 列是样本编号，第 2 列和第 3 列分别是配对比较的两次测量值。配对 t 检验的分析单位不是两列原始值本身，而是每一对的差值。';
+  }
+
+  const pairedConclusion = introPs.find(p => p.textContent.includes('t.test第1个数据是用药前，第2个数据是用药后'));
+  if (pairedConclusion) {
+    pairedConclusion.textContent = '在 t.test() 中，第 1 个向量是用药前，第 2 个向量是用药后，paired = TRUE 表示按配对资料处理。此时 R 实际检验的是每一对差值的均数是否为 0，而不是检验用药前和用药后两列数据是否相关。';
   }
 
   const twoSampleRead = introPs.find(p => p.textContent.trim() === '首先是读取数据.');
   if (twoSampleRead) {
     twoSampleRead.textContent = '首先读取数据。';
+  }
+
+  const twoSampleData = introPs.find(p => p.textContent.includes('这是两组数据，一组是患者组，一组是对照组'));
+  if (twoSampleData) {
+    twoSampleData.textContent = '这是两组相互独立的数据，一组是患者组，一组是对照组。两独立样本 t 检验比较的是两组总体均数是否不同，不能把两组观测值强行配对。';
+  }
+
+  const twoSampleVarEqual = introPs.find(p => p.textContent.includes('直接进行方差齐性的两样本t检验'));
+  if (twoSampleVarEqual) {
+    twoSampleVarEqual.textContent = '若根据研究设计和方差齐性判断采用等方差两样本 t 检验，可设置 var.equal = TRUE；若不假定方差齐，R 默认使用 Welch t 检验。';
+  }
+
+  const normalityIntro = introPs.find(p => p.textContent.includes('这个内容在之前介绍过'));
+  if (normalityIntro) {
+    normalityIntro.textContent = 't 检验要求资料近似来自正态总体。实际分析中可结合直方图、Q-Q 图和 Shapiro-Wilk 检验判断正态性；样本量较小时尤其需要重视分布形态和异常值。';
+  }
+
+  const varianceIntro = introPs.find(p => p.textContent.includes('这个主要是适用于两样本t检验'));
+  if (varianceIntro) {
+    varianceIntro.textContent = '方差齐性主要影响两独立样本 t 检验。若两组方差差异明显，应优先考虑 Welch t 检验，或在报告中明确说明采用了不等方差校正。';
   }
 
   const h14 = container.querySelector('h2#正态性检验和两样本方差比较的f检验');
