@@ -114,20 +114,67 @@ function patchAnovaWidgets(container) {
   }
 }
 
-function patchDiscreteWidgets(container) {
-  if (!container.querySelector('.discrete-teaching-widget')) {
-    const chapterHeading = findHeading(container, '几种离散型变量的分布及其应用') || container.querySelector('h1');
-    insertAfter(insertionAnchor(chapterHeading, '[data-discrete-intro-note="true"]'), makeDiscreteViz('discretedistguide', '第三章总览：离散分布怎么选'));
+function removePoissonWidgetsFromNegativeBinomialSection(container) {
+  const nbHeading = findHeading(container, '负二项分布');
+  if (!nbHeading) return;
 
-    const binomialHeading = findHeading(container, '二项分布');
-    insertAfter(insertionAnchor(binomialHeading, '[data-binomial-note="true"]'), makeDiscreteViz('discreteparamguide', '二项分布参数含义：X ~ B(n, p)', { mode: 'binomial' }));
-
-    const poissonHeading = findHeading(container, '泊松分布');
-    insertAfter(insertionAnchor(poissonHeading, '[data-poisson-note="true"]'), makeDiscreteViz('discreteparamguide', '泊松分布参数含义：X ~ Poisson(λ)', { mode: 'poisson' }));
-
-    const nbHeading = findHeading(container, '负二项分布');
-    insertAfter(insertionAnchor(nbHeading, '[data-nb-note="true"]'), makeDiscreteViz('negativebinomialguide', '负二项分布：处理过度离散计数资料'));
+  let node = nbHeading.nextElementSibling;
+  while (node && !['H1', 'H2'].includes(node.tagName)) {
+    const next = node.nextElementSibling;
+    if (node.matches?.('.stat-viz[data-type="poisson"]')) {
+      node.remove();
+    } else {
+      node.querySelectorAll?.('.stat-viz[data-type="poisson"]').forEach(el => el.remove());
+    }
+    node = next;
   }
+}
+
+function insertDiscreteWidgetOnce(container, selector, anchor, type, title, attrs = {}) {
+  if (container.querySelector(selector)) return;
+  insertAfter(anchor, makeDiscreteViz(type, title, attrs));
+}
+
+function patchDiscreteWidgets(container) {
+  removePoissonWidgetsFromNegativeBinomialSection(container);
+
+  const chapterHeading = findHeading(container, '几种离散型变量的分布及其应用') || container.querySelector('h1');
+  insertDiscreteWidgetOnce(
+    container,
+    '.discrete-teaching-widget[data-type="discretedistguide"]',
+    insertionAnchor(chapterHeading, '[data-discrete-intro-note="true"]'),
+    'discretedistguide',
+    '第三章总览：离散分布怎么选'
+  );
+
+  const binomialHeading = findHeading(container, '二项分布');
+  insertDiscreteWidgetOnce(
+    container,
+    '.discrete-teaching-widget[data-type="discreteparamguide"][data-mode="binomial"]',
+    insertionAnchor(binomialHeading, '[data-binomial-note="true"]'),
+    'discreteparamguide',
+    '二项分布参数含义：X ~ B(n, p)',
+    { mode: 'binomial' }
+  );
+
+  const poissonHeading = findHeading(container, '泊松分布');
+  insertDiscreteWidgetOnce(
+    container,
+    '.discrete-teaching-widget[data-type="discreteparamguide"][data-mode="poisson"]',
+    insertionAnchor(poissonHeading, '[data-poisson-note="true"]'),
+    'discreteparamguide',
+    '泊松分布参数含义：X ~ Poisson(λ)',
+    { mode: 'poisson' }
+  );
+
+  const nbHeading = findHeading(container, '负二项分布');
+  insertDiscreteWidgetOnce(
+    container,
+    '.discrete-teaching-widget[data-type="negativebinomialguide"]',
+    insertionAnchor(nbHeading, '[data-nb-note="true"]'),
+    'negativebinomialguide',
+    '负二项分布：处理过度离散计数资料'
+  );
 
   const rateHeading = Array.from(container.querySelectorAll('h3')).find(h => h.textContent.includes('样本率和总体率的比较'));
   if (rateHeading && !container.querySelector('.stat-calc[data-type="ratecompare"]')) {
@@ -146,9 +193,6 @@ function patchDiscreteWidgets(container) {
     widget.dataset.title = '泊松事件率比较：单样本与两样本';
     poissonRateHeading.insertAdjacentElement('afterend', widget);
   }
-
-  const nbViz = container.querySelector('h2#负二项分布略 + .stat-viz[data-type="poisson"]');
-  if (nbViz) nbViz.remove();
 }
 
 function patchPlottingWidgets(container) {
