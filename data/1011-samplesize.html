@@ -636,6 +636,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>如果使用R自带函数<code>power.anova.test(groups = NULL, n = NULL, between.var = NULL, within.var = NULL,sig.level = 0.05, power = NULL)</code>函数计算，因为无法计算<code>within.var</code>，所以也是行不通的。</p>
 <p>还是乖乖用PASS吧…</p>
 <p>如果有大佬知道怎么计算，欢迎留言告知~</p>
+<div class="stat-viz" data-type="anova-effectsize" data-title="ANOVA 效应量 f 可视化" style="margin:16px 0"></div>
 </section>
 <section id="样本率和已知总体率的比较" class="level2" data-number="10.3">
 <h2 data-number="10.3" class="anchored" data-anchor-id="样本率和已知总体率的比较"><span class="header-section-number">10.3</span> 样本率和已知总体率的比较</h2>
@@ -663,6 +664,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="do">##     alternative = greater</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>得到的结果和课本差别有点大，课本是137.1，而我们的结果是106，主要是由于计算方法不同，建议对于此类设计的样本量计算，还是直接套课本公式或者使用PASS软件。</p>
+<div class="stat-viz" data-type="proppower" data-title="两样本率比较功效分析" data-p1="0.8" data-p2="0.9" style="margin:16px 0"></div>
 </section>
 <section id="两独立样本率的比较" class="level2" data-number="10.4">
 <h2 data-number="10.4" class="anchored" data-anchor-id="两独立样本率的比较"><span class="header-section-number">10.4</span> 两独立样本率的比较</h2>
@@ -768,6 +770,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="do">##     alternative = two.sided</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>n = 11.16238，结果和课本一样~</p>
+<div class="stat-viz" data-type="corrpower" data-title="相关系数功效分析" data-r="0.8" style="margin:16px 0"></div>
 <p>OK，以上就是使用R语言计算样本量的例子。可以看到大部分都是可以很简单的计算出来，但是在方便快捷性上还是差PASS软件太远了，对于此类样本量计算的问题，可能PASS是更好的选择。</p>
 
 
