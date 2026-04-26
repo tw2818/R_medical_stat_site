@@ -220,8 +220,53 @@ function patchDiscreteText(container) {
   }
 }
 
+function patchChisqText(container) {
+  addNoteAfterHeading(
+    container,
+    '卡方检验',
+    '[data-chisq-chapter-note="true"]',
+    '卡方检验主要用于分类变量资料。本章的关键不是只会运行 chisq.test()，而是先判断资料结构：独立四格表、配对四格表、小样本四格表，还是行×列表。不同资料结构对应不同检验。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '不同类型卡方检验的选择',
+    '[data-chisq-intro-note="true"]',
+    '选择卡方检验时，先判断样本是否独立，再看列联表维度和理论频数大小。独立样本、配对样本和小样本四格表不能混用同一种检验。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '四格表资料的卡方检验',
+    '[data-chisq-2x2-note="true"]',
+    '独立四格表用于比较两组独立样本的率或构成差异。Pearson χ² 检验的核心是比较观察频数 O 与理论频数 E 的偏离程度。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '配对四格表资料的卡方检验',
+    '[data-mcnemar-note="true"]',
+    '配对四格表常见于同一对象接受两种检测方法、治疗前后分类结果或左右侧配对资料。此时应使用 McNemar 检验，重点比较两个不一致格子。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '四格表资料的Fisher确切概率法',
+    '[data-fisher-note="true"]',
+    'Fisher 确切概率法用于小样本四格表，尤其在理论频数过小时比大样本 χ² 近似更合适。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '行 x 列表资料的卡方检验',
+    '[data-rc-chisq-note="true"]',
+    '行×列表卡方检验用于比较多个组的分类分布是否相同。总体 P 值显著只能说明分布不全相同，不能直接说明具体哪一格不同；需要结合理论频数、残差或后续分解分析。'
+  );
+}
+
 export const CHAPTER_TEXT_PATCHES = {
   '1001-ttest.html': [patchTTestText],
   '1002-anova.html': [patchAnovaText],
+  '1006-chisq.html': [patchChisqText],
   'discrete.html': [patchDiscreteText]
 };
