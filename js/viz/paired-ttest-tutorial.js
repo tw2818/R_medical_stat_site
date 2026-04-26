@@ -116,7 +116,7 @@ function renderPairedTTestTutorial(el) {
 
   const stats = getPairedTStats(pairs);
   const W = 640;
-  const H = 500;
+  const H = 575;
   const id = 'paired-ttest-' + Math.random().toString(36).slice(2, 8);
   const direction = stats.meanDiff < 0 ? '平均下降' : (stats.meanDiff > 0 ? '平均升高' : '平均无变化');
   const significant = Number.isFinite(stats.pValue) && stats.pValue < 0.05;
@@ -156,8 +156,8 @@ function renderPairedTTestTutorial(el) {
 
   const valueScale = (v, panel) => panel.y + panel.h - ((v - yMin) / (yMax - yMin)) * panel.h;
 
-  const topPanel = { x: 70, y: 44, w: 520, h: 190 };
-  const bottomPanel = { x: 70, y: 310, w: 520, h: 92 };
+  const topPanel = { x: 78, y: 48, w: 510, h: 185 };
+  const bottomPanel = { x: 78, y: 355, w: 510, h: 105 };
 
   function drawAxes(panel, yLabel) {
     ctx.strokeStyle = 'rgba(100,116,139,.22)';
@@ -207,7 +207,7 @@ function renderPairedTTestTutorial(el) {
     const xBefore = topPanel.x + topPanel.w * 0.28;
     const xAfter = topPanel.x + topPanel.w * 0.72;
 
-    pairs.forEach((p, i) => {
+    pairs.forEach(p => {
       const yBefore = valueScale(p.before, topPanel);
       const yAfter = valueScale(p.after, topPanel);
       const color = p.after < p.before ? '#2f855a' : (p.after > p.before ? '#c05621' : '#64748b');
@@ -226,13 +226,6 @@ function renderPairedTTestTutorial(el) {
       ctx.beginPath();
       ctx.arc(xAfter, yAfter, 4, 0, Math.PI * 2);
       ctx.fill();
-
-      if (pairs.length <= 12) {
-        ctx.fillStyle = 'rgba(71,85,105,.7)';
-        ctx.font = '10px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(String(i + 1), xBefore - 14, yBefore + 3);
-      }
     });
 
     const meanBeforeY = valueScale(stats.beforeMean, topPanel);
@@ -245,8 +238,8 @@ function renderPairedTTestTutorial(el) {
     ctx.stroke();
     ctx.fillStyle = '#0f172a';
     [
-      [xBefore, meanBeforeY, '均值'],
-      [xAfter, meanAfterY, '均值']
+      [xBefore, meanBeforeY],
+      [xAfter, meanAfterY]
     ].forEach(([x, y]) => {
       ctx.beginPath();
       ctx.arc(x, y, 6, 0, Math.PI * 2);
@@ -259,8 +252,8 @@ function renderPairedTTestTutorial(el) {
     ctx.fillText('用药前', xBefore, topPanel.y + topPanel.h + 24);
     ctx.fillText('用药后', xAfter, topPanel.y + topPanel.h + 24);
 
-    drawRoundedLabel(ctx, '绿色线：用药后下降', topPanel.x + 118, topPanel.y + topPanel.h + 50, '#2f855a');
-    drawRoundedLabel(ctx, '黑粗线：组均值变化', topPanel.x + topPanel.w - 132, topPanel.y + topPanel.h + 50, '#0f172a');
+    drawRoundedLabel(ctx, '绿色线：用药后下降', topPanel.x + 118, topPanel.y + topPanel.h + 56, '#2f855a');
+    drawRoundedLabel(ctx, '黑粗线：组均值变化', topPanel.x + topPanel.w - 132, topPanel.y + topPanel.h + 56, '#0f172a');
   }
 
   function drawBottomPanel() {
@@ -276,7 +269,7 @@ function renderPairedTTestTutorial(el) {
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('2. 差值图：配对 t 检验检验 D̄ 是否等于 0', bottomPanel.x + bottomPanel.w / 2, bottomPanel.y - 24);
+    ctx.fillText('2. 差值图：配对 t 检验检验 D̄ 是否等于 0', bottomPanel.x + bottomPanel.w / 2, bottomPanel.y - 32);
 
     ctx.strokeStyle = 'rgba(100,116,139,.22)';
     ctx.lineWidth = 1;
@@ -314,7 +307,7 @@ function renderPairedTTestTutorial(el) {
       ctx.fill();
     });
 
-    const ciY = bottomPanel.y + bottomPanel.h + 26;
+    const ciY = bottomPanel.y + bottomPanel.h + 34;
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -331,7 +324,7 @@ function renderPairedTTestTutorial(el) {
     ctx.beginPath();
     ctx.arc(sx(stats.meanDiff), ciY, 6, 0, Math.PI * 2);
     ctx.fill();
-    drawRoundedLabel(ctx, 'D̄ 与 95% CI', sx(stats.meanDiff), ciY + 24, '#0f172a');
+    drawRoundedLabel(ctx, 'D̄ 与 95% CI', sx(stats.meanDiff), ciY + 28, '#0f172a');
 
     ctx.fillStyle = '#475569';
     ctx.font = '11px sans-serif';
@@ -347,7 +340,7 @@ function renderPairedTTestTutorial(el) {
       ctx.fillText(v.toFixed(2), x, centerY + 14);
     }
     ctx.font = 'bold 12px sans-serif';
-    ctx.fillText('差值 D = 用药后 − 用药前（D < 0 表示下降）', bottomPanel.x + bottomPanel.w / 2, H - 12);
+    ctx.fillText('差值 D = 用药后 − 用药前（D < 0 表示下降）', bottomPanel.x + bottomPanel.w / 2, H - 16);
   }
 
   ctx.clearRect(0, 0, W, H);
