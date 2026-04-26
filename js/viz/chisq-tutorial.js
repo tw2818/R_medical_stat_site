@@ -29,11 +29,67 @@ function normalCDF(x) {
   return 0.5 * (1 + erfApprox(x / Math.SQRT2));
 }
 
+function regularizedGammaP(a, x) {
+  if (x <= 0) return 0;
+  if (a <= 0) return NaN;
+
+  const gln = logGamma(a);
+  if (x < a + 1) {
+    let ap = a;
+    let del = 1 / a;
+    let sumVal = del;
+    for (let n = 1; n <= 100; n++) {
+      ap += 1;
+      del *= x / ap;
+      sumVal += del;
+      if (Math.abs(del) < Math.abs(sumVal) * 1e-12) break;
+    }
+    return Math.min(1, Math.max(0, sumVal * Math.exp(-x + a * Math.log(x) - gln)));
+  }
+
+  let b = x + 1 - a;
+  let c = 1 / 1e-30;
+  let d = 1 / b;
+  let h = d;
+  for (let i = 1; i <= 100; i++) {
+    const an = -i * (i - a);
+    b += 2;
+    d = an * d + b;
+    if (Math.abs(d) < 1e-30) d = 1e-30;
+    c = b + an / c;
+    if (Math.abs(c) < 1e-30) c = 1e-30;
+    d = 1 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < 1e-12) break;
+  }
+  return Math.min(1, Math.max(0, 1 - Math.exp(-x + a * Math.log(x) - gln) * h));
+}
+
+function logGamma(z) {
+  const coeff = [
+    676.5203681218851,
+    -1259.1392167224028,
+    771.32342877765313,
+    -176.61502916214059,
+    12.507343278686905,
+    -0.13857109526572012,
+    9.9843695780195716e-6,
+    1.5056327351493116e-7
+  ];
+  if (z < 0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - logGamma(1 - z);
+  z -= 1;
+  let x = 0.99999999999980993;
+  for (let i = 0; i < coeff.length; i++) x += coeff[i] / (z + i + 1);
+  const t = z + coeff.length - 0.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+
 function chiSquareP(stat, df = 1) {
-  if (!Number.isFinite(stat) || stat < 0) return NaN;
+  if (!Number.isFinite(stat) || stat < 0 || df <= 0) return NaN;
   if (window.jStat?.chisquare?.cdf) return Math.max(0, Math.min(1, 1 - window.jStat.chisquare.cdf(stat, df)));
   if (df === 1) return Math.max(0, Math.min(1, 2 * (1 - normalCDF(Math.sqrt(stat)))));
-  return NaN;
+  return Math.max(0, Math.min(1, 1 - regularizedGammaP(df / 2, stat / 2)));
 }
 
 function fmt(x, digits = 3) {
@@ -178,9 +234,10 @@ registerViz('chisq2x2', renderChisq2x2);
 
 function binomPMF(k, n, p) {
   if (k < 0 || k > n) return 0;
-  let comb = 1;
-  for (let i = 1; i <= k; i++) comb *= (n - k + i) / i;
-  return comb * Math.pow(p, k) * Math.pow(1 - p, n - k);
+  const kk = Math.min(k, n - k);
+  let logComb = 0;
+  for (let i = 1; i <= kk; i++) logComb += Math.log(n - kk + i) - Math.log(i);
+  return Math.exp(logComb + k * Math.log(p) + (n - k) * Math.log1p(-p));
 }
 
 function exactMcNemarP(b, c) {
