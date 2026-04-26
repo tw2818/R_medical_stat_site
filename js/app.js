@@ -13,6 +13,7 @@ import { getWelcomeAction, shouldOpenSidebarFromOverlayClick } from './app/ui-sh
 import { shouldCloseLightboxOnClick, shouldCloseLightboxOnEscape, shouldOpenLightboxForTarget } from './app/lightbox.js';
 import { parseChapterMainContent, removeBreadcrumbs } from './app/chapter-dom.js';
 import { createToastLifecycle } from './app/toast.js';
+import { initProgressWidget, refreshProgressWidget } from './app/progress-widget.js';
 import { getNextExpandedState, getPathTargetId } from './app/nav-shell.js';
 
 // ===== 状态 =====
@@ -78,6 +79,7 @@ function buildNav() {
 
 function updateChapterCount() {
   updateProgressBar();
+  refreshProgressWidget();
 }
 
 function continueLearning() {
@@ -242,6 +244,7 @@ async function loadChapter(filename, chapterId) {
 
     updateChapterCount();
     updateNavGroupExpansion();
+    initProgressWidget();
 
     createChapterProgressTimer({
       chapterId,
