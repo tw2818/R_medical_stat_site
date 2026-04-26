@@ -94,11 +94,11 @@ function bindTOC(el) {
 }
 
 function updateScrollProgress(el) {
-  const content = document.getElementById('chapter-content');
-  if (!content) return;
+  const container = document.getElementById('content-wrapper');
+  if (!container) return;
 
-  const scrollTop = content.scrollTop || document.documentElement.scrollTop;
-  const scrollHeight = content.scrollHeight - content.clientHeight;
+  const scrollTop = container.scrollTop;
+  const scrollHeight = container.scrollHeight - container.clientHeight;
   const pct = scrollHeight > 0
     ? Math.min(100, Math.round((scrollTop / scrollHeight) * 100))
     : 100;
@@ -128,8 +128,9 @@ export function initProgressWidget() {
     const main = document.getElementById('main-content');
     if (main) observer.observe(main, { childList: true, subtree: true });
 
-    const content = document.getElementById('chapter-content');
-    if (content) content.addEventListener('scroll', onScroll, { passive: true });
+    // 滚动容器是 #content-wrapper
+    const container = document.getElementById('content-wrapper');
+    if (container) container.addEventListener('scroll', onScroll, { passive: true });
   };
 
   const onScroll = () => updateScrollProgress(widget);
