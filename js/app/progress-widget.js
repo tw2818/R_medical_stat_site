@@ -10,7 +10,9 @@ function buildWidget() {
   el.id = 'progress-widget';
   document.body.appendChild(el);
 
-  el.addEventListener('click', () => {
+  el.addEventListener('click', (e) => {
+    // 点击小标题条目不要触发展开/收起
+    if (e.target.closest('.pw-toc-item')) return;
     toggle(el);
   });
 
@@ -19,18 +21,19 @@ function buildWidget() {
 }
 
 function render(el) {
+  const chevronIcon = expanded ? '▲' : '▼';
+
   el.innerHTML = `
     <div class="pw-summary">
       <div class="pw-bar-wrap">
         <div class="pw-bar-fill" id="pw-fill"></div>
       </div>
       <div class="pw-label" id="pw-label">0%</div>
-      <button class="pw-chevron" aria-label="章节小标题">${expanded ? '▲' : '▼'}</button>
+      <button class="pw-chevron" aria-label="章节小标题">${chevronIcon}</button>
     </div>
     <div class="pw-toc" id="pw-toc" style="display:${expanded ? '' : 'none'}"></div>
   `;
 
-  // TOC 由 JS 动态填充
   if (expanded) bindTOC(el);
   updateScrollProgress(el);
 }
@@ -51,24 +54,32 @@ function bindTOC(el) {
   const content = document.getElementById('chapter-content');
   if (!content) return;
 
-  // 提取当前章节的所有 h2 / h3
-  const headings = Array.from(content.querySelectorAll('h2[id], h3[id]'));
+  // 用 data-anchor-id 属性选择（Quarto 生成的章节标题用此属性）
+  const headings = Array.from(
+    content.querySelectorAll('h2[data-anchor-id], h3[data-anchor-id]')
+  );
+
   if (headings.length === 0) {
     toc.innerHTML = '<div class="pw-toc-empty">本页无小标题</div>';
     return;
   }
 
   toc.innerHTML = headings.map(h => {
-    const level = h.tagName.toLowerCase();
+    const level = h.tagName.toLowerCase(); // 'h2' or 'h3'
+    const anchor = h.dataset.anchorId;
+    // 显示文字：取 header-section-number 后的文本
+    const numSpan = h.querySelector('.header-section-number');
+    const num = numSpan ? numSpan.textContent.trim() + ' ' : '';
     const text = h.textContent.replace(/\s*\(\d+\)\s*$/, '').trim();
-    return `<div class="pw-toc-item pw-toc-${level}" data-id="${h.id}">${text}</div>`;
+    return `<div class="pw-toc-item pw-toc-${level}" data-anchor="${anchor}">${num}${text}</div>`;
   }).join('');
 
   toc.querySelectorAll('.pw-toc-item').forEach(item => {
     item.addEventListener('click', (e) => {
       e.stopPropagation();
-      const id = item.dataset.id;
-      const target = document.getElementById(id);
+      const anchor = item.dataset.anchor;
+      // 用属性选择器查找（标题没有原生 id，只有 data-anchor-id）
+      const target = content.querySelector(`[data-anchor-id="${anchor}"]`);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
@@ -88,7 +99,9 @@ function updateScrollProgress(el) {
 
   const scrollTop = content.scrollTop || document.documentElement.scrollTop;
   const scrollHeight = content.scrollHeight - content.clientHeight;
-  const pct = scrollHeight > 0 ? Math.min(100, Math.round((scrollTop / scrollHeight) * 100)) : 100;
+  const pct = scrollHeight > 0
+    ? Math.min(100, Math.round((scrollTop / scrollHeight) * 100))
+    : 100;
 
   const fill = el.querySelector('#pw-fill');
   const label = el.querySelector('#pw-label');
@@ -100,12 +113,11 @@ export function initProgressWidget() {
   const build = () => {
     widget = buildWidget();
 
-    // 监听章节切换
     const observer = new MutationObserver(() => {
       const content = document.getElementById('chapter-content');
       if (content) {
-        content.addEventListener('scroll', () => updateScrollProgress(widget), { passive: true });
-        // 章节内容切换后重新渲染（收起 TOC）
+        content.removeEventListener('scroll', onScroll);
+        content.addEventListener('scroll', onScroll, { passive: true });
         if (expanded) {
           expanded = false;
           render(widget);
@@ -116,10 +128,11 @@ export function initProgressWidget() {
     const main = document.getElementById('main-content');
     if (main) observer.observe(main, { childList: true, subtree: true });
 
-    // 初始绑定
     const content = document.getElementById('chapter-content');
-    if (content) content.addEventListener('scroll', () => updateScrollProgress(widget), { passive: true });
+    if (content) content.addEventListener('scroll', onScroll, { passive: true });
   };
+
+  const onScroll = () => updateScrollProgress(widget);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', build);
