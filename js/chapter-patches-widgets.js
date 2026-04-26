@@ -50,6 +50,17 @@ function makeViz(type, title, attrs = {}) {
   return widget;
 }
 
+function makeDiscreteViz(type, title, attrs = {}) {
+  const widget = document.createElement('div');
+  widget.className = 'stat-viz discrete-teaching-widget';
+  widget.dataset.type = type;
+  widget.dataset.title = title;
+  Object.entries(attrs).forEach(([key, value]) => {
+    widget.dataset[key] = value;
+  });
+  return widget;
+}
+
 function insertAfter(anchor, ...nodes) {
   if (!anchor || !nodes.length) return;
   let current = anchor;
@@ -104,12 +115,26 @@ function patchAnovaWidgets(container) {
 }
 
 function patchDiscreteWidgets(container) {
+  if (!container.querySelector('.discrete-teaching-widget')) {
+    const chapterHeading = findHeading(container, '几种离散型变量的分布及其应用') || container.querySelector('h1');
+    insertAfter(insertionAnchor(chapterHeading, '[data-discrete-intro-note="true"]'), makeDiscreteViz('discretedistguide', '第三章总览：离散分布怎么选'));
+
+    const binomialHeading = findHeading(container, '二项分布');
+    insertAfter(insertionAnchor(binomialHeading, '[data-binomial-note="true"]'), makeDiscreteViz('discreteparamguide', '二项分布参数含义：X ~ B(n, p)', { mode: 'binomial' }));
+
+    const poissonHeading = findHeading(container, '泊松分布');
+    insertAfter(insertionAnchor(poissonHeading, '[data-poisson-note="true"]'), makeDiscreteViz('discreteparamguide', '泊松分布参数含义：X ~ Poisson(λ)', { mode: 'poisson' }));
+
+    const nbHeading = findHeading(container, '负二项分布');
+    insertAfter(insertionAnchor(nbHeading, '[data-nb-note="true"]'), makeDiscreteViz('negativebinomialguide', '负二项分布：处理过度离散计数资料'));
+  }
+
   const rateHeading = Array.from(container.querySelectorAll('h3')).find(h => h.textContent.includes('样本率和总体率的比较'));
   if (rateHeading && !container.querySelector('.stat-calc[data-type="ratecompare"]')) {
     const widget = document.createElement('div');
     widget.className = 'stat-calc';
     widget.dataset.type = 'ratecompare';
-    widget.dataset.title = '率比较可视化';
+    widget.dataset.title = '率比较可视化：单样本率与两样本率';
     rateHeading.insertAdjacentElement('afterend', widget);
   }
 
@@ -118,7 +143,7 @@ function patchDiscreteWidgets(container) {
     const widget = document.createElement('div');
     widget.className = 'stat-calc';
     widget.dataset.type = 'poissonratecompare';
-    widget.dataset.title = '泊松事件率比较';
+    widget.dataset.title = '泊松事件率比较：单样本与两样本';
     poissonRateHeading.insertAdjacentElement('afterend', widget);
   }
 
