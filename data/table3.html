@@ -512,9 +512,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>本章对应课本中的第十章，统计表主要是三线表的绘制，其实这是Word的功能，R语言中的三线表绘制绘制R包通常都是用于绘制各类SCI文献中的第一张表，比如各种基线资料表、人口统计学资料表等。</p>
-<p>主要是各种三线表的绘制，但是目前的临床研究的三线表制作还是离不开Word、Excel等传统软件，目前没有任何一款R包可以做到：输出结果无需修改即可直接发表。或多或少都需要在Word中修改一下的。</p>
-<p>目前在R语言中绘制三线表的常见R包有：<code>compareGroups</code>、<code>tableone</code>、<code>table1</code>、<code>gtSummary</code>、<code>gt</code>、<code>gtExtras</code>等，我已写过多篇推文进行介绍（公众号后台回复<strong>三线表</strong>即可获取合集）：</p>
+<p>本章对应课本中的第十章，统计表主要是三线表的绘制。严格来说，三线表最终排版常常仍需 Word、Excel 或期刊模板配合；R 语言的价值在于把“计算描述统计量、选择检验、批量生成 Table 1 初稿”这一步标准化、可复现，减少手工整理出错。</p>
+<p>目前临床研究的三线表制作仍离不开人工审阅：没有任何一款 R 包可以保证输出结果完全无需修改即可发表。R 生成的是可靠的结构化初稿，最终还需要根据研究设计、期刊格式和临床解释进行微调。</p>
+<div class="stat-viz" data-type="table1-workflow" data-title="三线表怎么做：从数据到 Table 1"></div>
+<p>⬆ 上方展示了本章的主线：先确定分组，再用 <code>compareGroups()</code> 计算，用 <code>createTable()</code> 排版，最后导出并人工校对。</p>
+<p>目前在R语言中绘制三线表的常见R包有：<code>compareGroups</code>、<code>tableone</code>、<code>table1</code>、<code>gtsummary</code>、<code>gt</code>、<code>gtExtras</code>等，我已写过多篇推文进行介绍（公众号后台回复<strong>三线表</strong>即可获取合集）：</p>
 <ul>
 <li><code>compareGroups</code>：<a href="https://mp.weixin.qq.com/s/as3a6julKQcJdszTHGUCuw">compareGroups包1行代码生成基线资料表</a></li>
 <li><code>tableone</code>:<a href="https://mp.weixin.qq.com/s/NUWH-I5a_eBepQyAaz0ZUw">使用R语言快速绘制三线表</a></li>
@@ -531,9 +533,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>官方文档的名字就叫：分组描述（Descriptives-by-groups），充分说明该包的强项就是分组描述，特别适合基线资料表、各类SCI中的table 1的绘制。支持生存数据，可以计算HR、OR、P-for-trend、多重检验的P值等。</p>
 <p>使用方法和之前介绍的基本一样，主要就是3个函数：</p>
 <ul>
-<li><code>compareGroups</code>：计算</li>
-<li><code>createTable</code>：构建表格</li>
-<li><code>export2xxx</code>导出表格</li>
+<li><code>compareGroups</code>：根据公式完成分组描述和统计检验，返回一个可继续加工的结果对象。</li>
+<li><code>createTable</code>：把结果对象整理成 Table 1 形式，并控制是否显示 P 值、OR/HR、总体列、缺失值等。</li>
+<li><code>export2xxx</code>：把表格导出为 Word、Excel、HTML、PDF、Markdown 等格式。</li>
 </ul>
 <p>之前R包内置的<code>predimed</code>已经没有了，现在默认演示数据变成了<code>regicor</code>。</p>
 <blockquote class="blockquote">
@@ -686,6 +688,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 
 
+<div class="stat-viz" data-type="table1-variable-guide" data-title="变量类型决定 Table 1 的写法"></div>
+<p>⬆ 上方总结了三线表最容易出错的地方：变量类型不同，描述统计和检验方法也不同。</p>
 <p>使用该R包的一些注意点：</p>
 <ol type="1">
 <li>该包的重点是描述数据，不是对数据进行质量控制或其他目的。</li>
@@ -705,6 +709,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="详细介绍" class="level2" data-number="8.2">
 <h2 data-number="8.2" class="anchored" data-anchor-id="详细介绍"><span class="header-section-number">8.2</span> 详细介绍</h2>
 <div class="stat-viz" data-type="baseline-table" data-title="compareGroups 分组描述示例 — REGICOR 研究数据按招募年份分组" data-groups="3" data-labels='["1995","2000","2005"]' data-ns="[431,786,1077]"></div>
+<p>⬆ 上方展示了 Table 1 的基本读表顺序：先看分组和样本量，再看每一行变量的描述方式和 P 值。</p>
 <p>以<code>year</code>为分组变量，统计各个变量的差异：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 不要id这个变量</span></span>
@@ -1108,6 +1113,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="do">##     Former &gt;= 1y           419 (20.7%)   8 (8.70%)  0.58 [0.25;1.19]  0.142            </span></span>
 <span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="do">## ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="table1-pvalue-guide" data-title="表格统计量怎么读：P 值、OR/HR 与注释"></div>
+<p>⬆ 上方把 <code>p.overall</code>、<code>p.ratio</code> 和 OR/HR 的读法放在一起，后面的例子会用原始 R 输出逐项对应。</p>
 <p>这里的<code>p.overall</code>是通过t检验计算的：(如果不符合正态分布是通过Kruskall-Wallis检验计算)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(age <span class="sc">~</span> cv, <span class="at">data =</span> regicor)</span>
@@ -1675,6 +1682,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a><span class="do">## ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>上面介绍的所有参数<code>descrTable</code>都是支持的。</p>
+<p>导出前还需要检查变量是否该进入表格、连续变量显示均数还是中位数、分类变量参考水平是否合适，以及脚注是否说明了检验方法和缩写。</p>
 <p>支持的格式非常丰富：</p>
 <ul>
 <li><code>export2csv(restab, file='table1.csv')</code>, 导出为CSV</li>

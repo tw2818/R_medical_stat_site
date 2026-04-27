@@ -58,6 +58,12 @@ function collectReferencedTypes() {
     for (const match of text.matchAll(/data-type=\\?["']([^\\"']+)\\?["']/g)) {
       referenced.add(match[1]);
     }
+    for (const match of text.matchAll(/dataset\.type\s*=\s*['"]([^'"]+)['"]/g)) {
+      referenced.add(match[1]);
+    }
+    for (const match of text.matchAll(/make(?:Chisq)?Viz\(\s*['"]([^'"]+)['"]/g)) {
+      referenced.add(match[1]);
+    }
   }
   return referenced;
 }

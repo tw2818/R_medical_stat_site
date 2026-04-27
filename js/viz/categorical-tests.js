@@ -199,4 +199,4 @@ function renderMcNemar(el) {
   compute();
 }
 
-registerViz('mcnemar', renderMcNemar);
+

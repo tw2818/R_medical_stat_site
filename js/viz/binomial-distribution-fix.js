@@ -215,4 +215,3 @@ function renderBinomialDistributionFixed(el) {
 }
 
 registerViz('binomialdistfixed', renderBinomialDistributionFixed);
-registerViz('binomdistfixed', renderBinomialDistributionFixed);

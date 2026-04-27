@@ -180,8 +180,6 @@ function renderMcNemarGuide(el) {
   ['a', 'b', 'c', 'd'].forEach(cell => document.getElementById(`${id}-${cell}`).addEventListener('input', calc));
   calc();
 }
-registerViz('mcnemarguide', renderMcNemarGuide);
-
 function renderChisqResidualHeatmap(el) {
   const title = el.dataset.title || 'R×C 表：用标准化残差定位主要贡献格子';
   const observed = [[28, 14, 8], [18, 22, 10], [10, 18, 22]];

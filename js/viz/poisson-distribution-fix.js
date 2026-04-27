@@ -215,4 +215,3 @@ function renderPoissonDistributionFixed(el) {
 }
 
 registerViz('poissondistfixed', renderPoissonDistributionFixed);
-registerViz('poissondistributionfixed', renderPoissonDistributionFixed);

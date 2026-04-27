@@ -291,5 +291,3 @@ function renderPoissonCIFixed(el) {
 }
 
 registerViz('poissoncifixed', renderPoissonCIFixed);
-registerViz('poissonci', renderPoissonCIFixed);
-registerViz('poissoncinterval', renderPoissonCIFixed);

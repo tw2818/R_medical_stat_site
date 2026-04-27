@@ -12,8 +12,8 @@ function renderBaselineTable(el) {
   const ns = JSON.parse(el.dataset.ns || '[431,786,1077]');
 
   const card = document.createElement('div');
-  card.className = 'viz-card';
-  card.style.cssText = 'font-family:system-ui; max-width:760px;';
+  card.className = 'viz-card table1-baseline-card';
+  card.style.cssText = 'font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; max-width:960px;';
 
   // 构建表头
   const thTotal = `<th>Total<br><span style="font-weight:normal;font-size:11px">(N=${ns.reduce((a,b)=>a+b,0)})</span></th>`;
@@ -110,23 +110,26 @@ function renderBaselineTable(el) {
   // 给 .tbl-note 添加 tooltip 样式
   const style = document.createElement('style');
   style.textContent = `
-    .baseline-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
-    .baseline-table th{background:#f5f5f5;padding:8px 10px;text-align:left;border-bottom:2px solid #333;font-weight:600;}
-    .baseline-table td{padding:7px 10px;border-bottom:1px solid #eee;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-    .baseline-table .tbl-var{color:#333;min-width:160px;}
-    .baseline-table th:not(.tbl-var){min-width:80px;}
-    .baseline-table .tbl-unit{color:#999;font-size:11px;margin-left:3px;}
-    .baseline-table .tbl-note{cursor:help;color:#3498db;margin-left:3px;font-size:11px;}
-    .baseline-table tr:hover td{background:#f8faff;}
-    .baseline-table .tbl-total td{border-top:2px solid #333;font-weight:600;background:#f9f9f9;}
-    .p-sig{color:#c0392b;font-weight:600;}
-    .p-ns{color:#666;}
-    .tbl-badge{background:#2c7874;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;margin-left:auto;}
-    .tbl-wrapper{overflow-x:auto;margin:10px 0;}
-    .tbl-footer{margin-top:12px;padding:10px 12px;background:#f8f9fa;border-left:3px solid #3498db;font-size:12px;color:#555;}
+    .table1-baseline-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;}
+    .table1-baseline-card .viz-header{background:#f8fafc;border-bottom:1px solid #e2e8f0;color:#0f172a;font-weight:750;}
+    .baseline-table{width:100%;border-collapse:collapse;font-size:13.5px;table-layout:fixed;background:#fff;color:#475569;border-top:2px solid #334155;border-bottom:2px solid #334155;}
+    .baseline-table thead{border-bottom:1px solid #94a3b8;}
+    .baseline-table th{background:#fff;padding:10px 12px;text-align:left;font-weight:750;color:#0f172a;white-space:nowrap;}
+    .baseline-table td{padding:9px 12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-variant-numeric:tabular-nums;}
+    .baseline-table .tbl-var{color:#0f172a;min-width:180px;font-weight:600;}
+    .baseline-table th:not(.tbl-var),.baseline-table td:not(.tbl-var){text-align:right;min-width:88px;}
+    .baseline-table .tbl-unit{color:#94a3b8;font-size:11px;margin-left:3px;font-weight:400;}
+    .baseline-table .tbl-note{cursor:help;color:#6366f1;margin-left:3px;font-size:11px;}
+    .baseline-table tr:hover td{background:#f8fafc;}
+    .baseline-table .tbl-total td{border-top:1px solid #cbd5e1;font-weight:700;background:#f8fafc;color:#0f172a;}
+    .p-sig{color:#be123c;font-weight:700;}
+    .p-ns{color:#64748b;}
+    .tbl-badge{background:#eef2ff;color:#3730a3;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:750;margin-left:auto;}
+    .tbl-wrapper{overflow-x:auto;padding:16px 18px 12px;background:#fff;}
+    .tbl-footer{margin:0 18px 12px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12.5px;line-height:1.7;color:#64748b;}
     .tbl-footer p{margin:4px 0;}
-    .tbl-formula{background:#eef2f7;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;}
-    .tbl-legend{margin-top:8px;font-size:12px;color:#777;}
+    .tbl-formula{background:#eef2ff;color:#3730a3;padding:1px 6px;border-radius:999px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;}
+    .tbl-legend{padding:0 18px 16px;font-size:12.5px;color:#64748b;}
     .tbl-legend .p-sig,.tbl-legend .p-ns{font-size:14px;}
   `;
   card.appendChild(style);
