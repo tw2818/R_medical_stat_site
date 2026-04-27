@@ -43,45 +43,149 @@ function renderLogisticOR(el) {
 }
 registerViz('logistic', renderLogisticOR);
 
+function makeRocPoints(disease, healthy) {
+  const pairs = disease.map(v => ({ score: v, label: 1 }))
+    .concat(healthy.map(v => ({ score: v, label: 0 })));
+  const thresholds = [...new Set(pairs.map(p => p.score))].sort((a, b) => b - a);
+  const points = [{ fpr: 0, tpr: 0 }];
+  thresholds.forEach(cutoff => {
+    let tp = 0, fp = 0, tn = 0, fn = 0;
+    pairs.forEach(({ score, label }) => {
+      const positive = score >= cutoff;
+      if (label === 1 && positive) tp += 1;
+      else if (label === 1 && !positive) fn += 1;
+      else if (label === 0 && positive) fp += 1;
+      else tn += 1;
+    });
+    points.push({
+      fpr: fp / (fp + tn || 1),
+      tpr: tp / (tp + fn || 1),
+      cutoff,
+    });
+  });
+  points.push({ fpr: 1, tpr: 1 });
+  return points.sort((a, b) => a.fpr - b.fpr || a.tpr - b.tpr);
+}
+
+function computeAuc(points) {
+  let auc = 0;
+  for (let i = 1; i < points.length; i += 1) {
+    auc += (points[i].fpr - points[i - 1].fpr) * (points[i].tpr + points[i - 1].tpr) / 2;
+  }
+  return Math.max(0, Math.min(1, auc));
+}
+
+function drawRocAxes(ctx, W, H, padL, padR, padT, padB) {
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i += 1) {
+    const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+  }
+  ctx.setLineDash([5, 5]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('1 - 特异度 (False Positive Rate)', W / 2, H - 6);
+  ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('灵敏度 (True Positive Rate)', 0, 0); ctx.restore();
+  ctx.font = '11px sans-serif';
+  for (let i = 0; i <= 5; i += 1) {
+    ctx.textAlign = 'center';
+    ctx.fillText((i / 5).toFixed(1), padL + (i / 5) * plotW, padT + plotH + 16);
+    ctx.textAlign = 'right';
+    ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4);
+  }
+  return { plotW, plotH };
+}
+
+function drawRocCurve(ctx, points, color, fillAlpha, padL, padT, plotW, plotH) {
+  ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath();
+  points.forEach((p, i) => {
+    const x = padL + p.fpr * plotW, y = padT + (1 - p.tpr) * plotH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.lineTo(padL + plotW, padT + plotH); ctx.lineTo(padL, padT + plotH); ctx.closePath();
+  ctx.fillStyle = color.replace(')', ',' + fillAlpha + ')').replace('rgb', 'rgba'); ctx.fill();
+}
+
 function renderROC(el) {
   if (!ensureJStat(el)) return;
   const id = 'roc-' + Math.random().toString(36).slice(2, 8);
   const title = el.dataset.title || 'ROC 曲线 & AUC';
-  el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="560" height="340" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:#333;">AUC = <strong id="${id}-auc">0.00</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">灵敏度 = <strong id="${id}-sens">--</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">特异度 = <strong id="${id}-spec">--</strong></span></div><div style="text-align:center;margin-top:6px;"><span style="font-size:12px;color:#888;">点击曲线查看对应 cutoff 点的灵敏度和特异度</span></div></div>`;
-  const canvas = document.getElementById(id); const ctx = canvas.getContext('2d'); const W = 560, H = 340;
-  const disease = [], healthy = []; for (let i = 0; i < 60; i++) { disease.push(jStat.normal.inv(Math.random(), 0.7, 0.18)); healthy.push(jStat.normal.inv(Math.random(), 0.4, 0.15)); }
-  const allVals = [...disease, ...healthy].sort((a, b) => a - b); const labels = [...Array(60).fill(1), ...Array(60).fill(0)];
-  const rocPoints = []; for (let i = 0; i < allVals.length; i++) { const cutoff = allVals[i]; let tp = 0, fp = 0, tn = 0, fn = 0; for (let j = 0; j < allVals.length; j++) { if (labels[j] === 1) { if (allVals[j] >= cutoff) tp++; else fn++; } else { if (allVals[j] >= cutoff) fp++; else tn++; } } rocPoints.push({ fpr: fp / (fp + tn), tpr: tp / (tp + fn), cutoff }); }
-  rocPoints.unshift({ fpr: 0, tpr: 0 }); rocPoints.push({ fpr: 1, tpr: 1 });
-  let auc = 0; for (let i = 1; i < rocPoints.length; i++) auc += (rocPoints[i].fpr - rocPoints[i - 1].fpr) * (rocPoints[i].tpr + rocPoints[i - 1].tpr) / 2;
+  const W = 560, H = 340;
+  el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:#333;">AUC = <strong id="${id}-auc">0.00</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">灵敏度 = <strong id="${id}-sens">--</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">特异度 = <strong id="${id}-spec">--</strong></span></div><div style="text-align:center;margin-top:6px;"><span style="font-size:12px;color:#888;">点击曲线查看对应 cutoff 点的灵敏度和特异度</span></div></div>`;
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  const disease = [], healthy = [];
+  for (let i = 0; i < 60; i += 1) {
+    disease.push(jStat.normal.inv(Math.random(), 0.7, 0.18));
+    healthy.push(jStat.normal.inv(Math.random(), 0.4, 0.15));
+  }
+  const rocPoints = makeRocPoints(disease, healthy);
+  const auc = computeAuc(rocPoints);
   document.getElementById(id + '-auc').textContent = auc.toFixed(3);
-  const padL = 55, padR = 15, padT = 20, padB = 40; const plotW = W - padL - padR, plotH = H - padT - padB;
-  ctx.clearRect(0, 0, W, H); ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
-  for (let i = 0; i <= 5; i++) { const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH; ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke(); ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke(); }
-  ctx.setLineDash([5, 5]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT); ctx.stroke(); ctx.setLineDash([]);
-  ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 2.5; ctx.beginPath(); rocPoints.forEach((p, i) => { const x = padL + p.fpr * plotW, y = padT + (1 - p.tpr) * plotH; i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }); ctx.stroke();
-  ctx.lineTo(padL + plotW, padT + plotH); ctx.lineTo(padL, padT + plotH); ctx.closePath(); ctx.fillStyle = 'rgba(41,128,185,0.1)'; ctx.fill();
-  ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('1 - 特异度 (False Positive Rate)', W / 2, H - 6); ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('灵敏度 (True Positive Rate)', 0, 0); ctx.restore();
-  ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; for (let i = 0; i <= 5; i++) { ctx.fillText((i / 5).toFixed(1), padL + (i / 5) * plotW, padT + plotH + 16); ctx.textAlign = 'right'; ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4); }
-  ctx.fillStyle = '#2980b9'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('AUC = ' + auc.toFixed(3), W / 2, padT + 16);
-  canvas.onclick = function(e) { const rect = canvas.getBoundingClientRect(); const mx = (e.clientX - rect.left) * (W / rect.width), my = (e.clientY - rect.top) * (H / rect.height); const fpr = (mx - padL) / plotW, tpr = 1 - (my - padT) / plotH; let best = rocPoints[0], bestD = Infinity; rocPoints.forEach(p => { const d = Math.hypot(p.fpr - fpr, p.tpr - tpr); if (d < bestD) { bestD = d; best = p; } }); if (best.cutoff !== undefined) { document.getElementById(id + '-sens').textContent = best.tpr.toFixed(3); document.getElementById(id + '-spec').textContent = (1 - best.fpr).toFixed(3); } };
+  const padL = 55, padR = 15, padT = 20, padB = 40;
+  const { plotW, plotH } = drawRocAxes(ctx, W, H, padL, padR, padT, padB);
+  drawRocCurve(ctx, rocPoints, 'rgb(41,128,185)', 0.1, padL, padT, plotW, plotH);
+  ctx.fillStyle = '#2980b9'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('AUC = ' + auc.toFixed(3), W / 2, padT + 16);
+  canvas.onclick = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (W / rect.width), my = (e.clientY - rect.top) * (H / rect.height);
+    const fpr = (mx - padL) / plotW, tpr = 1 - (my - padT) / plotH;
+    let best = rocPoints[0], bestD = Infinity;
+    rocPoints.forEach(point => {
+      if (point.cutoff === undefined) return;
+      const d = Math.hypot(point.fpr - fpr, point.tpr - tpr);
+      if (d < bestD) { bestD = d; best = point; }
+    });
+    if (best.cutoff !== undefined) {
+      document.getElementById(id + '-sens').textContent = best.tpr.toFixed(3);
+      document.getElementById(id + '-spec').textContent = (1 - best.fpr).toFixed(3);
+    }
+  };
 }
 registerViz('roc', renderROC);
 
 function renderROCCompare(el) {
   if (!ensureJStat(el)) return;
-  const id = 'roc-compare-' + Math.random().toString(36).slice(2, 8); const title = el.dataset.title || 'ROC 曲线对比'; const auc1 = parseFloat(el.dataset.auc1 || '0.82'); const auc2 = parseFloat(el.dataset.auc2 || '0.75'); const label1 = el.dataset.label1 || '模型1'; const label2 = el.dataset.label2 || '模型2';
-  el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="560" height="380" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:#2980b9;"><strong>${label1}</strong> AUC = ${auc1.toFixed(3)}</span><span style="margin-left:24px;font-size:14px;color:#e74c3c;"><strong>${label2}</strong> AUC = ${auc2.toFixed(3)}</span></div></div>`;
-  const canvas = document.getElementById(id), ctx = canvas.getContext('2d'); const W = 560, H = 380; const padL = 55, padR = 15, padT = 25, padB = 45; const plotW = W - padL - padR, plotH = H - padT - padB; ctx.clearRect(0, 0, W, H);
-  function genROC(auc, n = 60) { const pts = []; const disease = [], healthy = []; const meanD = 0.7 + (auc - 0.7) * 0.8; for (let i = 0; i < n; i++) { disease.push(jStat.normal.inv(Math.random(), meanD, 0.18)); healthy.push(jStat.normal.inv(Math.random(), 0.4, 0.15)); } const allVals = [...disease, ...healthy].sort((a, b) => a - b); const labels = [...Array(n).fill(1), ...Array(n).fill(0)]; for (let i = 0; i < allVals.length; i++) { const cutoff = allVals[i]; let tp = 0, fp = 0, tn = 0, fn = 0; for (let j = 0; j < allVals.length; j++) { if (labels[j] === 1) { if (allVals[j] >= cutoff) tp++; else fn++; } else { if (allVals[j] >= cutoff) fp++; else tn++; } } pts.push({ fpr: fp / (fp + tn), tpr: tp / (tp + fn), cutoff }); } pts.unshift({ fpr: 0, tpr: 0 }); pts.push({ fpr: 1, tpr: 1 }); return pts; }
+  const id = 'roc-compare-' + Math.random().toString(36).slice(2, 8);
+  const title = el.dataset.title || 'ROC 曲线对比';
+  const auc1 = parseFloat(el.dataset.auc1 || '0.82');
+  const auc2 = parseFloat(el.dataset.auc2 || '0.75');
+  const label1 = el.dataset.label1 || '模型1';
+  const label2 = el.dataset.label2 || '模型2';
+  const W = 560, H = 380;
+  el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:#2980b9;"><strong>${label1}</strong> AUC ≈ <span id="${id}-auc1">--</span></span><span style="margin-left:24px;font-size:14px;color:#e74c3c;"><strong>${label2}</strong> AUC ≈ <span id="${id}-auc2">--</span></span></div></div>`;
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  const padL = 55, padR = 15, padT = 25, padB = 45;
+  function genROC(targetAuc, n = 60) {
+    const disease = [], healthy = [];
+    const meanD = 0.62 + (targetAuc - 0.65) * 0.9;
+    for (let i = 0; i < n; i += 1) {
+      disease.push(jStat.normal.inv(Math.random(), meanD, 0.18));
+      healthy.push(jStat.normal.inv(Math.random(), 0.4, 0.15));
+    }
+    return makeRocPoints(disease, healthy);
+  }
   const roc1 = genROC(auc1), roc2 = genROC(auc2);
-  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1; for (let i = 0; i <= 5; i++) { const x = padL + (i / 5) * plotW, y = padT + (i / 5) * plotH; ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke(); ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke(); }
-  ctx.setLineDash([5, 5]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT); ctx.stroke(); ctx.setLineDash([]);
-  function drawROC(pts, color, fillAlpha) { ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath(); pts.forEach((p, i) => { const x = padL + p.fpr * plotW, y = padT + (1 - p.tpr) * plotH; i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }); ctx.stroke(); ctx.lineTo(padL + plotW, padT + plotH); ctx.lineTo(padL, padT + plotH); ctx.closePath(); ctx.fillStyle = color.replace(')', ',' + fillAlpha + ')').replace('rgb', 'rgba'); ctx.fill(); }
-  drawROC(roc1, 'rgb(41,128,185)', 0.08); drawROC(roc2, 'rgb(231,76,60)', 0.08);
-  ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = '#2980b9'; ctx.textAlign = 'left'; ctx.fillRect(padL + 10, padT + 10, 20, 4); ctx.fillText(label1 + ' (AUC=' + auc1.toFixed(2) + ')', padL + 36, padT + 15); ctx.fillStyle = '#e74c3c'; ctx.fillRect(padL + 10, padT + 30, 20, 4); ctx.fillText(label2 + ' (AUC=' + auc2.toFixed(2) + ')', padL + 36, padT + 35);
-  ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('1 - 特异度 (False Positive Rate)', W / 2, H - 8); ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('灵敏度 (True Positive Rate)', 0, 0); ctx.restore();
-  ctx.font = '11px sans-serif'; for (let i = 0; i <= 5; i++) { ctx.textAlign = 'center'; ctx.fillText((i / 5).toFixed(1), padL + (i / 5) * plotW, padT + plotH + 16); ctx.textAlign = 'right'; ctx.fillText((1 - i / 5).toFixed(1), padL - 6, padT + (i / 5) * plotH + 4); }
+  const actualAuc1 = computeAuc(roc1);
+  const actualAuc2 = computeAuc(roc2);
+  document.getElementById(id + '-auc1').textContent = actualAuc1.toFixed(3);
+  document.getElementById(id + '-auc2').textContent = actualAuc2.toFixed(3);
+  const { plotW, plotH } = drawRocAxes(ctx, W, H, padL, padR, padT, padB);
+  drawRocCurve(ctx, roc1, 'rgb(41,128,185)', 0.08, padL, padT, plotW, plotH);
+  drawRocCurve(ctx, roc2, 'rgb(231,76,60)', 0.08, padL, padT, plotW, plotH);
+  ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = '#2980b9'; ctx.textAlign = 'left';
+  ctx.fillRect(padL + 10, padT + 10, 20, 4);
+  ctx.fillText(label1 + ' (AUC≈' + actualAuc1.toFixed(2) + ')', padL + 36, padT + 15);
+  ctx.fillStyle = '#e74c3c';
+  ctx.fillRect(padL + 10, padT + 30, 20, 4);
+  ctx.fillText(label2 + ' (AUC≈' + actualAuc2.toFixed(2) + ')', padL + 36, padT + 35);
 }
 registerViz('roccompare', renderROCCompare);
 

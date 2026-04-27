@@ -530,6 +530,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="12.2" class="anchored" data-anchor-id="诊断试验的评价"><span class="header-section-number">12.2</span> 诊断试验的评价</h2>
 <p>根据诊断试验的结果和金标准的结果，可得到4种情况，将其整理成下面的表格，就得到一个诊断试验的四格表，实际上是一个配对四格表的形式：</p>
 <p><img src="figs/PixPin_2024-10-15_13-05-50.png" class="img-fluid"></p>
+<div class="stat-viz" data-type="diagnostic-metrics-guide" data-title="诊断试验四格表怎么读"></div>
+<p>⬆ 先把四格表相关指标放在一张卡片里看：灵敏度/特异度评价检验本身，预测值和似然比更接近临床解释。</p>
 <p>用于评价诊断试验的常用指标有：灵敏度和特异度，误诊率和漏诊率。</p>
 <ul>
 <li>灵敏度</li>
@@ -569,6 +571,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>既然有一个标准，那么这个标准就可以有不同的取值，当这个标准变化时，那么被试验判断为患病和非患病的人数自然也就会发生变化。那么灵敏度和特异度这些指标也会发生变化。所以对于不同的诊断取值（被称为截断值），对应着不同的灵敏度和特异度。</p>
 <p>我们以灵敏度(或者1-灵敏度)为纵坐标，特异度为横坐标，把不同截断值下的灵敏度和特异度画在一张图上，并把这些点连接成线，就是ROC曲线。ROC曲线下的面积被称为AUC（area under the curve，AUC）。</p>
 <p>AUC的取值范围在0到1之间，ROC曲线下的面积越大，也就是AUC越大，说明分类越准确，当AUC值为1时，说明是完美的分类，当AUC为0.5时，说明和乱猜差不多。</p>
+<div class="stat-viz" data-type="roc-threshold-tradeoff" data-title="截断值改变时，灵敏度和特异度怎么变"></div>
+<p>⬆ ROC 的核心就是“把截断值从低到高逐个移动”，每个截断值都会产生一个新的四格表，也就对应 ROC 曲线上的一个点。</p>
+<div class="stat-viz" data-type="auc-interpretation-guide" data-title="AUC 如何解释"></div>
 <p>诊断试验评价的另一重要可视化——混淆矩阵：</p>
 <div class="stat-viz" data-type="confusionmatrix" data-title="诊断试验混淆矩阵（模拟数据）" data-tp="85" data-fp="15" data-fn="10" data-tn="90"></div>
 <div class="stat-viz" data-type="roc" data-title="ROC 曲线演示（模拟数据）"></div>
@@ -721,6 +726,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="用r包绘制roc" class="level2" data-number="12.4">
 <h2 data-number="12.4" class="anchored" data-anchor-id="用r包绘制roc"><span class="header-section-number">12.4</span> 用R包绘制ROC</h2>
 <p>R语言中有非常多的方法可以实现ROC曲线，但是基本上都是至少需要2列数据，一列是真实结果，另一列是预测值（或者叫截断值、阈值、指标等），有了这两列数据，就可以轻松使用各种方法画出ROC曲线并计算AUC。这里给大家介绍这个用的最多的<code>pROC</code>包。</p>
+<div class="stat-viz" data-type="roc-reporting-guide" data-title="pROC 结果报告要点"></div>
+<p>⬆ 使用 <code>pROC::roc()</code> 时最容易出错的是结局方向和预测变量类型；报告时也不要只写 AUC，一个合理的阈值和置信区间同样重要。</p>
 <p><code>pROC</code>包中提供了一个<code>aSAH</code>数据集，这是一个动脉瘤性蛛网膜下腔出血的数据集，一共113行，7列。其中<code>outcome</code>列是结果变量，1代表Good，2代表Poor：</p>
 <ul>
 <li><code>gos6</code>：格拉斯哥量表评分</li>
@@ -815,6 +822,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="12.5" class="anchored" data-anchor-id="预测模型和roc"><span class="header-section-number">12.5</span> 预测模型和ROC</h2>
 <p>了解了ROC曲线的原理后，使用起来就比较简单了。</p>
 <p>以二分类数据为例，如果是在机器学习和临床预测模型中，模型也会对我们的数据作出一个判断，对于每一个样本，模型都会给出两种类型的判断结果，一种是直接给出类别，另一种是给出每种类别的概率，如下所示：</p>
+<div class="stat-viz" data-type="prediction-roc-guide" data-title="预测模型中的 ROC：用概率，不是用硬分类"></div>
+<p>⬆ 预测模型画 ROC 时要使用连续的预测概率或风险评分；如果只剩下“阳性/阴性”硬分类，就只能得到一个四格表点，而不是完整曲线。</p>
 <table class="caption-top">
 <thead>
 <tr>
