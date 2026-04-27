@@ -533,6 +533,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>计算样本量就是解方程的过程，知道其中3个就可以算出最后一个，不同研究设计用的公式是不一样的，说白了样本量计算就是套公式而已！不怕复杂的直接用计算器也能算出来。</p>
 <p>而各种软件包括R语言不过是帮我们简化了过程，但是R语言并没有帮助我们简化效应值的计算…这个效应值计算很烦，这也是我更推荐PASS的重要原因，点点点就出来了，谁不喜欢呢？</p>
 <p>在R语言中一般使用<code>pwr</code>包进行功效分析，没安装的小伙伴自行安装一下即可。</p>
+<div class="stat-viz" data-type="sample-size-params" data-title="功效分析的四个核心量"></div>
+<p>⬆ 样本量计算不是只填一个公式，而是在样本量、α、power 和效应量之间做权衡。交互计算器适合练习，但正式方案还要说明每个输入值从哪里来。</p>
 <p>功效分析可视化：</p>
 <div class="stat-viz" data-type="power"
   data-title="t检验功效分析"
@@ -541,7 +543,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="t检验的样本量计算" class="level2" data-number="10.1">
 <h2 data-number="10.1" class="anchored" data-anchor-id="t检验的样本量计算"><span class="header-section-number">10.1</span> t检验的样本量计算</h2>
 <div class="stat-viz" data-type="samplesizecalc" data-title="交互式样本量计算器"></div>
-<p>对于t检验，可以使用<code>pwr.t.test(n= , d= , sig.level= , power= , type= , alternative= )</code>计算样本量，其中： - n：样本量 - d：效应值，即标准化的均值之差，d = (μ1 - μ2) / σ，也就是（组1均值 - 组2均值）/ 标准差 - sig.level：显著性水平，默认值0.05 - power：功效 - type：检验类型：两样本t检验（two.sample），单样本t检验（one.sample），配对t检验（paired），默认两样本t检验 - alternative：双侧检验还是单侧检验，双侧（two.sided），单侧（less或者greater），默认双侧检验</p>
+<div class="stat-viz" data-type="pwr-t-params" data-title="pwr.t.test() 参数怎么读"></div>
+<p>⬆ 上方把 <code>pwr.t.test()</code> 最常用的参数拆开了。实际使用时通常固定其中 3 个量，让 R 反推出剩下的样本量 <code>n</code>。</p>
 <section id="单样本t检验样本均数和已知总体均数比较" class="level3" data-number="10.1.1">
 <h3 data-number="10.1.1" class="anchored" data-anchor-id="单样本t检验样本均数和已知总体均数比较"><span class="header-section-number">10.1.1</span> 单样本t检验（样本均数和已知总体均数比较）</h3>
 <p>使用课本例36-3的例子。</p>
@@ -612,6 +615,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span><span class="al">NOTE</span><span class="do">: n is number in *each* group</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>n = 59.35155，和课本结果一模一样，每组需要大约60例！</p>
+<div class="stat-viz" data-type="sample-size-output-guide" data-title="样本量输出怎么解释"></div>
+<p>⬆ 两样本设计里最容易看错的是 <code>n</code> 的单位：这里输出说明 <code>n is number in each group</code>，所以是每组约 60 例，不是总共 60 例。</p>
 <p>两样本t检验也可以使用R自带的函数<code>power.t.test()</code>进行计算，但是例题中的这种情况刚好没有给出具体的两组间差值和标准差，所以就不能用了。</p>
 </section>
 </section>
@@ -621,6 +626,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>拟用4种方法治疗贫血患者，估计治疗后血红蛋白增加的均数分别为18,13,16,10，标准差分别为10,9,9,8，设α=0.05，β=0.1，若要得出有差别的结论，每组需要多少例？</p>
 <p>这是一个完全随机设计多样本比较的方差分析的例子，相信大家都能看出来！</p>
 <p>但是，<em>在R里面计算种类型的样本量非常困难，原因在于效应量effect size很难计算出来</em>，最终结果也和课本上面的公式计算出来的样本量不一样，所以我推荐用PASS软件，点点点即可！</p>
+<div class="stat-viz" data-type="anova-sample-size-note" data-title="多组均数样本量：为什么常推荐 PASS"></div>
+<p>⬆ 多组均数比较不是不能用 R，而是方案阶段常常缺少稳定的效应量输入。这里先明确为什么本章建议把 R 作为理解和复核工具，而不是强行替代 PASS。</p>
 <p>这种情况使用函数<code>pwr.anova.test(k= , n= , f= , sig.level= , power= )</code>计算，其中 f是效应量effect size，计算方法如下：</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -664,7 +671,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="do">##     alternative = greater</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>得到的结果和课本差别有点大，课本是137.1，而我们的结果是106，主要是由于计算方法不同，建议对于此类设计的样本量计算，还是直接套课本公式或者使用PASS软件。</p>
-<div class="stat-viz" data-type="proppower" data-title="两样本率比较功效分析" data-p1="0.8" data-p2="0.9" style="margin:16px 0"></div>
+<p>📌 率的样本量计算尤其要写清楚方法：同样是 80% vs 90%，单样本率、两独立样本率、单侧/双侧检验对应的样本量都可能不同。</p>
+<div class="stat-viz" data-type="proppower" data-title="两样本率比较功效分析" data-p1="0.8" data-p2="0.9" data-power="0.9" style="margin:16px 0"></div>
 </section>
 <section id="两独立样本率的比较" class="level2" data-number="10.4">
 <h2 data-number="10.4" class="anchored" data-anchor-id="两独立样本率的比较"><span class="header-section-number">10.4</span> 两独立样本率的比较</h2>
@@ -715,6 +723,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="do">## </span><span class="al">NOTE</span><span class="do">: n is number in *each* group</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>算出来结果是64.93465，和课本差别不大~</p>
+<p>📌 这里 <code>power.prop.test()</code> 的输出同样写着 <code>n is number in each group</code>，正式报告时应写成“每组约 65 例”，并根据失访率再上调。</p>
 </section>
 <section id="多样本率的比较" class="level2" data-number="10.5">
 <h2 data-number="10.5" class="anchored" data-anchor-id="多样本率的比较"><span class="header-section-number">10.5</span> 多样本率的比较</h2>

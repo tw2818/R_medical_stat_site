@@ -667,22 +667,35 @@ registerViz('riskdist', renderRiskScoreDist);
     if (!ensureJStat(el)) return;
     const id = 'proppower-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '两组率比较功效分析';
+    const readPercent = (value, fallback) => {
+      const parsed = parseFloat(value);
+      const proportion = Number.isFinite(parsed) ? parsed : fallback;
+      return Math.max(1, Math.min(99, Math.round(proportion * 100)));
+    };
+    const initialP1 = readPercent(el.dataset.p1, 0.4);
+    const initialP2 = readPercent(el.dataset.p2, 0.3);
+    const initialAlpha = readPercent(el.dataset.alpha, 0.05);
+    const initialPower = readPercent(el.dataset.power, 0.8);
 
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="560" height="300" style="display:block;margin:0 auto;"></canvas>
       <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px;">
         <label style="font-size:13px;">p₁ (处理组):
-          <input type="range" id="${id}-p1" min="1" max="99" value="40" step="1" style="width:90px;">
-          <span id="${id}-p1val">0.40</span>
+          <input type="range" id="${id}-p1" min="1" max="99" value="${initialP1}" step="1" style="width:90px;">
+          <span id="${id}-p1val">${(initialP1 / 100).toFixed(2)}</span>
         </label>
         <label style="font-size:13px;">p₂ (对照组):
-          <input type="range" id="${id}-p2" min="1" max="99" value="30" step="1" style="width:90px;">
-          <span id="${id}-p2val">0.30</span>
+          <input type="range" id="${id}-p2" min="1" max="99" value="${initialP2}" step="1" style="width:90px;">
+          <span id="${id}-p2val">${(initialP2 / 100).toFixed(2)}</span>
         </label>
         <label style="font-size:13px;">α:
-          <input type="range" id="${id}-a" min="1" max="10" value="5" step="1" style="width:70px;">
-          <span id="${id}-aval">0.05</span>
+          <input type="range" id="${id}-a" min="1" max="10" value="${initialAlpha}" step="1" style="width:70px;">
+          <span id="${id}-aval">${(initialAlpha / 100).toFixed(2)}</span>
+        </label>
+        <label style="font-size:13px;">功效 1-β:
+          <input type="range" id="${id}-pwr" min="50" max="99" value="${initialPower}" step="1" style="width:90px;">
+          <span id="${id}-pwrval">${(initialPower / 100).toFixed(2)}</span>
         </label>
         <button id="${id}-calc" style="padding:4px 14px;background:#3498db;color:white;border:none;border-radius:4px;cursor:pointer;font-size:13px;">计算 n</button>
       </div>
@@ -770,6 +783,7 @@ registerViz('riskdist', renderRiskScoreDist);
     const p1Slider = document.getElementById(id + '-p1');
     const p2Slider = document.getElementById(id + '-p2');
     const aSlider = document.getElementById(id + '-a');
+    const pwrSlider = document.getElementById(id + '-pwr');
 
     p1Slider.addEventListener('input', () => {
       document.getElementById(id + '-p1val').textContent = (p1Slider.value / 100).toFixed(2);
@@ -781,6 +795,10 @@ registerViz('riskdist', renderRiskScoreDist);
     });
     aSlider.addEventListener('input', () => {
       document.getElementById(id + '-aval').textContent = (aSlider.value / 100).toFixed(2);
+      drawPowerCurve();
+    });
+    pwrSlider.addEventListener('input', () => {
+      document.getElementById(id + '-pwrval').textContent = (pwrSlider.value / 100).toFixed(2);
       drawPowerCurve();
     });
 
