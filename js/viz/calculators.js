@@ -461,12 +461,22 @@ registerViz('confusionmatrix', renderConfusionMatrix);
 
   function renderSequentialAnalysis(el) {
     const id = 'seq-' + Math.random().toString(36).slice(2, 8);
-    const title = el.dataset.title || '序贯分析图 ( Whitehead Triangle )';
-    let Z = el.dataset.z1 ? JSON.parse(el.dataset.z1) : [1.2, 1.8, 2.1, 2.5, 2.8];
-    let Z2 = el.dataset.z2 ? JSON.parse(el.dataset.z2) : [0.5, 0.9, 1.2, 1.5, 1.8];
-    let N = el.dataset.n ? JSON.parse(el.dataset.n) : [20, 40, 60, 80, 100];
+    const title = el.dataset.title || '序贯分析图';
+    const parseArray = (value, fallback) => {
+      if (!value) return fallback;
+      try {
+        const parsed = JSON.parse(value);
+        const values = Array.isArray(parsed) ? parsed.map(Number).filter(Number.isFinite) : [];
+        return values.length ? values : fallback;
+      } catch (_err) {
+        return fallback;
+      }
+    };
+    const Z = parseArray(el.dataset.z1, [1.2, 1.8, 2.1, 2.5, 2.8]);
+    const Z2 = parseArray(el.dataset.z2, [0.5, 0.9, 1.2, 1.5, 1.8]);
+    const N = parseArray(el.dataset.n, [20, 40, 60, 80, 100]);
     const W = 520, H = 360;
-    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">箭头越过边界 → 提前终止 | 每点代表一个期中分析</div></div>';
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">红色虚线：有效边界 | 绿色虚线：无效边界 | 蓝/橙线：两条期中分析轨迹</div></div>';
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
     const pad = {t: 35, r: 30, b: 50, l: 55};
@@ -475,44 +485,33 @@ registerViz('confusionmatrix', renderConfusionMatrix);
     const zMin = -3, zMax = 4;
     const xOf = v => pad.l + ((v - nMin) / (nMax - nMin)) * iW;
     const yOf = v => pad.t + iH - ((v - zMin) / (zMax - zMin)) * iH;
+    const zAlpha = 1.96, zBeta = 1.28;
+
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
-    // Boundary lines (simplified triangular boundaries)
-    const alpha = 0.05, beta = 0.1;
-    const zAlpha = 1.96, zBeta = 1.28;
-    ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
-    // Upper boundary (efficacy)
-    ctx.beginPath();
-    for (let n = 1; n <= nMax; n += 1) {
-      const u = zAlpha * Math.sqrt(n);
-      const x = xOf(n), y = yOf(u);
-      if (n === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    // Lower boundary (futility) - simplified
-    ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let n = 1; n <= nMax; n += 1) {
-      const l = -zBeta * Math.sqrt(n);
-      const x = xOf(n), y = yOf(l);
-      if (n === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-    // Labels
-    ctx.fillStyle = '#e74c3c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('有效边界 (拒绝H₀)', pad.l + iW * 0.6, yOf(3) + 5);
-    ctx.fillStyle = '#27ae60'; ctx.fillText('无效边界 (接受H₀)', pad.l + iW * 0.6, yOf(-1.5) + 5);
-    // Zero line
-    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(pad.l, yOf(0)); ctx.lineTo(pad.l + iW, yOf(0)); ctx.stroke();
-    // Grid
+
+    // Grid and zero line
     ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
       const zv = zMin + (zMax - zMin) * i / 4;
       ctx.beginPath(); ctx.moveTo(pad.l, yOf(zv)); ctx.lineTo(pad.l + iW, yOf(zv)); ctx.stroke();
     }
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, yOf(0)); ctx.lineTo(pad.l + iW, yOf(0)); ctx.stroke();
+
+    // Visible simplified stopping boundaries.
+    ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.l, yOf(zAlpha)); ctx.lineTo(pad.l + iW, yOf(zAlpha)); ctx.stroke();
+    ctx.strokeStyle = '#27ae60';
+    ctx.beginPath(); ctx.moveTo(pad.l, yOf(-zBeta)); ctx.lineTo(pad.l + iW, yOf(-zBeta)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#e74c3c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('有效边界 Z=1.96', pad.l + iW * 0.56, yOf(zAlpha) - 6);
+    ctx.fillStyle = '#27ae60';
+    ctx.fillText('无效边界 Z=-1.28', pad.l + iW * 0.56, yOf(-zBeta) + 14);
+
     // Axes
     ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
@@ -530,15 +529,31 @@ registerViz('confusionmatrix', renderConfusionMatrix);
     ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
     ctx.fillText('累计Z值', 0, 0); ctx.restore();
     ctx.textAlign = 'center'; ctx.fillText('样本量 n', pad.l + iW / 2, H - 4);
-    // Plot points
-    Z.forEach((z, i) => {
-      const px = xOf(N[i] || N[N.length - 1] * (i + 1) / Z.length), py = yOf(z);
-      const crossedU = z > Math.sqrt((N[i] || 50) * 3);
-      ctx.fillStyle = crossedU ? '#e74c3c' : '#3498db';
-      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(i + 1, px, py + 3);
-    });
+
+    const drawSeries = (values, color, label, yLegend) => {
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      values.forEach((z, i) => {
+        const n = N[i] || N[N.length - 1] * (i + 1) / values.length;
+        const x = xOf(n), y = yOf(z);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      values.forEach((z, i) => {
+        const n = N[i] || N[N.length - 1] * (i + 1) / values.length;
+        const px = xOf(n), py = yOf(z);
+        const crossed = z >= zAlpha || z <= -zBeta;
+        ctx.fillStyle = crossed ? '#e74c3c' : color;
+        ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(i + 1, px, py + 3);
+      });
+      ctx.fillStyle = color; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(label, pad.l + 8, yLegend);
+    };
+
+    drawSeries(Z, '#3498db', '轨迹 A', pad.t + 15);
+    drawSeries(Z2, '#f59e0b', '轨迹 B', pad.t + 32);
   }
 registerViz('sequential', renderSequentialAnalysis);
 
