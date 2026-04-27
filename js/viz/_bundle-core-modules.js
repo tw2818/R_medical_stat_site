@@ -18,3 +18,4 @@ import './binomial-distribution-fix.js';
 import './poisson-distribution-fix.js';
 import './poisson-ci-fix.js';
 import './categorical-trends.js';
+import './nonparametric-tutorial.js';
