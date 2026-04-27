@@ -72,6 +72,17 @@ function makeChisqViz(type, title, attrs = {}) {
   return widget;
 }
 
+function makeTrendViz(type, title, attrs = {}) {
+  const widget = document.createElement('div');
+  widget.className = 'stat-viz trend-teaching-widget';
+  widget.dataset.type = type;
+  widget.dataset.title = title;
+  Object.entries(attrs).forEach(([key, value]) => {
+    widget.dataset[key] = value;
+  });
+  return widget;
+}
+
 function insertAfter(anchor, ...nodes) {
   if (!anchor || !nodes.length) return;
   let current = anchor;
@@ -366,6 +377,47 @@ function patchChisqWidgets(container) {
   );
 }
 
+function insertTrendWidgetOnce(container, selector, anchor, type, title, attrs = {}) {
+  if (container.querySelector(selector)) return;
+  insertAfter(anchor, makeTrendViz(type, title, attrs));
+}
+
+function patchCochranArmitageWidgets(container) {
+  const chapterHeading = findHeading(container, 'Cochran-Armitage检验') || container.querySelector('h1');
+  insertTrendWidgetOnce(
+    container,
+    '.trend-teaching-widget[data-type="trendchoiceguide"]',
+    insertionAnchor(chapterHeading, '[data-ca-audit-scope-note="true"]'),
+    'trendchoiceguide',
+    '趋势检验怎么选'
+  );
+
+  const scatter = Array.from(container.querySelectorAll('.stat-viz[data-type="scatter"]')).find(el =>
+    (el.dataset.title || '').includes('Cochran-Armitage')
+  );
+  insertTrendWidgetOnce(
+    container,
+    '.trend-teaching-widget[data-type="ordinaltrendstructure"]',
+    scatter || insertionAnchor(chapterHeading, '[data-ca-scatter-note="true"]'),
+    'ordinaltrendstructure',
+    'Cochran-Armitage 数据结构：2×k 有序列联表'
+  );
+
+  insertTrendWidgetOnce(
+    container,
+    '.trend-teaching-widget[data-type="cochrantrend"]',
+    container.querySelector('.trend-teaching-widget[data-type="ordinaltrendstructure"]') || scatter || chapterHeading,
+    'cochrantrend',
+    'Cochran-Armitage 趋势检验',
+    {
+      labels: '50mg,100mg,200mg,300mg,500mg',
+      successes: '87,119,133,177,167',
+      totals: '1000,1000,1000,1000,1000',
+      scores: '50,100,200,300,500'
+    }
+  );
+}
+
 function patchPlottingWidgets(container) {
   if (container.querySelector('.stat-viz[data-type="blandaltman"]')) return;
 
@@ -402,6 +454,7 @@ export const CHAPTER_WIDGET_PATCHES = {
   '1001-ttest.html': [patchTTestWidgets],
   '1002-anova.html': [patchAnovaWidgets],
   '1006-chisq.html': [patchChisqWidgets],
+  '1009-cochranarmitage.html': [patchCochranArmitageWidgets],
   'plotting.html': [patchPlottingWidgets],
   'discrete.html': [patchDiscreteWidgets],
   '1012-randomgroup.html': [container => removeByType(container, '.stat-viz[data-type="samplesizecalc"]')],
