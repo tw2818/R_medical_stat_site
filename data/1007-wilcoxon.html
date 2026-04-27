@@ -530,7 +530,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>test1<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="dv">60</span>,<span class="dv">142</span>,<span class="dv">195</span>,<span class="dv">80</span>,<span class="dv">242</span>,<span class="dv">220</span>,<span class="dv">190</span>,<span class="dv">25</span>,<span class="dv">198</span>,<span class="dv">38</span>,<span class="dv">236</span>,<span class="dv">95</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>test2<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="dv">76</span>,<span class="dv">152</span>,<span class="dv">243</span>,<span class="dv">82</span>,<span class="dv">240</span>,<span class="dv">220</span>,<span class="dv">205</span>,<span class="dv">38</span>,<span class="dv">243</span>,<span class="dv">44</span>,<span class="dv">190</span>,<span class="dv">100</span>)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>两列数据，和配对t检验的数据结果完全一样。</p>
+<p>两列数据，和配对t检验的数据格式完全一样。</p>
 <p>简单看一下数据情况：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(test1,test2)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -542,7 +542,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>进行秩和检验：</p>
+<p>进行符号秩检验：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(test1,test2,<span class="at">paired =</span> T,<span class="at">alternative =</span> <span class="st">"two.sided"</span>,<span class="at">exact =</span> F)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
@@ -567,10 +567,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>wilcox.test</code>在R4.4.0及以后不再支持在公式形式中使用<code>paired</code>参数，所以如果你的R版本在4.4.0及以后的，在公式形式中使用<code>paired</code>参数会得到以下报错：<code>cannot use 'paired' in formula method</code>。逆天更新！！</p>
 </div>
 </div>
+<p>⬆ 上方可视化组件展示了各配对差值的绝对值（柱高）及秩次（T=）。蓝色柱=正差值（test2高于test1），红色柱=负差值。下方显示W⁺（正秩和）、W⁻（负秩和）及近似正态检验的 Z 值和 P 值。</p>
 </section>
 <section id="两独立样本比较的wilcoxon秩和检验" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="两独立样本比较的wilcoxon秩和检验"><span class="header-section-number">6.2</span> 两独立样本比较的Wilcoxon秩和检验</h2>
-<div class="stat-viz" data-type="kruskal" data-title="两独立样本Wilcoxon秩和检验：RD1 vs RD2" data-labels="RD1组,RD2组" data-values="2.78,3.23,4.20,4.87,5.12,6.21,7.18,8.05,8.56,9.60,3.23,3.50,4.04,4.15,4.28,4.34,4.47,4.64,4.75,4.82,4.95,5.10"></div>
+<div class="stat-viz" data-type="kruskal" data-title="两独立样本Wilcoxon秩和检验：RD1 vs RD2" data-labels="RD1组,RD2组" data-groups="2.78,3.23,4.20,4.87,5.12,6.21,7.18,8.05,8.56,9.60|3.23,3.50,4.04,4.15,4.28,4.34,4.47,4.64,4.75,4.82,4.95,5.10"></div>
+<p>⬆ 上方展示了RD1组和RD2组的箱线图分布比较（四分位箱+须线+均值点+中位红线）。</p>
 <p>英文名字：wilcoxon rank sum test，即秩和检验。</p>
 <blockquote class="blockquote">
 <p>根据课本上的说法，wilcoxon rank sum test 和 mann-whitney U test 并不完全是一个东西。</p>
@@ -591,7 +593,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="do">## W = 86.5, p-value = 0.08049</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="do">## alternative hypothesis: true location shift is not equal to 0</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>结果取单侧检验，还是和课本一致！</p>
+<p>课本为单侧检验，双侧检验P值为0.080。取单侧（/2）为0.040，与课本一致！</p>
 </section>
 <section id="完全随机设计多个样本比较的-kruskal-wallis-h-检验" class="level2" data-number="6.3">
 <h2 data-number="6.3" class="anchored" data-anchor-id="完全随机设计多个样本比较的-kruskal-wallis-h-检验"><span class="header-section-number">6.3</span> 完全随机设计多个样本比较的 Kruskal-Wallis H 检验</h2>
@@ -622,7 +624,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div class="stat-viz" data-type="kruskal" data-title="Kruskal-Wallis H 检验（例8-5）"></div>
+<div class="stat-viz" data-type="kruskal" data-title="Kruskal-Wallis H 检验（例8-5）" data-labels="Drug_A,drug_B,drug_C" data-groups="32.5,35.5,40.5,46,49|16,20.5,22.5,29,36|6.5,9.0,12.5,18,24"></div>
+<p>⬆ 三组死亡率箱线图对比。药物C的箱体明显低于A、B两药。</p>
 <p>进行 Kruskal-Wallis H 检验：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kruskal.test</span>(death_rate <span class="sc">~</span> drug, <span class="at">data =</span> mydata)</span>
@@ -700,7 +703,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  $ d: num  11.7 12 9.8 12 8.6 10.6 11.4 10.8</span></span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  - attr(*, "codepage")= int 65001</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>数据一共4列，分别是4中不同频率下的反应率。</p>
+<p>数据一共4列，分别是4种不同频率下的反应率。</p>
 <p>简单看下数据：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(df<span class="sc">$</span>a,df<span class="sc">$</span>b,df<span class="sc">$</span>c,df<span class="sc">$</span>d)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -712,7 +715,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div class="stat-viz" data-type="friedman" data-title="Friedman M 检验示意（例8-9数据结构）"></div>
+<div class="stat-viz" data-type="friedman" data-title="Friedman M 检验示意（例8-9数据结构）" data-data="8.4,9.6,9.8,11.7;11.6,12.7,11.8,12.0;9.4,9.1,10.4,9.8;9.8,8.7,9.9,12.0;8.3,8.0,8.6,8.6;8.6,9.8,9.6,10.6;8.9,9.0,10.6,11.4;7.8,8.2,8.5,10.8" data-row-labels="1,2,3,4,5,6,7,8" data-col-labels="A,B,C,D"></div>
+<p>⬆ 每个区块（受试者）的4个处理值用不同颜色圆点表示，虚线连接同区块内连续处理，帮助观察各区块内的变化趋势。</p>
 <p>进行 Friedman M 检验前先把数据格式转换一下：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(df) <span class="co"># 变成矩阵</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -730,7 +734,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="多个相关样本两两比较的q检验" class="level3" data-number="6.4.2">
 <h3 data-number="6.4.2" class="anchored" data-anchor-id="多个相关样本两两比较的q检验"><span class="header-section-number">6.4.2</span> 多个相关样本两两比较的q检验</h3>
-<p>P126页，多个相关样本两两比较的q检验。课本上说的这个q检验，应该是<strong>quade test</strong>。</p>
+<p>课本P126页的q检验使用的是Nemenyi法（基于studentized range q分布），并非Quade test（Quade是另一种加权秩检验）。这里以Quade法为例演示两两比较，读者也可尝试<code>frdAllPairsNemenyiTest()</code>。</p>
 <p>接下来就是使用R语言实现<code>quade-test</code>。但是自带的<code>quade.test()</code>函数不能进行两两比较，还是要借助第三方包。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 准备数据，也是用的课本例8-9的数据</span></span>
