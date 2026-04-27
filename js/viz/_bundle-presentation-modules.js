@@ -4,4 +4,5 @@ import './plotting-guides.js';
 import './sample-size-guides.js';
 import './randomization-guides.js';
 import './roc-guides.js';
+import './tidy-flow-guides.js';
 import './overrides.js';

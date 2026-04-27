@@ -521,12 +521,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>还可以计算几个效应大小指标，包括方差分析eta平方，t检验的Cohen’s-d和分类变量之间的关联的Cramer’s-v。 该软件包包含用于识别单变量和多变量异常值、评估正态性和方差齐性的辅助函数。</p>
 <p>在spss中进行这些检验时，不管有多少列变量，只要都选中，就可以一次全部进行检验，在R语言里当然也可以！</p>
 <p>主要是通过<code>rstatix</code>这个包完成，数据格式要求是<strong>长数据</strong>。</p>
+<div class="stat-viz" data-type="tidy-flow-workflow" data-title="tidy 流批量检验：从宽表到结果表"></div>
+<p>⬆ 上方展示了本章的核心路线：先把多个结局变量整理成长数据，再用同一套 <code>group_by()</code> 管道批量完成假设检验和组间比较。</p>
 </section>
 <section id="实战" class="level2" data-number="13.2">
 <h2 data-number="13.2" class="anchored" data-anchor-id="实战"><span class="header-section-number">13.2</span> 实战</h2>
-<div class="stat-viz" data-type="normtest" data-title="正态性检验 Q-Q 图演示" data-data="87,94,95,85,101,91,84,89,84,92,88,96,90,85,99,92,86,93,91,88,97,94,89,92,96,90,85,98,93,87"></div>
 <p>下面通过一个例子进行说明，可能有些不太适当，只是演示使用方法。</p>
 <p>60个病人随机分为实验组和对照组，每组30人，记录患者的4项评分，现在需要对这4项评分同时进行正态性和方差齐性检验和t检验（可能不符合t检验的条件，这里只是演示方法）。</p>
+<div class="stat-viz" data-type="tidy-flow-assumption-guide" data-title="批量 t 检验前先看三件事"></div>
+<p>⬆ 上方把本例最容易忽略的判断提前列出：批量检验很方便，但变量尺度、正态性、方差齐性和多重检验仍然要逐项解释。</p>
+<div class="stat-viz" data-type="normtest" data-title="生活质量正态性 Q-Q 图示例" data-data="87,94,95,85,101,91,84,89,84,92,88,96,90,85,99,92,86,93,91,88,97,94,89,92,96,90,85,98,93,87"></div>
+<p>⬆ 上方 Q-Q 图使用的是实验组“生活质量”数据，它主要用于演示怎么看近似正态；而后面的 Shapiro 输出会显示，并不是所有变量都适合直接套用 t 检验。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"datasets/20210801.csv"</span>,<span class="at">header =</span> T)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -609,6 +614,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 排便时间 积分  对照组 实验组    30    30   -0.273   58.0 0.786</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 生活质量 积分  对照组 实验组    30    30   -0.101   52.4 0.92</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="tidy-flow-result-guide" data-title="本例结果怎么读：先假设，后结论"></div>
+<p>⬆ 上方把三张输出表合并成了一个读数框架：批量 t 检验的 P 值都不显著，但多个变量的正态性和变量尺度并不理想，正式分析时应考虑 Wilcoxon 秩和检验、预设主要结局或使用 <code>p.adjust()</code> 做多重检验校正。</p>
 <p>非常方便，结果也是一目了然，再也不用羡慕SPSS的这一点了！</p>
 <p>你又多了一个用R语言进行医学统计学的理由！</p>
 

@@ -9,6 +9,7 @@ import './viz/_bundle-categorical-modules.js';
 import './viz/_bundle-bivariate-modules.js';
 import './viz/_bundle-presentation-modules.js';
 import './viz/table1-guides.js';
+import './viz/tidy-flow-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;
