@@ -86,6 +86,47 @@ function patchChisqTextAudit(container) {
   );
 }
 
+function patchCochranArmitageText(container) {
+  addNoteAfterHeading(
+    container,
+    'Cochran-Armitage检验',
+    '[data-ca-audit-scope-note="true"]',
+    'Cochran-Armitage 趋势检验用于 2×k 有序列联表：行通常是二分类结局，列是有序分组。它检验结局发生率是否随有序分组呈线性上升或下降趋势。若分组本身无序，应使用普通 R×C 卡方检验，而不是趋势检验。',
+    'h1'
+  );
+
+  const firstParagraph = Array.from(container.querySelectorAll('p')).find(p => p.textContent.includes('Cochran Armitage') && p.textContent.includes('线性趋势检验'));
+  if (firstParagraph && !firstParagraph.dataset.caPolished) {
+    firstParagraph.textContent = 'Cochran-Armitage 检验是一种针对有序列联表的线性趋势检验。它常用于自变量为有序分类变量、因变量为二分类变量的资料，用来判断结局率是否随等级升高而呈线性上升或下降趋势。';
+    firstParagraph.dataset.caPolished = 'true';
+  }
+
+  const cmhParagraph = Array.from(container.querySelectorAll('p')).find(p => p.textContent.includes('注意和') && p.textContent.includes('Cochran-Mantel-Haenszel'));
+  if (cmhParagraph && !container.querySelector('[data-ca-cmh-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.caCmhNote = 'true';
+    note.textContent = '需要区分：Cochran-Armitage 检验关注一个有序因素下的率趋势；Cochran-Mantel-Haenszel 检验关注控制分层因素后的两个分类变量关联。前者强调“有序趋势”，后者强调“分层控制混杂”。';
+    cmhParagraph.insertAdjacentElement('afterend', note);
+  }
+
+  const scatter = Array.from(container.querySelectorAll('.stat-viz[data-type="scatter"]')).find(el => (el.dataset.title || '').includes('Cochran-Armitage'));
+  if (scatter && !container.querySelector('[data-ca-scatter-note="true"]')) {
+    const note = document.createElement('p');
+    note.dataset.caScatterNote = 'true';
+    note.textContent = '散点图只能帮助形成趋势直觉；正式的 Cochran-Armitage 检验使用的是每个等级中的阳性数、总数和有序 score，而不是只对百分比做普通线性回归。';
+    scatter.insertAdjacentElement('afterend', note);
+  }
+
+  addNoteAfterHeading(
+    container,
+    'Cochran-Armitage检验',
+    '[data-ca-score-note="true"]',
+    'score 的设定会影响检验统计量。等距等级常用 1,2,3,...；若等级对应真实剂量或暴露量，也可使用实际数值。score 应由研究设计或临床意义预先确定。',
+    'h1'
+  );
+}
+
 export const CHAPTER_TEXT_EXTRA_PATCHES = {
-  '1006-chisq.html': [patchChisqTextAudit]
+  '1006-chisq.html': [patchChisqTextAudit],
+  '1009-cochranarmitage.html': [patchCochranArmitageText]
 };
