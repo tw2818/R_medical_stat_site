@@ -14,6 +14,7 @@ import './anova-tutorial.js';
 import './discrete-teaching.js';
 import './binomial-ci-fix.js';
 import './chisq-tutorial.js';
+import './mcnemar-guide-fix.js';
 import './binomial-distribution-fix.js';
 import './poisson-distribution-fix.js';
 import './poisson-ci-fix.js';
