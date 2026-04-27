@@ -51,6 +51,11 @@ function normalizeText(value) {
   return String(value || '').toLowerCase();
 }
 
+function getChapterSortNum(chapter) {
+  const parsed = Number(chapter.num);
+  return Number.isFinite(parsed) ? parsed : 999;
+}
+
 function getSearchFields(chapter) {
   return [
     chapter.title,
@@ -75,7 +80,7 @@ export function findMatchingChapters(query, allChapters, limit = 8) {
       return { chapter, score: exactTitle + exactKeyword + fuzzy };
     })
     .filter(item => item.score > 0)
-    .sort((a, b) => b.score - a.score || Number(a.chapter.num) - Number(b.chapter.num))
+    .sort((a, b) => b.score - a.score || getChapterSortNum(a.chapter) - getChapterSortNum(b.chapter))
     .map(item => item.chapter)
     .slice(0, limit);
 }
