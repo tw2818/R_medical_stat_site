@@ -539,6 +539,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>《R数据可视化手册》</li>
 <li>《R绘图系统》</li>
 </ul>
+<div class="stat-viz" data-type="plotting-workflow" data-title="统计绘图的基本流程"></div>
+<p>⬆ 上方先把本章所有图形放回同一条主线：先判断变量类型和展示目的，再选择图形，最后做发表级修饰。</p>
 <section id="条形图" class="level2" data-number="9.1">
 <h2 data-number="9.1" class="anchored" data-anchor-id="条形图"><span class="header-section-number">9.1</span> 条形图</h2>
 <p>例10-4。条形图。</p>
@@ -571,6 +573,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>📊 交互式条形图演示：</p>
 <div class="stat-viz" data-type="bar" data-title="灌注方法再发率比较" data-labels="方法1,方法2,方法3" data-values="17.9,20.8,33.3"></div>
+<div class="stat-viz" data-type="plotting-chart-choice" data-title="常见医学统计图怎么选"></div>
+<p>⬆ 上方总结了本章最重要的选择逻辑：不是先想“画什么漂亮图”，而是先问变量类型和分析目的。</p>
 </section>
 <section id="分组条形图" class="level2" data-number="9.2">
 <h2 data-number="9.2" class="anchored" data-anchor-id="分组条形图"><span class="header-section-number">9.2</span> 分组条形图</h2>
@@ -605,6 +609,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>📊 交互式分组条形图演示：</p>
+<div class="stat-viz" data-type="bar" data-title="分组条形图：不同年份男女患龋率" data-labels="2005男,2005女,2010男,2010女" data-values="75,60,56,53"></div>
+<p>⬆ 这组数据本质上是“年份 × 性别”的分类比较。交互条形图先帮助读者看清四个单元格，再回到 ggplot2 中理解 <code>fill</code> 和 <code>position='dodge'</code> 的作用。</p>
 </section>
 <section id="饼图" class="level2" data-number="9.3">
 <h2 data-number="9.3" class="anchored" data-anchor-id="饼图"><span class="header-section-number">9.3</span> 饼图</h2>
@@ -646,6 +653,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>📊 饼图数据的替代表达：</p>
+<div class="stat-viz" data-type="bar" data-title="饼图数据的替代表达：失败原因构成" data-labels="无菌性松动,感染,假体周围骨折,假体不稳定,其他" data-values="226,52,22,17,10"></div>
+<p>⬆ 饼图适合快速展示“构成”，但医学论文中通常更推荐排序条形图：类别名称更容易读，大小差异也更容易比较。</p>
 </section>
 <section id="百分比条形图" class="level2" data-number="9.4">
 <h2 data-number="9.4" class="anchored" data-anchor-id="百分比条形图"><span class="header-section-number">9.4</span> 百分比条形图</h2>
@@ -693,6 +703,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ggsave("xxxx.png",width=10,height=5,dpi=300)</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>📊 百分比构成图演示：</p>
+<div class="stat-viz" data-type="spine" data-title="百分比条形图：2000年婴儿死因构成" data-categories="肺炎,早产,出生窒息,腹泻,意外窒息,其它" data-props="0.195,0.170,0.159,0.049,0.037,0.390"></div>
+<p>⬆ 百分比条形图的核心是“总和为 100%”。先看各部分构成，再比较不同年份之间构成是否变化。</p>
 </section>
 <section id="折线图" class="level2" data-number="9.5">
 <h2 data-number="9.5" class="anchored" data-anchor-id="折线图"><span class="header-section-number">9.5</span> 折线图</h2>
@@ -733,6 +746,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>📊 交互式折线趋势演示：</p>
+<div class="stat-viz" data-type="scatter" data-title="布氏菌病发病人数趋势" data-xlabel="年份" data-ylabel="发病人数" data-xs="2006,2007,2008,2009,2010" data-ys="8000,9000,12500,16000,16000" data-regression="false"></div>
+<p>⬆ 折线图最适合读趋势：这里先合并男女总数看总体上升，再回到 R 代码中用 <code>group</code> 和 <code>linetype</code> 拆分男女两条线。</p>
 </section>
 <section id="点线图" class="level2" data-number="9.6">
 <h2 data-number="9.6" class="anchored" data-anchor-id="点线图"><span class="header-section-number">9.6</span> 点线图</h2>
@@ -1161,6 +1177,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>📊 交互式Bland-Altman图演示（两种仪器一致性评价）：</p>
 <div class="stat-viz" data-type="blandaltman" data-title="Bland-Altman一致性评价图" data-x1="10.2,12.5,11.8,13.1,10.9,14.2,11.5,12.8,10.6,13.5" data-x2="9.9,12.7,11.3,13.2,10.5,14.1,11.3,13.1,10.2,13.7"></div>
+<div class="stat-viz" data-type="plotting-polish-checklist" data-title="发表前图形检查清单"></div>
+<p>⬆ 本章的图形示例很多，最后统一回到成品检查：图形不仅要能画出来，还要能被读者准确理解、被期刊版式接受。</p>
 </section>
 
 <section id="相关章节" class="level2" data-number="9.21">
