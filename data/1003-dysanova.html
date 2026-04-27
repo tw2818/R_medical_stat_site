@@ -518,7 +518,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="x-2-两因素析因设计资料的方差分析" class="level2" data-number="14.1">
 <h2 data-number="14.1" class="anchored" data-anchor-id="x-2-两因素析因设计资料的方差分析"><span class="header-section-number">14.1</span> 2 x 2 两因素析因设计资料的方差分析</h2>
-<div class="stat-viz" data-type="interaction" data-title="析因设计交互效应图：缝合方法 × 时间" data-factor1="外膜缝合,束膜缝合" data-factor2="1个月,2个月" data-means="[[10,30],[40,70]]"></div>
+<div class="stat-viz" data-type="interaction" data-title="析因设计交互效应图：缝合方法 × 时间" data-factor1="外膜缝合,束膜缝合" data-factor2="1个月,2个月" data-means="[[24,44],[28,52]]"></div>
 <p>使用课本<strong>例11-1</strong>的数据，自己手动摘录：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df11_1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -645,6 +645,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="i-x-j-x-k-三因素析因设计资料的方差分析" class="level2" data-number="14.3">
 <h2 data-number="14.3" class="anchored" data-anchor-id="i-x-j-x-k-三因素析因设计资料的方差分析"><span class="header-section-number">14.3</span> I x J x K 三因素析因设计资料的方差分析</h2>
 <p>使用课本<strong>例11-3</strong>的数据，</p>
+<div class="stat-viz" data-type="factorial-formula-guide" data-title="三因素析因设计：公式和结果怎么读"></div>
+<p>⬆ 上方先把 <code>a * b * c</code> 的模型结构拆开：它不只是三个主效应，还包含二阶交互和三阶交互；读结果时应先看高阶交互，再回到主效应。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df11_3 <span class="ot">&lt;-</span> foreign<span class="sc">::</span><span class="fu">read.spss</span>(<span class="st">"datasets/例11-03-5种军装热感觉5-2-2.sav"</span>, </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to.data.frame =</span> T,<span class="at">reencode=</span><span class="st">"UTF-8"</span>)</span>
@@ -683,6 +685,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="正交设计资料的方差分析" class="level2" data-number="14.4">
 <h2 data-number="14.4" class="anchored" data-anchor-id="正交设计资料的方差分析"><span class="header-section-number">14.4</span> 正交设计资料的方差分析</h2>
 <p>正交设计是残缺不全版本的析因设计，注意指定交互作用即可。</p>
+<div class="stat-viz" data-type="orthogonal-design-guide" data-title="正交设计：用更少组合估计主要因素"></div>
+<p>⬆ 上方展示了正交设计的关键思想：不是把所有因素组合都做完，而是在均衡试验表中保留最需要估计的主效应和少数交互效应。</p>
 <p>使用课本<strong>例11-4</strong>的数据。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df11_4 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -726,6 +730,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="嵌套设计资料的方差分析" class="level2" data-number="14.5">
 <h2 data-number="14.5" class="anchored" data-anchor-id="嵌套设计资料的方差分析"><span class="header-section-number">14.5</span> 嵌套设计资料的方差分析</h2>
 <p>嵌套设计也是残缺不全版本的析因设计，使用也是要注意指定主效应和交互效应。</p>
+<div class="stat-viz" data-type="nested-design-guide" data-title="嵌套设计：二级因素只属于某个一级因素"></div>
+<p>⬆ 上方强调了嵌套设计和普通交叉设计的区别：温度水平不是跨所有催化剂共享，而是嵌套在各自催化剂内部，因此公式写成 <code>factor1/factor2</code>。</p>
 <p>使用课本<strong>例11-6</strong>的数据。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df11_6 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -782,6 +788,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="裂区设计资料的方差分析" class="level2" data-number="14.6">
 <h2 data-number="14.6" class="anchored" data-anchor-id="裂区设计资料的方差分析"><span class="header-section-number">14.6</span> 裂区设计资料的方差分析</h2>
 <p>使用课本<strong>例11-7</strong>的数据。这是一个完全随机的2*2裂区设计，家兔为一级实验单位，注射部位为二级实验单位。</p>
+<div class="stat-viz" data-type="split-plot-guide" data-title="裂区设计：整区因素和裂区因素用不同误差项"></div>
+<p>⬆ 上方说明了为什么裂区设计需要两层误差项：<code>factorA</code> 用家兔间误差检验，<code>factorB</code> 和 <code>factorA:factorB</code> 用家兔内裂区误差检验，所以模型里要写 <code>Error(id/factorB)</code>。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df11_7 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">factorA =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"a1"</span>,<span class="st">"a2"</span>),<span class="at">each=</span><span class="dv">10</span>)),</span>

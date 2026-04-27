@@ -1,33 +1,69 @@
-import { registerViz, createTooltip } from './_core.js';
+import { registerViz, createTooltip, ensureJStat } from './_core.js';
+
+export function parseNumericAttribute(value, fallback = []) {
+  if (!value) return fallback;
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      const numbers = parsed.map(Number);
+      return numbers.every(Number.isFinite) ? numbers : fallback;
+    }
+  } catch (e) {
+    // Fall through to comma/space-separated parsing; many chapter HTML files use this compact format.
+  }
+  const tokens = String(value).split(/[,\s]+/).filter(Boolean);
+  const numbers = tokens.map(Number);
+  return tokens.length && numbers.every(Number.isFinite) ? numbers : fallback;
+}
+
+function parseLabelAttribute(value, fallback = []) {
+  if (!value) return fallback;
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed.map(String);
+  } catch (e) {
+    // Fall through to comma-separated labels.
+  }
+  return String(value).split(',').map(label => label.trim()).filter(Boolean);
+}
+
+export function calculateAnovaSummary({ means, sds, ns }) {
+  const k = means.length;
+  const totalN = ns.reduce((a, b) => a + b, 0);
+  const se = sds.map((s, i) => s / Math.sqrt(ns[i]));
+  const dfWithin = totalN - k;
+  const grandMean = means.reduce((s, m, i) => s + m * ns[i], 0) / totalN;
+  const ssBetween = means.reduce((s, m, i) => s + ns[i] * (m - grandMean) ** 2, 0);
+  const ssWithin = sds.reduce((s, sd, i) => s + (ns[i] - 1) * sd ** 2, 0);
+  const msBetween = ssBetween / (k - 1);
+  const msWithin = ssWithin / dfWithin;
+  const Fstat = msBetween / msWithin;
+  return { k, totalN, se, dfWithin, grandMean, ssBetween, ssWithin, msBetween, msWithin, Fstat };
+}
 
 function renderANOVA(el) {
-  let means = [], sds = [], ns = [], labels = [];
-  try { means = JSON.parse(el.dataset.means || '[]'); } catch(e) {}
-  try { sds = JSON.parse(el.dataset.sds || '[]'); } catch(e) {}
-  try { ns = JSON.parse(el.dataset.ns || '[]'); } catch(e) {}
-  try { labels = JSON.parse(el.dataset.labels || '[]'); } catch(e) {}
+  const means = parseNumericAttribute(el.dataset.means);
+  const sds = parseNumericAttribute(el.dataset.sds, means.map(() => 0));
+  const ns = parseNumericAttribute(el.dataset.ns, means.map(() => 1));
+  const labels = parseLabelAttribute(el.dataset.labels);
 
   if (!means.length) {
     el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA 组间差异比较</span></div><p style="padding:20px;color:#666;">请提供组数据</p></div>';
     return;
   }
-  if (means.some((m, i) => ns[i] < 1 || isNaN(ns[i]))) {
-    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA</span></div><p style="padding:20px;color:#e74c3c;">每组样本量 n 必须 ≥ 1</p></div>';
+  if (means.some((m, i) => ns[i] < 1 || isNaN(ns[i]) || !Number.isFinite(sds[i]))) {
+    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA</span></div><p style="padding:20px;color:#e74c3c;">每组样本量 n 必须 ≥ 1，且均数/标准差必须为有效数字</p></div>';
+    return;
+  }
+  if (!ensureJStat(el)) return;
+  if (!window.jStat?.ftest) {
+    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA</span></div><p style="padding:20px;color:#e74c3c;">jStat 未提供 F 检验函数，无法计算 P 值。</p></div>';
     return;
   }
 
   const W = 600, H = 320;
-  const k = means.length;
-  const se = sds.map((s, i) => s / Math.sqrt(ns[i]));
-  const dfWithin = ns.reduce((a,b)=>a+b,0) - k;
-  const grandMean = means.reduce((s, m, i) => s + m * ns[i], 0) / ns.reduce((a,b)=>a+b, 0);
-  const ssBetween = means.reduce((s, m, i) => s + ns[i] * (m - grandMean)**2, 0);
-  const ssWithin = sds.reduce((s, sd, i) => s + (ns[i]-1) * sd**2, 0);
-  const msBetween = ssBetween / (k - 1);
-  const msWithin = ssWithin / dfWithin;
-  const Fstat = msBetween / msWithin;
-  let pVal = NaN;
-  if (window.jStat && window.jStat.ftest) pVal = jStat.ftest(Fstat, k-1, dfWithin);
+  const { k, se, dfWithin, ssBetween, ssWithin, msBetween, msWithin, Fstat } = calculateAnovaSummary({ means, sds, ns });
+  const pVal = window.jStat.ftest(Fstat, k - 1, dfWithin);
 
   const card = document.createElement('div');
   card.className = 'viz-card';
@@ -49,7 +85,7 @@ function renderANOVA(el) {
     const plotH = H - pad.top - pad.bottom;
     const barW = plotW / k * 0.5;
     const gap = plotW / k * 0.5;
-    const maxY = Math.max(...means.map((m, i) => m + 1.96 * se[i])) * 1.15;
+    const maxY = Math.max(...means.map((m, i) => m + 1.96 * se[i]), 1) * 1.15;
     const sx = i => pad.left + i * (barW + gap) + gap/2;
     const sy = v => pad.top + plotH - (v / maxY) * plotH;
     ctx.strokeStyle = 'rgba(128,128,128,0.12)';
@@ -577,7 +613,18 @@ function renderFactorialInteraction(el) {
   const title = el.dataset.title || '析因设计交互效应图';
   const factor1 = el.dataset.factor1 ? el.dataset.factor1.split(',') : ['因素A', '因素B'];
   const factor2 = el.dataset.factor2 ? el.dataset.factor2.split(',') : ['水平1', '水平2'];
-  const means = el.dataset.means ? JSON.parse(el.dataset.means) : [[10, 30], [40, 70]];
+  let means = [[10, 30], [40, 70]];
+  try {
+    if (el.dataset.means) means = JSON.parse(el.dataset.means);
+  } catch (e) {
+    el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><p style="padding:20px;color:#e74c3c;">交互效应图数据格式错误。</p></div>`;
+    return;
+  }
+  if (!Array.isArray(means) || !means.length || means.some(row => !Array.isArray(row) || row.some(v => !Number.isFinite(Number(v))))) {
+    el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><p style="padding:20px;color:#e74c3c;">交互效应图需要二维均值数组。</p></div>`;
+    return;
+  }
+  means = means.map(row => row.map(Number));
   const W = 560, H = 320;
   el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas></div>`;
   const canvas = document.getElementById(id);
@@ -585,8 +632,12 @@ function renderFactorialInteraction(el) {
   const pad = {t: 40, r: 120, b: 60, l: 60};
   const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
   const allVals = means.flat();
-  const yMin = Math.min(...allVals) * 0.8;
-  const yMax = Math.max(...allVals) * 1.15;
+  let yMin = Math.min(...allVals) * 0.8;
+  let yMax = Math.max(...allVals) * 1.15;
+  if (yMax === yMin) {
+    yMin -= 1;
+    yMax += 1;
+  }
   const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 20);
