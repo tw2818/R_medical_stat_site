@@ -48,45 +48,61 @@ function patchCochranArmitageText(container) {
 }
 
 function patchWilcoxonText(container) {
+  addNoteAfterHeading(container,'秩转换的非参数检验','[data-wilcoxon-scope-note="true"]','本章讨论基于秩的非参数检验。它们常用于偏态分布、等级资料或样本量较小且正态性难以满足的场景；但“非参数”不代表没有设计要求，配对资料、两独立样本和多独立样本必须分别选择不同方法。','h1');
+  addNoteAfterHeading(container,'配对样本比较的Wilcoxon符号秩检验','[data-wilcoxon-paired-note="true"]','配对 Wilcoxon 符号秩检验的分析单位是每一对的差值，而不是两列原始值本身。计算时先去掉差值为 0 的对子，再对非零差值的绝对值排序，最后加回正负号。');
+  addNoteAfterHeading(container,'两独立样本比较的Wilcoxon秩和检验','[data-wilcoxon-independent-note="true"]','两独立样本 Wilcoxon 秩和检验也称 Mann-Whitney U 检验。它把两组观测值合并排序，再比较两组秩和；解释重点通常是分布位置差异，不是直接比较均数。');
+  addNoteAfterHeading(container,'完全随机设计多个样本比较的 Kruskal-Wallis H 检验','[data-kw-overview-note="true"]','Kruskal-Wallis H 检验可视为两独立样本秩和检验向多个独立组的扩展。总体检验显著只能说明多组分布位置不全相同，不能直接指出哪两组不同。');
+  addNoteAfterHeading(container,'kruskal-Wallis H检验后的多重比较','[data-kw-posthoc-note="true"]','Kruskal-Wallis H 检验后若需要判断具体哪些组不同，应进行事后多重比较，并对多个 P 值进行校正，例如 Dunn 检验或 pairwise Wilcoxon 检验结合 Holm、Bonferroni、BH 等校正。');
+}
+
+function patchRegressionCorrelationText(container) {
   addNoteAfterHeading(
     container,
-    '秩转换的非参数检验',
-    '[data-wilcoxon-scope-note="true"]',
-    '本章讨论基于秩的非参数检验。它们常用于偏态分布、等级资料或样本量较小且正态性难以满足的场景；但“非参数”不代表没有设计要求，配对资料、两独立样本和多独立样本必须分别选择不同方法。',
+    '双变量回归与相关',
+    '[data-regcor-scope-note="true"]',
+    '本章讨论两个变量之间的关系。直线回归强调用自变量 X 解释或预测因变量 Y；相关分析强调两个变量关联的方向和强度。无论回归还是相关，统计关联都不自动等于因果关系，解释时应考虑研究设计、混杂和非线性。',
     'h1'
   );
 
   addNoteAfterHeading(
     container,
-    '配对样本比较的Wilcoxon符号秩检验',
-    '[data-wilcoxon-paired-note="true"]',
-    '配对 Wilcoxon 符号秩检验的分析单位是每一对的差值，而不是两列原始值本身。计算时先去掉差值为 0 的对子，再对非零差值的绝对值排序，最后加回正负号。'
+    '直线回归',
+    '[data-regcor-regression-note="true"]',
+    '直线回归需要区分自变量 X 和因变量 Y。斜率表示 X 每增加 1 个单位时 Y 的平均变化量；截距表示 X=0 时的预测值，只有当 X=0 有实际意义时才适合直接解释。'
   );
 
   addNoteAfterHeading(
     container,
-    '两独立样本比较的Wilcoxon秩和检验',
-    '[data-wilcoxon-independent-note="true"]',
-    '两独立样本 Wilcoxon 秩和检验也称 Mann-Whitney U 检验。它把两组观测值合并排序，再比较两组秩和；解释重点通常是分布位置差异，不是直接比较均数。'
+    '直线相关',
+    '[data-regcor-correlation-note="true"]',
+    'Pearson 相关系数 r 描述两个连续变量的线性关联方向和强度，取值范围为 -1 到 1。r 接近 0 只说明线性关联弱，不排除存在非线性关系。'
   );
 
   addNoteAfterHeading(
     container,
-    '完全随机设计多个样本比较的 Kruskal-Wallis H 检验',
-    '[data-kw-overview-note="true"]',
-    'Kruskal-Wallis H 检验可视为两独立样本秩和检验向多个独立组的扩展。总体检验显著只能说明多组分布位置不全相同，不能直接指出哪两组不同。'
+    '秩相关',
+    '[data-regcor-spearman-note="true"]',
+    'Spearman 秩相关先把原始数值转换为秩，再计算秩之间的相关。它更关注单调关系，适合等级资料、明显偏态资料或存在异常值影响时。'
   );
 
   addNoteAfterHeading(
     container,
-    'kruskal-Wallis H检验后的多重比较',
-    '[data-kw-posthoc-note="true"]',
-    'Kruskal-Wallis H 检验后若需要判断具体哪些组不同，应进行事后多重比较，并对多个 P 值进行校正，例如 Dunn 检验或 pairwise Wilcoxon 检验结合 Holm、Bonferroni、BH 等校正。'
+    '两条回归直线的比较',
+    '[data-regcor-slope-note="true"]',
+    '比较两条回归直线时，首先应判断两组斜率是否不同。在线性模型中可使用交互项 y ~ x * group；若交互项显著，说明两组斜率不同，不宜简单合并为一条直线。'
+  );
+
+  addNoteAfterHeading(
+    container,
+    '曲线拟合',
+    '[data-regcor-curve-note="true"]',
+    '曲线拟合用于描述或预测非线性关系。模型越复杂越容易贴合当前样本，但也更容易过拟合；不要把观测范围内的好拟合外推到数据范围之外。'
   );
 }
 
 export const CHAPTER_TEXT_EXTRA_PATCHES = {
   '1006-chisq.html': [patchChisqTextAudit],
   '1009-cochranarmitage.html': [patchCochranArmitageText],
-  '1007-wilcoxon.html': [patchWilcoxonText]
+  '1007-wilcoxon.html': [patchWilcoxonText],
+  '1015-twocorrelation.html': [patchRegressionCorrelationText]
 };
