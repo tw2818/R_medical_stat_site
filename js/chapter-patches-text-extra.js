@@ -56,53 +56,24 @@ function patchWilcoxonText(container) {
 }
 
 function patchRegressionCorrelationText(container) {
-  addNoteAfterHeading(
-    container,
-    '双变量回归与相关',
-    '[data-regcor-scope-note="true"]',
-    '本章讨论两个变量之间的关系。直线回归强调用自变量 X 解释或预测因变量 Y；相关分析强调两个变量关联的方向和强度。无论回归还是相关，统计关联都不自动等于因果关系，解释时应考虑研究设计、混杂和非线性。',
-    'h1'
-  );
+  addNoteAfterHeading(container,'双变量回归与相关','[data-regcor-scope-note="true"]','本章讨论两个变量之间的关系。直线回归强调用自变量 X 解释或预测因变量 Y；相关分析强调两个变量关联的方向和强度。无论回归还是相关，统计关联都不自动等于因果关系，解释时应考虑研究设计、混杂和非线性。','h1');
+  addNoteAfterHeading(container,'直线回归','[data-regcor-regression-note="true"]','直线回归需要区分自变量 X 和因变量 Y。斜率表示 X 每增加 1 个单位时 Y 的平均变化量；截距表示 X=0 时的预测值，只有当 X=0 有实际意义时才适合直接解释。');
+  addNoteAfterHeading(container,'直线相关','[data-regcor-correlation-note="true"]','Pearson 相关系数 r 描述两个连续变量的线性关联方向和强度，取值范围为 -1 到 1。r 接近 0 只说明线性关联弱，不排除存在非线性关系。');
+  addNoteAfterHeading(container,'秩相关','[data-regcor-spearman-note="true"]','Spearman 秩相关先把原始数值转换为秩，再计算秩之间的相关。它更关注单调关系，适合等级资料、明显偏态资料或存在异常值影响时。');
+  addNoteAfterHeading(container,'两条回归直线的比较','[data-regcor-slope-note="true"]','比较两条回归直线时，首先应判断两组斜率是否不同。在线性模型中可使用交互项 y ~ x * group；若交互项显著，说明两组斜率不同，不宜简单合并为一条直线。');
+  addNoteAfterHeading(container,'曲线拟合','[data-regcor-curve-note="true"]','曲线拟合用于描述或预测非线性关系。模型越复杂越容易贴合当前样本，但也更容易过拟合；不要把观测范围内的好拟合外推到数据范围之外。');
+}
 
-  addNoteAfterHeading(
-    container,
-    '直线回归',
-    '[data-regcor-regression-note="true"]',
-    '直线回归需要区分自变量 X 和因变量 Y。斜率表示 X 每增加 1 个单位时 Y 的平均变化量；截距表示 X=0 时的预测值，只有当 X=0 有实际意义时才适合直接解释。'
-  );
-
-  addNoteAfterHeading(
-    container,
-    '直线相关',
-    '[data-regcor-correlation-note="true"]',
-    'Pearson 相关系数 r 描述两个连续变量的线性关联方向和强度，取值范围为 -1 到 1。r 接近 0 只说明线性关联弱，不排除存在非线性关系。'
-  );
-
-  addNoteAfterHeading(
-    container,
-    '秩相关',
-    '[data-regcor-spearman-note="true"]',
-    'Spearman 秩相关先把原始数值转换为秩，再计算秩之间的相关。它更关注单调关系，适合等级资料、明显偏态资料或存在异常值影响时。'
-  );
-
-  addNoteAfterHeading(
-    container,
-    '两条回归直线的比较',
-    '[data-regcor-slope-note="true"]',
-    '比较两条回归直线时，首先应判断两组斜率是否不同。在线性模型中可使用交互项 y ~ x * group；若交互项显著，说明两组斜率不同，不宜简单合并为一条直线。'
-  );
-
-  addNoteAfterHeading(
-    container,
-    '曲线拟合',
-    '[data-regcor-curve-note="true"]',
-    '曲线拟合用于描述或预测非线性关系。模型越复杂越容易贴合当前样本，但也更容易过拟合；不要把观测范围内的好拟合外推到数据范围之外。'
-  );
+function patchTable3Text(container) {
+  addNoteAfterHeading(container,'三线表绘制','[data-table3-scope-note="true"]','本章重点不是重新学习统计检验，而是把已有统计描述和检验结果整理成规范的论文表格。三线表应同时满足：变量命名清楚、单位完整、统计量格式一致、P 值方法可追溯、脚注能解释缩写和缺失值。','h1');
+  addNoteAfterHeading(container,'数据简介','[data-table3-data-note="true"]','制作 Table 1 前应先明确每个变量的类型：连续变量、分类变量、有序变量或日期/时间变量。不同变量类型对应不同统计描述和检验方法，不能统一套用同一种格式。');
+  addNoteAfterHeading(container,'详细介绍','[data-table3-detail-note="true"]','三线表一般只保留顶线、表头下横线和底线，避免过多竖线和网格线。更重要的是表格内容要可复现：每个数值都应能追溯到原始数据、汇总规则和统计方法。');
 }
 
 export const CHAPTER_TEXT_EXTRA_PATCHES = {
   '1006-chisq.html': [patchChisqTextAudit],
   '1009-cochranarmitage.html': [patchCochranArmitageText],
   '1007-wilcoxon.html': [patchWilcoxonText],
-  '1015-twocorrelation.html': [patchRegressionCorrelationText]
+  '1015-twocorrelation.html': [patchRegressionCorrelationText],
+  'table3.html': [patchTable3Text]
 };
