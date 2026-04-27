@@ -94,6 +94,17 @@ function makeNonparametricViz(type, title, attrs = {}) {
   return widget;
 }
 
+function makeRegCorViz(type, title, attrs = {}) {
+  const widget = document.createElement('div');
+  widget.className = 'stat-viz regcor-teaching-widget';
+  widget.dataset.type = type;
+  widget.dataset.title = title;
+  Object.entries(attrs).forEach(([key, value]) => {
+    widget.dataset[key] = value;
+  });
+  return widget;
+}
+
 function insertAfter(anchor, ...nodes) {
   if (!anchor || !nodes.length) return;
   let current = anchor;
@@ -326,30 +337,36 @@ function patchCochranArmitageWidgets(container) {
   insertTrendWidgetOnce(container,'.trend-teaching-widget[data-type="cochrantrend"]',container.querySelector('.trend-teaching-widget[data-type="ordinaltrendstructure"]') || scatter || chapterHeading,'cochrantrend','Cochran-Armitage 趋势检验',{ labels: '50mg,100mg,200mg,300mg,500mg', successes: '87,119,133,177,167', totals: '1000,1000,1000,1000,1000', scores: '50,100,200,300,500' });
 }
 
-function insertNonparametricWidgetOnce(container, selector, anchor, type, title, attrs = {}) {
-  if (container.querySelector(selector)) return;
-  insertAfter(anchor, makeNonparametricViz(type, title, attrs));
-}
-
+function insertNonparametricWidgetOnce(container, selector, anchor, type, title, attrs = {}) { if (container.querySelector(selector)) return; insertAfter(anchor, makeNonparametricViz(type, title, attrs)); }
 function patchWilcoxonWidgets(container) {
   const chapterHeading = findHeading(container, '秩转换的非参数检验') || container.querySelector('h1');
   insertNonparametricWidgetOnce(container,'.nonparametric-teaching-widget[data-type="nonparametricchoiceguide"]',insertionAnchor(chapterHeading, '[data-wilcoxon-scope-note="true"]'),'nonparametricchoiceguide','非参数检验选择指南');
-
   const pairedHeading = findHeading(container, '配对样本比较的Wilcoxon符号秩检验');
   insertNonparametricWidgetOnce(container,'.nonparametric-teaching-widget[data-type="signedrankguide"]',insertionAnchor(pairedHeading, '[data-wilcoxon-paired-note="true"]'),'signedrankguide','Wilcoxon 符号秩检验：差值、绝对值排序和符号秩');
-
   const independentHeading = findHeading(container, '两独立样本比较的Wilcoxon秩和检验');
   insertNonparametricWidgetOnce(container,'.nonparametric-teaching-widget[data-type="ranksumguide"]',insertionAnchor(independentHeading, '[data-wilcoxon-independent-note="true"]'),'ranksumguide','Wilcoxon 秩和检验：两独立样本合并排序');
-
   const kwHeading = findHeading(container, '完全随机设计多个样本比较的 Kruskal-Wallis H 检验');
   insertNonparametricWidgetOnce(container,'.nonparametric-teaching-widget[data-type="kruskalwallisguide"]',insertionAnchor(kwHeading, '[data-kw-overview-note="true"]'),'kruskalwallisguide','Kruskal-Wallis H 检验：多组独立样本的秩比较');
+}
+
+function insertRegCorWidgetOnce(container, selector, anchor, type, title, attrs = {}) { if (container.querySelector(selector)) return; insertAfter(anchor, makeRegCorViz(type, title, attrs)); }
+function patchRegressionCorrelationWidgets(container) {
+  const chapterHeading = findHeading(container, '双变量回归与相关') || container.querySelector('h1');
+  insertRegCorWidgetOnce(container,'.regcor-teaching-widget[data-type="correlationchoiceguide"]',insertionAnchor(chapterHeading, '[data-regcor-scope-note="true"]'),'correlationchoiceguide','双变量关系怎么选：回归、相关与曲线拟合');
+  const regressionHeading = findHeading(container, '直线回归');
+  insertRegCorWidgetOnce(container,'.regcor-teaching-widget[data-type="regressioncorrelationguide"]',insertionAnchor(regressionHeading, '[data-regcor-regression-note="true"]'),'regressioncorrelationguide','直线回归与相关：同一组点的两种读法');
+  const spearmanHeading = findHeading(container, '秩相关');
+  insertRegCorWidgetOnce(container,'.regcor-teaching-widget[data-type="spearmanrankguide"]',insertionAnchor(spearmanHeading, '[data-regcor-spearman-note="true"]'),'spearmanrankguide','Spearman 秩相关：原始值 → 排名 → 相关');
+  const slopeHeading = findHeading(container, '两条回归直线的比较');
+  insertRegCorWidgetOnce(container,'.regcor-teaching-widget[data-type="slopecompareguide"]',insertionAnchor(slopeHeading, '[data-regcor-slope-note="true"]'),'slopecompareguide','两条回归直线比较：看交互项');
+  const curveHeading = findHeading(container, '曲线拟合');
+  insertRegCorWidgetOnce(container,'.regcor-teaching-widget[data-type="curvefitguide"]',insertionAnchor(curveHeading, '[data-regcor-curve-note="true"]'),'curvefitguide','曲线拟合：非线性、过拟合与外推风险');
 }
 
 function patchPlottingWidgets(container) {
   if (container.querySelector('.stat-viz[data-type="blandaltman"]')) return;
   const anchor = Array.from(container.querySelectorAll('h2, h3')).find(h => h.textContent.includes('散点图') || h.textContent.includes('点线图'));
-  const note = document.createElement('p');
-  note.innerHTML = '<strong>Bland-Altman 图</strong>用于评价两种测量方法的一致性：横轴为两种方法的均值，纵轴为两种方法的差值；重点观察平均差异和 95% 一致性限。它不用于替代配对 t 检验的前后差异检验。';
+  const note = document.createElement('p'); note.innerHTML = '<strong>Bland-Altman 图</strong>用于评价两种测量方法的一致性：横轴为两种方法的均值，纵轴为两种方法的差值；重点观察平均差异和 95% 一致性限。它不用于替代配对 t 检验的前后差异检验。';
   const widget = document.createElement('div'); widget.className = 'stat-viz'; widget.dataset.type = 'blandaltman'; widget.dataset.title = 'Bland-Altman 一致性分析：两种测量方法比较'; widget.dataset.method1 = '110,118,120,125,130,128,140,138,145,150'; widget.dataset.method2 = '112,116,123,124,133,126,143,136,148,151'; widget.dataset.xlabel = '两种方法测量均值'; widget.dataset.ylabel = '差值（方法1 - 方法2）';
   if (anchor) { anchor.insertAdjacentElement('afterend', widget); anchor.insertAdjacentElement('afterend', note); } else { container.appendChild(note); container.appendChild(widget); }
 }
@@ -362,6 +379,7 @@ export const CHAPTER_WIDGET_PATCHES = {
   '1006-chisq.html': [patchChisqWidgets],
   '1009-cochranarmitage.html': [patchCochranArmitageWidgets],
   '1007-wilcoxon.html': [patchWilcoxonWidgets],
+  '1015-twocorrelation.html': [patchRegressionCorrelationWidgets],
   'plotting.html': [patchPlottingWidgets],
   'discrete.html': [patchDiscreteWidgets],
   '1012-randomgroup.html': [container => removeByType(container, '.stat-viz[data-type="samplesizecalc"]')],
