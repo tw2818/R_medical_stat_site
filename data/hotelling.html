@@ -534,6 +534,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>相关矩阵</li>
 </ul>
 <p>在R语言中都很好计算，有现成的函数，无需自己计算。</p>
+<div class="stat-viz" data-type="hotelling-vector-matrix-guide" data-title="多变量描述：均值向量 + 协方差矩阵 + 相关矩阵"></div>
+<p>⬆ 上方把本节的三个描述对象连起来：均值向量给中心，协方差矩阵给变异结构，相关矩阵帮助判断变量之间是否同向变化。</p>
 <p>以孙振球《医学统计学》第4版（蓝色封面）例14-1为例进行介绍。</p>
 <p>在一项健康调查中，随机抽取某单位15名正常成年男性测量血脂，记录甘油三酯（mmol/L）、总胆固醇（mmol/L）和高密度脂蛋白胆固醇（mmol/L），结果见表14-1。试对这3个反应变量进行多变量描述。</p>
 <p>先读取数据：</p>
@@ -622,6 +624,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="组间差别的比较" class="level2" data-number="19.3">
 <h2 data-number="19.3" class="anchored" data-anchor-id="组间差别的比较"><span class="header-section-number">19.3</span> 组间差别的比较</h2>
 <p>多变量数据的假设检验和单变量数据非常相似，单变量数据常用的方法有t检验、方差分析、秩和检验等，多变量数据则是hotelling-T<sup>2</sup>检验、多变量方差分析、多变量非参数检验等。</p>
+<div class="stat-viz" data-type="hotelling-t2-decision-guide" data-title="Hotelling T²：单组、两组与结果读取"></div>
+<p>⬆ 先把 Hotelling T² 理解成“均值向量的 t 检验”：单组比已知均值向量，两组比两组均值向量。</p>
 <section id="单组资料" class="level3" data-number="19.3.1">
 <h3 data-number="19.3.1" class="anchored" data-anchor-id="单组资料"><span class="header-section-number">19.3.1</span> 单组资料</h3>
 <p>孙振球《医学统计学》第4版（蓝色封面）例14-2：随机抽取某单位5名怀疑有冠心病的成年男性，测量其甘油三酯（mmol/L）、总胆固醇mmol/L）和高密度脂蛋白胆固醇（mmol/L）含量。根据例14-1已知，该单位正常成年男性的甘油三酯、总胆固醇和高密度脂蛋白胆固醇均数分别为1.02mmol/L、2.73mmol/L和2.04mmol/L。问该单位怀疑冠心病成年男性的血脂与正常成年男性的血脂有无差别？</p>
@@ -754,6 +758,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="多组资料" class="level3" data-number="19.3.3">
 <h3 data-number="19.3.3" class="anchored" data-anchor-id="多组资料"><span class="header-section-number">19.3.3</span> 多组资料</h3>
 <p>单组资料用单样本的hotelling-T2检验，两组资料用成组的hotelling-T2检验检验，是不是和t检验非常类似呢？大于两组的单变量数据是使用方差分析，同理，大于两组的多变量数据也是使用方差分析，此时是<strong>多变量方差分析</strong>（multivariate analysis of variance，MANOVA）。</p>
+<div class="stat-viz" data-type="hotelling-manova-stat-guide" data-title="MANOVA：先整体检验，再看单变量补充"></div>
+<p>⬆ MANOVA 的第一步是判断多组均值向量是否整体不同；单变量 ANOVA 表适合后续定位，不适合替代整体检验。</p>
 <p>以孙振球《医学统计学》第4版（蓝色封面）例14-4和利14-5为例，这两个例题用的同一个数据。</p>
 <p>患慢性胃炎的儿童随机分为3组，其中I组、Ⅱ组为治疗组，另一组作为对照，试比较治疗药物对T细胞免疫功能（外周血T3、T4、T8细胞百分比）的影响。</p>
 <div class="cell">
@@ -957,6 +963,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="do">## alternative hypothesis: true location difference is not equal to c(0,0)</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>分别对两组新生儿出生时的体重与身长做单变量t检验：体重t=1.62，P=0.13，身长t=0.04，P=0.97，都不能拒绝H0。但双变量的HotellingT检验：T2=9.87，F=4.58，P=0.03，拒绝H0。</p>
+<div class="stat-viz" data-type="hotelling-univar-multivar-demo" data-title="交互演示：单变量轴 vs 多变量方向"></div>
+<p>⬆ 拖动投影方向可以看到：单独沿某个变量看，两组重叠可能很多；沿两个变量共同形成的方向看，均值向量差异更容易显现。</p>
 <p>两组在平面分布上的差别如下图所示：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -980,6 +988,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="重复测量资料的多变量分析" class="level2" data-number="19.4">
 <h2 data-number="19.4" class="anchored" data-anchor-id="重复测量资料的多变量分析"><span class="header-section-number">19.4</span> 重复测量资料的多变量分析</h2>
 <p>如果不考虑重复测量数据是否满足“球对称”假设，可将每个观察对象的m次重复测量结果看作一个向量，直接采用多变量的Hotelling-T2检验。</p>
+<div class="stat-viz" data-type="hotelling-repeated-vector-guide" data-title="重复测量的多变量路径：变化值向量"></div>
+<p>⬆ 这里的关键是把每个受试者 4 个服药后变化值合成一个向量，再检验这个变化向量是否整体偏离 0。</p>
 <p>孙振球《医学统计学》第4版（蓝色封面）例14-7：10名肥胖患者在医生指导下服用药物减肥，按统一标准记录服药前和服药后1～4周的体重，试分析减肥效果。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>data14_7 <span class="ot">&lt;-</span> haven<span class="sc">::</span><span class="fu">read_sav</span>(<span class="st">"datasets/例14-07.sav"</span>)</span>
@@ -1191,6 +1201,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 10.83958   6  73 1.355666e-08</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>轮廓分析主要从3个方面评价：</p>
+<div class="stat-viz" data-type="hotelling-profile-guide" data-title="轮廓分析：平行、相合、水平"></div>
+<p>⬆ 读 profileR 输出时按顺序看：先判断两组轮廓是否平行，再看整体水平是否相同，最后看合并后的轮廓是否为水平线。</p>
 <ol type="1">
 <li>平行检验：检验两个总体的轮廓是否平行（parallel profile）</li>
 <li>相合检验：检验两个总体的轮廓是否重合（coincident profile），只有两组轮廓平行是才有意义</li>
