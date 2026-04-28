@@ -12,12 +12,12 @@ import { registerViz } from './_core.js';
     const id = 'subgroupforest-' + Math.random().toString(36).slice(2, 8);
     const title = el.dataset.title || '亚组分析森林图';
     const rawLabels = el.dataset.labels || '总体,年龄<60,年龄≥60,男性,女性,BMI<25,BMI≥25';
-    const rawHR = el.dataset.hr || '0.65,0.58,0.72,0.61,0.69,0.63,0.67';
+    const rawValues = el.dataset.values || el.dataset.hr || '0.65,0.58,0.72,0.61,0.69,0.63,0.67';
     const rawLower = el.dataset.lower || '0.48,0.38,0.51,0.42,0.47,0.41,0.45';
     const rawUpper = el.dataset.upper || '0.88,0.89,1.01,0.89,1.01,0.97,1.00';
 
     const labels = rawLabels.split(',');
-    const hrs = rawHR.split(',').map(Number);
+    const values = rawValues.split(',').map(Number);
     const lower = rawLower.split(',').map(Number);
     const upper = rawUpper.split(',').map(Number);
     const n = labels.length;
@@ -30,7 +30,7 @@ import { registerViz } from './_core.js';
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
       <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
-        HR&lt;1 表示治疗有利 | 垂直虚线为总体效应
+        OR/效应量采用对数坐标展示 | 垂直虚线为总体效应
       </div>
     </div>`;
 
@@ -41,21 +41,21 @@ import { registerViz } from './_core.js';
     ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
-    const allVals = hrs.concat(lower).concat(upper);
+    const allVals = values.concat(lower).concat(upper);
     const positiveVals = allVals.filter(v => Number.isFinite(v) && v > 0);
     const minV = Math.max(Math.min(...positiveVals) * 0.8, 0.05);
     const maxV = Math.max(...positiveVals) * 1.1;
     const scaleX = v => padL + ((Math.log(v) - Math.log(minV)) / (Math.log(maxV) - Math.log(minV))) * (W - padL - padR);
 
-    // Overall ref line (first HR)
-    const overallX = scaleX(hrs[0]);
+    // Overall ref line (first effect value)
+    const overallX = scaleX(values[0]);
     ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(overallX, padT); ctx.lineTo(overallX, H - padB); ctx.stroke();
     ctx.setLineDash([]);
 
     labels.forEach((label, i) => {
       const y = padT + i * rowH + rowH * 0.25;
-      const hr = hrs[i], lo = lower[i], up = upper[i];
+      const value = values[i], lo = lower[i], up = upper[i];
 
       ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(label, padL - 8, y + barH / 2 + 4);
@@ -69,16 +69,16 @@ import { registerViz } from './_core.js';
       // Diamond for overall
       if (i === 0) {
         ctx.fillStyle = '#e74c3c';
-        const mx = scaleX(hr), my = y + barH / 2;
+        const mx = scaleX(value), my = y + barH / 2;
         ctx.beginPath(); ctx.moveTo(mx, my - 7); ctx.lineTo(mx + 6, my); ctx.lineTo(mx, my + 7); ctx.lineTo(mx - 6, my); ctx.closePath(); ctx.fill();
       } else {
         ctx.fillStyle = '#3498db';
-        ctx.beginPath(); ctx.arc(scaleX(hr), y + barH / 2, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(scaleX(value), y + barH / 2, 4, 0, Math.PI * 2); ctx.fill();
       }
 
-      // HR text
+      // Effect text
       ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(hr.toFixed(2) + ' (' + lo.toFixed(2) + '-' + up.toFixed(2) + ')', W - padR + 5, y + barH / 2 + 4);
+      ctx.fillText(value.toFixed(2) + ' (' + lo.toFixed(2) + '-' + up.toFixed(2) + ')', W - padR + 5, y + barH / 2 + 4);
     });
 
     // X labels
