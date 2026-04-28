@@ -526,6 +526,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="演示数据" class="level2" data-number="24.1">
 <h2 data-number="24.1" class="anchored" data-anchor-id="演示数据"><span class="header-section-number">24.1</span> 演示数据</h2>
 <p>使用<code>hsb2</code>数据集进行演示。其中<code>write</code>是数值型因变量，<code>race</code>是其中一个自变量，是无序分类变量，有4个类别：1 = Hispanic, 2 = Asian, 3 = African American and 4 = Caucasian。</p>
+<div class="stat-viz" data-type="codescheme-factor-workflow" data-title="分类变量进模型：从水平到设计矩阵"></div>
+<p>⬆ 上方把分类变量进入回归模型前的三步串起来：先确认因子水平，再看<code>contrasts()</code>，最后理解<code>lm()</code>/<code>glm()</code>实际估计的是设计矩阵中的数值列。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="at">file =</span> <span class="st">"datasets/codingSchemes.rdata"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -541,7 +543,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="dummy-coding" class="level2" data-number="24.2">
 <h2 data-number="24.2" class="anchored" data-anchor-id="dummy-coding"><span class="header-section-number">24.2</span> Dummy Coding</h2>
-<p>哑变量编码将4个组别转换为3个二元变量（虚拟变量）进行对比分析。各组观测值均数：组1均数10.2、组2均数12.2、组3均数14.9、组4均数15.9。</p>
+<p>哑变量编码将4个组别转换为3个二元变量（虚拟变量）进行对比分析。根据上面的输出，Hispanic、Asian、African-Am、Caucasian四组的真实均数分别为46.45833、58.00000、48.20000、54.05517。</p>
+<div class="stat-viz" data-type="codescheme-design-matrix" data-title="Dummy coding：参考组与K-1列"></div>
+<p>⬆ 上方用本章四组均值说明：参考组的三列都是0，其他组的系数要按“该组均值减参考组均值”来读。</p>
 <p>哑变量是最常见的分类变量编码方式，它以其中一个类别为参考，其他所有类别都和参考进行比较。</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -561,7 +565,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 0 1 0</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 0 0 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>这是一个比较矩阵，如果有4个类别就是4行，每行代表一个类别，比如第一行，2,3,4都是0，那么就代表类别1,；第二行，2是1,3,4都是0，就是代表类别2，以此类推。</p>
+<p>这是一个比较矩阵，如果有4个类别就是4行，每行代表一个类别，比如第一行，2,3,4都是0，那么就代表类别1；第二行，2是1,3,4都是0，就是代表类别2，以此类推。</p>
 <p><strong>如果有K个类别，就会有K-1个哑变量，比如我们这个例子，有4个类别，就有3个哑变量，在R中的其他编码方式也是这样的。</strong></p>
 <p>R语言中对不同类型的变量都会有默认的编码方式，可以通过<code>contrasts()</code>函数查看，比如对于<code>race.f</code>默认的就是哑变量编码：</p>
 <div class="cell">
@@ -611,6 +615,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="simple-coding" class="level2" data-number="24.3">
 <h2 data-number="24.3" class="anchored" data-anchor-id="simple-coding"><span class="header-section-number">24.3</span> simple coding</h2>
 <p>简单编码和哑变量编码的唯一不同之处是截距！哑变量的截距是参考组的因变量平均值，简单编码的截距是总的平均值。</p>
+<div class="stat-viz" data-type="codescheme-reference-mean-guide" data-title="编码改变的是截距和系数含义"></div>
+<p>⬆ 上方提醒同一批组均值在不同contrast下会得到不同的截距含义，因此解释回归表前要先确认编码方案。</p>
 <p>下面这张图是简单编码的方式。简单编码的所有类别编码相加需要等于1。</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -621,7 +627,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>level 1还是参考组，对于race.f1，是类别2比类别1，类别2就被编码为3/4，其他类别都是 -1/4，对于race.f2是类别3比类别1，类别3就别编码为为3/4，其他类别被编码为 -1/4，对于race.f3是类别4比类别1，类别4别编码为3/4，其他类别被编码为 -1/4。</p>
+<p>level 1还是参考组，对于race.f1，是类别2比类别1，类别2就被编码为3/4，其他类别都是 -1/4，对于race.f2是类别3比类别1，类别3就被编码为3/4，其他类别被编码为 -1/4，对于race.f3是类别4比类别1，类别4被编码为3/4，其他类别被编码为 -1/4。</p>
 <p>也就是说，参考组肯定是被编码为 -1/4（和类别个数有关，这里race.f是4个类别），谁和参考组比谁就被编码为 3/4。</p>
 <p>如果变量有K个类别的话，那就是参考组被编码为 -1/k，谁和参考组比谁就被编码为(k-1)/k。</p>
 <p>simple coding在R中并没有提供直接的函数，但是可以通过哑变量进行转换：</p>
@@ -679,7 +685,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>第1组是比较类别1和其它所有类别，第2组是比较类别2和其它所有类别，第3组是比较类别3和其它所有类别。</p>
-<p>这种比较矩阵（编码方式）通过赋值1，0，-1实现。第1组中，类别1被设为1（因为是类别1和其他所有类别比较），第2组是类别2被设为1，第3组是类别3倍设为1，而类别4一直是 -1，因为它没和别人比过。</p>
+<p>这种比较矩阵（编码方式）通过赋值1，0，-1实现。第1组中，类别1被设为1（因为是类别1和其他所有类别比较），第2组是类别2被设为1，第3组是类别3被设为1，而类别4一直是 -1，因为它没和别人比过。</p>
 <p>在R中通过函数<code>contr.sum()</code>实现这种编码方式（比较矩阵）：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contr.sum</span>(<span class="dv">4</span>)</span>
@@ -720,7 +726,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="orthogonal-polynomial-coding" class="level2" data-number="24.5">
 <h2 data-number="24.5" class="anchored" data-anchor-id="orthogonal-polynomial-coding"><span class="header-section-number">24.5</span> Orthogonal Polynomial Coding</h2>
 <p>正交多项式编码，在重复测量方差分析的多重比较中用过，这种编码方式常用于线性趋势检验，检测某自变量的1次项、2次项、3次项等和因变量之间有无线性关系。只用在有序分类变量（有序因子）且不同类别间对因变量影响相同的情况下。</p>
-<p>在R语言中中通过函数<code>contr.poly()</code>实现对某个变量的正交多项式编码，对于有序因子变量来说，这种编码方式是默认的，不需要手动指定。</p>
+<div class="stat-viz" data-type="codescheme-ordinal-polynomial-guide" data-title="有序因子：从组别差异到趋势检验"></div>
+<p>⬆ 上方把<code>.L</code>、<code>.Q</code>、<code>.C</code>放回趋势检验语境：它们适合有自然顺序的分类变量，而不是一般无序组别。</p>
+<p>在R语言中通过函数<code>contr.poly()</code>实现对某个变量的正交多项式编码，对于有序因子变量来说，这种编码方式是默认的，不需要手动指定。</p>
 <p>我们使用<code>hsb2</code>数据集中的<code>read</code>这一个变量，把它变成一个有序因子：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 新建一列，根据read转换为有序因子</span></span>
@@ -787,11 +795,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.3456, Adjusted R-squared:  0.3356 </span></span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 34.51 on 3 and 196 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>回归分析结果显示<code>readcat</code>的一次项和因变量有很强的的线性关系，二次项和三次项没有明显的线性关系。</p>
+<p>回归分析结果显示<code>readcat</code>的一次项和因变量有很强的线性关系，二次项和三次项没有明显的线性关系。</p>
 </section>
 <section id="helmert-coding" class="level2" data-number="24.6">
 <h2 data-number="24.6" class="anchored" data-anchor-id="helmert-coding"><span class="header-section-number">24.6</span> Helmert Coding</h2>
 <p>Helmert Coding比较的是当前类别下的因变量平均值和后面的类别的因变量平均值。</p>
+<div class="stat-viz" data-type="codescheme-helmert-difference-guide" data-title="连续比较编码：先确认比较方向"></div>
+<p>⬆ 上方比较了Helmert、Reverse Helmert和Difference编码的比较对象，避免把后半章所有<code>race.f1</code>都误读成“相对参考组”。</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -894,7 +904,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="forward-difference-coding" class="level2" data-number="24.8">
 <h2 data-number="24.8" class="anchored" data-anchor-id="forward-difference-coding"><span class="header-section-number">24.8</span> Forward Difference Coding</h2>
 <p>这种编码方式比较的是当前类别的因变量均值和它相邻的下一个类别的因变量均值，注意是下一个，Helmert coding是多个。</p>
-<p>如下图所示，<code>race.f1</code>比较的是类别1和类别2，<code>race.f2比较的是类别2和3，</code>race.f3`比较的是类别3和类别4。</p>
+<p>如下图所示，<code>race.f1</code>比较的是类别1和类别2，<code>race.f2</code>比较的是类别2和3，<code>race.f3</code>比较的是类别3和类别4。</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -941,7 +951,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.1071, Adjusted R-squared:  0.0934 </span></span>
 <span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 7.833 on 3 and 196 DF,  p-value: 5.785e-05</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><code>race.f1</code>的截距是类别2和类别1的因变量差值， -11.5417 = 46.4583 – 58，<code>race.f2</code>的截距 是类别3和类别2的因变量差值，9.9 = 58 – 48.2，<code>race.f3</code>的截距是类别4和类别3的因变量差值，-5.8552 = 48.2 – 54.0552。</p>
+<p>race.f1的系数是类别2和类别1的因变量差值， -11.5417 = 46.4583 – 58，<code>race.f2</code>的系数是类别3和类别2的因变量差值，9.9 = 58 – 48.2，<code>race.f3</code>的系数是类别4和类别3的因变量差值，-5.8552 = 48.2 – 54.0552。</p>
+<div class="stat-viz" data-type="codescheme-glm-bridge-guide" data-title="从线性模型回到GLM报告"></div>
+<p>⬆ 上方把本章编码方案和前面Logistic、log-linear、Poisson章节连接起来：contrast决定“谁和谁比”，link函数决定系数处在哪个解释尺度。</p>
 </section>
 <section id="backward-difference-coding" class="level2" data-number="24.9">
 <h2 data-number="24.9" class="anchored" data-anchor-id="backward-difference-coding"><span class="header-section-number">24.9</span> Backward Difference Coding</h2>

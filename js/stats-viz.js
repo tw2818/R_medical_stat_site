@@ -20,6 +20,7 @@ import './viz/multireg-guides.js';
 import './viz/logistic-guides.js';
 import './viz/loglinear-guides.js';
 import './viz/poisson-guides.js';
+import './viz/codescheme-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;
