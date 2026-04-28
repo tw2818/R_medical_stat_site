@@ -24,6 +24,8 @@ test('chapter 17 adds compact ANCOVA teaching components', () => {
     'ancova-formula-guide',
     'ancova-assumption-guide',
     'ancova-adjusted-mean-guide',
+    'ancova-adjusted-means-demo',
+    'ancova-parallel-slopes-demo',
     'ancova-result-guide',
     'ancova-block-guide',
     'ancova-multcompare-guide',
@@ -55,6 +57,14 @@ test('chapter 17 teaches random-block ANCOVA and post-hoc adjusted comparisons',
   assert.match(chapterHtml, /随机区组|区组|block/);
   assert.match(chapterHtml, /多重比较|事后比较|emmeans|Bonferroni|Tukey/);
   assert.match(chapterHtml, /调整后组间差异|调整后均值差异|95% CI/);
+});
+
+test('chapter 17 adds interactive visualizations for adjusted means and parallel slopes', () => {
+  assert.match(chapterHtml, /data-type="ancova-adjusted-means-demo"/);
+  assert.match(chapterHtml, /data-type="ancova-parallel-slopes-demo"/);
+  assert.match(guideModule, /type="range"/);
+  assert.match(guideModule, /addEventListener\('input'/);
+  assert.match(guideModule, /调整到 x̄|协变量均值|parallel slopes|平行斜率/);
 });
 
 test('ANCOVA guide renderer is loaded by presentation bundle and stats-viz entrypoint', () => {

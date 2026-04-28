@@ -602,6 +602,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>得到的结果和课本是一模一样的，组内ss=14.60, ms=0.170, v=86, 修正均数ss=19.85, ms=9.925, v=2, F=58.48，拒绝H0，接受H1，可以认为在扣除初始（基线）糖化血红蛋白含量的影响后，3组患者的总体降糖均数有差别。</p>
 <div class="stat-viz" data-type="ancova-adjusted-mean-guide" data-title="为什么要报告调整后均值"></div>
 <p>⬆ 上方提醒：显著的 <code>group</code> 效应对应“调整后均值”差异；正式报告时最好给出各组 adjusted mean / LS means 及组间差异的 95% CI。</p>
+<div class="stat-viz" data-type="ancova-adjusted-means-demo" data-title="拖动协变量：观察调整后均值如何比较"></div>
+<p>⬆ 上方是一个交互式示意：把三组都调整到同一个协变量水平，再读取各组预测值，这比单纯看原始均值更符合 ANCOVA 的教学重点。</p>
 <p>结果的可视化可以使用<code>HH</code>包：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(HH)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -642,6 +644,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>好看是好看，但是很明显不如<code>HH</code>简洁啊！</p>
+<div class="stat-viz" data-type="ancova-parallel-slopes-demo" data-title="拖动斜率差异：理解平行斜率假设"></div>
+<p>⬆ 上方展示了为什么要先关注平行斜率：如果不同组回归线不平行，调整后组间差异会随着协变量水平改变，此时应考虑 <code>x:group</code> 交互，而不是只解释一个总体 <code>group</code> 主效应。</p>
 </section>
 <section id="使用rstatix进行优雅的协方差分析" class="level2" data-number="17.2">
 <h2 data-number="17.2" class="anchored" data-anchor-id="使用rstatix进行优雅的协方差分析"><span class="header-section-number">17.2</span> 使用rstatix进行优雅的协方差分析</h2>
