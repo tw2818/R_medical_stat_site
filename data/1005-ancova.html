@@ -514,6 +514,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>协方差分析的使用条件：各变量服从正态分布，各变量相互独立，各样本总体方差齐；各总体客观存在因变量对协变量的线性回归关系且斜率相同（回归线平行）。</p>
+<div class="stat-viz" data-type="ancova-workflow-guide" data-title="协方差分析先解决什么问题"></div>
+<p>⬆ 上方先把 ANCOVA 的核心逻辑拆开：它比较的不是原始均值，而是扣除协变量（例如基线）线性影响后的调整后均值。</p>
+<div class="stat-viz" data-type="ancova-assumption-guide" data-title="做 ANCOVA 前先检查这些条件"></div>
+<p>⬆ 上方强调 ANCOVA 特有的平行斜率假设：若 <code>x:group</code> 交互显著，说明不同组的协变量-结局关系不平行，此时直接解释 <code>y ~ x + group</code> 会有风险。</p>
 <section id="完全随机设计资料的协方差分析" class="level2" data-number="17.1">
 <h2 data-number="17.1" class="anchored" data-anchor-id="完全随机设计资料的协方差分析"><span class="header-section-number">17.1</span> 完全随机设计资料的协方差分析</h2>
 <div class="stat-viz" data-type="scatter" data-title="协方差分析：基线与结局关系" data-xlabel="基线值(x)" data-ylabel="结局值(y)" data-xs="10.8,11.6,10.6,9.0,11.2,9.9,10.6,10.4,9.6,10.5,10.6,9.9,9.5,9.7,10.7,9.2,10.5,11.0,10.1,10.7,8.5,10.0,10.4,9.7,9.4,9.2,10.5,11.2,9.6,8.0,10.4,9.7,9.9,9.8,11.1,8.2,8.8,10.0,9.0,9.4,8.9,10.3,9.3,9.2,10.9,9.2,9.2,10.4,11.2,11.1,11.0,8.6,9.3,10.3,10.3,9.8,10.5,10.7,10.4,9.4" data-ys="9.4,9.7,8.7,7.2,10.0,8.5,8.3,8.1,8.5,9.1,9.2,8.4,7.6,7.9,8.8,7.4,8.6,9.2,8.0,8.5,7.3,8.3,8.6,8.7,7.6,8.0,8.8,9.5,8.2,7.2,9.2,9.1,8.9,8.6,9.9,7.1,7.8,7.9,8.0,9.0,7.9,8.9,8.9,8.1,10.2,8.5,9.0,8.9,9.8,10.1,8.5,8.1,8.6" data-regression="true"></div>
@@ -579,6 +583,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="do">## $ y     &lt;dbl&gt; 9.4, 9.2, 7.6, 9.7, 9.1, 7.9, 8.7, 8.9, 9.0, 7.2, 8.6, 7.8, 10.0…</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>所有的x放在1列，所有的y放在1列，还有一列是组别！</p>
+<div class="stat-viz" data-type="ancova-formula-guide" data-title="公式拆解：y ~ x + group"></div>
+<p>⬆ 上方说明了为什么模型写成 <code>y ~ x + group</code>：<code>x</code> 是协变量，先扣除基线影响；<code>group</code> 是调整后真正要比较的组别因素。</p>
 <p>然后就是进行单因素协方差分析：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 注意公式的写法，一定是把协变量放在主变量前面！</span></span>
@@ -591,7 +597,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="ancova-result-guide" data-title="协方差分析表阅读顺序"></div>
+<p>⬆ 上方把结果表中的三类行拆开解释：<code>x</code> 行说明协变量基线与结局高度相关，<code>group</code> 行才是扣除 <code>x</code> 后的调整后组间比较，<code>Residuals</code> 是误差项。</p>
 <p>得到的结果和课本是一模一样的，组内ss=14.60, ms=0.170, v=86, 修正均数ss=19.85, ms=9.925, v=2, F=58.48，拒绝H0，接受H1，可以认为在扣除初始（基线）糖化血红蛋白含量的影响后，3组患者的总体降糖均数有差别。</p>
+<div class="stat-viz" data-type="ancova-adjusted-mean-guide" data-title="为什么要报告调整后均值"></div>
+<p>⬆ 上方提醒：显著的 <code>group</code> 效应对应“调整后均值”差异；正式报告时最好给出各组 adjusted mean / LS means 及组间差异的 95% CI。</p>
 <p>结果的可视化可以使用<code>HH</code>包：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(HH)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -646,7 +656,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 1      x   1  86 171.199 3.64e-22     * 0.666</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 2  group   2  86  58.480 9.22e-17     * 0.576</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>结果也是一样的！</p>
+<p>结果也是一样的！如果需要继续回答“哪两组调整后不同”，可以使用 <code>emmeans</code> 计算 adjusted mean / LS means，并配合 Bonferroni、Tukey 或 Holm 等方法进行多重比较，报告调整后组间差异、95% CI 和校正后 P 值。</p>
+<div class="stat-viz" data-type="ancova-multcompare-guide" data-title="总体检验显著后，怎么做调整后多重比较"></div>
+<p>⬆ 上方展示了 ANCOVA 事后比较的报告思路：先确认总体 <code>group</code> 显著，再比较调整后均值差异，而不是回到原始均值做普通两两比较。</p>
 </section>
 <section id="随机区组设计资料的协方差分析" class="level2" data-number="17.3">
 <h2 data-number="17.3" class="anchored" data-anchor-id="随机区组设计资料的协方差分析"><span class="header-section-number">17.3</span> 随机区组设计资料的协方差分析</h2>
@@ -675,6 +687,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 304.4 48.8 A....     6</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>进行随机区组设计的协方差分析：</p>
+<div class="stat-viz" data-type="ancova-block-guide" data-title="随机区组 ANCOVA：为什么模型多了 block"></div>
+<p>⬆ 上方说明 <code>y ~ x + block + group</code> 的含义：<code>x</code> 控制协变量，<code>block</code> 控制区组/批次差异，最后再看 <code>group</code> 是否仍有调整后差异。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(y <span class="sc">~</span> x <span class="sc">+</span> block <span class="sc">+</span> group, <span class="at">data =</span> df) <span class="co"># 注意顺序</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
