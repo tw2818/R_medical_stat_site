@@ -1043,11 +1043,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>想获得<em>整洁的结果</em>不需要自己提取，只要用神包<code>broom</code>即可：</p>
 <div class="stat-viz" data-type="cox"
   data-title="Cox 回归 HR 森林图"
-  data-labels="sexmale,age,ph.karno"
-  data-values="0.608,1.01,0.987"
-  data-lower="0.438,0.994,0.976"
-  data-upper="0.845,1.03,0.998"
-  data-p="0.003,0.188,0.023"></div>
+  data-labels="sex male vs female,age per year,ph.karno per point"
+  data-values="0.6082,1.0125,0.9868"
+  data-lower="0.4378,0.9940,0.9755"
+  data-upper="0.8450,1.0313,0.9982"
+  data-p="0.00303,0.18821,0.02348"></div>
+<p>⬆ 上方森林图使用 <code>summary(fit.cox)</code> / <code>broom::tidy()</code> 的真实 HR、95%CI 和 P 值；其中 sex 变量以 Female 为参考组。</p>
 <div class="stat-viz" data-type="survcomp"
   data-title="两组生存曲线比较（模拟示意）"
   data-label1="男性组"

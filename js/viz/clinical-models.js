@@ -189,17 +189,118 @@ function renderROCCompare(el) {
 }
 registerViz('roccompare', renderROCCompare);
 
+let coxHrCounter = 0;
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
+  }[char]));
+}
+
+function parseCoxNumberList(raw, fallback) {
+  return String(raw || fallback).split(',').map((item) => Number(item.trim()));
+}
+
+function renderCoxError(el, message) {
+  el.innerHTML = `<div class="viz-error"><strong>Cox HR 森林图数据错误</strong><br>${escapeHtml(message)}</div>`;
+}
+
+function validateCoxRows(values, lower, upper, pvals) {
+  const sameLength = values.length === lower.length && values.length === upper.length && values.length === pvals.length;
+  if (!sameLength || values.length === 0) return 'values/lower/upper/pvals must have the same length';
+  const effectNumbers = values.concat(lower).concat(upper);
+  if (!effectNumbers.every((value) => Number.isFinite(value) && value > 0)) return 'HR and 95% CI values must be finite positive numbers';
+  if (!pvals.every((value) => Number.isFinite(value) && value >= 0)) return 'p values must be finite non-negative numbers';
+  if (!values.every((value, index) => lower[index] <= value && value <= upper[index])) return 'each HR must fall within its 95% CI';
+  return '';
+}
+
 function renderCoxHR(el) {
-  const id = 'cox-hr-' + Math.random().toString(36).slice(2, 8); const title = el.dataset.title || 'Cox 回归 HR 森林图'; const rawValues = el.dataset.values || '0.608,1.012,0.987'; const rawLabels = el.dataset.labels || 'sex (male),age,ph.karno'; const rawLower = el.dataset.lower || '0.438,0.994,0.976'; const rawUpper = el.dataset.upper || '0.845,1.031,0.998'; const rawPval = el.dataset.p || '0.003,0.188,0.023';
-  const values = rawValues.split(',').map(Number), labels = rawLabels.split(','), lower = rawLower.split(',').map(Number), upper = rawUpper.split(',').map(Number), pvals = rawPval.split(',').map(Number);
-  const n = values.length; const barH = 36, padL = 140, padR = 60, padT = 50, padB = 30; const rowH = barH + 8; const W = 560, H = padT + n * rowH + padB + 20;
-  el.innerHTML = `<div class="viz-card"><div class="viz-header">🏥 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">垂直虚线 HR=1 表示无效线 | ● 表示点估计值 | 误差线为 95% CI</div></div>`;
-  const canvas = document.getElementById(id), ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 22);
-  const logVals = values.concat(lower).concat(upper).map(v => Math.log(v)), minLog = Math.min(...logVals) - 0.5, maxLog = Math.max(...logVals) + 0.3, scaleX = v => padL + ((Math.log(v) - minLog) / (maxLog - minLog)) * (W - padL - padR);
-  const refX = scaleX(1); ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(refX, padT); ctx.lineTo(refX, H - padB); ctx.stroke(); ctx.setLineDash([]);
-  values.forEach((hr, i) => { const y = padT + i * rowH + barH / 2, x = scaleX(hr), xLow = scaleX(Math.max(lower[i], Math.pow(10, minLog))), xHigh = scaleX(Math.min(upper[i], Math.pow(10, maxLog))), sig = lower[i] > 1 || upper[i] < 1, pText = pvals[i] < 0.001 ? 'p<0.001' : 'p=' + pvals[i].toFixed(3); ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(labels[i] || ('V' + (i + 1)), padL - 8, y + 4); ctx.strokeStyle = '#666'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(xLow, y); ctx.lineTo(xHigh, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(xLow, y - 5); ctx.lineTo(xLow, y + 5); ctx.stroke(); ctx.beginPath(); ctx.moveTo(xHigh, y - 5); ctx.lineTo(xHigh, y + 5); ctx.stroke(); ctx.fillStyle = sig ? '#e74c3c' : '#3498db'; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#333'; ctx.font = '12px monospace'; ctx.textAlign = 'left'; ctx.fillText('HR=' + hr.toFixed(3) + ' (' + pText + ')', x + 8, y + 4); });
-  const logTicks = [0.2, 0.5, 1, 2, 5]; ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; logTicks.filter(v => v >= Math.pow(10, minLog) && v <= Math.pow(10, maxLog)).forEach(v => { ctx.fillText(v.toString(), scaleX(v), H - 10); });
-  ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Hazard Ratio (log scale)', 0, 0); ctx.restore();
+  coxHrCounter += 1;
+  const id = 'cox-hr-' + coxHrCounter;
+  const title = el.dataset.title || 'Cox 回归 HR 森林图';
+  const rawLabels = el.dataset.labels || 'sex male vs female,age per year,ph.karno per point';
+  const values = parseCoxNumberList(el.dataset.values, '0.6082,1.0125,0.9868');
+  const labels = rawLabels.split(',').map((item) => item.trim());
+  const lower = parseCoxNumberList(el.dataset.lower, '0.4378,0.9940,0.9755');
+  const upper = parseCoxNumberList(el.dataset.upper, '0.8450,1.0313,0.9982');
+  const pvals = parseCoxNumberList(el.dataset.p, '0.00303,0.18821,0.02348');
+  const validationError = validateCoxRows(values, lower, upper, pvals);
+  if (validationError) {
+    renderCoxError(el, validationError);
+    return;
+  }
+
+  const n = values.length;
+  const barH = 36, padL = 170, padR = 245, padT = 52, padB = 34;
+  const rowH = barH + 8;
+  const W = 760, H = padT + n * rowH + padB + 24;
+  const safeTitle = escapeHtml(title);
+  const ariaLabel = `${title}: ${values.map((hr, i) => `${labels[i] || 'V' + (i + 1)} HR=${hr.toFixed(3)} 95% CI ${lower[i].toFixed(3)}–${upper[i].toFixed(3)} p=${pvals[i].toPrecision(3)}`).join('; ')}`;
+  el.innerHTML = `<div class="viz-card"><div class="viz-header">🏥 ${safeTitle}</div><canvas id="${id}" width="${W}" height="${H}" role="img" aria-label="${escapeHtml(ariaLabel)}" style="width:100%;max-width:${W}px;height:auto;display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">垂直虚线 HR=1 表示无效线 | ● 表示点估计值 | 误差线为 95% CI | Female 为 sex 变量参考组</div><table aria-label="${safeTitle} 数据表" style="position:absolute;left:-9999px;"><thead><tr><th>Variable</th><th>HR</th><th>95% CI</th><th>p</th></tr></thead><tbody>${values.map((hr, i) => `<tr><td>${escapeHtml(labels[i] || 'V' + (i + 1))}</td><td>${hr.toFixed(3)}</td><td>${lower[i].toFixed(3)}–${upper[i].toFixed(3)}</td><td>${pvals[i].toPrecision(3)}</td></tr>`).join('')}</tbody></table></div>`;
+
+  const canvas = document.getElementById(id), ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 22);
+
+  const logVals = values.concat(lower).concat(upper).map((value) => Math.log(value));
+  const minLog = Math.min(...logVals) - 0.5;
+  const maxLog = Math.max(...logVals) + 0.5;
+  const minBound = Math.exp(minLog);
+  const maxBound = Math.exp(maxLog);
+  const plotW = W - padL - padR;
+  const scaleX = (value) => padL + ((Math.log(value) - minLog) / (maxLog - minLog)) * plotW;
+
+  const logTicks = [0.2, 0.5, 1, 2, 5];
+  ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  logTicks.filter((value) => value >= minBound && value <= maxBound).forEach((value) => {
+    const tickX = scaleX(value);
+    ctx.beginPath(); ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5; ctx.moveTo(tickX, padT); ctx.lineTo(tickX, H - padB); ctx.stroke();
+    ctx.fillStyle = '#666'; ctx.fillText(value.toString(), tickX, H - 12);
+  });
+
+  const refX = scaleX(1);
+  ctx.setLineDash([4, 4]); ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(refX, padT); ctx.lineTo(refX, H - padB); ctx.stroke(); ctx.setLineDash([]);
+
+  values.forEach((hr, i) => {
+    const y = padT + i * rowH + barH / 2;
+    const x = scaleX(hr);
+    const xLow = scaleX(Math.max(lower[i], minBound));
+    const xHigh = scaleX(Math.min(upper[i], maxBound));
+    const sig = lower[i] > 1 || upper[i] < 1;
+    const pText = pvals[i] < 0.001 ? 'p<0.001' : 'p=' + pvals[i].toFixed(3);
+    const label = labels[i] || ('V' + (i + 1));
+
+    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
+    const labelText = label.length > 22 ? label.slice(0, 20) + '…' : label;
+    ctx.fillText(labelText, padL - 8, y + 4);
+
+    ctx.strokeStyle = '#666'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(xLow, y); ctx.lineTo(xHigh, y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xLow, y - 5); ctx.lineTo(xLow, y + 5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xHigh, y - 5); ctx.lineTo(xHigh, y + 5); ctx.stroke();
+
+    ctx.fillStyle = sig ? '#e74c3c' : '#3498db';
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+
+    const annotation = `HR=${hr.toFixed(3)} (95% CI ${lower[i].toFixed(3)}–${upper[i].toFixed(3)}), ${pText}`;
+    const annotationX = W - padR + 12;
+    ctx.fillStyle = '#333'; ctx.font = '12px monospace'; ctx.textAlign = 'left';
+    if (ctx.measureText(annotation).width + annotationX > W - 8) {
+      ctx.textAlign = 'right';
+      ctx.fillText(annotation, W - 8, y + 4);
+    } else {
+      ctx.fillText(annotation, annotationX, y + 4);
+    }
+  });
+
+  ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Hazard Ratio (log scale)', padL + plotW / 2, H - 2);
 }
 registerViz('cox', renderCoxHR);
 

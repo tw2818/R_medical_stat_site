@@ -86,6 +86,25 @@ test('chapter 25 keeps existing useful survival visualizations', () => {
   }
 });
 
+test('chapter 25 Cox HR forest data matches the actual cb17/cb18 model output', () => {
+  const html = read(chapterPath);
+  const tag = html.match(/<div class="stat-viz" data-type="cox"[\s\S]*?><\/div>/)?.[0];
+  assert.ok(tag, 'cox forest tag should exist');
+  const getAttr = (name) => tag.match(new RegExp(`${name}=["']([^"']+)["']`))?.[1] || '';
+  const numbers = (name) => getAttr(name).split(',').map((item) => Number(item.trim()));
+
+  assert.deepEqual(getAttr('data-labels').split(',').map((item) => item.trim()), [
+    'sex male vs female',
+    'age per year',
+    'ph.karno per point'
+  ]);
+  assert.deepEqual(numbers('data-values'), [0.6082, 1.0125, 0.9868]);
+  assert.deepEqual(numbers('data-lower'), [0.4378, 0.9940, 0.9755]);
+  assert.deepEqual(numbers('data-upper'), [0.8450, 1.0313, 0.9982]);
+  assert.deepEqual(numbers('data-p'), [0.00303, 0.18821, 0.02348]);
+  assert.match(html, /Female\s*为参考组|女性\s*为参考组|female\s*reference/i);
+});
+
 test('chapter 25 adds six compact survival teaching components including needed interactions', () => {
   const html = read(chapterPath);
   for (const type of expectedGuideTypes) {
