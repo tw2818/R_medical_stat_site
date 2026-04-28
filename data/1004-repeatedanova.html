@@ -520,7 +520,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="两因素两水平" class="level2" data-number="16.1">
 <h2 data-number="16.1" class="anchored" data-anchor-id="两因素两水平"><span class="header-section-number">16.1</span> 两因素两水平</h2>
-<p>重复测量轮廓图展示两组（处理组和对照组）在三个时间点（基线、1周、2周）的血压变化趋势。处理组血压从基线均值125.2mmHg降至1周113.6mmHg再升至2周122.8mmHg；对照组从121.6mmHg降至103.6mmHg再升至118.4mmHg。</p>
+<p>重复测量方差分析用于处理同一受试者在不同时间点被反复测量的数据。本节先用两组治疗前后血压数据说明基本结构：处理组均值从 125.2mmHg 降至 113.6mmHg，对照组从 121.6mmHg 降至 103.6mmHg。</p>
 <p>使用课本<strong>例12-1</strong>的数据，直接读取：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df12_1 <span class="ot">&lt;-</span> foreign<span class="sc">::</span><span class="fu">read.spss</span>(<span class="st">"datasets/12-1.sav"</span>, <span class="at">to.data.frame =</span> T)</span>
@@ -544,7 +544,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 5 122 102 处理组 20</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 6 118 100 处理组 18</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>数据一共5列（第5列是自己算出来的，其实原始数据只有4列），第1列是编号，第2列是治疗前血压，第3例是治疗后血压，第4列是分组，第5列是血压前后差值。</p>
+<p>数据一共5列（第5列是自己算出来的，其实原始数据只有4列），第1列是编号，第2列是治疗前血压，第3列是治疗后血压，第4列是分组，第5列是血压前后差值。</p>
+<div class="stat-viz" data-type="rm-factor-type-guide" data-title="第16章先分清：哪些变量在组内，哪些变量在组间"></div>
+<p>⬆ 上方先把重复测量方差分析最容易混淆的变量角色拆开：<code>time</code> 是同一受试者内重复出现的组内因素，<code>group</code> 是每位受试者只属于一个水平的组间因素。</p>
 <p>进行重复测量数据两因素两水平的方差分析前，先把数据转换一下格式：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -575,8 +577,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 3     处理组 x2      126</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>转换后的数据格式如上。</p>
+<div class="stat-viz" data-type="rm-wide-to-long-guide" data-title="宽表变长表：让 R 看懂重复测量结构"></div>
+<p>⬆ 上方展示了为什么要把 <code>x1</code>/<code>x2</code> 这样的宽表改成长表：每一行代表“某个受试者在某个时间点的一次测量”。</p>
 <p>进行重复测量数据两因素两水平的方差分析:</p>
 <p><code>hp</code>是因变量，<code>time</code>是测量时间（治疗前和治疗后各测量一次），<code>group</code>是分组因素（两种治疗方法），<code>n</code>是受试者编号。</p>
+<div class="stat-viz" data-type="rm-formula-guide" data-title="公式拆解：hp ~ time * group + Error(n/time)"></div>
+<p>⬆ 上方把公式中的固定效应和误差层分开解释：<code>time * group</code> 负责回答主效应和交互效应，<code>Error(n/time)</code> 告诉 R 同一个 <code>n</code> 被重复测量。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># time和group是有交叉的，每个受试者（n）只和time有交叉，和group没有交叉</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>f1 <span class="ot">&lt;-</span> <span class="fu">aov</span>(hp <span class="sc">~</span> time <span class="sc">*</span> group <span class="sc">+</span> <span class="fu">Error</span>(n<span class="sc">/</span>time), <span class="at">data =</span> df12_11)</span>
@@ -596,6 +602,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="rm-result-strata-guide" data-title="两张 ANOVA 表分别该看什么"></div>
+<p>⬆ 上方说明了 <code>summary(aov)</code> 的两个误差层：<code>Error: n</code> 检验组间因素，<code>Error: n:time</code> 检验时间效应和交互效应。</p>
 <p>结果输出了两张表，第二个是测量前后比较与交互作用的方差分析表，第一个是处理组与对照组比较的方差分析表，可以看到结果和课本是一样的！</p>
 <p>用图形方式展示重复测量的结果：</p>
 <div class="cell">
@@ -670,7 +678,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="do">##  $ times: Factor w/ 5 levels "t0","t1","t2",..: 1 2 3 4 5 1 2 3 4 5 ...</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="do">##  $ hp   : num [1:75] 120 108 112 120 117 118 109 115 126 123 ...</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>转换后的格式见上图。</p>
+<p>转换后的格式见上图。这里 <code>times</code> 是受试者内（组内因素 / within-subject factor），<code>group</code> 是受试者间（组间因素 / between-subject factor），所以公式仍然要写成 <code>Error(No/(times))</code>。</p>
 <p>进行方差分析（和两因素两水平没有任何区别）：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>f2 <span class="ot">&lt;-</span> <span class="fu">aov</span>(hp <span class="sc">~</span> times <span class="sc">*</span> group <span class="sc">+</span> <span class="fu">Error</span>(No<span class="sc">/</span>(times)), <span class="at">data =</span> df12_31)</span>
@@ -817,6 +825,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="do">## 1         *</span></span>
 <span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="do">## 2         *</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="rm-anova-test-result-guide" data-title="rstatix::anova_test() 输出表阅读顺序"></div>
+<p>⬆ 上方把 <code>anova_test()</code> 的三块输出串起来：先看 ANOVA 表，再看球形检验 Mauchly W 和 p，若球形假设不满足，则报告 Greenhouse-Geisser（GGe / p[GG]）或 Huynh-Feldt（HFe / p[HF]）校正结果。</p>
 <p>画图展示：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -838,6 +848,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>接下来是重复测量数据的多重比较，课本中分成了3个方面。</p>
+<div class="stat-viz" data-type="rm-multcompare-guide" data-title="重复测量多重比较：先确定你在比什么"></div>
+<p>⬆ 上方展示了重复测量多重比较的三类常见问题：组间差别多重比较、时间趋势比较（正交多项式）和时间点比较（如 t0 与 t1/t2/t3/t4）。</p>
 <section id="组间差别多重比较" class="level3" data-number="16.3.1">
 <h3 data-number="16.3.1" class="anchored" data-anchor-id="组间差别多重比较"><span class="header-section-number">16.3.1</span> 组间差别多重比较</h3>
 <p>首先也计算下各组的均值，和课本对比下（一样的）：</p>

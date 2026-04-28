@@ -12,6 +12,7 @@ import './viz/table1-guides.js';
 import './viz/tidy-flow-guides.js';
 import './viz/factorial-design-guides.js';
 import './viz/repeated-measures-guides.js';
+import './viz/repeated-anova-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;

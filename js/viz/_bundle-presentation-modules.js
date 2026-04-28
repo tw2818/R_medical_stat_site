@@ -7,4 +7,5 @@ import './roc-guides.js';
 import './tidy-flow-guides.js';
 import './factorial-design-guides.js';
 import './repeated-measures-guides.js';
+import './repeated-anova-guides.js';
 import './overrides.js';

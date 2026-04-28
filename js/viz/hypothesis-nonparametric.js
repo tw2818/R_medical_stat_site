@@ -426,7 +426,7 @@ function renderRepeatedMeasuresInteraction(el) {
     <div class="viz-header">📊 ${title}</div>
     <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
     <div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">
-      两因素两水平：时间(治疗前/治疗后) × 组别(实验组/对照组)<br>交互效应：实验组治疗后升高，对照组无变化
+      两因素两水平：时间(治疗前/治疗后) × 组别(处理组/对照组)<br>交互效应：两组血压均下降，但对照组下降幅度更大
     </div>
   </div>`;
   const canvas = document.getElementById(id);
@@ -436,10 +436,10 @@ function renderRepeatedMeasuresInteraction(el) {
   const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
   const timePoints = ['治疗前','治疗后'];
   const groups = [
-    {name: '实验组', values: [7.2, 9.8], color: '#2980b9'},
-    {name: '对照组', values: [7.4, 7.6], color: '#27ae60'},
+    {name: '处理组', values: [125.2, 113.6], color: '#2980b9'},
+    {name: '对照组', values: [121.6, 103.6], color: '#27ae60'},
   ];
-  const yMin = 5, yMax = 12;
+  const yMin = 95, yMax = 132;
   const xOf = ti => pad.l + iW * (ti / (timePoints.length - 1));
   const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
   ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
@@ -472,6 +472,6 @@ function renderRepeatedMeasuresInteraction(el) {
     ctx.fillText(g.name, xs[1] + 8, ys[1]);
   });
   ctx.fillStyle = '#c0392b'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('↗ 存在正交互效应（组间差异随时间增大）', W/2, pad.t - 12);
+  ctx.fillText('↘ 存在交互效应（两组随时间下降幅度不同）', W/2, pad.t - 12);
 }
 registerViz('rminteraction', renderRepeatedMeasuresInteraction);
