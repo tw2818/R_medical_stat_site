@@ -153,17 +153,25 @@ registerViz('km', renderKM);
 
   // ── 泊松分布可视化 ──────────────────────────────────
   // <div class="stat-viz" data-type="poisson" data-lambda="5" data-title="泊松分布 P(λ)"></div>
+let survivalCompCounter = 0;
 
   function renderSurvivalComp(el) {
-    const id = 'surv-comp-' + Math.random().toString(36).slice(2, 8);
+    survivalCompCounter += 1;
+    const id = 'surv-comp-' + survivalCompCounter;
     const title = el.dataset.title || '两组生存曲线比较';
+    const label1 = el.dataset.label1 || '组1';
+    const label2 = el.dataset.label2 || '组2';
+    const times1 = JSON.parse(el.dataset.times1 || '[31,46,101,21,88,102,31,36,22,17,17,65]');
+    const status1 = JSON.parse(el.dataset.status1 || '[1,1,0,1,0,1,1,1,1,1,1,0]');
+    const times2 = JSON.parse(el.dataset.times2 || '[57,14,61,71,6,9,30,8,72,10,48,16]');
+    const status2 = JSON.parse(el.dataset.status2 || '[0,1,0,0,1,1,1,1,0,1,0,1]');
 
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📈 ${title}</div>
       <canvas id="${id}" width="560" height="320" style="display:block;margin:0 auto;"></canvas>
       <div style="text-align:center;margin-top:8px;">
-        <span style="display:inline-block;width:20px;height:3px;background:#e74c3c;vertical-align:middle;margin-right:4px;"></span> 组1
-        <span style="display:inline-block;width:20px;height:3px;background:#2980b9;vertical-align:middle;margin-left:16px;margin-right:4px;"></span> 组2
+        <span style="display:inline-block;width:20px;height:3px;background:#e74c3c;vertical-align:middle;margin-right:4px;"></span> ${label1}
+        <span style="display:inline-block;width:20px;height:3px;background:#2980b9;vertical-align:middle;margin-left:16px;margin-right:4px;"></span> ${label2}
         <span style="margin-left:16px;font-size:13px;color:#555;">中位生存时间: <strong id="${id}-med1">--</strong> vs <strong id="${id}-med2">--</strong></span>
       </div>
     </div>`;
@@ -174,49 +182,36 @@ registerViz('km', renderKM);
     const padL = 55, padR = 15, padT = 20, padB = 40;
     const plotW = W - padL - padR, plotH = H - padT - padB;
 
-    // Generate two survival curve datasets (模拟肺癌 male vs female 分组)
-    function generateKMData(n, lambda, seed) {
-      const events = [], times = [];
-      for (let i = 0; i < n; i++) {
-        const t = -Math.log(1 - Math.random()) / lambda * (0.7 + Math.random() * 0.6);
-        const status = Math.random() > 0.3 ? 1 : 0;
-        times.push(t); events.push(status);
-      }
-      const sorted = times.map((t, i) => ({ t, e: events[i] })).sort((a, b) => a.t - b.t);
-      // 标准 Kaplan-Meier product-limit 估计
-      // Step 1: 按时间排序（已在上面完成）
-      // Step 2: 按时间点聚合（同一时间可能有多个事件）
+    function computeKM(times, status) {
+      const sorted = times.map((t, i) => ({ t, e: Number(status[i]) || 0 })).sort((a, b) => a.t - b.t);
       let surv = 1, S = [1], T = [0];
-      let atRisk = sorted.length; // 初始 at-risk = 总样本量
+      let atRisk = sorted.length;
       let i = 0;
       while (i < sorted.length) {
         const currentTime = sorted[i].t;
-        // Count events at this exact time
-        let d = 0;
-        while (i < sorted.length && sorted[i].t === currentTime && sorted[i].e === 1) {
-          d++; i++;
+        let events = 0, censored = 0;
+        while (i < sorted.length && sorted[i].t === currentTime) {
+          if (sorted[i].e === 1) events++; else censored++;
+          i++;
         }
-        // Count censored at this exact time
-        let c = 0;
-        while (i < sorted.length && sorted[i].t === currentTime && sorted[i].e === 0) {
-          c++; i++;
-        }
-        // Update KM product-limit: reduce at-risk by ALL observations at this time
-        if (atRisk > 0 && d > 0) {
-          surv *= (atRisk - d) / atRisk;
+        if (atRisk > 0 && events > 0) {
+          surv *= (atRisk - events) / atRisk;
+          S.push(surv);
+          T.push(currentTime);
+        } else if (censored > 0) {
           S.push(surv);
           T.push(currentTime);
         }
-        atRisk -= (d + c);
+        atRisk -= (events + censored);
       }
       return { T, S };
     }
 
-    const group1 = generateKMData(138, 0.015);
-    const group2 = generateKMData(90, 0.022);
+    const group1 = computeKM(times1, status1);
+    const group2 = computeKM(times2, status2);
 
     const allTimes = [...group1.T, ...group2.T].sort((a, b) => a - b);
-    const maxT = Math.max(...allTimes);
+    const maxT = Math.max(...allTimes, 1);
 
     ctx.clearRect(0, 0, W, H);
 
@@ -232,16 +227,11 @@ registerViz('km', renderKM);
     ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
-    // Y axis label
     ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('生存概率 S(t)', W / 2, H - 4);
-    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillText('生存时间', 0, 0); ctx.restore();
-
-    // X axis label
     ctx.fillText('时间', padL + plotW / 2, H - 4);
+    ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('生存概率 S(t)', 0, 0); ctx.restore();
 
-    // Y tick labels
     ctx.font = '11px sans-serif';
     for (let i = 0; i <= 5; i++) {
       ctx.textAlign = 'right';
@@ -258,7 +248,6 @@ registerViz('km', renderKM);
         const y = padT + (1 - S[i]) * plotH;
         if (i === 0) ctx.moveTo(x, y);
         else {
-          const prevX = padL + (T[i - 1] / maxT) * plotW;
           ctx.lineTo(x, padT + (1 - S[i - 1]) * plotH);
           ctx.lineTo(x, y);
         }
@@ -269,19 +258,17 @@ registerViz('km', renderKM);
     drawStepCurve(group1.T, group1.S, '#e74c3c');
     drawStepCurve(group2.T, group2.S, '#2980b9');
 
-    // Median survival (approximate)
     function getMedian(T, S) {
       for (let i = 0; i < S.length; i++) { if (S[i] <= 0.5) return T[i]; }
-      return T[T.length - 1];
+      return T[T.length - 1] || 'NA';
     }
-    document.getElementById(id + '-med1').textContent = getMedian(group1.T, group1.S).toFixed(0) + 'd';
-    document.getElementById(id + '-med2').textContent = getMedian(group2.T, group2.S).toFixed(0) + 'd';
+    document.getElementById(id + '-med1').textContent = Number(getMedian(group1.T, group1.S)).toFixed(0) + 'd';
+    document.getElementById(id + '-med2').textContent = Number(getMedian(group2.T, group2.S)).toFixed(0) + 'd';
 
-    // Legend
     ctx.fillStyle = '#e74c3c'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('● 组1 (n=138)', padL + 10, padT + 18);
+    ctx.fillText(`● ${label1} (n=${times1.length})`, padL + 10, padT + 18);
     ctx.fillStyle = '#2980b9';
-    ctx.fillText('● 组2 (n=90)', padL + 120, padT + 18);
+    ctx.fillText(`● ${label2} (n=${times2.length})`, padL + 150, padT + 18);
   }
 registerViz('survcomp', renderSurvivalComp);
 

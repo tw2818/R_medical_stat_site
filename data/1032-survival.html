@@ -521,7 +521,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>生存分析是临床常用统计方法，一旦和时间扯上关系，分析就变得复杂多了，此时不再是单一的因变量，还需要考虑时间给因变量和自变量带来的各种影响。</p>
 <p>本次主要演示R语言做生存分析的一些方法。比如寿命表、K-M曲线、logrank检验。</p>
-<p>本推文不涉及理论，只有实操，想要了解生存分析的理论的请自行学习。不涉及理论，并不代表理论不重要，在以后的机器学习和临床预测模型的相关推文中，会经常用到这些理论，建议大家学习一下。</p>
+<p>本推文不涉及理论，只有实操，想要了解生存分析的理论的请自行学习。不涉及理论，并不代表理论不重要，在以后的机器学习和临床预测模型的相关推文中，会经常用到这些理论，建议大家学习一下。下面先用几个短组件把本章最容易混淆的概念串起来。</p>
+<div class="stat-viz" data-type="survival-censor-riskset-guide" data-title="生存分析的最小单元：时间、事件、删失"></div>
+<p>⬆ 上方先把 <code>Surv(time, status)</code> 的三件事讲清楚：事件让曲线下降，删失只减少后续风险集。</p>
 <section id="生存过程的描述" class="level2" data-number="25.1">
 <h2 data-number="25.1" class="anchored" data-anchor-id="生存过程的描述"><span class="header-section-number">25.1</span> 生存过程的描述</h2>
 <div class="cell">
@@ -569,6 +571,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="do">## [217]  192+  183   211+  175+  197+  203+  116   188+  191+  105+  174+  177+</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>如果只是想要描述一下这份生存数据，可以使用寿命表法或者K-M曲线，在R中可以通过<code>survfit()</code>实现。</p>
+<div class="stat-viz" data-type="survival-km-logrank-guide" data-title="寿命表、KM曲线和logrank检验怎么连起来"></div>
+<p>⬆ 上方把寿命表里的 <code>n.risk</code>、<code>n.event</code>、<code>n.censor</code> 与后面的曲线比较放在同一条流程里理解。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 构建生存曲线</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> df)</span>
@@ -812,6 +816,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="do">##       &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 1      10.3     1 0.00131</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="survival-logrank-oe-demo" data-title="交互理解logrank：观察事件数与期望事件数"></div>
+<p>⬆ 这里保留轻量交互：拖动滑块可以看到 O-E 偏离越大，logrank 统计量越大；这比只读 <code>(O-E)^2/V</code> 更直观。</p>
 <p>对于不同组别之间生存曲线的检验，也可以通过K-M图示的方法：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit.logrank <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex, <span class="at">data =</span> df)</span>
@@ -974,7 +980,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="do">##  $ meal.cal : num  1175 1225 NA 1150 NA ...</span></span>
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="do">##  $ wt.loss  : num  NA 15 15 11 0 0 10 1 16 34 ...</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>可以使用cox回归探索危险因素。分类变量需要变为因子型，这样在进行回归时会自动进行哑变量设置。</p>
+<p>可以使用cox回归探索危险因素。分类变量需要变为因子型，这样在进行回归时会自动进行哑变量设置；哑变量/参考组的解释逻辑与第24章分类变量重编码一致。</p>
+<div class="stat-viz" data-type="survival-cox-hr-bridge-guide" data-title="从Logistic的OR过渡到Cox的HR（风险比）"></div>
+<p>⬆ Cox 回归同样是回归模型，但把结局从“是否发生”扩展为“多久发生/是否删失”，所以结果重点从 OR 转为 HR。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>lung<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">factor</span>(lung<span class="sc">$</span>sex, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"female"</span>,<span class="st">"male"</span>))</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>lung<span class="sc">$</span>ph.ecog <span class="ot">&lt;-</span> <span class="fu">factor</span>(lung<span class="sc">$</span>ph.ecog, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"asymptomatic"</span>, <span class="st">"symptomatic"</span>,</span>
@@ -1031,7 +1039,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>Pr(&gt;|z|)</code>是回归系数的P值，</li>
 <li><code>lower .95/upper .95</code>是HR值的95%可信区间。</li>
 </ul>
-<p><code>Concordance= 0.645</code>是Cox回归的C-index，最后给出了<code>Likelihood ratio test</code>似然比检验的统计量、自由度、P值；<code>Wald test</code>的统计量、自由度、P值；<code>Score (logrank) test</code>的统计量、自由度、P值。</p>
+<p><code>Concordance= 0.637</code>是Cox回归的C-index，最后给出了<code>Likelihood ratio test</code>似然比检验的统计量、自由度、P值；<code>Wald test</code>的统计量、自由度、P值；<code>Score (logrank) test</code>的统计量、自由度、P值。</p>
 <p>想获得<em>整洁的结果</em>不需要自己提取，只要用神包<code>broom</code>即可：</p>
 <div class="stat-viz" data-type="cox"
   data-title="Cox 回归 HR 森林图"
@@ -1095,7 +1103,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="do">## ph.karno  8.017  1 0.0046</span></span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="do">## GLOBAL   10.359  3 0.0157</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>可以看到<code>ph.karno</code>的P值是小于0.05的，其实是不满足等比例风险假设的，下一篇推文会说到不符合等比例风险假设时该怎么办。</p>
+<p>可以看到<code>ph.karno</code>的P值是小于0.05的，其实是不满足等比例风险假设的，下一节会继续处理不符合等比例风险假设时该怎么办。</p>
+<div class="stat-viz" data-type="survival-ph-diagnostic-guide" data-title="PH假设诊断：什么时候不能只报一个HR"></div>
+<p>⬆ 上方用 <code>cox.zph()</code> 的真实输出提示：如果某个变量的 HR 明显随时间改变，单一 HR 解释就要谨慎。</p>
 <p>这种方法是基于Schoenfeld残差，检验结果可以通过图示画出来：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)</span>
@@ -1160,7 +1170,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>本次主要介绍如果数据不符合PH假设时采取的方法。</p>
 <p>关于时依协变量、时依系数的基础知识，大家可以参考这几篇文章：</p>
 <ul>
-<li>survival包的案例介绍：<a href="https://cran.r-project.org/web/packages/survival/vignettes/timedep.pdf">Using Time Dependent Covariates and Time Dependent Coefcients in the Cox Model</a></li>
+<li>survival包的案例介绍：<a href="https://cran.r-project.org/web/packages/survival/vignettes/timedep.pdf">Using Time Dependent Covariates and Time Dependent Coefficients in the Cox Model</a></li>
 <li>医咖会：<a href="https://mp.weixin.qq.com/s/CSwO42ucfeKipHl32NoOCA">一文详解时依协变量</a></li>
 <li>7code：<a href="https://mp.weixin.qq.com/s/sBJ8Xg_e3uBfUnDOIPoxug">含时依协变量的Cox回归</a></li>
 </ul>
@@ -1226,6 +1236,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="对时间分层" class="level3" data-number="25.4.1">
 <h3 data-number="25.4.1" class="anchored" data-anchor-id="对时间分层"><span class="header-section-number">25.4.1</span> 对时间分层</h3>
 <p>这种情况下一个比较简单的解决方式是<strong>对时间使用分层函数</strong>。根据上面的图示我们知道<code>karno</code>的系数大概分为3层（3段），可以根据两个拐点进行分层，通过<code>survival</code>中的<code>survSplit()</code>实现。</p>
+<div class="stat-viz" data-type="survival-time-split-demo" data-title="survSplit时间分层：从一行数据到多段风险区间"></div>
+<p>⬆ 这个交互组件用于理解 <code>tstart</code>、<code>time</code>、<code>status</code>、<code>tgroup</code>：同一个受试者会按切点拆成多行，只有事件发生的最后一段记为 1。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>vet2 <span class="ot">&lt;-</span> <span class="fu">survSplit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ., <span class="at">data=</span> veteran, </span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">cut=</span><span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">180</span>), <span class="co"># 两个拐点把时间分为3层（3段）</span></span>
@@ -1300,7 +1312,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>此时<code>karno</code>的时依系数估计为：-0.124662 * log(t + 20)。</p>
 <p>在构建时依协变量时，可以选择<strong>x * t、x * log(t)、x * log(t + 20)、x * log(t + 200)等等</strong>，没有明确的规定，要结合结果和图示进行选择，可以参考冯国双老师的文章：<a href="https://mp.weixin.qq.com/s/CSwO42ucfeKipHl32NoOCA" title="医咖会时依协变量">一文详解时依协变量</a>。</p>
-<p>我们可以把现在的时依系数估计和经过变换后的的PH检验画在一起，看看变换后的效果：</p>
+<p>我们可以把现在的时依系数估计和经过变换后的PH检验画在一起，看看变换后的效果：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 变换后的PH检验</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>zp <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(fit, <span class="at">transform =</span> <span class="cf">function</span>(time) <span class="fu">log</span>(time <span class="sc">+</span> <span class="dv">20</span>))</span>

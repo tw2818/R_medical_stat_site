@@ -16,4 +16,5 @@ import './logistic-guides.js';
 import './loglinear-guides.js';
 import './poisson-guides.js';
 import './codescheme-guides.js';
+import './survival-guides.js';
 import './overrides.js';
