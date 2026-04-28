@@ -42,6 +42,21 @@ test('chapter 20 keeps existing regression visualizations and adds compact teach
   assert.match(html, /R\<sup\>2\<\/sup\>|AIC|BIC|RMSE|VIF|逐步/);
 });
 
+test('chapter 20 coefficient CI plot uses actual predictor coefficients and omits intercept scaling', () => {
+  const coefMatch = html.match(/<div class="stat-viz" data-type="coefci"[^>]+>/);
+  assert.ok(coefMatch, 'coefci widget should exist');
+  const coef = coefMatch[0];
+
+  assert.match(coef, /data-title="多元回归自变量系数置信区间"/);
+  assert.match(coef, /data-labels="cho,tg,ri,hba"/);
+  assert.doesNotMatch(coef, /截距/);
+  assert.doesNotMatch(coef, /data-betas="6\.50/);
+
+  assert.match(coef, /data-betas="0\.1424,0\.3515,-0\.2706,0\.6382"/);
+  assert.match(coef, /data-lower="-0\.6160,-0\.0720,-0\.5224,0\.1336"/);
+  assert.match(coef, /data-upper="0\.9008,0\.7750,-0\.0188,1\.1428"/);
+});
+
 test('multireg guide renderer is loaded by presentation bundle and stats-viz entrypoint', () => {
   const bundle = readFileSync(bundlePath, 'utf8');
   const statsViz = readFileSync(statsVizPath, 'utf8');
