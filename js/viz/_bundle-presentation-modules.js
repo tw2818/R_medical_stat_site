@@ -17,4 +17,5 @@ import './loglinear-guides.js';
 import './poisson-guides.js';
 import './codescheme-guides.js';
 import './survival-guides.js';
+import './survivalvis-guides.js';
 import './overrides.js';

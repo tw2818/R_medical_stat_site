@@ -488,13 +488,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#演示数据" id="toc-演示数据" class="nav-link active" data-scroll-target="#演示数据"><span class="header-section-number">26.1</span> 演示数据</a></li>
   <li><a href="#基本的生存曲线" id="toc-基本的生存曲线" class="nav-link" data-scroll-target="#基本的生存曲线"><span class="header-section-number">26.2</span> 基本的生存曲线</a></li>
   <li><a href="#增加-risk-table" id="toc-增加-risk-table" class="nav-link" data-scroll-target="#增加-risk-table"><span class="header-section-number">26.3</span> 增加 risk table</a></li>
-  <li><a href="#增加删失时间表ncensor-plot" id="toc-增加删失时间表ncensor-plot" class="nav-link" data-scroll-target="#增加删失时间表ncensor-plot"><span class="header-section-number">26.4</span> 增加删失时间表ncensor plot</a></li>
-  <li><a href="#超级无敌精细化自定设置" id="toc-超级无敌精细化自定设置" class="nav-link" data-scroll-target="#超级无敌精细化自定设置"><span class="header-section-number">26.5</span> 超级无敌精细化自定设置</a></li>
+  <li><a href="#增加删失数图ncensor-plot" id="toc-增加删失数图ncensor-plot" class="nav-link" data-scroll-target="#增加删失数图ncensor-plot"><span class="header-section-number">26.4</span> 增加删失数图（ncensor plot）</a></li>
+  <li><a href="#高度自定义设置" id="toc-高度自定义设置" class="nav-link" data-scroll-target="#高度自定义设置"><span class="header-section-number">26.5</span> 高度自定义设置</a></li>
   <li><a href="#多个组的生存曲线" id="toc-多个组的生存曲线" class="nav-link" data-scroll-target="#多个组的生存曲线"><span class="header-section-number">26.6</span> 多个组的生存曲线</a></li>
   <li><a href="#多个分类变量分面绘制" id="toc-多个分类变量分面绘制" class="nav-link" data-scroll-target="#多个分类变量分面绘制"><span class="header-section-number">26.7</span> 多个分类变量分面绘制</a></li>
   <li><a href="#同时绘制多个生存函数" id="toc-同时绘制多个生存函数" class="nav-link" data-scroll-target="#同时绘制多个生存函数"><span class="header-section-number">26.8</span> 同时绘制多个生存函数</a></li>
   <li><a href="#根据某一个变量分组绘制" id="toc-根据某一个变量分组绘制" class="nav-link" data-scroll-target="#根据某一个变量分组绘制"><span class="header-section-number">26.9</span> 根据某一个变量分组绘制</a></li>
-  <li><a href="#在原有生存曲线的基础上增加" id="toc-在原有生存曲线的基础上增加" class="nav-link" data-scroll-target="#在原有生存曲线的基础上增加"><span class="header-section-number">26.10</span> 在原有生存曲线的基础上增加</a></li>
+  <li><a href="#在原有生存曲线的基础上增加总体曲线" id="toc-在原有生存曲线的基础上增加总体曲线" class="nav-link" data-scroll-target="#在原有生存曲线的基础上增加总体曲线"><span class="header-section-number">26.10</span> 在原有生存曲线的基础上增加总体曲线</a></li>
   <li><a href="#多个生存函数画在一起" id="toc-多个生存函数画在一起" class="nav-link" data-scroll-target="#多个生存函数画在一起"><span class="header-section-number">26.11</span> 多个生存函数画在一起</a></li>
   <li><a href="#参考资料" id="toc-参考资料" class="nav-link" data-scroll-target="#参考资料"><span class="header-section-number">26.12</span> 参考资料</a></li>
   </ul>
@@ -549,10 +549,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>ggcompetingrisks()</code>:</li>
 </ul></li>
 </ul>
-<p>关于Cox模型诊断和汇总在之前的推文中已经进行过详细的讲解。本次主要介绍生存曲线的绘制及细节。</p>
+<p>关于 Cox 模型诊断和模型汇总，前一章已经介绍核心思路。本章聚焦生存曲线可视化：如何用 <code>ggsurvplot()</code> 把 Kaplan-Meier 曲线、删失标记、风险集人数、P 值和多个曲线布局组织成可读的图。</p>
 <section id="演示数据" class="level2" data-number="26.1">
 <h2 data-number="26.1" class="anchored" data-anchor-id="演示数据"><span class="header-section-number">26.1</span> 演示数据</h2>
-<p>使用<code>survival</code>包中的<code>lung</code>数据集用于演示，这是一份关于肺癌患者的生存数据。<code>time</code>是生存时间，以天为单位，<code>status</code>是生存状态，1代表删失，2代表死亡。</p>
+<p>使用 <code>survival</code> 包中的 <code>lung</code> 数据集用于演示，这是一份关于肺癌患者的生存数据。<code>time</code> 是生存时间，以天为单位。<strong>lung 数据的 status 原始编码为 1=删失、2=死亡</strong>；后文 <code>colon</code> 数据在本章示例中使用 1=事件、0=删失。<strong>status 编码要先看数据说明，再决定是否转换</strong>，不能机械套用某一种 0/1 或 1/2 规则。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)</span>
@@ -576,6 +576,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="基本的生存曲线" class="level2" data-number="26.2">
 <h2 data-number="26.2" class="anchored" data-anchor-id="基本的生存曲线"><span class="header-section-number">26.2</span> 基本的生存曲线</h2>
 <div class="stat-viz" data-type="km" data-title="Kaplan-Meier 生存曲线示例" data-times="[31,46,101,21,88,102,31,36,22,17,17,65,73,7,57,14,61,71,6,9,30,8,72,10,48,16,35,38,26,45]" data-status="[1,1,0,1,0,1,1,1,1,1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0]"></div>
+<div class="stat-viz" data-type="survivalvis-anatomy-guide" data-title="先读懂 ggsurvplot 图层"></div>
+<p>⬆ 上方把一张生存曲线图拆成主曲线、删失标记、置信区间和表格层。ggsurvplot()：最常用的生存曲线可视化入口；先保证 <code>Surv(time, status)</code> 编码正确，再逐步增加图层。</p>
 <p>最基本的生存曲线：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(fit, <span class="at">data =</span> lung)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -626,6 +628,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<div class="stat-viz" data-type="survivalvis-warning-guide" data-title="如何理解本章出现的 ggplot warning"></div>
+<p>⬆ 这些 geom_segment() warning 是 ggplot2 对辅助线图层的长度提示，常见于中位生存线或辅助线图层与分组数据行数不一致时；图形能正常生成时，它们通常不是生存模型本身的错误，正式制图可考虑用 <code>annotate()</code> 或单行辅助数据减少提示。</p>
 <p>累积风险曲线：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(fit,</span>
@@ -661,6 +665,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="增加-risk-table" class="level2" data-number="26.3">
 <h2 data-number="26.3" class="anchored" data-anchor-id="增加-risk-table"><span class="header-section-number">26.3</span> 增加 risk table</h2>
+<div class="stat-viz" data-type="survivalvis-risk-table-demo" data-title="risk table 怎么读"></div>
+<p>⬆ risk table 不是装饰项，而是在每个时间点告诉读者各组还剩多少人在风险集中。曲线尾部如果 at risk 很少，即使线条看起来分离，也要更谨慎解释。</p>
 <p>增加多种自定义选项：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(</span>
@@ -737,8 +743,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="增加删失时间表ncensor-plot" class="level2" data-number="26.4">
-<h2 data-number="26.4" class="anchored" data-anchor-id="增加删失时间表ncensor-plot"><span class="header-section-number">26.4</span> 增加删失时间表ncensor plot</h2>
+<section id="增加删失数图ncensor-plot" class="level2" data-number="26.4">
+<h2 data-number="26.4" class="anchored" data-anchor-id="增加删失数图ncensor-plot"><span class="header-section-number">26.4</span> 增加删失数图（ncensor plot）</h2>
+<p><code>ncensor.plot = TRUE</code> 会在主图下方增加删失数图（ncensor plot），用来显示不同时间段删失人数的分布。它与 risk table 互补：risk table 看“还剩多少人在风险集中”，ncensor plot 看“删失主要发生在哪些时间段”。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(fit, <span class="at">data =</span> lung, <span class="at">risk.table =</span> <span class="cn">TRUE</span>, <span class="at">ncensor.plot =</span> <span class="cn">TRUE</span>)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -781,8 +788,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="超级无敌精细化自定设置" class="level2" data-number="26.5">
-<h2 data-number="26.5" class="anchored" data-anchor-id="超级无敌精细化自定设置"><span class="header-section-number">26.5</span> 超级无敌精细化自定设置</h2>
+<section id="高度自定义设置" class="level2" data-number="26.5">
+<h2 data-number="26.5" class="anchored" data-anchor-id="高度自定义设置"><span class="header-section-number">26.5</span> 高度自定义设置</h2>
+<div class="stat-viz" data-type="survivalvis-parameter-map-guide" data-title="复杂参数先按用途归类"></div>
+<p>⬆ 高度自定义时，建议先区分统计含义、读图辅助和外观布局。先把 <code>risk.table</code>、<code>ncensor.plot</code>、<code>surv.median.line</code> 等有解释价值的层放清楚，再调整字体、颜色和主题。</p>
 <p>首先设置好自己的默认样式：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ggsurv <span class="ot">&lt;-</span> <span class="fu">ggsurvplot</span>(</span>
@@ -916,7 +925,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="多个组的生存曲线" class="level2" data-number="26.6">
 <h2 data-number="26.6" class="anchored" data-anchor-id="多个组的生存曲线"><span class="header-section-number">26.6</span> 多个组的生存曲线</h2>
 <p>如果你的分类变量是多个组别的（常见的都是两组比较的），会自动画出多条生存曲线。如果你有多个分类自变量，会自动画出所有组合的生存曲线。</p>
-<p>使用<code>colon</code>数据集，其中<code>time</code>是时间，<code>status</code>是生存状态，1为发生终点事件，0为删失，<code>rx</code>是治疗方式，有三种：observation、Levamisole、Levamisole+5-FU，<code>obstruct</code>是肿瘤是否阻塞结肠，有为1，无为0，<code>adhere</code>是肿瘤是否粘附附近器官，有为1，无为0。</p>
+<p>使用 <code>colon</code> 数据集，其中 <code>time</code> 是时间，<code>status</code> 是生存状态；<strong>colon 数据在本章示例中使用 1=事件、0=删失</strong>。<code>rx</code> 是治疗方式，有三种：observation、Levamisole、Levamisole+5-FU；<code>obstruct</code> 是肿瘤是否阻塞结肠，有为 1、无为 0；<code>adhere</code> 是肿瘤是否粘附附近器官，有为 1、无为 0。注意这里与 <code>lung</code> 的 status 原始编码不同，建模前应先核对数据说明。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
@@ -963,6 +972,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="多个分类变量分面绘制" class="level2" data-number="26.7">
 <h2 data-number="26.7" class="anchored" data-anchor-id="多个分类变量分面绘制"><span class="header-section-number">26.7</span> 多个分类变量分面绘制</h2>
+<div class="stat-viz" data-type="survivalvis-grouping-guide" data-title="多曲线场景先选函数"></div>
+<p>⬆ 多条生存曲线不一定都要塞进同一张图。先判断要“同图比较、分面展示、拆组输出，还是多终点合并”，再选择对应函数。</p>
 <p>还是以<code>colon</code>数据集为例，这次我们用3个变量：<code>sex/rx/adhere</code>，这3个都是分类变量。</p>
 <p>首先构建生存函数：</p>
 <div class="cell">
@@ -1135,9 +1146,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="do">## [5] "rx:Lev+5FU, adhere:0::sex" "rx:Lev+5FU, adhere:1::sex"</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="在原有生存曲线的基础上增加" class="level2" data-number="26.10">
-<h2 data-number="26.10" class="anchored" data-anchor-id="在原有生存曲线的基础上增加"><span class="header-section-number">26.10</span> 在原有生存曲线的基础上增加</h2>
-<p>先画好一个生存曲线图，然后在原图的基础上添加新的生存曲线图，类似于base r中常用的<code>add = T</code>，比如在这篇推文中介绍的：<strong>多个时间点和多指标生存曲线</strong></p>
+<section id="在原有生存曲线的基础上增加总体曲线" class="level2" data-number="26.10">
+<h2 data-number="26.10" class="anchored" data-anchor-id="在原有生存曲线的基础上增加总体曲线"><span class="header-section-number">26.10</span> 在原有生存曲线的基础上增加总体曲线</h2>
+<p>先画好一个分组生存曲线图，再用 <code>add.all = TRUE</code> 在原图基础上添加总体曲线。它的作用类似于在分组曲线旁边提供一个全人群参照线，方便判断各组相对总体趋势的位置。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1199,6 +1210,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="多个生存函数画在一起" class="level2" data-number="26.11">
 <h2 data-number="26.11" class="anchored" data-anchor-id="多个生存函数画在一起"><span class="header-section-number">26.11</span> 多个生存函数画在一起</h2>
+<div class="stat-viz" data-type="survivalvis-combine-guide" data-title="什么时候把多个生存函数画在一起"></div>
+<p>⬆ 如果是同一批对象的多个终点（例如 PFS 和 OS），可用 <code>ggsurvplot_combine()</code> 合并展示；如果只是想批量生成多个图，<code>ggsurvplot_list()</code> 更合适。</p>
 <p>比如把PFS和OS的生存曲线画在一张图上。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>

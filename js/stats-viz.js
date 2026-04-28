@@ -22,6 +22,7 @@ import './viz/loglinear-guides.js';
 import './viz/poisson-guides.js';
 import './viz/codescheme-guides.js';
 import './viz/survival-guides.js';
+import './viz/survivalvis-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;
