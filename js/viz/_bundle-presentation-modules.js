@@ -13,4 +13,5 @@ import './anova-attention-guides.js';
 import './hotelling-guides.js';
 import './multireg-guides.js';
 import './logistic-guides.js';
+import './loglinear-guides.js';
 import './overrides.js';
