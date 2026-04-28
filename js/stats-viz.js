@@ -16,6 +16,7 @@ import './viz/repeated-anova-guides.js';
 import './viz/ancova-guides.js';
 import './viz/anova-attention-guides.js';
 import './viz/hotelling-guides.js';
+import './viz/multireg-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;

@@ -524,7 +524,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="多元线性回归" class="level2" data-number="20.1">
 <h2 data-number="20.1" class="anchored" data-anchor-id="多元线性回归"><span class="header-section-number">20.1</span> 多元线性回归</h2>
 <p>使用一个医学中常见的数据进行演示：探索不同因素对空腹血糖的影响，数据录入如下。</p>
+<div class="stat-viz" data-type="multireg-formula-guide" data-title="多元线性回归：先看变量角色和公式语义"></div>
+<p>⬆ 本章公式的核心是：一个连续因变量 <code>fpg</code>，同时由多个自变量解释；每个系数都要在“控制其他变量后”解释。</p>
 <p>使用课本<strong>例15-1</strong>的数据，手动摘录：</p>
+
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df15_1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">cho =</span> <span class="fu">c</span>(<span class="fl">5.68</span>,<span class="fl">3.79</span>,<span class="fl">6.02</span>,<span class="fl">4.85</span>,<span class="fl">4.60</span>,<span class="fl">6.05</span>,<span class="fl">4.90</span>,<span class="fl">7.08</span>,<span class="fl">3.85</span>,<span class="fl">4.65</span>,<span class="fl">4.59</span>,<span class="fl">4.29</span>,<span class="fl">7.97</span>,</span>
@@ -601,10 +604,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 8.278 on 4 and 22 DF,  p-value: 0.0003121</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>这个结果信息很丰富，给出了截距，各自变量的系数以及标准误、t值、P值，最下方给出了决定系数R<sup>2</sup>，调整后的R<sup>2</sup>，F值，总体方程的P值等。</p>
+<div class="stat-viz" data-type="multireg-coef-guide" data-title="系数表怎么读：方向、大小和不确定性"></div>
+<p>⬆ 读 <code>summary(f)</code> 时，不要只看 P 值；估计值、标准误、t 值和 P 值分别回答不同问题。</p>
 </section>
 <section id="模型评价" class="level2" data-number="20.2">
 <h2 data-number="20.2" class="anchored" data-anchor-id="模型评价"><span class="header-section-number">20.2</span> 模型评价</h2>
 <p>回归模型可以通过R<sup>2</sup>、AIC、BIC、RMSE等评价，R<sup>2</sup>范围在0~1之间，越接近1说明结果越好。AIC、BIC、RMSE是越小越好。</p>
+<div class="stat-viz" data-type="multireg-metrics-guide" data-title="模型评价：R²、AIC、BIC、RMSE各看什么"></div>
+<p>⬆ 解释型模型、预测型模型和变量筛选时关注的指标不同：R²看解释度，RMSE看误差量级，AIC/BIC更适合模型比较。</p>
 <div class="stat-viz" data-type="coefci" data-title="多元回归系数置信区间" data-labels="截距,cho,tg,ri,hba" data-betas="6.50,0.14,0.35,0.09,0.05" data-lower="4.21,-0.03,0.12,0.02,0.01" data-upper="8.79,0.31,0.58,0.16,0.09"></div>
 <p>📊 交互式散点图（预测值 vs 实际值）:</p>
 <div class="stat-viz" data-type="scatter" data-title="多元回归：预测值与实际值对比" data-xlabel="预测值" data-ylabel="实际值" data-xs="8.2,12.5,10.1,15.3,9.8,11.2,7.5,13.0,10.8,14.2" data-ys="8.5,12.0,10.5,15.0,9.5,11.5,7.0,12.8,10.2,14.5" data-regression="true"></div>
@@ -640,6 +647,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>等方差性</li>
 <li>线性</li>
 </ul>
+<div class="stat-viz" data-type="multireg-diagnostics-guide" data-title="回归诊断：四个假设 + 强影响点"></div>
+<p>⬆ 回归诊断不是装饰图，而是在检查系数、置信区间和 P 值是否可以被信任。</p>
 <section id="看图判断" class="level3" data-number="20.3.1">
 <h3 data-number="20.3.1" class="anchored" data-anchor-id="看图判断"><span class="header-section-number">20.3.1</span> 看图判断</h3>
 <div class="cell">
@@ -871,6 +880,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="多重共线性的检验" class="level3" data-number="20.3.3">
 <h3 data-number="20.3.3" class="anchored" data-anchor-id="多重共线性的检验"><span class="header-section-number">20.3.3</span> 多重共线性的检验</h3>
 <p>下面是多重共线性的检验，通过计算方差膨胀因子检验。</p>
+<div class="stat-viz" data-type="multireg-vif-demo" data-title="交互演示：共线性如何放大标准误"></div>
+<p>⬆ 拖动相关系数可以看到：预测变量越相关，VIF 越大，系数标准误越容易被放大。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(f)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="do">##      cho       tg       ri      hba </span></span>
@@ -904,6 +915,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="逐步选择法" class="level2" data-number="20.4">
 <h2 data-number="20.4" class="anchored" data-anchor-id="逐步选择法"><span class="header-section-number">20.4</span> 逐步选择法</h2>
+<div class="stat-viz" data-type="multireg-selection-guide" data-title="变量选择：逐步 AIC 与全子集只是筛选工具"></div>
+<p>⬆ 变量选择的统计指标可以帮助缩小候选模型，但最终模型还要结合临床意义、研究设计和稳定性判断。</p>
 <p>向后回归：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>

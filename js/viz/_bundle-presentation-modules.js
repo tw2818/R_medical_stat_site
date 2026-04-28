@@ -11,4 +11,5 @@ import './repeated-anova-guides.js';
 import './ancova-guides.js';
 import './anova-attention-guides.js';
 import './hotelling-guides.js';
+import './multireg-guides.js';
 import './overrides.js';
