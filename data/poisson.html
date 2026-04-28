@@ -517,9 +517,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="泊松回归简介" class="level2" data-number="23.1">
 <h2 data-number="23.1" class="anchored" data-anchor-id="泊松回归简介"><span class="header-section-number">23.1</span> 泊松回归简介</h2>
-<div class="stat-viz" data-type="poisson" data-title="泊松分布示例 (λ=3.5)" data-lambda="3.5"></div>
+<div class="stat-viz" data-type="poissondistfixed" data-title="泊松分布示例 (λ=3.5)" data-lambda="3.5"></div>
 <p>人类稀有疾病或一些卫生事件，如恶性肿瘤、非遗传性先天性疾病、癫痫患者在两周内癫痫病发作次数、某地在一个月内因交通事故死亡人数、某病患者在一年内住院次数、1ml水中大肠杆菌数、1L空气中粉尘粒子数和放射性物质在一定时间内放射性质点数等计数资料（count data），具有发病率低或者不像二项分布资料有分母能计算比例（proportion）等特点；因此，这些事件数的多少除了取决于事件的实际发生数外，还取决于计数时研究者所观察的范围，即观察多长时间、多大人群、多少体积或面积等。使用发病密度（incidence density，ID）等密度指标描述这些事件的群体特征比较合适。对于上述罕见事件的发生，如果事件之间彼此相互独立，观察样本含量较大时，则具有平均计数等于方差的特点；这类事件的发生次数往往服从Poisson分布。</p>
 <p>Poisson回归（Poisson regression）主要用于单位时间、单位面积、单位空间内某事件发生数的影响因素分析。</p>
+<div class="stat-viz" data-type="poisson-glm-connection" data-title="从 log-linear 到 Poisson 回归"></div>
+<p>⬆ 上方展示了第22章到第23章的连续性：仍然是 Poisson/log 连接，但本章通过 <code>offset = log(N)</code> 把“频数”推进到“事件率”。</p>
 </section>
 <section id="泊松回归应用" class="level2" data-number="23.2">
 <h2 data-number="23.2" class="anchored" data-anchor-id="泊松回归应用"><span class="header-section-number">23.2</span> 泊松回归应用</h2>
@@ -574,6 +576,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>data18_1<span class="sc">$</span>X1 <span class="ot">&lt;-</span> <span class="fu">factor</span>(data18_1<span class="sc">$</span>X1,<span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"无暴露"</span>,<span class="st">"有暴露"</span>))</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>下面就是建立泊松回归模型即可。本例资料的观察单位为人年数，事件数（因变量）为因呼吸道疾病死亡人数；影响因素有两个，砷暴露情况和年龄。由于观察单位不同，所以在建模时需要<strong>设置偏移量</strong>，也就是<code>offset</code>：</p>
+<div class="stat-viz" data-type="poisson-offset-guide" data-title="offset = log(N)：把事件数变成事件率"></div>
+<p>⬆ 上方解释了为什么这里不能只拟合死亡数 <code>Y</code>：不同年龄/暴露组的人年数 <code>N</code> 不同，offset 用来校准观察量。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">glm</span>(Y <span class="sc">~</span> X1 <span class="sc">+</span> YEARGRP,<span class="at">data =</span> data18_1,<span class="at">family =</span> <span class="fu">poisson</span>(),<span class="at">offset =</span> <span class="fu">log</span>(N))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 或者也可以写成</span></span>
@@ -631,7 +635,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="do">## YEARGRP60-69岁组 6.8478373075 1.743573e+01</span></span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="do">## YEARGRP&gt;=70岁组  8.5090045641 2.323118e+01</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>结果解释：在控制年龄因素后，砷暴露组因呼吸道疾病死亡的风险是非暴露组的exp(0.8109)=2.25倍（95%CI：1.77～2.85）。在控制砷暴露因素后，因呼吸道疾病死亡风险随着年龄增加越来越大，其中“50～59岁”年龄组因呼吸道疾病死亡风险是“40～49岁”年龄组的exp(1.4702)=4.35倍（95%CI：2.74<sub>7.21)，“60～69岁”年龄组因呼吸道疾病死亡风险是“40～49岁”年龄组的exp(2.366)=10.66倍（95%CI：6.85～17.44），70岁以上年龄组因呼吸道疾病死亡风险是“40～49”岁年龄组的exp(2.6238)=13.79倍（95%CI:8.51</sub>23.23)。</p>
+<div class="stat-viz" data-type="poisson-irr-guide" data-title="从 β 到 IRR/RR：暴露效应怎么报告"></div>
+<p>⬆ 上方用砷暴露项的真实输出说明：Poisson 回归的 <code>exp(β)</code> 可解释为 IRR/RR，报告时要同时给出 95%CI。</p>
+<p>结果解释：在控制年龄因素后，砷暴露组因呼吸道疾病死亡的风险是非暴露组的exp(0.8109)=2.25倍（95%CI：1.77～2.85）。在控制砷暴露因素后，因呼吸道疾病死亡风险随着年龄增加越来越大，其中“50～59岁”年龄组因呼吸道疾病死亡风险是“40～49岁”年龄组的exp(1.4702)=4.35倍（95%CI：2.74～7.21），“60～69岁”年龄组因呼吸道疾病死亡风险是“40～49岁”年龄组的exp(2.366)=10.66倍（95%CI：6.85～17.44），70岁以上年龄组因呼吸道疾病死亡风险是“40～49”岁年龄组的exp(2.6238)=13.79倍（95%CI：8.51～23.23）。</p>
 <p>基线发病密度（即所有自变量均为0时的发病密度）或40～49岁无砷暴露史人群因呼吸道疾病的死亡密度为exp(-8.0086)=33.260/10万人年。40～49岁有砷暴露史的人群因呼吸道疾病的死亡密度为exp(-8.0086+0.8109×1+1.4702×0+2.3661x0+2.6238x0)=74.831/10万人年；其他各组的死亡密度计算与此类似。</p>
 <p>下面对模型进行拟合优度检验，采用pearson卡方统计量和残差偏差统计量进行评价，参考资料见（https://rstudio-pubs-static.s3.amazonaws.com/1047952_9306ae04c1de4543812af559d777dd72.html）。</p>
 <p>首先是残差偏差法：</p>
@@ -659,6 +665,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   Pearson's Chi-Squared = 9.692</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="do">##                 p-value = 0.021</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="poisson-overdispersion-guide" data-title="过度离散诊断：为什么 Poisson 拟合不够好"></div>
+<p>⬆ 上方汇总了本例三种诊断线索：残差偏差、Pearson 卡方和 <code>check_overdispersion()</code> 都提示标准 Poisson 假设偏乐观。</p>
 <p>结果表明该数据确实存在过度离散，因此使用<code>poisson()</code>是不太合适的，我们可以使用<code>quasipoisson()</code>试试（或者用下一节介绍的负二项回归）。</p>
 <p>泊松回归假设方差等于均值，也就是所谓的等离散（equidispersion）。而实际数据中经常出现过度离散（overdispersion），也就是方差大于均值的情况。这时候，使用poisson族可能不合适，标准误会被低估，导致p值过小，可能得出错误的显著性结论。quasipoisson就是用来处理这种情况的，它引入了一个离散参数来调整方差和标准误，但不改变系数估计值。</p>
 <div class="cell">
@@ -687,12 +695,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Number of Fisher Scoring iterations: 4</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="poisson-model-choice-guide" data-title="模型选择：Poisson、quasi-Poisson 还是负二项"></div>
+<p>⬆ 上方把本例的 <code>quasipoisson()</code> 输出放进模型选择框架：系数不变但标准误放大；下一节的负二项则进一步建模额外离散。</p>
 <p>系数没变，P值和标准误变大了，结果解读同上，不再重复。</p>
 </section>
 <section id="负二项回归简介" class="level2" data-number="23.3">
 <h2 data-number="23.3" class="anchored" data-anchor-id="负二项回归简介"><span class="header-section-number">23.3</span> 负二项回归简介</h2>
-<p>Poisson回归的应用条件之一是计数资料服从Poisson分布，即满足计数值的平均值等于方差。但是，有许多事件的发生是非独立的（如传染性疾病、遗传性疾病、地方病、致病生物的分布和一些原因不明疾病的空间聚集现象等），它们的计数资料会发生方差远远大于平均值，即存在<strong>过度离散</strong>现象（over-dispersion）；若用Poisson回归来分析这些事件的影响因素，会导致模型参数估计值的标准误偏小，参数检验的假阳性率增加。此时，宜选用负二项回归模型（negativebinomialregression）来分析这些资料。</p>
+<p>Poisson回归的应用条件之一是计数资料服从Poisson分布，即满足计数值的平均值等于方差。但是，有许多事件的发生是非独立的（如传染性疾病、遗传性疾病、地方病、致病生物的分布和一些原因不明疾病的空间聚集现象等），它们的计数资料会发生方差远远大于平均值，即存在<strong>过度离散</strong>现象（over-dispersion）；若用Poisson回归来分析这些事件的影响因素，会导致模型参数估计值的标准误偏小，参数检验的假阳性率增加。此时，宜选用负二项回归模型（negative binomial regression）来分析这些资料。</p>
 <p>负二项回归模型是基于计数资料服从负二项分布的。负二项分布实际上是当Poisson分布中强度参数λ服从γ分布（Gamma distribution）时所得到的复合分布。在Poisson分布中，λ是一个常数：在负二项分布中，λ是一个随机变量，并服从γ分布；因此，负二项分布又称γ-Poisson分布（Gamma-Poisson distribution）。</p>
+<div class="stat-viz" data-type="negativebinomialguide" data-title="负二项分布：处理过度离散计数资料"></div>
+<p>⬆ 上方用分布层面解释了负二项回归为什么适合过度离散：它允许方差大于均值，而不是强迫 Var(Y)=E(Y)。</p>
 </section>
 <section id="负二项回归应用" class="level2" data-number="23.4">
 <h2 data-number="23.4" class="anchored" data-anchor-id="负二项回归应用"><span class="header-section-number">23.4</span> 负二项回归应用</h2>
@@ -769,7 +781,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="do">##  2 x log-likelihood:  -418.2280</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>结果与书中一致。输出结果和泊松回归的结果基本一样，其中有一个Theta：0.3003是负二项分布的过度离散参数，表示数据的过度离散程度。如果theta接近1，表明数据接近泊松分布。</p>
+<div class="stat-viz" data-type="poisson-nb-result-guide" data-title="glm.nb() 输出：theta、AIC 与方向解释"></div>
+<p>⬆ 上方把负二项回归输出中的 theta、AIC 和系数方向拆开说明：城市相对农村为负，反向表达为农村约为城市的 7.08 倍。</p>
+<p>结果与书中一致。输出结果和泊松回归的结果基本一样，其中有一个Theta：0.3003是负二项分布的过度离散参数，表示数据的过度离散程度。在 MASS 的常见参数化中，theta越大越接近Poisson分布；本例 theta=0.3003 提示存在明显过度离散。</p>
 <p>结果显示城市家庭和贫民区家庭滋生蚊虫幼虫机会都低于农村家庭，但是只有城市家庭才有统计学意义。或者，农村家庭滋生蚊虫幼虫机会是城市家庭的exp（1.9572）=7.08倍（95%CI：2.527～19.834），而与贫民区家庭之间没有差别。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 演示下这个95%CI的计算方法。</span></span>
