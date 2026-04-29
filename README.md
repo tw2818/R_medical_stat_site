@@ -69,12 +69,26 @@ R_medical_stat_site/
 ├── css/
 │   └── style.css                  # 全站样式
 ├── js/
-│   ├── app.js                     # 主应用逻辑（ES Module）
+│   ├── app/                       # 主应用模块化拆分（ES Module）
+│   │   │   ├── search.js              # 搜索功能
+│   │   │   ├── progress-widget.js     # 进度追踪组件
+│   │   │   ├── ui-shell.js            # UI 壳层
+│   │   │   ├── home-enhancements.js   # 首页增强
+│   │   │   ├── navigation.js          # 导航逻辑
+│   │   │   ├── chapter-content.js     # 章节内容处理
+│   │   │   ├── nav-shell.js           # 导航壳层
+│   │   │   ├── toast.js               # 提示组件
+│   │   │   ├── chapter-dom.js         # 章节 DOM 处理
+│   │   │   ├── lightbox.js            # 灯箱组件
+│   │   │   ├── chapter-interactions.js # 章节交互
+│   │   │   ├── chapter-loader.js      # 章节加载器
+│   │   │   ├── theme.js               # 主题管理
+│   │   │   └── state.js               # 状态管理
 │   ├── chapters.js                # 46 个章节元数据 + 进度工具（ES Module）
 │   ├── chapter-patches.js         # 章节 patch 组合入口
 │   ├── chapter-patches-text.js    # 章节文字修补
 │   ├── chapter-patches-widgets.js # 章节组件插入 / 移除修补
-│   ├── stats-viz.js               # 可视化模块加载入口
+│   ├── chapter-patches-text-extra.js # 章节文字修补（扩展）
 │   └── viz/                       # 可视化模块（ES Module 拆分）
 │       ├── _core.js               # 注册表、init()、setupObserver()
 │       ├── _bundle-core-modules.js       # 基础统计 / 推断组件分组入口
@@ -98,7 +112,42 @@ R_medical_stat_site/
 │       ├── advanced.js            # 高级可视化
 │       ├── visualization.js       # 通用图表组件
 │       ├── meta.js                # 配色、工具函数
-│       └── overrides.js           # 对关键计算器的精度覆盖修复
+│       ├── overrides.js           # 对关键计算器的精度覆盖修复
+│       ├── ancova-guides.js        # 协方差分析教学指导
+│       ├── anova-attention-guides.js # ANOVA 注意事项教学指导
+│       ├── hotelling-guides.js     # Hotelling 统计教学指导
+│       ├── multireg-guides.js      # 多元回归教学指导
+│       ├── logistic-guides.js      # Logistic 回归教学指导
+│       ├── loglinear-guides.js     # 对数线性模型教学指导
+│       ├── poisson-guides.js       # 泊松回归教学指导
+│       ├── survival-guides.js      # 生存分析教学指导
+│       ├── survivalvis-guides.js   # 生存曲线可视化教学指导
+│       ├── roc-guides.js           # ROC 曲线教学指导
+│       ├── pca-guides.js           # 主成分分析教学指导
+│       ├── cluster-guides.js       # 聚类分析教学指导
+│       ├── discriminant-guides.js  # 判别分析教学指导
+│       ├── codescheme-guides.js    # 分类变量编码教学指导
+│       ├── factorial-design-guides.js # 析因设计教学指导
+│       ├── repeated-anova-guides.js # 重复测量 ANOVA 教学指导
+│       ├── repeated-measures-guides.js # 重复测量教学指导
+│       ├── plotting-guides.js      # 统计绘图教学指导
+│       ├── sample-size-guides.js   # 样本量计算教学指导
+│       ├── randomization-guides.js  # 随机分组教学指导
+│       ├── tidy-flow-guides.js     # tidy-flow 统计分析教学指导
+│       ├── table1-guides.js        # Table 1 教学指导
+│       ├── regression-correlation-tutorial.js # 回归相关教程
+│       ├── anova-tutorial.js       # 方差分析教程
+│       ├── chisq-tutorial.js       # 卡方检验教程
+│       ├── paired-ttest-tutorial.js # 配对 t 检验教程
+│       ├── nonparametric-tutorial.js # 非参数检验教程
+│       ├── discrete-teaching.js     # 离散分布教学
+│       ├── rank-correlation.js      # 秩相关组件
+│       ├── regression.js           # 回归组件
+│       ├── binomial-ci-fix.js      # 二项分布置信区间修复
+│       ├── binomial-distribution-fix.js # 二项分布修复
+│       ├── poisson-ci-fix.js       # 泊松置信区间修复
+│       ├── poisson-distribution-fix.js # 泊松分布修复
+│       └── mcnemar-guide-fix.js    # McNemar 指导修复
 ├── data/                          # 章节内容 + 关联图片
 │   ├── 1001-ttest.html            # t 检验
 │   ├── 1002-anova.html            # 方差分析
@@ -125,7 +174,7 @@ R_medical_stat_site/
 - **纯原生 JavaScript** — 无需前端框架，ES Module 拆分加载
 - **SPA 架构** — 章节通过 `fetch()` 动态加载，`DOMParser` 提取正文
 - **Canvas 2D API** — 统计图形纯前端自绘，不依赖 Chart.js
-- **jStat CDN** — 统计函数库（正态/t/F/卡方分布的 PDF、CDF、逆函数）
+- **jStat 1.9.6 CDN** — 统计函数库（正态/t/F/卡方分布的 PDF、CDF、逆函数）
 
 ### ES Module 模块设计
 `stats-viz.js` 作为总入口，但不再自己维护一长串组件路径，而是按职责分组导入：
@@ -247,6 +296,39 @@ GitHub (main) → Vercel → https://r.tweb.one
 - **第七章增强**：新增 `rankcorrelation` 与 `curvefit` 两个后半章专属组件，分别对应秩相关和曲线拟合
 - **第四章增强**：新增 McNemar 组件，并重做马赛克图与列联表热力图
 - **第五章增强**：新增 Cochran-Armitage 趋势检验组件，补足有序率趋势检验的交互层
+
+### 2026-04-28
+- **第二十九章增强**：新增 PCA 教学指导组件，优化主成分分析教学交互
+- **第二十八章增强**：新增聚类分析教学指导组件
+- **第二十七章增强**：新增判别分析教学指导组件
+
+### 2026-04-27
+- **第二十六章增强**：优化生存曲线可视化教学组件
+- **功能加固**：Cox 风险比森林图组件精度加固
+- **第二十五章增强**：优化生存分析教学组件
+- **第二十四章增强**：优化分类变量重编码教学组件
+- **第二十三章增强**：新增计数模型教学指导组件
+- **第二十二章增强**：优化对数线性模型教学组件
+
+### 2026-04-26
+- **第二十一章新增**：Logistic 回归教学指导组件
+- **修复**：多元回归系数置信区间图表计算错误
+- **第二十章增强**：优化多元线性回归教学组件
+- **第十九章增强**：优化 Hotelling 统计教学组件
+
+### 2026-04-25
+- **第十八章增强**：优化方差分析注意事项教学组件
+- **第十七章增强**：新增协方差分析交互可视化
+- **第十七章增强**：优化 ANCOVA 教学组件
+- **第十六章增强**：优化重复测量方差分析教学组件
+- **第十五章增强**：增强 Mauchly 球对称检验章节
+
+### 2026-04-24
+- **第十四章增强**：增强析因设计方差分析教学章节
+- **第十三章增强**：增强 tidy-flow 统计分析教学章节
+- **第十二章增强**：优化 ROC 曲线教学组件
+- **第十一章增强**：优化随机分组教学组件
+- **第十章增强**：优化样本量计算教学组件
 
 ### 2026-04-23
 - **第一章（t 检验）计算器增强**：t 检验计算器新增第三 tab「配对 t 检验」，支持等长校验和差值单样本 t 检验；修复因缺少 `parseNumbers` 导入导致的计算器 `ReferenceError`
