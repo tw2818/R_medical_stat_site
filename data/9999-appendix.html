@@ -82,6 +82,56 @@
   <details>
     <summary>A.7 更新日志</summary>
     <div class="changelog-entries">
+  <h3>2026-04-28 — 教学指导组件增强</h3>
+  <ul>
+    <li><strong>第二十九章</strong>：新增 PCA 教学指导组件，优化主成分分析教学交互</li>
+    <li><strong>第二十八章</strong>：新增聚类分析教学指导组件</li>
+    <li><strong>第二十七章</strong>：新增判别分析教学指导组件</li>
+  </ul>
+  <h3>2026-04-27 — 生存曲线与计数模型教学增强</h3>
+  <ul>
+    <li><strong>第二十六章</strong>：优化生存曲线可视化教学组件</li>
+    <li><strong>功能加固</strong>：Cox 风险比森林图组件精度加固</li>
+    <li><strong>第二十五章</strong>：优化生存分析教学组件</li>
+    <li><strong>第二十四章</strong>：优化分类变量重编码教学组件</li>
+    <li><strong>第二十三章</strong>：新增计数模型教学指导组件</li>
+    <li><strong>第二十二章</strong>：优化对数线性模型教学组件</li>
+  </ul>
+  <h3>2026-04-26 — 回归与多变量分析教学增强</h3>
+  <ul>
+    <li><strong>第二十一章</strong>：新增 Logistic 回归教学指导组件</li>
+    <li><strong>修复</strong>：多元回归系数置信区间图表计算错误</li>
+    <li><strong>第二十章</strong>：优化多元线性回归教学组件</li>
+    <li><strong>第十九章</strong>：优化 Hotelling 统计教学组件</li>
+  </ul>
+  <h3>2026-04-25 — 方差分析教学体系增强</h3>
+  <ul>
+    <li><strong>第十八章</strong>：优化方差分析注意事项教学组件</li>
+    <li><strong>第十七章</strong>：新增协方差分析交互可视化</li>
+    <li><strong>第十六章</strong>：优化重复测量方差分析教学组件</li>
+    <li><strong>第十五章</strong>：增强 Mauchly 球对称检验章节</li>
+  </ul>
+  <h3>2026-04-24 — 基础统计教学章节增强</h3>
+  <ul>
+    <li><strong>第十四章</strong>：增强析因设计方差分析教学章节</li>
+    <li><strong>第十三章</strong>：增强 tidy-flow 统计分析教学章节</li>
+    <li><strong>第十二章</strong>：优化 ROC 曲线教学组件</li>
+    <li><strong>第十一章</strong>：优化随机分组教学组件</li>
+    <li><strong>第十章</strong>：优化样本量计算教学组件</li>
+  </ul>
+  <h3>2026-04-23 — 计算器增强与数据修正</h3>
+  <ul>
+    <li><strong>t 检验计算器增强</strong>：新增第三 tab「配对 t 检验」，支持等长校验和差值单样本 t 检验；修复因缺少 <code>parseNumbers</code> 导入导致的计算器 <code>ReferenceError</code></li>
+    <li><strong>ANOVA 数据修正</strong>：组件 mean/SD 修正为经实测验证的正确值（means: 3.4303/2.7153/2.698/1.9663，sds: 0.7151/0.6382/0.4972/0.7464）；删去 2.5 节格式错误的重复 ANOVA 组件</li>
+    <li><strong>正文多处修正</strong>：区组间 F 值 5.798 → 5.978；拉丁方残差 SS "0.0683.2" → 683.2；2.4 导语药物均值描述及 p 值解释修正；变量描述改为正确名称</li>
+    <li><strong>第一章正文修正</strong>：方差齐性表述改为"未见显著证据反对方差相等假设"；1.4 节标题改为「方差齐性检验」</li>
+    <li><strong>Canvas 渲染修复</strong>：删除 <code>.viz-canvas { height: auto }</code> CSS 覆盖规则，使 canvas 高度生效；马赛克图/热力图 canvas 内部高度与容器协调</li>
+  </ul>
+  <h3>2026-04-23 — McNemar 组件与 Cochran-Armitage 增强</h3>
+  <ul>
+    <li><strong>第四章增强</strong>：新增 McNemar 组件，并重做马赛克图与列联表热力图</li>
+    <li><strong>第五章增强</strong>：新增 Cochran-Armitage 趋势检验组件，补足有序率趋势检验的交互层</li>
+  </ul>
   <h3>2026-04-22 — 统一第二章部分小节导语风格，并顺滑方差齐性结论表述</h3>
   <ul>
     <li><strong>问题章节</strong>：<code>1002-anova.html</code></li>
