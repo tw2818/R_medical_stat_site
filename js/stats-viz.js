@@ -28,6 +28,7 @@ import './viz/cluster-guides.js';
 import './viz/pca-guides.js';
 import './viz/pca-vis-guides.js';
 import './viz/pcareg-guides.js';
+import './viz/partialcorrelation-guides.js';
 import './viz/factoranalysis-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用

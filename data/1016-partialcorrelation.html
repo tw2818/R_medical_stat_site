@@ -519,6 +519,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>关于偏相关和典型相关的具体含义和适用范围大家自己学习。</p>
 <section id="偏相关partial-correlation" class="level2" data-number="33.1">
 <h2 data-number="33.1" class="anchored" data-anchor-id="偏相关partial-correlation"><span class="header-section-number">33.1</span> 偏相关（partial correlation）</h2>
+<div class="stat-viz" data-type="partialcorr-concept-guide" data-title="偏相关的概念"></div>
+<div class="stat-viz" data-type="partialcorr-vs-simple-guide" data-title="偏相关与简单相关"></div>
 <p>使用R包<code>ppcor</code>实现。</p>
 <p>首先是加载数据和R包。</p>
 <div class="cell">
@@ -665,6 +667,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="典型相关canonical-correlation" class="level2" data-number="33.2">
 <h2 data-number="33.2" class="anchored" data-anchor-id="典型相关canonical-correlation"><span class="header-section-number">33.2</span> 典型相关（Canonical Correlation）</h2>
+<div class="stat-viz" data-type="canonicalcorr-concept-guide" data-title="典型相关的概念"></div>
+<div class="stat-viz" data-type="canonicalcorr-interpretation-guide" data-title="典型相关结果解读"></div>
+<div class="stat-viz" data-type="canonicalcorr-redundancy-guide" data-title="典型相关系数与冗余度"></div>
 <p>这个数据来自孙振球《医学统计学》第四版的例23-1，探讨小学生的生长发育指标（肺活量、身高、体重、胸围）和身体素质（短跑、跳高、跳远、实心球）的相互关系。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"datasets/例23-1.csv"</span>,<span class="at">header =</span> T)</span>
