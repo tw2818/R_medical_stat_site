@@ -34,4 +34,5 @@ import './sem-guides.js';
 import './multilevel-guides.js';
 import './gee-guides.js';
 import './nonlinear-guides.js';
+import './rcs-guides.js';
 import './overrides.js';

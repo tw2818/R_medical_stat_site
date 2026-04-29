@@ -39,6 +39,7 @@ import './viz/sem-guides.js';
 import './viz/multilevel-guides.js';
 import './viz/gee-guides.js';
 import './viz/nonlinear-guides.js';
+import './viz/rcs-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;

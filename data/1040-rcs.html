@@ -522,6 +522,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>并且上一篇推文已经介绍了R语言实现多项式回归的内容：<a href="https://mp.weixin.qq.com/s/DTaEQv_WGOYBp3UOzy7h1w">R语言非线性拟合：多项式回归</a></p>
 <p>今天主要介绍R语言实现<strong>立方样条回归</strong>。</p>
 <p>读过上面几篇推文的朋友想必已经知道了（没看过的建议先看看），样条回归包括很多种，限制性立方样条只是其中一种，更多的大家可以自己了解。</p>
+<div class="stat-viz" data-type="rcs-workflow-guide" data-title="何时使用限制性立方样条 (RCS)"></div>
+<p>⬆ 上方展示了样条回归的三种应用场景：线性回归、Logistic回归和Cox回归中如何选择RCS。</p>
 <section id="线性的立方样条" class="level3" data-number="43.0.1">
 <h3 data-number="43.0.1" class="anchored" data-anchor-id="线性的立方样条"><span class="header-section-number">43.0.1</span> 线性的立方样条</h3>
 <div class="stat-viz" data-type="splinercs" data-title="限制性立方样条 (RCS) 可视化"></div>
@@ -589,6 +591,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>可以看到，拟合结果非常完美，甚至比我们的6次多项式拟合还要好一点！</p>
 <p>下面解释下上述代码中的意思。<code>rcs</code>是我们的立方样条函数，其中的数字5表示我们要用5个节点（不理解这里的节点啥意思的请去看开头的两篇推文）。</p>
 <p>默认节点是4，一般建议选3-6个左右，可以分别试试效果，选择拟合较好的那一个，参考文献是这篇：F. Harrell. Regression Modeling Strategies: With Applications to Linear Models, Logistic and Ordinal Regression, and Survival Analysis.</p>
+<div class="stat-viz" data-type="rcs-knot-formula-guide" data-title="rcs() 函数的节点选择"></div>
+<p>⬆ 上方展示了 <code>rcs()</code> 函数的节点参数含义，默认4个节点，通常选3-6个。</p>
 <p>我们可以自己指定，比如根据分位数、中位数、平均数等，都可以作为我们的节点。</p>
 <p>下面用<code>ggplot2</code>画图。</p>
 <div class="cell">
@@ -662,6 +666,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  TOTAL      265.88     5    &lt;.0001</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><code>age</code>的<code>Nonlinear</code>的P&lt;0.05，可以认为是符合非线性的。（如果是符合线性，那我们可以直接用普通线性回归的方法，就不用这么折腾还要用样条回归了）</p>
+<div class="stat-viz" data-type="rcs-nonlinear-guide" data-title="如何判断是否符合非线性"></div>
+<p>⬆ 上方展示了 <code>anova()</code> 输出的 Nonlinear 项 — 这是判断是否需要RCS的统计依据。</p>
 <p>下面我们用图形展示年龄和OR值的关系：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">Predict</span>(f, age, sex))<span class="sc">+</span> <span class="co"># 加上 fun = plogis 则返回概率</span></span>
@@ -676,6 +682,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>纵坐标表示OR值，横坐标是年龄。</p>
+<div class="stat-viz" data-type="rcs-interpretation-guide" data-title="RCS 结果解读：HR / OR 与临床意义"></div>
+<p>⬆ 上方展示了RCS结果的解读方式：HR=1参考线、HR>1/HR<1的意义，以及临床拐点的识别。</p>
 </section>
 <section id="cox回归的立方样条" class="level3" data-number="43.0.3">
 <h3 data-number="43.0.3" class="anchored" data-anchor-id="cox回归的立方样条"><span class="header-section-number">43.0.3</span> cox回归的立方样条</h3>

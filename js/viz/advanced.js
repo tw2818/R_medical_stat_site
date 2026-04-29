@@ -394,7 +394,7 @@ registerViz('dose', renderDoseResponse);
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
       <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
-        蓝色: 效应曲线 | 阴影: 95% CI | 红色虚线: 参考线 (OR=1)
+        蓝色: 效应曲线 | 浅蓝: 95% CI | 红色虚线: 参考线 (OR=1)
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:8px;">
         <label style="font-size:13px;">弯曲度:
