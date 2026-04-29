@@ -479,7 +479,12 @@ registerViz('scatter', renderScatterPlot);
 
 function renderScreePlot(el) {
   let eigenvalues = [];
-  try { eigenvalues = JSON.parse(el.dataset.eigenvalues || '[]'); } catch(e) { eigenvalues = []; }
+  // Support both data-eigenvalues (JSON array) and data-values (comma-separated)
+  const eigenData = el.dataset.eigenvalues || el.dataset.values || '[]';
+  try { eigenvalues = JSON.parse(eigenData); } catch(e) {
+    // Fallback: try comma-separated format
+    eigenvalues = eigenData.split(',').map(v => parseFloat(v.trim())).filter(v => isFinite(v));
+  }
   if (!eigenvalues.length) {
     el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 PCA 碎石图</span></div><p style="padding:20px;color:#666;">请提供特征值数据 (data-eigenvalues)</p></div>';
     return;
