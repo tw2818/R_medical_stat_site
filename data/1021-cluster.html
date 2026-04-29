@@ -518,6 +518,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>主要介绍使用R语言进行层次聚类、划分聚类（K均值聚类和PAM）。</p>
+<div class="stat-viz" data-type="cluster-workflow-guide" data-title="聚类分析学习路线：相似性、分组数和结果解释"></div>
+<p>⬆ 上方先把本章主线串起来：聚类分析最重要的不是“画出几团颜色”，而是说明相似性如何定义、聚类数如何选择，以及每一类如何解释。</p>
 <section id="系统聚类层次聚类hierarchical-clustering" class="level2" data-number="28.1">
 <h2 data-number="28.1" class="anchored" data-anchor-id="系统聚类层次聚类hierarchical-clustering"><span class="header-section-number">28.1</span> 系统聚类（层次聚类,Hierarchical clustering）</h2>
 <div class="cell">
@@ -541,6 +543,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## shrimp canned      110      23   1      98  2.6</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>层次聚类在R语言中非常简单，通过<code>hclust</code>实现。</p>
+<div class="stat-viz" data-type="hclust-distance-linkage-guide" data-title="系统聚类三件套：标准化、距离矩阵和联动方式"></div>
+<p>⬆ 上方解释了 <code>scale()</code>、<code>dist()</code> 和 <code>hclust()</code> 三步分别在做什么；这三步共同决定树状图形状。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 聚类前先进行标准化</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>nutrient.scaled <span class="ot">&lt;-</span> <span class="fu">scale</span>(nutrient)</span>
@@ -569,7 +573,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>nc <span class="ot">&lt;-</span> <span class="fu">NbClust</span>(nutrient.scaled, <span class="at">distance =</span> <span class="st">"euclidean"</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">min.nc =</span> <span class="dv">2</span>, <span class="co"># 最小聚类数</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">max.nc =</span> <span class="dv">10</span>, <span class="co"># 最大聚类树</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">max.nc =</span> <span class="dv">10</span>, <span class="co"># 最大聚类数</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"average"</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>              )</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -613,8 +617,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ##  
 ## *******************************************************************</code></pre>
 </div>
-<p>输出日志里给出了评判准则以及最终结果：Hubert index和D index使用图形的方式判断最佳聚类个数，拐点明显的可视作最佳聚类个数。</p>
-<p>它给出的结论是最佳聚类数是2。我们也可以通过条形图查看这些评判准则的具体数量。</p>
+<p>输出日志里给出了评判准则以及最终结果：Hubert index和D index使用图形的方式判断最佳聚类个数，拐点明显的可视作最佳聚类个数。这里的 <code>max.nc = 10</code> 表示最多考察 10 个聚类数。</p>
+<div class="stat-viz" data-type="cluster-k-decision-guide" data-title="如何读 NbClust：多数规则不等于唯一答案"></div>
+<p>⬆ 上方提醒：层次聚类示例里 2、3、5、10 类都有指标支持；软件给出的多数规则是 2 类，但后续也可以为了教学演示选择更细的 5 类方案。</p>
+<p>它给出的多数规则结论是最佳聚类数是2。我们也可以通过条形图查看这些评判准则的具体数量。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="fu">table</span>(nc<span class="sc">$</span>Best.nc[<span class="dv">1</span>,]),</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"聚类数目"</span>,</span>
@@ -628,7 +634,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>从条形图中可以看出，聚类数目为2,3,5,10时，评判准则个数最多，为5个，这里我们可以选择5个。</p>
+<p>从条形图中可以看出，聚类数目为2、3、5、10时，支持的评判准则个数并列最多。多数规则给出的是 2 类；本章后续将树切成 5 类，是为了演示如何用 <code>cutree()</code> 和 <code>rect.hclust()</code> 展示更细的营养成分分组。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 把聚类树划分为5类</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>cluster <span class="ot">&lt;-</span> <span class="fu">cutree</span>(h.clust, <span class="at">k=</span><span class="dv">5</span>)</span>
@@ -757,7 +763,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>如果想要更加精美的聚类分析可视化，可以参考之前的几篇推文：</p>
+<p>如果想要更加精美的聚类分析可视化，可以参考以下扩展阅读：</p>
 <ul>
 <li><a href="https://mp.weixin.qq.com/s/YPz9pL2fDQ7cFX9_Fyw1yg">又是聚类分析可视化</a></li>
 <li><a href="https://mp.weixin.qq.com/s/6ISVHQD5KdSbTEdZSXrrkA">R语言可视化聚类树</a></li>
@@ -772,6 +778,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="快速聚类划分聚类partitioning-clustering" class="level2" data-number="28.3">
 <h2 data-number="28.3" class="anchored" data-anchor-id="快速聚类划分聚类partitioning-clustering"><span class="header-section-number">28.3</span> 快速聚类（划分聚类,partitioning clustering）</h2>
+<div class="stat-viz" data-type="cluster-method-choice-guide" data-title="层次聚类、K-means、PAM：按场景选方法"></div>
+<p>⬆ 上方把三类方法放在一起对比。层次聚类适合看合并过程，K-means 适合大样本快速划分，PAM 更强调稳健代表点。</p>
 <section id="k-means聚类" class="level3" data-number="28.3.1">
 <h3 data-number="28.3.1" class="anchored" data-anchor-id="k-means聚类"><span class="header-section-number">28.3.1</span> K-means聚类</h3>
 <div class="stat-viz" data-type="scatter" data-title="K-means聚类结果示意" data-xlabel="主成分1" data-ylabel="主成分2" data-xs="1.5,2.1,2.8,3.2,3.9,4.5,5.1,5.8,6.2,6.9,7.5,8.1,1.8,2.5,3.0,3.8,4.2,4.9,5.5,6.3" data-ys="2.3,3.1,2.8,3.9,4.5,3.8,4.9,5.2,4.8,5.5,6.1,5.8,6.2,7.1,6.8,7.5,8.2,7.9,8.6,9.1" data-grouplabels="簇1质心,簇2质心" data-groupx="4.6,4.3" data-groupy="4.1,7.5"></div>
@@ -867,6 +875,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>可以看到聚类数目为3是最佳的选择。</p>
+<div class="stat-viz" data-type="cluster-silhouette-guide" data-title="除了看 k，还要看每个样本分得稳不稳"></div>
+<p>⬆ 上方补充轮廓系数的读法：它不是本章原代码输出的一部分，但正式解释聚类质量时很常用。</p>
 <p>确定最佳聚类个数过程也可以通过非常好用的R包<code>factoextra</code>实现。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
@@ -920,6 +930,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="do">## [6] "betweenss"    "size"         "iter"         "ifault"</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果很详细，K均值聚类聚为3类，每一类数量分别是51,62,65。然后还给出了聚类中心，每一个观测分别属于哪一个类。</p>
+<div class="stat-viz" data-type="kmeans-output-guide" data-title="读懂 kmeans() 输出：哪些数字最关键"></div>
+<p>⬆ 上方把 <code>kmeans()</code> 的长输出压缩成几个关键读法：簇大小、中心、簇内平方和，以及 44.8% 的解释比例。</p>
 <p>不管是哪一种聚类方法，<code>factoextra</code>配合<code>factomineR</code>都可以给出非常好看的可视化结果。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_cluster</span>(fit.km, <span class="at">data =</span> df)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -931,7 +943,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>有非常多的细节可以调整，大家在使用的时候可以自己尝试，和之前推文中介绍的PCA美化一样，也是支持<code>ggplot2</code>语法的。</p>
+<p>有非常多的细节可以调整，读者在使用时可以自己尝试；和前面 PCA 可视化章节一样，<code>fviz_cluster()</code> 的结果也支持 <code>ggplot2</code> 语法继续美化。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_cluster</span>(fit.km, <span class="at">data =</span> df, </span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">ellipse =</span> T, <span class="co"># 增加椭圆</span></span>
@@ -951,7 +963,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="围绕中心点的划分pam" class="level3" data-number="28.3.2">
 <h3 data-number="28.3.2" class="anchored" data-anchor-id="围绕中心点的划分pam"><span class="header-section-number">28.3.2</span> 围绕中心点的划分PAM</h3>
-<p>K均值聚类是基于均值的，所以对异常值很敏感。一个更稳健的方法是围绕中心点的划分（PAM）。用一个最有代表性的观测值代表这一类(有点类似于主成分)。K均值聚类一般使用欧几里得距离，而PAM可以使用任意的距离来计算。因此，PAM可以容纳混合数据类型，并且不仅限于连续变量。</p>
+<p>K均值聚类是基于均值的，所以对异常值很敏感。一个更稳健的方法是围绕中心点的划分（PAM）。Medoid 是簇中真实存在、到同簇其他观测总体距离最小的代表点。K均值聚类一般使用欧几里得距离，而PAM可以使用任意的距离来计算。因此，PAM可以容纳混合数据类型，并且不仅限于连续变量。</p>
+<div class="stat-viz" data-type="pam-medoid-guide" data-title="PAM 的中心点：为什么 medoid 比均值中心更稳健"></div>
+<p>⬆ 上方强调 PAM 和 K-means 的核心差异：PAM 选择真实样本作为代表点，因此对极端值更稳健，也更方便回到原始观测解释。</p>
 <p>我们还是用葡萄酒数据进行演示。PAM聚类可以通过<code>cluster</code>包中的<code>pam()</code>实现。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cluster)</span>
