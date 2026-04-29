@@ -23,9 +23,9 @@ const GUIDE_CARDS = {
     steps: [
       ['看柱子高度', 'PC1 最大（72.96%），PC2 次之（22.85%），后面快速衰减。'],
       ['找拐点', '曲线由陡变平的拐点位置：PC2 之后明显变缓，PC3 之后趋于平坦。'],
-      ['Kaiser 准则', '特征值 λ > 1 的主成分才保留；本例 PC1(λ=2.92) 和 PC2(λ=0.91) 接近阈值。']
+      ['Kaiser 准则', '严格按 λ > 1，只有 PC1(λ=2.92) 通过 Kaiser 准则；PC2(λ=0.91) 未通过。']
     ],
-    note: '累计方差贡献率达到 80%~90% 也常作为阈值；但拐点不总是明显，需要结合 Kaiser 准则和实际可解释性综合判断。'
+    note: '累计方差贡献率是另一个常用规则：本例 PC1+PC2 可达到约 95.81%，所以实际解释和作图仍常关注前两个主成分。'
   },
   'fviz-varcoord-guide': {
     badge: 'variables',
@@ -49,7 +49,7 @@ const GUIDE_CARDS = {
       ['看颜色强度', 'fviz_pca_var(cos2=TRUE) 用颜色深浅表示 cos2 大小；深色 = 高 cos2 = 解释力强。'],
       ['结合方差贡献', 'Petal.Length 在 PC1 上 cos2 = 0.983，说明它对 PC1 的代表性极强。']
     ],
-    note: '所有变量在同一主成分上的 cos2 之和等于该主成分的方差贡献率。'
+    note: '标准化 PCA 中，各变量在同一主成分上的 cos2 之和对应这个主成分的特征值；方差贡献率还需要除以总特征值后转成百分比。'
   },
   'fviz-contrib-guide': {
     badge: 'contrib',
@@ -58,7 +58,7 @@ const GUIDE_CARDS = {
     lead: '每个变量对某个主成分的贡献率，以该变量对该主成分的方差占总方差的比例表示。',
     steps: [
       ['看柱子高度', 'Sepal.Width 对 PC2 贡献率 85.25%，是 PC2 的绝对主导变量。'],
-      ['参考阈值', '对于 4 个变量的分析，3%（= 100%/4）以下是"平均贡献"；超过越多越重要。'],
+      ['参考阈值', '对于 4 个变量的分析，25%（= 100%/4）是平均贡献水平；超过越多，说明该变量越能驱动这个主成分。'],
       ['结合 cos2 看', '高贡献变量不一定有高 cos2；Petal.Length 在 PC1 贡献 33.69% 但 cos2 高是因为它和 PC1 相关强。']
     ],
     note: 'contrib 关注"谁在驱动主成分"，cos2 关注"变量在当前二维图中的投影质量"，二者含义不同。'
@@ -85,7 +85,7 @@ const GUIDE_CARDS = {
       ['箭头方向', '同方向变量正相关；垂直变量无关；相反方向变量负相关。'],
       ['样本与箭头距离', '样本点沿某变量箭头方向投影的位置 = 该变量在样本上的得分近似。']
     ],
-    note: 'biplot 有两种 scaling 模式（1 和 2），变量箭头长度含义不同；factoextra 默认 scaling=1。'
+    note: 'biplot 的 scale 参数会影响变量箭头长度含义；使用 factoextra 默认设置时，重点先读方向、夹角和相对长度。'
   },
   'ggplot2-pca-guide': {
     badge: 'ggplot2',
@@ -177,8 +177,8 @@ const SCREE_CUTOFF_DATA = {
   pcs: [
     { name: 'PC1', variance: 72.96 },
     { name: 'PC2', variance: 22.85 },
-    { name: 'PC3', variance: 3.12 },
-    { name: 'PC4', variance: 1.07 }
+    { name: 'PC3', variance: 3.67 },
+    { name: 'PC4', variance: 0.52 }
   ]
 };
 
@@ -194,14 +194,12 @@ function renderScreeCutoffGuide(el) {
       <p class="pca-vis-guide-lead">拖动滑块设定累计方差贡献率阈值，系统实时显示在该阈值下应保留哪些主成分。</p>
       <div class="pca-vis-scree-cutoff-panel">
         <div class="pca-vis-scree-cutoff-control">
-          <label>
-            累计方差阈值：
-            <input type="range" min="50" max="100" value="80" data-role="threshold">
-            <span class="pca-vis-scree-cutoff-value" data-role="threshold-display">80%</span>
-          </label>
+          <label for="pca-scree-threshold">累计方差阈值：</label>
+          <input type="range" id="pca-scree-threshold" min="50" max="100" value="80" data-role="threshold" aria-label="累计方差阈值" aria-valuemin="50" aria-valuemax="100" aria-valuenow="80">
+          <span class="pca-vis-scree-cutoff-value" data-role="threshold-display">80%</span>
         </div>
-        <div class="pca-vis-scree-cutoff-output">
-          <div>保留的主成分：</div>
+        <div class="pca-vis-scree-cutoff-output" aria-live="polite">
+          <div>为达到阈值建议保留的主成分：</div>
           <div class="pca-vis-scree-cutoff-pcs" data-role="pc-container"></div>
         </div>
       </div>
@@ -212,19 +210,22 @@ function renderScreeCutoffGuide(el) {
   const update = () => {
     const threshold = Number(input.value);
     thresholdDisplay.textContent = threshold + '%';
+    input.setAttribute('aria-valuenow', String(threshold));
     let cumulative = 0;
     const retained = [];
     const excluded = [];
+    let reached = false;
     for (const pc of SCREE_CUTOFF_DATA.pcs) {
-      cumulative += pc.variance;
-      if (cumulative <= threshold) {
-        retained.push(pc);
+      if (!reached) {
+        cumulative += pc.variance;
+        retained.push({ ...pc, cumulative: Math.min(cumulative, 100).toFixed(2) });
+        if (cumulative >= threshold) reached = true;
       } else {
         excluded.push(pc);
       }
     }
     pcContainer.innerHTML = retained.map(pc =>
-      `<span class="pca-vis-scree-pc-tag">${pc.name} (${pc.variance}%)</span>`
+      `<span class="pca-vis-scree-pc-tag">${pc.name} (${pc.variance}%，累计 ${pc.cumulative}%)</span>`
     ).join('') + excluded.map(pc =>
       `<span class="pca-vis-scree-pc-tag excluded">${pc.name} (${pc.variance}%)</span>`
     ).join('');
@@ -236,18 +237,18 @@ function renderScreeCutoffGuide(el) {
 const COLORING_SCENARIOS = {
   species: {
     label: '按分组着色 (Species)',
-    code: 'fviz_pca_ind(pca.result,\n            col.ind = iris$Species,\n            palette = "jco",\n            addEllipses = TRUE)',
+    code: 'fviz_pca_ind(pca.res,\n            col.ind = iris$Species,\n            palette = "jco",\n            addEllipses = TRUE)',
     explain: '按原始分组着色，适合探索已知分组之间的差异。本例中 setosa 与另两类明显分开，virginica 和 versicolor 有部分重叠。'
   },
   cos2: {
     label: '按投影质量着色 (cos2)',
-    code: 'fviz_pca_ind(pca.result,\n            col.ind = "cos2",\n            gradient.cols = c("white", "#2E86AB"),\n            repel = TRUE)',
-    explain: '按样本在主成分空间的投影质量（cos2）着色。高 cos2 的样本更可信，低 cos2 样本可能是异常值或投影质量差。'
+    code: 'fviz_pca_ind(pca.res,\n            col.ind = "cos2",\n            gradient.cols = c("white", "#2E86AB"),\n            repel = TRUE)',
+    explain: '按样本在主成分空间的投影质量（cos2）着色。高 cos2 的样本更适合在当前二维图中解释，低 cos2 样本只是投影质量较差，不应直接等同于异常值。'
   },
   contrib: {
     label: '按贡献率着色 (contrib)',
-    code: 'fviz_pca_ind(pca.result,\n            col.ind = "contrib",\n            gradient.cols = c("white", "#E63946"),\n            repel = TRUE)',
-    explain: '按样本对主成分的贡献率着色。高贡献样本对结果影响更大，可能值得关注或进一步调查。'
+    code: 'fviz_pca_ind(pca.res,\n            col.ind = "contrib",\n            gradient.cols = c("white", "#E63946"),\n            repel = TRUE)',
+    explain: '按样本对主成分的贡献率着色。高贡献样本对坐标轴方向影响更大，适合进一步检查其特征和是否存在强影响点。'
   }
 };
 
@@ -262,18 +263,18 @@ function renderColoringScenarioGuide(el) {
       </div>
       <p class="pca-vis-guide-lead">选择不同的着色策略，服务于不同的分析目的。</p>
       <div class="pca-vis-coloring-scenario-panel">
-        <div class="pca-vis-coloring-scenario-control">
+          <div class="pca-vis-coloring-scenario-control">
           <label for="pca-coloring-scenario">选择着色策略</label>
-          <select id="pca-coloring-scenario" data-role="scenario">
+          <select id="pca-coloring-scenario" data-role="scenario" aria-describedby="pca-coloring-explain">
             <option value="species">按分组着色 (Species)</option>
             <option value="cos2">按投影质量 (cos2)</option>
             <option value="contrib">按贡献率 (contrib)</option>
           </select>
         </div>
-        <div class="pca-vis-coloring-scenario-output">
+        <div class="pca-vis-coloring-scenario-output" aria-live="polite">
           <div data-role="label"></div>
           <pre data-role="code"></pre>
-          <p class="pca-vis-coloring-scenario-explain" data-role="explain"></p>
+          <p class="pca-vis-coloring-scenario-explain" id="pca-coloring-explain" data-role="explain"></p>
         </div>
       </div>
     </div>`;

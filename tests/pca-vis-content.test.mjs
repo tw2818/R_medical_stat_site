@@ -93,9 +93,38 @@ test('PCA visualization guide renderer is registered and imported', () => {
   // Interactive component assertions
   assert.match(renderer, /input type="range"/, 'fviz-scree-cutoff-guide should include range input');
   assert.match(renderer, /addEventListener\(['"]input['"]/, 'scree cutoff should update interactively on slider input');
+  assert.match(renderer, /id="pca-scree-threshold"/, 'range input should have a stable id');
+  assert.match(renderer, /for="pca-scree-threshold"/, 'range label should be associated with the input');
+  assert.match(renderer, /aria-valuemin="50"/, 'range input should expose aria-valuemin');
+  assert.match(renderer, /aria-valuemax="100"/, 'range input should expose aria-valuemax');
+  assert.match(renderer, /setAttribute\(['"]aria-valuenow['"]/, 'range input should keep aria-valuenow updated');
+  assert.match(renderer, /cumulative >= threshold/, 'cutoff logic should retain PCs until cumulative variance reaches the threshold');
   assert.match(renderer, /<select/, 'fviz-coloring-scenario-guide should include select dropdown');
+  assert.match(renderer, /for="pca-coloring-scenario"/, 'select label should be associated with the dropdown');
+  assert.match(renderer, /aria-describedby="pca-coloring-explain"/, 'select should describe its dynamic explanation region');
+  assert.match(renderer, /aria-live="polite"/, 'dynamic scenario output should be announced politely');
   assert.match(renderer, /addEventListener\(['"]change['"]/, 'coloring scenario should update on select change');
   assert.match(renderer, /escapeHtml\(/, 'all renderers should use escapeHtml for dataset.title');
+});
+
+test('chapter 30 PCA visualization values and prose are calibrated to the R output', () => {
+  const html = read(chapterPath);
+  const text = plainText(html);
+  const renderer = read(rendererPath);
+
+  assert.match(html, /data-values="72\.96,22\.85,3\.67,0\.52"/, 'scree widget should use variance percentages from cb2');
+  assert.doesNotMatch(html, /data-values="72\.96,24\.79,1\.71,0\.54"/, 'stale scree values should be removed');
+  assert.match(renderer, /\{ name: 'PC3', variance: 3\.67 \}/, 'interactive cutoff should use cb2 PC3 variance');
+  assert.match(renderer, /\{ name: 'PC4', variance: 0\.52 \}/, 'interactive cutoff should use cb2 PC4 variance');
+  assert.doesNotMatch(renderer, /3%（= 100%\/4/, 'average variable contribution threshold should not be 3%');
+  assert.match(renderer, /25%（= 100%\/4/, 'average variable contribution threshold should be 25% for four variables');
+  assert.match(renderer, /只有 PC1.*Kaiser/, 'Kaiser rule explanation should say only PC1 passes');
+  assert.match(renderer, /PC2.*未通过/, 'PC2 should not be described as passing Kaiser rule');
+
+  for (const stale of ['通过get_pca_var()`函数实现', '双标图…', '下载会继续', '花里胡哨']) {
+    assert.equal(text.includes(stale), false, `stale prose should be removed: ${stale}`);
+  }
+  assert.doesNotMatch(html, /<code>gplot2<\/code>/, 'ggplot2 package name should be spelled correctly');
 });
 
 test('pca-vis-guides.js module can be imported', async () => {
