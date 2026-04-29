@@ -526,6 +526,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="进阶的pca可视化" class="level2" data-number="30.1">
 <h2 data-number="30.1" class="anchored" data-anchor-id="进阶的pca可视化"><span class="header-section-number">30.1</span> 进阶的PCA可视化</h2>
 <div class="stat-viz" data-type="pca" data-title="PCA 碎石图 (方差解释比例)" data-values="72.96,24.79,1.71,0.54"></div>
+<div class="stat-viz" data-type="fviz-workflow-guide" data-title="factoextra 可视化主线"></div>
 <p>网络上很多R语言教程都是基于R语言实战进行修改，今天为大家介绍更好用的R包，在之前聚类分析中也经常用到：<code>factoextra</code>和<code>factoMineR</code>，关于主成分分析的可视化，大家比较常见的可能是<code>ggbiplot</code>，这几个R包都挺不错，大家可以比较下。</p>
 <p>这两个R包的函数可以直接使用<code>prcomp()</code>函数的结果，也可以使用<code>FactoMineR</code>的<code>PCA()</code>函数进行，结果更加详细。</p>
 <section id="进行pca分析" class="level3" data-number="30.1.1">
@@ -563,6 +564,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="特征值可视化" class="level3" data-number="30.1.2">
 <h3 data-number="30.1.2" class="anchored" data-anchor-id="特征值可视化"><span class="header-section-number">30.1.2</span> 特征值可视化</h3>
+<div class="stat-viz" data-type="fviz-scree-guide" data-title="碎石图：怎么看拐点和阈值"></div>
 <p>获取特征值、方差贡献率和累积方差贡献率，可以看到和上一节的结果是一样的：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_eigenvalue</span>(pca.res)</span>
@@ -624,6 +626,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="变量结果可视化" class="level3" data-number="30.1.4">
 <h3 data-number="30.1.4" class="anchored" data-anchor-id="变量结果可视化"><span class="header-section-number">30.1.4</span> 变量结果可视化</h3>
+<div class="stat-viz" data-type="fviz-varcoord-guide" data-title="变量相关图：怎么看箭头和坐标轴"></div>
 <p>使用<code>fviz_pca_var()</code>对变量结果进行可视化：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_var</span>(pca.res)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -638,6 +641,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>res.var$coord</code>是变量在主成分投影上的坐标，<code>Sepal.Width</code>在<code>Dim.1</code>的坐标是-0.4601427，在<code>Dim.2</code>的坐标是0.88271627，根据这两个坐标就画出来<code>Sepal.Width</code>那根线了，以此类推。</p>
 <section id="变量和主成分的cos2可视化" class="level4" data-number="30.1.4.1">
 <h4 data-number="30.1.4.1" class="anchored" data-anchor-id="变量和主成分的cos2可视化"><span class="header-section-number">30.1.4.1</span> 变量和主成分的cos2可视化</h4>
+<div class="stat-viz" data-type="fviz-cos2-guide" data-title="Cos2：变量在主成分空间的质量"></div>
 <p><code>cos2</code>是coord的平方，也是表示主成分和变量间的相关性，所以首先可以画相关图：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"corrplot"</span>)</span>
@@ -690,6 +694,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="变量对主成分的贡献可视化" class="level4" data-number="30.1.4.2">
 <h4 data-number="30.1.4.2" class="anchored" data-anchor-id="变量对主成分的贡献可视化"><span class="header-section-number">30.1.4.2</span> 变量对主成分的贡献可视化</h4>
+<div class="stat-viz" data-type="fviz-contrib-guide" data-title="贡献率：谁在驱动这个主成分"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res.var<span class="sc">$</span>contrib</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="do">##                  Dim.1       Dim.2     Dim.3     Dim.4</span></span>
@@ -799,6 +804,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="样本结果可视化" class="level3" data-number="30.1.7">
 <h3 data-number="30.1.7" class="anchored" data-anchor-id="样本结果可视化"><span class="header-section-number">30.1.7</span> 样本结果可视化</h3>
+<div class="stat-viz" data-type="fviz-group-coloring-guide" data-title="样本点着色：什么时候用什么颜色映射"></div>
 <p>样本的结果可视化可能是更常见的PCA图形，通过<code>fviz_pca_ind()</code>实现：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_ind</span>(pca.res)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -909,6 +915,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="biplot" class="level3" data-number="30.1.8">
 <h3 data-number="30.1.8" class="anchored" data-anchor-id="biplot"><span class="header-section-number">30.1.8</span> biplot</h3>
+<div class="stat-viz" data-type="fviz-biplot-guide" data-title="Biplot：变量和样本同时看"></div>
 <p>双标图…</p>
 <p>同时展示变量和样本和主成分的关系，超级多的自定义可视化细节。</p>
 <div class="cell">
@@ -988,6 +995,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="ggplot2" class="level2" data-number="30.2">
 <h2 data-number="30.2" class="anchored" data-anchor-id="ggplot2"><span class="header-section-number">30.2</span> ggplot2</h2>
+<div class="stat-viz" data-type="ggplot2-pca-guide" data-title="ggplot2 手动绑图：获得完全控制权"></div>
 <p>介绍下如何提取数据用<code>ggplot2</code>画PCA图。还是使用鸢尾花数据集。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>

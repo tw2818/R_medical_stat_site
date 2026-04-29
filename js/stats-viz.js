@@ -26,6 +26,7 @@ import './viz/survivalvis-guides.js';
 import './viz/discriminant-guides.js';
 import './viz/cluster-guides.js';
 import './viz/pca-guides.js';
+import './viz/pca-vis-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;
