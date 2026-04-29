@@ -29,4 +29,5 @@ import './finegray-guides.js';
 import './psm-guides.js';
 import './sem-guides.js';
 import './multilevel-guides.js';
+import './gee-guides.js';
 import './overrides.js';

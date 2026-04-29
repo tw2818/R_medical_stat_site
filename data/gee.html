@@ -540,6 +540,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="https://mp.weixin.qq.com/s/zNMDqehQaEhSBrdhFOQs1g">如何分析临床纵向数据：研究目的及分析方法</a></li>
 </ul>
 <p>下面是一个R语言实战广义估计方程的实例。</p>
+<div class="stat-viz" data-type="gee-workflow-guide" data-title="GEE 主线：广义线性模型的纵向推广"></div>
+<p>⬆ 上方展示了 GEE 的核心思想：把 GLM 推广到重复测量数据，通过作业相关矩阵校正组内相关。</p>
 </section>
 <section id="数据探索" class="level2" data-number="36.2">
 <h2 data-number="36.2" class="anchored" data-anchor-id="数据探索"><span class="header-section-number">36.2</span> 数据探索</h2>
@@ -646,6 +648,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>无结构相关</strong>(unstructured correlation)：即假定不同时间点观测值的相关系数各不相等，不存在前面几种相关结构的规律。</li>
 </ul>
 <p>如何选择合适的作业相关矩阵？请参考<a href="https://mp.weixin.qq.com/s/2uimX3nLQ7svYgAj6sA7UQ">重复测量数据分析及结果详解（之二）——广义估计方程</a></p>
+<div class="stat-viz" data-type="gee-correlation-guide" data-title="5种作业相关矩阵：选对了吗？"></div>
+<p>⬆ 上方展示了5种相关结构的适用场景，帮助你理解 corstr 参数的选择逻辑。</p>
 <div class="stat-viz" data-type="autocorrelation" data-title="自相关（ACF）示意图：相邻时间点相关性最强" data-values="0.85,0.72,0.58,0.45,0.32,0.21,0.12,0.05,-0.02,-0.08,-0.14,-0.18"></div>
 </section>
 <section id="结果解读" class="level2" data-number="36.4">
@@ -675,6 +679,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)   0.9806 0.06536</span></span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Number of clusters:   340  Maximum cluster size: 3</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="gee-interpretation-guide" data-title="GEE 系数解读：从 logit 到 OR"></div>
+<p>⬆ 上方展示了各系数的含义与 OR 值换算，帮助你读懂 summary 输出。</p>
 <p>模型输出的系数是在logit(ln)尺度上的，我们可以像解释普通的<a href="https://mp.weixin.qq.com/s/3A8ZiegbsQRjOSw2T3jldg">逻辑回归</a>一样来解释这些系数：</p>
 <ul>
 <li><code>(Intercept)</code>：系数是-0.028，表示在<code>time</code>=0、使用标准药的患者、治疗有效的log(odds)=-0.028。</li>
@@ -683,6 +689,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>time</code>：系数是0.48，那么OR值=exp(β)=exp(0.48)=1.62，说明使用标准药物时，每增加一个时间单位，有效率增加约62%。</li>
 <li><code>drugnew:time</code>：系数是1.02，OR=2.77，说明在整个人群平均水平上，新药组随时间改善的速度是标准药组的2.77倍，这意味着新药的疗效优势随治疗时间延长而不断扩大。比如，在<code>time=2</code>时，新药组的有效率是标准药组的exp(-0.0596+1.0174*2)=7.21倍！</li>
 </ul>
+<div class="stat-viz" data-type="gee-interaction-guide" data-title="drug × time 交互项解读：新药疗效随时间放大"></div>
+<p>⬆ 上方展示了交互效应的计算方法与实际含义，帮助你理解新药组的加速疗效优势。</p>
 <p>OR值和可信区间可直接通过代码得到：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(dep_gee,<span class="at">exponentiate =</span> T,<span class="at">conf.int =</span> T)</span>
@@ -719,11 +727,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="do">## [4,] 1172 1172      -581 5.087      5 1173</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>这个例子中QIC都是一样的~</p>
+<div class="stat-viz" data-type="gee-qic-guide" data-title="QIC 模型比较：越小越好"></div>
+<p>⬆ 上方解释了 QIC 的含义与不同相关矩阵的比较逻辑。</p>
 </section>
 <section id="边际效应" class="level2" data-number="36.6">
 <h2 data-number="36.6" class="anchored" data-anchor-id="边际效应"><span class="header-section-number">36.6</span> 边际效应</h2>
 <p>在广义估计方程中，边际效应（Marginal-Effect）通常指调整协变量后，干预或时间对结局的平均影响，其结果解释为人群平均水平（population-averaged），这正是 GEE 的核心优势（与混合效应模型的subject-specific 效应相比较）。</p>
 <p>在上面的结果中，我们通过各个系数计算的OR值，就已经是边际OR值了。</p>
+<div class="stat-viz" data-type="gee-marginal-effect-guide" data-title="边际效应 vs 条件效应：GEE 的核心优势"></div>
+<p>⬆ 上方对比了 GEE 边际效应与混合模型条件效应的区别，帮助你理解人群平均水平效应的含义。</p>
 
 
 </section>

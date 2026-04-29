@@ -34,6 +34,7 @@ import './viz/finegray-guides.js';
 import './viz/psm-guides.js';
 import './viz/sem-guides.js';
 import './viz/multilevel-guides.js';
+import './viz/gee-guides.js';
 
 // 暴露到 window，让 app.js 在章节内容加载完成后可调用
 window.initStatViz = init;
