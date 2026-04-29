@@ -23,4 +23,5 @@ import './cluster-guides.js';
 import './pca-guides.js';
 import './pca-vis-guides.js';
 import './pcareg-guides.js';
+import './factoranalysis-guides.js';
 import './overrides.js';

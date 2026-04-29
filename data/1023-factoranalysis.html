@@ -614,6 +614,8 @@ window.Quarto = {
 <section id="确定最佳因子个数" class="level2" data-number="32.2">
 <h2 data-number="32.2" class="anchored" data-anchor-id="确定最佳因子个数"><span class="header-section-number">32.2</span> 确定最佳因子个数</h2>
 <p>这一步类似于PCA中的确定主成分的个数，使用的规则也是类似的。</p>
+<div class="stat-viz" data-type="fa-vs-pca-guide" data-title="因子分析 vs 主成分分析"></div>
+<div class="stat-viz" data-type="nfactors-guide" data-title="如何确定因子数量"></div>
 <blockquote class="blockquote">
 <p>Cattell的“碎石”检验是解决因子数量问题最简单的检验方法之一。Horn的“平行”分析是同样引人注目的方法。其他确定最优因子数量的方法包括寻找“极简单结构”（Very Simple Structure，VSS）准则（VSS）以Velicer的MAP程序（包含在VSS中）。VSS和MAP准则都包含在<code>nfactors</code>函数中，该函数还会报告每个多重解的平均项目复杂度和贝叶斯信息准则（BIC）。–<code>fa.parallel</code>函数的帮助文档</p>
 </blockquote>
@@ -741,6 +743,7 @@ window.Quarto = {
 </section>
 <section id="因子分析初体验" class="level2" data-number="32.3">
 <h2 data-number="32.3" class="anchored" data-anchor-id="因子分析初体验"><span class="header-section-number">32.3</span> 因子分析初体验</h2>
+<div class="stat-viz" data-type="loading-interpretation-guide" data-title="因子载荷矩阵解读"></div>
 <p>下面我们首先用9个因子进行因子分析，看看结果再说。</p>
 <p><code>rotate</code>参数确定旋转方法，有多种不同的选择，比如不旋转、正交旋转法（比如最大方差法）、斜交旋转法等，</p>
 <p><code>fm</code>参数选择提取公共因子的计算方法，比如最大似然法ml、主轴迭代法pa、加权最小二乘wls、广义加权最小二乘gls、最小残差minres（默认），等。</p>
@@ -850,6 +853,9 @@ Minimum correlation of possible factor scores     0.77 0.61 0.26 -0.01 -0.65 -0.
 </section>
 <section id="进行因子分析" class="level2" data-number="32.4">
 <h2 data-number="32.4" class="anchored" data-anchor-id="进行因子分析"><span class="header-section-number">32.4</span> 进行因子分析</h2>
+<div class="stat-viz" data-type="extraction-guide" data-title="因子提取方法"></div>
+<div class="stat-viz" data-type="model-fit-guide" data-title="模型拟合指标"></div>
+<div class="stat-viz" data-type="factor-scores-guide" data-title="因子得分"></div>
 <p>下面我们选择4个因子，重新进行因子分析，先不旋转：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 选择4个因子，不旋转，主因子解：最小残差法</span></span>
@@ -953,6 +959,7 @@ Minimum correlation of possible factor scores     0.77 0.61 0.26 -0.01 -0.65 -0.
 </section>
 <section id="因子旋转" class="level2" data-number="32.5">
 <h2 data-number="32.5" class="anchored" data-anchor-id="因子旋转"><span class="header-section-number">32.5</span> 因子旋转</h2>
+<div class="stat-viz" data-type="rotation-guide" data-title="因子旋转方法"></div>
 <p>建立因子分析模型的目的不仅是找出公因子，更重要的是弄清各公因子的专业意义，以便对实际问题进行分析。然而在很多情况下，因子分析的主成分解、主因子解的各公因子的典型代表变量并不是很突出，容易使各公因子的专业意义难以解释，从而达不到因子分析的主要目的。</p>
 <p>通过因子旋转我们可以更容易找到内在规律，使得结果更加容易结合专业背景进行解释。</p>
 <p>常见的因子旋转方法有正交旋转和斜交旋转两大类。正交旋转能保持各个指标的共性方差不变，每个因子的意义相对独立和清晰，解释起来较为简单直观，在一些探索性研究或初步分析中，有助于简化分析过程和理解因子结构。斜交旋转在解释因子结构时相对复杂一些，需要同时考虑因子载荷和因子之间的相关系数。但在一些复杂的研究问题中，能够提供更全面和深入的信息。</p>
