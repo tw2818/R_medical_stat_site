@@ -1,8 +1,18 @@
 import { registerViz } from './_core.js';
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
+  }[char]));
+}
+
 function renderPartialCorr(el) {
   const id = 'pcorr-' + Math.random().toString(36).slice(2, 8);
-  const title = el.dataset.title || '偏相关示意';
+  const title = escapeHtml(el.dataset.title) || '偏相关示意';
   const W = 480, H = 300;
   el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;"></div></div>`;
   const canvas = document.getElementById(id);
@@ -25,7 +35,7 @@ registerViz('partialcorr', renderPartialCorr);
 
 function renderDendrogram(el) {
   const id = 'dendro-' + Math.random().toString(36).slice(2, 8);
-  const title = el.dataset.title || '系统聚类（层次聚类）树状图';
+  const title = escapeHtml(el.dataset.title) || '系统聚类（层次聚类）树状图';
   const W = 580, H = 300;
   el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">Ward法 + 欧氏距离 | 横轴=观测，纵轴=合并距离（相似度）</div></div>`;
   const canvas = document.getElementById(id);
@@ -63,7 +73,7 @@ registerViz('dendrogram', renderDendrogram);
 
 function renderSEM(el) {
   const id = 'sem-' + Math.random().toString(36).slice(2, 8);
-  const title = el.dataset.title || 'SEM 路径分析示意图';
+  const title = escapeHtml(el.dataset.title) || 'SEM 路径分析示意图';
   const w = 500, h = 300;
   el.innerHTML = `<div style="font-family:sans-serif"><div style="background:#f8f9fa;border-radius:8px;padding:15px;margin-bottom:10px"><div style="font-size:14px;font-weight:bold;color:#333;margin-bottom:8px">${title}</div><svg width="${w}" height="${h}" style="display:block;margin:0 auto"><defs><marker id="arrow${id}" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#666"/></marker></defs><rect x="30" y="30" width="80" height="45" rx="5" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5"/><text x="70" y="57" text-anchor="middle" font-size="13" fill="#333">X₁</text><rect x="30" y="130" width="80" height="45" rx="5" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5"/><text x="70" y="157" text-anchor="middle" font-size="13" fill="#333">X₂</text><ellipse cx="220" cy="75" rx="50" ry="35" fill="#fff3e0" stroke="#f57c00" stroke-width="1.5"/><text x="220" y="80" text-anchor="middle" font-size="13" fill="#333">η₁</text><ellipse cx="220" cy="195" rx="50" ry="35" fill="#fff3e0" stroke="#f57c00" stroke-width="1.5"/><text x="220" y="200" text-anchor="middle" font-size="13" fill="#333">η₂</text><rect x="380" y="50" width="80" height="45" rx="5" fill="#e8f5e9" stroke="#388e3c" stroke-width="1.5"/><text x="420" y="77" text-anchor="middle" font-size="13" fill="#333">Y₁</text><rect x="380" y="160" width="80" height="45" rx="5" fill="#e8f5e9" stroke="#388e3c" stroke-width="1.5"/><text x="420" y="187" text-anchor="middle" font-size="13" fill="#333">Y₂</text><line x1="110" y1="75" x2="170" y2="80" stroke="#666" stroke-width="1.5" marker-end="url(#arrow${id})"/><text x="140" y="68" text-anchor="middle" font-size="10" fill="#666">γ₁₁</text><line x1="110" y1="155" x2="170" y2="145" stroke="#666" stroke-width="1.5" marker-end="url(#arrow${id})"/><text x="130" y="142" text-anchor="middle" font-size="10" fill="#666">γ₂₁</text><line x1="110" y1="155" x2="170" y2="205" stroke="#666" stroke-width="1.5" marker-end="url(#arrow${id})"/><text x="130" y="195" text-anchor="middle" font-size="10" fill="#666">γ₂₂</text><line x1="270" y1="90" x2="370" y2="72" stroke="#666" stroke-width="1.5" marker-end="url(#arrow${id})"/><text x="320" y="72" text-anchor="middle" font-size="10" fill="#666">λ₁</text><line x1="270" y1="180" x2="370" y2="182" stroke="#666" stroke-width="1.5" marker-end="url(#arrow${id})"/><text x="320" y="192" text-anchor="middle" font-size="10" fill="#666">λ₂</text><line x1="220" y1="108" x2="220" y2="162" stroke="#666" stroke-width="1.5" marker-end="url(#arrow${id})"/><text x="240" y="138" text-anchor="middle" font-size="10" fill="#666">β₁₁</text><line x1="220" y1="228" x2="220" y2="260" stroke="#999" stroke-width="1" marker-end="url(#arrow${id})"/><text x="228" y="250" font-size="9" fill="#999">ζ₁</text><path d="M 15 52 Q 5 52 5 45" stroke="#999" stroke-width="1" fill="none" marker-end="url(#arrow${id})"/><path d="M 15 152 Q 5 152 5 145" stroke="#999" stroke-width="1" fill="none" marker-end="url(#arrow${id})"/><rect x="140" y="265" width="12" height="12" fill="#e3f2fd" stroke="#1976d2"/><text x="156" y="275" font-size="10" fill="#333">外生显变量</text><ellipse cx="213" cy="271" rx="8" ry="6" fill="#fff3e0" stroke="#f57c00"/><text x="225" y="275" font-size="10" fill="#333">内生潜变量</text><rect x="320" y="265" width="12" height="12" fill="#e8f5e9" stroke="#388e3c"/><text x="336" y="275" font-size="10" fill="#333">内生显变量</text></svg><div style="margin-top:10px;font-size:11px;color:#666"><span style="margin-right:15px">X₁,X₂: 外生显变量（自变量）</span><span style="margin-right:15px">η₁,η₂: 内生潜变量（中介/因变量）</span><span>Y₁,Y₂: 内生显变量（观测结果）</span></div></div></div>`;
 }
@@ -71,7 +81,7 @@ registerViz('sem', renderSEM);
 
 function renderAutocorrelation(el) {
   const id = 'acf-' + Math.random().toString(36).slice(2, 8);
-  const title = el.dataset.title || '自相关图 (ACF/PACF)';
+  const title = escapeHtml(el.dataset.title) || '自相关图 (ACF/PACF)';
   const rawValues = el.dataset.values || '0.85,0.72,0.58,0.45,0.32,0.21,0.12,0.05,-0.02,-0.08,-0.14,-0.18';
   const values = rawValues.split(',').map(Number);
   const n = values.length;
