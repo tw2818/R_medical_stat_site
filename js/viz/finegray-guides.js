@@ -34,10 +34,10 @@ const GUIDE_CARDS = {
     lead: 'Fine-Gray检验是竞争风险版本的 log-rank 检验，用于比较组间累计发生率差异。',
     steps: [
       ['检验思想', '比较各组在每个时间点的子分布风险率差异，累积得到检验统计量'],
-      ['结果解读', '第一行统计量=2.86, P=0.091：控制竞争风险后，两疾病类型累计复发率无显著差异'],
-      ['与log-rank区别', 'log-rank假设无竞争风险；Fine-Gray考虑竞争事件的竞争效应']
+      ['结果解读', '第1行检验 ALL 与 AML 的累计复发率差异：stat=2.8623325，P=0.09067592；第2行检验累计竞争风险事件发生率差异：P=0.50322531。'],
+      ['与log-rank区别', 'log-rank通常把竞争事件当作删失；Fine-Gray/Gray 检验直接比较竞争风险框架下的 CIF。']
     ],
-    note: 'P=0.09067592 > 0.05，说明 ALL 和 AML 组的复发风险差异无统计学意义'
+    note: '两类事件的组间 CIF 差异检验均未达到 0.05 水平；两行结果分别对应事件1和事件2，并非互相调整或控制。'
   },
   'finegray-crr-guide': {
     badge: 'crr',
@@ -47,9 +47,9 @@ const GUIDE_CARDS = {
     steps: [
       ['failcode=1', '指定感兴趣事件为1（本章为复发）；其他非0非1默认为竞争风险事件'],
       ['cencode=0', '指定删失为0'],
-      ['exp(coef)', 'SHR > 1 表示该因素增加感兴趣事件风险；Phase SHR=1.514，p=0.00052 是显著影响因素']
+      ['exp(coef)', 'SHR > 1 表示该因素增加感兴趣事件的子分布风险；Phase SHR=1.514，p=0.00052，是本例中唯一达到统计学显著的变量。']
     ],
-    note: '多因素分析：Phase(疾病阶段)是复发的独立影响因素，SHR=1.514，95%CI 1.198-1.91'
+    note: '多因素分析：Phase(疾病阶段) SHR=1.514，95%CI 1.198-1.91；Sex、D、Age、Source 的 P 值均 >0.05。'
   },
   'finegray-competing-event-guide': {
     badge: 'event type',
@@ -57,7 +57,7 @@ const GUIDE_CARDS = {
     title: '竞争事件与删失的区别',
     lead: 'Status 编码：0=删失、1=感兴趣事件、2=竞争风险事件，三类处理方式不同。',
     steps: [
-      ['删失(0)', '到最后随访仍未观察到任何事件，可能是"永远不会发生"'],
+      ['删失(0)', '随访结束或失访时尚未观察到感兴趣事件或竞争事件；不能判断之后是否会发生。'],
       ['感兴趣事件(1)', '研究的主要终点，如本章的"复发"'],
       ['竞争事件(2)', '阻止感兴趣事件发生的其他事件，如本章的"移植不良反应死亡"']
     ],
@@ -99,17 +99,24 @@ function renderGuide(el) {
   ensureStyles();
   const cfg = GUIDE_CARDS[el.dataset.type] || GUIDE_CARDS['finegray-concept-guide'];
   const title = escapeHtml(el.dataset.title || cfg.title);
+  const icon = escapeHtml(cfg.icon);
+  const badge = escapeHtml(cfg.badge);
+  const lead = escapeHtml(cfg.lead);
+  const note = escapeHtml(cfg.note);
+  const steps = cfg.steps.map(([stepTitle, text]) =>
+    `<div class="finegray-guide-item"><strong>${escapeHtml(stepTitle)}</strong><span>${escapeHtml(text)}</span></div>`
+  ).join('');
   el.innerHTML = `
     <div class="finegray-guide-card">
       <div class="finegray-guide-head">
-        <div class="finegray-guide-icon">${cfg.icon}</div>
-        <div><span class="finegray-guide-badge">${cfg.badge}</span><h3 class="finegray-guide-title">${title}</h3></div>
+        <div class="finegray-guide-icon">${icon}</div>
+        <div><span class="finegray-guide-badge">${badge}</span><h3 class="finegray-guide-title">${title}</h3></div>
       </div>
-      <p class="finegray-guide-lead">${cfg.lead}</p>
+      <p class="finegray-guide-lead">${lead}</p>
       <div class="finegray-guide-grid">
-        ${cfg.steps.map(([stepTitle, text]) => `<div class="finegray-guide-item"><strong>${stepTitle}</strong><span>${text}</span></div>`).join('')}
+        ${steps}
       </div>
-      <div class="finegray-guide-note">${cfg.note}</div>
+      <div class="finegray-guide-note">${note}</div>
     </div>`;
 }
 

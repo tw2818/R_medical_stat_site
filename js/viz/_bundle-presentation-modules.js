@@ -27,4 +27,5 @@ import './factoranalysis-guides.js';
 import './partialcorrelation-guides.js';
 import './finegray-guides.js';
 import './psm-guides.js';
+import './sem-guides.js';
 import './overrides.js';

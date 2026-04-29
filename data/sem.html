@@ -537,6 +537,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p>本文涉及大量理论知识，不喜欢的可以直接跳到R语言实战部分，但是模型的构建和结果的解读强烈依赖于理论知识。（本来我也不想介绍理论知识，但是发现不懂理论知识根本进行不下去…）</p>
 </blockquote>
+<div class="stat-viz" data-type="sem-concept-guide" data-title="SEM概念与工作流程"></div>
+<p>⬆ 上方展示了SEM的核心概念：多个方程组成的方程组，处理潜变量与显变量之间的复杂关系。</p>
 <section id="理论知识" class="level2" data-number="34.1">
 <h2 data-number="34.1" class="anchored" data-anchor-id="理论知识"><span class="header-section-number">34.1</span> 理论知识</h2>
 <div class="stat-viz" data-type="sem" data-title="SEM 路径分析示意图"></div>
@@ -566,6 +568,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="测量模型和结构模型" class="level3" data-number="34.1.3">
 <h3 data-number="34.1.3" class="anchored" data-anchor-id="测量模型和结构模型"><span class="header-section-number">34.1.3</span> 测量模型和结构模型</h3>
+<div class="stat-viz" data-type="sem-measurement-structural-guide" data-title="测量模型与结构模型的区别"></div>
+<p>⬆ 上方展示了测量模型（观测变量与潜变量）和结构模型（潜变量之间）的核心区别。</p>
 <p>SEM中的模型主要包括两种（SEM类似于多个方程组成的方程组，按照使用目的，这些方程大致可以分为两类）：</p>
 <ol type="1">
 <li><strong>测量模型</strong>(measurement model)：用来描述<strong>观测变量和潜变量</strong>之间的关系。比如，我们想研究学生的“学习能力”这个潜变量、可能会通过“语文成绩”、“数学成绩”、“英语成绩”等观测变量来衡量。测量模型就是要确定这些观测变量在多大程度上能够准确地反映“学习能力”这个潜变量。</li>
@@ -612,6 +616,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>模型评价（model evaluation）；</li>
 <li>模型修正（model modification）。</li>
 </ol>
+<div class="stat-viz" data-type="sem-concept-guide" data-title="SEM分析五步骤概览"></div>
+<p>⬆ 上方展示了SEM分析的五个核心步骤：模型设定→识别→估计→评价→修正。</p>
 <section id="模型设定" class="level3" data-number="34.2.1">
 <h3 data-number="34.2.1" class="anchored" data-anchor-id="模型设定"><span class="header-section-number">34.2.1</span> 模型设定</h3>
 <p>根据研究目的和专业知识建立起观测变量与潜变量以及潜变量之间的关系，即为模型的设定。一般有3种方式设立欲拟合的结构方程模型。</p>
@@ -653,6 +659,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>一个比较理想的拟合指数应该具有这样的特点：①不受样本含量的影响；②惩罚复杂模型（自由参数较多的模型）；③对误设模型敏感。</p>
 <p>验证性因子分析与结构方程模型的拟合指标基本相同，下表列出了部分常用的拟合指标。</p>
 <p><img src="figs/PixPin_2025-02-24_13-38-02.png" class="img-fluid"></p>
+<div class="stat-viz" data-type="sem-fit-index-guide" data-title="SEM拟合指标解读"></div>
+<p>⬆ 上方展示了绝对拟合、相对拟合、信息标准、节俭拟合等常用拟合指标及其阈值判断标准。</p>
 <p>上表中没有的几个指标补充：</p>
 <ul>
 <li>Tucker-Lewis Index (TLI)：Tucker Lewis指数一般会在结构方程模型中报告，也被称为非范拟合指数（Non-Normed Fit Index，NNFI），是在因子分析以及结构方程模型等领域用于评估模型拟合优度的一个重要指标，通常希望大于0.9，值越大说明拟合效果越好。</li>
@@ -668,7 +676,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>最后，修正过程应该先增加有意义的参数，如果需要，再减少无意义的参数。而非先减少无意义的参数，再增加有意义的参数。</li>
 <li>另外，在进行模型修正时，应该有实际的理论做指导，而不能仅凭样本数据提供的信息做出判断。</li>
 </ul>
-</section>
+<div class="stat-viz" data-type="sem-model-modification-guide" data-title="模型修正策略"></div>
+<p>⬆ 上方展示了模型修正的三原则：先解决测量模型、每次只做一个修正、优先增加有意义的参数。</p>
 </section>
 <section id="r语言实战" class="level2" data-number="34.3">
 <h2 data-number="34.3" class="anchored" data-anchor-id="r语言实战"><span class="header-section-number">34.3</span> R语言实战</h2>
@@ -676,42 +685,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="lavaan简介" class="level3" data-number="34.3.1">
 <h3 data-number="34.3.1" class="anchored" data-anchor-id="lavaan简介"><span class="header-section-number">34.3.1</span> lavaan简介</h3>
 <p><code>lavaan</code>是专门用于潜变量分析的R包，它是<code>latent variable analysis</code>（潜变量分析）的缩写。</p>
-<p>在常规的R公式语法中，波浪号<code>~</code>左边的变量是因变量，右边的变量是自变量，多个自变量以<code>+</code>连接，比如：</p>
-<pre><code>y ~ x1 + x2 + x3 + x4</code></pre>
-<p>在<code>lavaan</code>中，这种形式也被保留下来，表示常规的回归的模型。稍有不同的地方是，SEM和CFA中可能会同时出现多个回归模型（叫公式、方程都可以），用来表示多个变量之间的关系，比如：</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 同时出现3个公式</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>y <span class="sc">~</span> f1 <span class="sc">+</span> f2 <span class="sc">+</span> x1 <span class="sc">+</span> x2 </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>f1 <span class="sc">~</span> f2 <span class="sc">+</span> f3 </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>f2 <span class="sc">~</span> f3 <span class="sc">+</span> x1 <span class="sc">+</span> x2</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>SEM中的变量分为潜变量和显变量，如果<code>~</code>两侧是不同类型的变量（比如：<code>~</code>左侧是潜变量，右侧是显变量），那么就会和常规的回归模型混淆，并且也难以区分谁是潜变量、谁是显变量，所以<code>lavaan</code>引入了<code>=~</code>，如果潜变量<code>x</code>由<code>z1,z2,z3</code>这3个显变量测量，可以写成如下格式：</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span><span class="er">~</span> z1<span class="sc">+</span>z2<span class="sc">+</span>z3</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>在SEM的求解过程中，变量之间的协方差和方差结构是必须的，<code>lavaan</code>中通过<code>~~</code>定义变量之间的协方差和方差结构。如果<code>~~</code>的两边是同一个变量，则是表示方差，如果是不同的变量，则是表示协方差。比如：</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>y1 <span class="sc">~</span><span class="er">~</span> x2 <span class="co"># 估计y1和x2之间的协方差</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>z1 <span class="sc">~</span><span class="er">~</span> x3 <span class="co"># 估计z1和x3之间的协方差</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>一个完整的<code>lavaan</code>模型公式是由以上4个部分组成的，并且必须使用单引号<code>'</code>引起来，例如：</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 一个完整的lavaan语法</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>myModel <span class="ot">&lt;-</span> <span class="st">' # 回归模型</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">             y1 + y2 ~ f1 + f2 + x1 + x2</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">             f1 ~ f2 + f3</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">             f2 ~ f3 + x1 + x2</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">             # 潜变量 </span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">             f1 =~ y1 + y2 + y3 </span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">             f2 =~ y4 + y5 + y6 </span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="st">             f3 =~ y7 + y8 + y9 + y10</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="st">             # 方差和协方差 </span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="st">             y1 ~~ y1 </span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="st">             y1 ~~ y2 </span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="st">             f1 ~~ f2</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="st">             # 截距项</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="st">             y1 ~ 1 </span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="st">             f1 ~ 1</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="st">           '</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>但是在实际使用时，只有<code>潜变量</code>部分的公式才是必须的，其余部分的公式有时可以省略（会默认计算其余部分，也有例外，要根据实际情况来）。</p>
+<div class="stat-viz" data-type="sem-lavaan-syntax-guide" data-title="lavaan语法入门"></div>
+<p>⬆ 上方展示了lavaan的四类语法符号：~（回归）、=~（潜变量）、~~（协方差）、~1（截距）。</p>
 </section>
 <section id="数据简介" class="level3" data-number="34.3.2">
 <h3 data-number="34.3.2" class="anchored" data-anchor-id="数据简介"><span class="header-section-number">34.3.2</span> 数据简介</h3>
@@ -900,6 +875,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>最后是<strong>误差的方差</strong>（Variances）。其中<code>Estimate</code>是每个观测变量的非标准化误差方差估计值，误差方差代表了观测变量中不能被潜在因子解释的部分，也就是观测变量的变异中无法由模型所设定的潜在因子结构来解释的那部分。较小的误差方差意味着观测变量能较好地被潜在因子解释。剩余3列分别是标准误、Z值和P值。</p>
 <p>注意，在<code>Variances</code>部分，观测变量名称之前有一个点。这是因为它们是因变量（或内生变量）（由潜在变量预测），因此，输出中打印的方差值是残差方差（即未被预测变量解释的剩余方差）的估计值。潜变量名称之前没有点，因为在这个模型中它们是外生变量（没有单箭头指向它们），这里的方差值是潜变量的估计总方差。</p>
 <p>最后一部分是每个观测变量的R<sup>2</sup>，这部分结果与书中也是完全一致的。</p>
+<div class="stat-viz" data-type="sem-cfa-result-guide" data-title="CFA结果解读指南"></div>
+<p>⬆ 上方展示了CFA输出的三大部分：因子载荷、因子间协方差、误差方差及R²的解释方法。</p>
 <p>通过以下代码可查看<strong>拟合指数</strong>（个别值与书中有差别）：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit.measures = "all"可查看所有拟合指数</span></span>

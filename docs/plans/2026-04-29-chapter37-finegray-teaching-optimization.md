@@ -1,7 +1,7 @@
-# Chapter 34 Fine-Gray检验和竞争风险模型 Teaching Optimization Plan
+# Chapter 37 Fine-Gray检验和竞争风险模型 Teaching Optimization Plan
 
 ## Context
-- Chapter 34 in R_medical_stat_site
+- Chapter 37 in R_medical_stat_site
 - File: `data/1034-finegray.html`
 - Topic: Fine-Gray检验和竞争风险模型 (Fine-Gray test and Competing Risk Models)
 
@@ -28,7 +28,7 @@ Concept: 竞争风险模型的基本概念
 Concept: 累计发生函数 CIF 解读
 - CIF 的计算方法
 - 与 Kaplan-Meier 的区别
-- 1 - CIF = 调整后的生存概率
+- 多个事件类型的 CIF 与无事件概率共同构成总概率；不能把单一事件的 1-CIF 简单当作普通 KM 生存概率
 
 ### 3. `finegray-fg-test-guide`
 Concept: Fine-Gray检验 vs log-rank 检验
@@ -45,12 +45,12 @@ Concept: 竞争风险回归 crr() 结果解读
 
 ### 5. `finegray-competing-event-guide`
 Concept: 竞争事件与删失的区别
-- 删失：不知何时发生，但最终会发生
+- 删失：随访结束或失访时尚未观察到事件，不能判断之后是否会发生
 - 竞争事件：阻止感兴趣事件发生
 - Fine-Gray 对两类事件处理不同
 
 ## Files to Modify
-1. `docs/plans/2026-04-29-chapter34-finegray-teaching-optimization.md` (create)
+1. `docs/plans/2026-04-29-chapter37-finegray-teaching-optimization.md` (create)
 2. `tests/finegray-content.test.mjs` (create)
 3. `js/viz/finegray-guides.js` (create)
 4. `data/1034-finegray.html` (add 5 placeholders)
