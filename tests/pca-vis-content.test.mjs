@@ -34,7 +34,9 @@ const expectedGuideTypes = [
   'fviz-contrib-guide',
   'fviz-group-coloring-guide',
   'fviz-biplot-guide',
-  'ggplot2-pca-guide'
+  'ggplot2-pca-guide',
+  'fviz-scree-cutoff-guide',
+  'fviz-coloring-scenario-guide'
 ];
 
 const expectedCodeIds = [
@@ -87,6 +89,13 @@ test('PCA visualization guide renderer is registered and imported', () => {
   for (const type of expectedGuideTypes) {
     assert.match(renderer, new RegExp(`registerViz\\(['"]${type}['"]`), `renderer should register ${type}`);
   }
+
+  // Interactive component assertions
+  assert.match(renderer, /input type="range"/, 'fviz-scree-cutoff-guide should include range input');
+  assert.match(renderer, /addEventListener\(['"]input['"]/, 'scree cutoff should update interactively on slider input');
+  assert.match(renderer, /<select/, 'fviz-coloring-scenario-guide should include select dropdown');
+  assert.match(renderer, /addEventListener\(['"]change['"]/, 'coloring scenario should update on select change');
+  assert.match(renderer, /escapeHtml\(/, 'all renderers should use escapeHtml for dataset.title');
 });
 
 test('pca-vis-guides.js module can be imported', async () => {

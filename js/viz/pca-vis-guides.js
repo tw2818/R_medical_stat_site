@@ -116,6 +116,21 @@ function ensureStyles() {
     .pca-vis-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;line-height:1.65;}
     .pca-vis-guide-item strong{display:block;color:#5b21b6;margin-bottom:6px;}
     .pca-vis-guide-note{margin-top:12px;font-size:13px;color:#64748b;background:#fff;border-left:4px solid #7c3aed;border-radius:10px;padding:10px 12px;}
+    .pca-vis-scree-cutoff-panel{display:flex;flex-direction:column;gap:12px;margin-top:14px;}
+    .pca-vis-scree-cutoff-control{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;}
+    .pca-vis-scree-cutoff-control label{display:flex;align-items:center;gap:10px;font-size:14px;color:#475569;}
+    .pca-vis-scree-cutoff-control input[type=range]{flex:1;accent-color:#7c3aed}
+    .pca-vis-scree-cutoff-value{font-weight:700;color:#5b21b6;font-size:16px;min-width:50px;text-align:right;}
+    .pca-vis-scree-cutoff-output{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;}
+    .pca-vis-scree-cutoff-pcs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+    .pca-vis-scree-pc-tag{display:inline-block;background:#ede9fe;color:#5b21b6;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;}
+    .pca-vis-scree-pc-tag.excluded{background:#f1f5f9;color:#94a3b8}
+    .pca-vis-coloring-scenario-panel{display:flex;flex-direction:column;gap:12px;margin-top:14px;}
+    .pca-vis-coloring-scenario-control{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;}
+    .pca-vis-coloring-scenario-control select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;color:#334155;background:#fff;margin-top:8px;}
+    .pca-vis-coloring-scenario-output{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;}
+    .pca-vis-coloring-scenario-output pre{background:#1e293b;color:#e2e8f0;padding:12px;border-radius:8px;font-size:13px;overflow-x:auto;margin:8px 0}
+    .pca-vis-coloring-scenario-explain{font-size:14px;color:#475569;line-height:1.65;margin-top:8px}
     @media(max-width:720px){.pca-vis-guide-card{padding:14px}.pca-vis-guide-head{align-items:flex-start}}
   `;
   document.head.appendChild(style);
@@ -157,3 +172,124 @@ registerViz('fviz-contrib-guide', renderGuide);
 registerViz('fviz-group-coloring-guide', renderGuide);
 registerViz('fviz-biplot-guide', renderGuide);
 registerViz('ggplot2-pca-guide', renderGuide);
+
+const SCREE_CUTOFF_DATA = {
+  pcs: [
+    { name: 'PC1', variance: 72.96 },
+    { name: 'PC2', variance: 22.85 },
+    { name: 'PC3', variance: 3.12 },
+    { name: 'PC4', variance: 1.07 }
+  ]
+};
+
+function renderScreeCutoffGuide(el) {
+  ensureStyles();
+  const title = escapeHtml(el.dataset.title || '累计方差阈值：滑动选择保留几个主成分');
+  el.innerHTML = `
+    <div class="pca-vis-guide-card">
+      <div class="pca-vis-guide-head">
+        <div class="pca-vis-guide-icon">%</div>
+        <div><span class="pca-vis-guide-badge">interactive scree cutoff</span><h3 class="pca-vis-guide-title">${title}</h3></div>
+      </div>
+      <p class="pca-vis-guide-lead">拖动滑块设定累计方差贡献率阈值，系统实时显示在该阈值下应保留哪些主成分。</p>
+      <div class="pca-vis-scree-cutoff-panel">
+        <div class="pca-vis-scree-cutoff-control">
+          <label>
+            累计方差阈值：
+            <input type="range" min="50" max="100" value="80" data-role="threshold">
+            <span class="pca-vis-scree-cutoff-value" data-role="threshold-display">80%</span>
+          </label>
+        </div>
+        <div class="pca-vis-scree-cutoff-output">
+          <div>保留的主成分：</div>
+          <div class="pca-vis-scree-cutoff-pcs" data-role="pc-container"></div>
+        </div>
+      </div>
+    </div>`;
+  const input = el.querySelector('[data-role="threshold"]');
+  const thresholdDisplay = el.querySelector('[data-role="threshold-display"]');
+  const pcContainer = el.querySelector('[data-role="pc-container"]');
+  const update = () => {
+    const threshold = Number(input.value);
+    thresholdDisplay.textContent = threshold + '%';
+    let cumulative = 0;
+    const retained = [];
+    const excluded = [];
+    for (const pc of SCREE_CUTOFF_DATA.pcs) {
+      cumulative += pc.variance;
+      if (cumulative <= threshold) {
+        retained.push(pc);
+      } else {
+        excluded.push(pc);
+      }
+    }
+    pcContainer.innerHTML = retained.map(pc =>
+      `<span class="pca-vis-scree-pc-tag">${pc.name} (${pc.variance}%)</span>`
+    ).join('') + excluded.map(pc =>
+      `<span class="pca-vis-scree-pc-tag excluded">${pc.name} (${pc.variance}%)</span>`
+    ).join('');
+  };
+  input.addEventListener('input', update);
+  update();
+}
+
+const COLORING_SCENARIOS = {
+  species: {
+    label: '按分组着色 (Species)',
+    code: 'fviz_pca_ind(pca.result,\n            col.ind = iris$Species,\n            palette = "jco",\n            addEllipses = TRUE)',
+    explain: '按原始分组着色，适合探索已知分组之间的差异。本例中 setosa 与另两类明显分开，virginica 和 versicolor 有部分重叠。'
+  },
+  cos2: {
+    label: '按投影质量着色 (cos2)',
+    code: 'fviz_pca_ind(pca.result,\n            col.ind = "cos2",\n            gradient.cols = c("white", "#2E86AB"),\n            repel = TRUE)',
+    explain: '按样本在主成分空间的投影质量（cos2）着色。高 cos2 的样本更可信，低 cos2 样本可能是异常值或投影质量差。'
+  },
+  contrib: {
+    label: '按贡献率着色 (contrib)',
+    code: 'fviz_pca_ind(pca.result,\n            col.ind = "contrib",\n            gradient.cols = c("white", "#E63946"),\n            repel = TRUE)',
+    explain: '按样本对主成分的贡献率着色。高贡献样本对结果影响更大，可能值得关注或进一步调查。'
+  }
+};
+
+function renderColoringScenarioGuide(el) {
+  ensureStyles();
+  const title = escapeHtml(el.dataset.title || '着色策略选择：按分组、按 cos2、还是按 contrib');
+  el.innerHTML = `
+    <div class="pca-vis-guide-card">
+      <div class="pca-vis-guide-head">
+        <div class="pca-vis-guide-icon">🎨</div>
+        <div><span class="pca-vis-guide-badge">interactive coloring scenario</span><h3 class="pca-vis-guide-title">${title}</h3></div>
+      </div>
+      <p class="pca-vis-guide-lead">选择不同的着色策略，服务于不同的分析目的。</p>
+      <div class="pca-vis-coloring-scenario-panel">
+        <div class="pca-vis-coloring-scenario-control">
+          <label for="pca-coloring-scenario">选择着色策略</label>
+          <select id="pca-coloring-scenario" data-role="scenario">
+            <option value="species">按分组着色 (Species)</option>
+            <option value="cos2">按投影质量 (cos2)</option>
+            <option value="contrib">按贡献率 (contrib)</option>
+          </select>
+        </div>
+        <div class="pca-vis-coloring-scenario-output">
+          <div data-role="label"></div>
+          <pre data-role="code"></pre>
+          <p class="pca-vis-coloring-scenario-explain" data-role="explain"></p>
+        </div>
+      </div>
+    </div>`;
+  const select = el.querySelector('[data-role="scenario"]');
+  const label = el.querySelector('[data-role="label"]');
+  const code = el.querySelector('[data-role="code"]');
+  const explain = el.querySelector('[data-role="explain"]');
+  const update = () => {
+    const cfg = COLORING_SCENARIOS[select.value];
+    label.textContent = cfg.label;
+    code.textContent = cfg.code;
+    explain.textContent = cfg.explain;
+  };
+  select.addEventListener('change', update);
+  update();
+}
+
+registerViz('fviz-scree-cutoff-guide', renderScreeCutoffGuide);
+registerViz('fviz-coloring-scenario-guide', renderColoringScenarioGuide);

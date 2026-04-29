@@ -15,3 +15,6 @@ node_modules/
 # Empty placeholder dirs
 chapters/
 data/datasets/
+
+# Local/private optimization notes
+优化手册.md
