@@ -29,6 +29,7 @@ import './finegray-guides.js';
 import './psm-guides.js';
 import './pssc-guides.js';
 import './psw-guides.js';
+import './p4trend-guides.js';
 import './sem-guides.js';
 import './multilevel-guides.js';
 import './gee-guides.js';

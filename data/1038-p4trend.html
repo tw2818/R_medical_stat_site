@@ -519,6 +519,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>本篇主要介绍<code>P for trend</code>、<code>p for interaction</code>、<code>per 1 sd</code>的R语言实现，关于每一项的具体含义，可参考文中给出的链接，或者自己搜索学习。</p>
 <p>这几个概念在统计学课本是找不到的，但是在临床研究的SCI论文中经常见到，所以有必要学习它，了解它，实现它！</p>
+<div class="stat-viz" data-type="p4trend-workflow-guide" data-title="P for trend / p for interaction / per 1 sd 工作流程"></div>
 <section id="p-for-trend" class="level2" data-number="41.1">
 <h2 data-number="41.1" class="anchored" data-anchor-id="p-for-trend"><span class="header-section-number">41.1</span> P for trend</h2>
 <div class="stat-viz" data-type="subgroupforest" data-title="趋势分析森林图演示" data-labels="总体,四分位Q1,Q2,Q3,Q4" data-hr="0.78,0.85,0.72,0.58,0.45" data-lower="0.65,0.65,0.52,0.38,0.28" data-upper="1.01,1.12,0.98,0.85,0.72"></div>
@@ -569,6 +570,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p><code>0.09279918</code>就是<code>x1</code>的<code>p for trend</code>，而且还是校正了<code>x2</code>这个变量之后的<code>p for trend</code>，是不是很简单？</p>
 <p>此时如果我们把<code>x1</code>变成因子型，那在进行回归分析时会自动进行哑变量编码，就可以得到几个组的OR值和95%的可信区间，关于R语言中分类变量进行回归分析时常用的一些编码方法，强烈你看一下这篇推文：R语言分类变量进行回归分析的编码方案。</p>
+<div class="stat-viz" data-type="p4trend-dummy-guide" data-title="分类变量的哑变量编码解读"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 变为因子型</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df16_2<span class="sc">$</span>x1.f <span class="ot">&lt;-</span> <span class="fu">factor</span>(df16_2<span class="sc">$</span>x1)</span>
@@ -614,6 +616,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="方法1" class="level3" data-number="41.2.1">
 <h3 data-number="41.2.1" class="anchored" data-anchor-id="方法1"><span class="header-section-number">41.2.1</span> 方法1</h3>
 <p>假如探索年龄(x1)和BMI(x7)之间对因变量y有没有交互作用，我们首先新建一列相乘列，然后进行回归分析。</p>
+<div class="stat-viz" data-type="p4trend-interaction-guide" data-title="P for interaction：交互作用的检验"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 新建1列</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df16_2<span class="sc">$</span>x17 <span class="ot">&lt;-</span> df16_2<span class="sc">$</span>x1 <span class="sc">*</span> df16_2<span class="sc">$</span>x7</span>
@@ -662,9 +665,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Number of Fisher Scoring iterations: 5</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果中显示<code>x17</code>的P值(p for interaction)是：0.217，交互作用项是没有统计学意义的。</p>
-</section>
-<section id="方法2" class="level3" data-number="41.2.2">
-<h3 data-number="41.2.2" class="anchored" data-anchor-id="方法2"><span class="header-section-number">41.2.2</span> 方法2</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 先构建一个没有交互项的逻辑回归模型</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>f1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x7, </span>
@@ -687,6 +687,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="do">## 2   4 -31.254  1 1.9238     0.1654</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果显示P(p for interaction)=0.1654，也就是交互作用项没有统计学意义。</p>
+<div class="stat-viz" data-type="p4trend-methods-guide" data-title="两种 p for interaction 方法对比"></div>
 </section>
 </section>
 <section id="per-1-sd" class="level2" data-number="41.3">
@@ -696,6 +697,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Per 1 sd的实现，其实就是把原始数据进行标准化，另存为一个新的变量X，新变量X因为是被标准化后的数据，因此其均数和标准差为0和1。然后让x进入模型进行分析。请问大家此时x每增加1个单位，效应量增加的风险为HR。因为标准差为1，此时x增加1个单位，就是Per 1 sd。1=Per 1 sd。就是自变量每增加1个标准差。</p>
 </blockquote>
 <p>为了方便演示，我们新建一列数据<code>weight</code>，然后进行标准化，再进行逻辑回归。</p>
+<div class="stat-viz" data-type="p4trend-persd-guide" data-title="Per 1 SD：标准化效应量的报告方式"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 新建一列weight</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df16_2<span class="sc">$</span>weight <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">54</span>, <span class="dv">70</span>,<span class="dv">11</span>)</span>
