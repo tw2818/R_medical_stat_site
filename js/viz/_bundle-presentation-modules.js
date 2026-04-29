@@ -20,4 +20,5 @@ import './survival-guides.js';
 import './survivalvis-guides.js';
 import './discriminant-guides.js';
 import './cluster-guides.js';
+import './pca-guides.js';
 import './overrides.js';

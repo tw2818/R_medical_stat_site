@@ -548,7 +548,8 @@ window.Quarto = {
 <p>在医学研究中，为了客观、全面地分析问题，常要记录多个观察指标并考虑众多的影响因素，这样的数据虽然可以提供丰富的信息，但同时也使得数据的分析工作更趋复杂化。</p>
 <p>例如，在儿童生长发育的评价中，收集到的数据包括每一儿童的身高、体重、胸围、头围、坐高、肺活量等十多个指标。怎样利用这类多指标的数据对每一儿童的生长发育水平作出正确的评价？如果仅用其中任一指标来作评价，其结论显然是片面的，而且不能充分利用已有的数据信息。如果分别利用每一指标进行评价，然后再综合各指标评价的结论，这样做一是可能会出现各指标评价的结论不一致，甚至相互冲突，从而给最后的综合评价带来困难；二是工作量明显增大，不利于进一步的统计分析。</p>
 <p>事实上，在实际工作中，所涉及的众多指标之间经常是有相互联系和影响的，从这一点出发，希望通过对原始指标相互关系的研究，找出少数几个综合指标，这些<strong>综合指标是原始指标的线性组合，它既保留了原始指标的主要信息，且又互不相关</strong>。这样一种从众多原始指标之间相互关系入手，寻找少数综合指标以概括原始指标信息的<strong>多元统计方法</strong>称为主成分分析（principal components analysis,PCA），又叫主分量分析。</p>
-<p>主成分分析在医学统计领域是一种常见的多元统计方法，<strong>在机器学习领域是一种常见的数据降维方法</strong>，但是在机器学习中它更多的是作为一种预处理步骤。</p>
+<p>主成分分析在医学统计领域是一种常见的多元统计方法，<strong>在机器学习领域通常也作为数据降维或预处理步骤使用</strong>。</p>
+<div class="stat-viz" data-type="pca-workflow-guide" data-title="PCA 分析工作流"></div>
 <section id="加载数据" class="level2" data-number="29.1">
 <h2 data-number="29.1" class="anchored" data-anchor-id="加载数据"><span class="header-section-number">29.1</span> 加载数据</h2>
 <p>使用R语言自带的<code>iris</code>鸢尾花数据进行演示。</p>
@@ -576,6 +577,7 @@ window.Quarto = {
 <section id="相关性检验" class="level2" data-number="29.2">
 <h2 data-number="29.2" class="anchored" data-anchor-id="相关性检验"><span class="header-section-number">29.2</span> 相关性检验</h2>
 <p>在进行PCA之前可以先进行相关性分析，看看相关系数，这样有助于我们查看各个变量之间的相关性，如果各个变量之间的相关性很小，那么这个数据可能不适合做PCA。</p>
+<p>⬆ 先看相关矩阵，是为了判断原始变量之间是否存在可以被少数综合指标概括的共同结构；如果变量几乎彼此独立，降维的收益就会很有限。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(iris[,<span class="sc">-</span><span class="dv">5</span>])</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="do">##              Sepal.Length Sepal.Width Petal.Length Petal.Width</span></span>
@@ -599,7 +601,7 @@ window.Quarto = {
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">##         0.58         0.27         0.53         0.63</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><code>Overall MSA</code>（Measures of Sampling Adequacy）是总体的检验统计量，然后是每个变量的检验统计量。<code>MSA</code>取值范围在0到1之间，越接近1越好。</p>
-<p>Bartlett球形检验与KMO检验类似，也是帮助我们确定变量之间是否具有足够的相关性。Bartlett球形检验也可以使用<code>psych</code>实现：</p>
+<p>Bartlett 检验的原假设是相关矩阵等于单位阵，也就是变量之间整体上没有相关结构；若 p 值很小，则说明变量间相关性足以支持继续考虑 PCA 或因子分析。Bartlett 球形检验也可以使用<code>psych</code>实现：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>psych<span class="sc">::</span><span class="fu">cortest.bartlett</span>(iris[,<span class="sc">-</span><span class="dv">5</span>])</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## $chisq</span></span>
@@ -616,6 +618,7 @@ window.Quarto = {
 <li><code>p.value</code>：p 值，若p值小于设定的显著性水平（通常为0.05），则拒绝原假设，认为变量之间存在显著的相关性，适合进行主成分分析或因子分析等依赖变量相关性的分析方法。</li>
 </ul>
 <p>以上两个检验也可以直接用<code>performance</code>包实现：</p>
+<div class="stat-viz" data-type="pca-kmo-bartlett-guide" data-title="KMO 与 Bartlett 怎么配合判断"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">check_factorstructure</span>(iris[,<span class="sc">-</span><span class="dv">5</span>])</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="do">## # Is the data suitable for Factor Analysis?</span></span>
@@ -628,6 +631,8 @@ window.Quarto = {
 <section id="pca和结果解读" class="level2" data-number="29.4">
 <h2 data-number="29.4" class="anchored" data-anchor-id="pca和结果解读"><span class="header-section-number">29.4</span> PCA和结果解读</h2>
 <p>主成分分析可以通过分步计算，主要就是标准化-求相关矩阵-计算特征值和特征向量。R中自带了<code>prcomp()</code>进行主成分分析，这就是工具的魅力，一次完成多步需求。</p>
+<div class="stat-viz" data-type="pca-standardization-guide" data-title="center 与 scale 两个参数先想清楚"></div>
+<p>⬆ 在<code>prcomp()</code>里，<code>center = TRUE</code> 先把每个变量的均值移到 0，<code>scale. = TRUE</code> 再把标准差统一为 1；这能避免量纲或数值范围较大的变量在 PCA 中占据不成比例的权重。</p>
 <p>使用<code>prcomp()</code>进行主成分分析：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># R自带函数</span></span>
@@ -645,12 +650,13 @@ window.Quarto = {
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Petal.Length  0.5804131 -0.02449161 -0.1421264 -0.8014492</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Petal.Width   0.5648565 -0.06694199 -0.6342727  0.5235971</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>载荷的绝对值越大，说明该原始变量对相应主成分的贡献越大（主成分载荷通常可以理解为原始变量与主成分之间的相关系数；或者理解为线性回归中的变量系数）。比如对于我们的<code>PC1</code>，它的计算公式如下：</p>
+<p>载荷的绝对值越大，说明该原始变量对相应主成分的贡献越大。这里的<code>$rotation</code>更准确地说是载荷向量/特征向量矩阵，其中 <code>$rotation</code> 的某一列就是该主成分的线性组合系数。比如对于我们的<code>PC1</code>，按照输出结果四舍五入前的系数，可以写成：</p>
 <p><span class="math display">\[
-PC1=0.521*Sepal.Length-0.269*Sepal.Width+0.580*Petal.Length+0.565*Petal.Width
+PC1=0.5210659*Sepal.Length-0.2693474*Sepal.Width+0.5804131*Petal.Length+0.5648565*Petal.Width
 \]</span></p>
+<div class="stat-viz" data-type="pca-loading-formula-guide" data-title="从 rotation 输出读出主成分公式"></div>
 <p>通过观察主成分载荷矩阵，可以了解每个原始变量对各个主成分的贡献程度。例如，如果某个主成分在多个变量上的载荷绝对值都较大，说明该主成分综合反映了这些变量的信息；如果某个主成分只在一个或少数几个变量上有较大载荷，说明该主成分主要代表了这些变量的信息。</p>
-<p>每一列代表一个主成分对应的<strong>特征向量</strong>，例如，矩阵中第一列表示第一个主成分在各个原始变量上的权重，这些权重构成了第一个主成分的特征向量。</p>
+<p><code>$rotation</code> 的每一列代表一个主成分对应的<strong>载荷向量/特征向量</strong>，例如第一列表示第一个主成分在各个原始变量上的权重；这些权重不是机器学习里“特征选择”的结论，而是构造综合指标的线性组合系数。</p>
 <p>查看特征值：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 查看特征值</span></span>
@@ -659,7 +665,8 @@ PC1=0.521*Sepal.Length-0.269*Sepal.Width+0.580*Petal.Length+0.565*Petal.Width
 </div>
 <p><strong>特征值</strong>反映了每个主成分所包含的信息量，特征值越大，说明对应的主成分能解释原始数据的方差越多，也就越重要。在选择主成分时，通常会根据特征值的大小，选取特征值大于1或者累积方差贡献率达到一定阈值（如80%或90%）的主成分，以实现数据降维的目的。</p>
 <div class="stat-viz" data-type="pca" data-title="PCA Scree Plot" data-eigenvalues="[4.23, 2.15, 1.38, 0.85, 0.42, 0.21, 0.18, 0.12, 0.09, 0.07]"></div>
-<p>查看主成分得分，主成分的得分是将原始数据投影到主成分上得到的值。</p>
+<p>查看主成分得分，主成分的得分是将原始数据投影到主成分上得到的值。简单说，$rotation 说明主成分是什么，$x 说明每个样本落在哪里。</p>
+<div class="stat-viz" data-type="pca-loadings-scores-guide" data-title="loadings 与 scores 的区别"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 样本得分score</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pca.res<span class="sc">$</span>x)</span>
@@ -688,6 +695,7 @@ PC1=0.521*Sepal.Length-0.269*Sepal.Width+0.580*Petal.Length+0.565*Petal.Width
 <li><code>Cumulative Proportion</code>:累积方差贡献率</li>
 </ul>
 <p>方差贡献率反映了每个主成分所包含的信息量。通常我们会选择方差贡献率较大的前几个主成分，这些主成分能够保留原始数据的大部分信息。通过累积方差贡献率，可以确定需要保留的主成分个数。例如，如果前两个主成分的累积方差贡献率达到了85%（该例中前两个主成分的累积方差贡献率为95.81%），那么可以选择保留这两个主成分，将四维数据<strong>降维</strong>到二维数据进行分析。</p>
+<div class="stat-viz" data-type="pca-variance-decision-guide" data-title="特征值、贡献率与累计贡献率"></div>
 </section>
 <section id="默认的结果可视化" class="level2" data-number="29.5">
 <h2 data-number="29.5" class="anchored" data-anchor-id="默认的结果可视化"><span class="header-section-number">29.5</span> 默认的结果可视化</h2>
@@ -703,7 +711,7 @@ PC1=0.521*Sepal.Length-0.269*Sepal.Width+0.580*Petal.Length+0.565*Petal.Width
 </div>
 </div>
 </div>
-<p>双标图通常展示前两个主成分（第一主成分和第二主成分），横轴一般是第一主成分，纵轴是第二主成分。主成分是原始变量的线性组合，第一主成分通常解释了数据中最大的方差，第二主成分解释了剩余方差中的最大值，且与第一主成分正交（不相关）。</p>
+<p>双标图通常展示前两个主成分（第一主成分和第二主成分），横轴一般是第一主成分，纵轴是第二主成分。主成分是原始变量的线性组合，第一主成分通常解释了数据中最大的方差；第二主成分是在去掉第一主成分所能解释的方差之后，在剩余方向中解释方差最多、且与第一主成分正交（不相关）的成分。</p>
 <p>图中的点代表样本。<strong>点在图中的位置反映了样本在主成分空间中的得分</strong>。距离较近的点表示这些样本在主成分所代表的特征上具有相似性。例如，在iris数据集的双标图中，如果某些鸢尾花样本点聚集在一起，说明这些鸢尾花在主成分所概括的特征方面比较相似。</p>
 <p>样本点在坐标轴上的投影可以近似看作该样本在相应主成分上的得分。沿着第一主成分轴（通常是横轴）方向的位置变化反映了样本在第一主成分上得分的高低，同理，沿着第二主成分轴（通常是纵轴）方向的位置变化反映了样本在第二主成分上得分的高低。</p>
 <p>图中的箭头代表原始变量。箭头的方向表示该变量与主成分之间的相关性方向。如果箭头与某个主成分轴的夹角较小，说明该变量与这个主成分的相关性较强。例如，若一个变量的箭头几乎与第一主成分轴平行，那么这个变量在第一主成分上的载荷较大，对第一主成分的贡献也较大。</p>
@@ -712,6 +720,7 @@ PC1=0.521*Sepal.Length-0.269*Sepal.Width+0.580*Petal.Length+0.565*Petal.Width
 </section>
 <section id="确定最佳主成分个数" class="level2" data-number="29.6">
 <h2 data-number="29.6" class="anchored" data-anchor-id="确定最佳主成分个数"><span class="header-section-number">29.6</span> 确定最佳主成分个数</h2>
+<div class="stat-viz" data-type="pca-component-choice-guide" data-title="保留几个主成分：多规则权衡"></div>
 <div class="stat-viz" data-type="pca" data-title="PCA 碎石图：主成分方差贡献" data-eigenvalues="4.12,2.85,1.23,0.87,0.54,0.32,0.28,0.15" data-variance="51.5,35.6,15.4,10.9,6.8,4.0,3.5,1.9" data-cumvar="51.5,87.1,95.3,96.2,97.0,97.4,97.7,97.9"></div>
 <p>碎石图可以帮助确认最佳的主成分个数，可以使用默认的<code>screeplot()</code>实现：</p>
 <div class="cell">
@@ -729,6 +738,8 @@ PC1=0.521*Sepal.Length-0.269*Sepal.Width+0.580*Petal.Length+0.565*Petal.Width
 <p>一般来说，主成分的保留个数可以按照以下原则确定： 1. 以累积贡献率确定，当前K个主成分的累积贡献率达到某一特定值（一般选70%或者80%、90%都行）时，则保留前K个主成分； 2. 以特征值大小来确定：如果主成分的特征值大于1，就保留这个主成分。</p>
 </blockquote>
 <p>从上图可以看到用2-3个主成分就挺好了。但是保留几个主成分并没有绝对的标准，大家根据自己的实际情况来！</p>
+<div class="stat-viz" data-type="pca-pitfalls-guide" data-title="PCA 解释时最容易踩的坑"></div>
+<p>⬆ PCA 是无监督方法，不会直接使用分组或结局变量；同时，主成分方向的正负号可以整体翻转，所以解释时重点看变量载荷的相对大小和方向，而不是执着于某个轴的正负号。</p>
 <p>这里再给大家介绍一个非常实用的函数，使用<code>parameters</code>包实现，可以给出好多种方法的选择：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> parameters<span class="sc">::</span><span class="fu">n_components</span>(iris[,<span class="sc">-</span><span class="dv">5</span>])</span>
