@@ -555,6 +555,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## $ w3momscr     &lt;dbl&gt; 53.50, 34.95, 63.43, 53.50, 61.56, 38.18, 34.95, 63.43, 3…</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## $ w3dadscr     &lt;dbl&gt; 77.50, 53.50, 53.50, 53.50, 77.50, 53.50, 29.60, 33.42, 2…</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="pssc-cathexp-guide" data-title="混杂因素探索"></div>
+<p>⬆ 上方展示了混杂因素在两组间的差异检验结果。</p>
+<div class="stat-viz" data-type="pssc-workflow-guide" data-title="倾向性评分的工作流程"></div>
+<p>⬆ 上方展示了倾向性评分的整体工作流程。</p>
 </section>
 <section id="原始数据的概况" class="level2" data-number="39.2">
 <h2 data-number="39.2" class="anchored" data-anchor-id="原始数据的概况"><span class="header-section-number">39.2</span> 原始数据的概况</h2>
@@ -644,6 +648,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>所以我们现在要做的事就是控制混杂因素，让这些混杂因素变成可比的状态，不要影响我们的处理因素。</p>
 <p>开头也说过，控制混杂因素的方法其实是很多的，比如分层、协方差分析、多因素分析等，每种情况都要具体分析，选择一种最合适的。</p>
 <p>下面我们介绍倾向性评分回归和分层。</p>
+<div class="stat-viz" data-type="pssc-psmodel-guide" data-title="倾向性评分模型构建"></div>
+<p>⬆ 上方介绍了倾向性评分模型的构建方法。</p>
 </section>
 <section id="计算倾向性评分" class="level2" data-number="39.3">
 <h2 data-number="39.3" class="anchored" data-anchor-id="计算倾向性评分"><span class="header-section-number">39.3</span> 计算倾向性评分</h2>
@@ -686,10 +692,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>计算倾向性评分只是第一步，有了这个倾向性评分后，就可以进行下面的分析了，比如回归、匹配、加权、分层等。</p>
 <p>可以看出我们这个PS是偏态的，其实是可以<strong>对PS做一些变换的，比如log</strong>，然后使用变换后的PS继续进行后面的分析。这里就不做变换了。</p>
+<div class="stat-viz" data-type="pssc-distribution-guide" data-title="倾向性评分分布"></div>
+<p>⬆ 上方展示了倾向性评分在两组间的分布情况。</p>
 </section>
 <section id="倾向性评分回归" class="level2" data-number="39.4">
 <h2 data-number="39.4" class="anchored" data-anchor-id="倾向性评分回归"><span class="header-section-number">39.4</span> 倾向性评分回归</h2>
 <p>此时如果直接把这个评分和<code>catholic</code>作为自变量进行回归分析，就是倾向性评分回归了（也叫协变量调整/倾向性评分矫正等）！应该是倾向性评分4种方法里面最简单的一种了。</p>
+<div class="stat-viz" data-type="pssc-regression-guide" data-title="倾向性评分回归"></div>
+<p>⬆ 上方展示了倾向性评分回归的分析方法。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 计算倾向性评分</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>pr_score <span class="ot">&lt;-</span> <span class="fu">predict</span>(m_ps, <span class="at">type =</span> <span class="st">"response"</span>)</span>
@@ -726,6 +736,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="倾向性评分分层" class="level2" data-number="39.5">
 <h2 data-number="39.5" class="anchored" data-anchor-id="倾向性评分分层"><span class="header-section-number">39.5</span> 倾向性评分分层</h2>
 <div class="stat-viz" data-type="psdist" data-title="倾向评分分层分布"></div>
+<div class="stat-viz" data-type="pssc-stratification-guide" data-title="倾向性评分分层"></div>
+<p>⬆ 上方展示了倾向性评分的分层示意图。</p>
 <p>顾名思义，根据PS值进行分层，然后在每层内进行分析。每一层的协变量分布可认为是同质或均衡的。先对每一层干预与结局之间的关联进行估算，然后对所有层的关联作加权平均，最后得出干预与结局之间的总的关联效应。</p>
 <p>一般来说最好保证干预组和对照组两组的PS范围在差不多的范围内，如果相差很大，那分层效果肯定不好。比如干预组PS范围是0.5<sub>0.9，对照组PS范围是0.01</sub>0.4，这样两组PS完全没有交集，按照PS进行分层没啥意义。</p>
 <p>首先看一下PS的范围：</p>
@@ -775,6 +787,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="do">## $ ps_level     &lt;chr&gt; "level_4", "level_3", "level_3", "level_3", "level_4", "l…</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
+<div class="stat-viz" data-type="pssc-balance-guide" data-title="分层后的平衡性检验"></div>
+<p>⬆ 上方展示了分层后各层混杂因素的平衡性检验结果。</p>
 <section id="分层后的数据" class="level2" data-number="39.6">
 <h2 data-number="39.6" class="anchored" data-anchor-id="分层后的数据"><span class="header-section-number">39.6</span> 分层后的数据</h2>
 <p>下面我们对每一层内的3个连续型协变量和我们的因变量进行t检验，其实这里可以直接用<code>rstatix</code>包解决，非常好用，但其实<code>rstatix</code>包就是基于<code>purrr</code>的，所以直接用<code>purrr</code>也可以。</p>

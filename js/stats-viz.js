@@ -32,6 +32,7 @@ import './viz/partialcorrelation-guides.js';
 import './viz/factoranalysis-guides.js';
 import './viz/finegray-guides.js';
 import './viz/psm-guides.js';
+import './viz/pssc-guides.js';
 import './viz/sem-guides.js';
 import './viz/multilevel-guides.js';
 import './viz/gee-guides.js';
