@@ -512,6 +512,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>我们用<code>car</code>包里面的<code>USPop</code>数据集进行演示。这个数据集一共两列，一列是年份，另一列是美国每一年的人口数量，数据一共22行。</p>
 <div class="stat-viz" data-type="dose" data-title="剂量-反应曲线 (Sigmoid)"></div>
+
+<div class="stat-viz" data-type="nonlinear-workflow-guide" data-title="多项式拟合工作流"></div>
+<p>⬆ 上方展示了剂量-反应曲线(Sigmoid)。下方我们将学习多项式拟合的工作流——何时用多项式、分段多项式或样条回归。</p>
+
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载数据</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
@@ -583,6 +587,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+
+<div class="stat-viz" data-type="nonlinear-poly-formula-guide" data-title="多项式公式写法：I()语法 vs poly()"></div>
+<p>⬆ 上方展示了二次多项式拟合(quadratic)。下面比较两种公式写法：I()显式语法和poly()正交多项式函数。</p>
+
 <p>结果拟合很好，二次项就已经拟合效果非常好了，如果你还想看一下更高次项拟合，可以继续试试，比如3次项：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3次项，注意用法</span></span>
@@ -627,6 +635,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果很明显，加入2次项之后，P值是小于0.05的，说明是有统计学意义的，但是2次项和3次项比较，就没有统计学意义了，说明我们只要用到2次项即可。</p>
+
+<div class="stat-viz" data-type="nonlinear-degree-guide" data-title="如何根据P值选择多项式次数"></div>
+<p>⬆ 上方ANOVA比较显示：二次项 vs 一次 P<0.001（显著），三次项 vs 二次 P=0.082（不显著）。如何据此选择多项式次数？</p>
+
 <p>在写论文的时候应该如何描述这些方法呢？请多看文献，这不在本文的讨论范围。</p>
 <p>为了加深理解，下面再给大家举一个例子。</p>
 <p>首先是构造一个数据，构造数据的过程不需要看。</p>
@@ -722,6 +734,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+
+<div class="stat-viz" data-type="nonlinear-poly-glm-guide" data-title="多项式在 GLM / Cox 回归中的应用"></div>
+<p>⬆ 上方展示了ggplot2的多项式拟合(含置信区间)。多项式项同样可以用于Logistic回归和Cox回归。</p>
+
 <p>最后一个问题：<strong>多项式能用于逻辑回归吗？Cox回归呢？</strong></p>
 <p>当然可以了，只是把自变量变成多次项而已，和<code>lm</code>用法一模一样，函数使用<code>glm()/coxph()</code>等即可！</p>
 
