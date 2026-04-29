@@ -513,16 +513,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>判别分析（discriminant-analysis）是根据判别对象若干个指标的观测结果判定其属于哪一类的统计方法。经典的判别分析方法有Fisher判别和贝叶斯判别分析。当分类很确定时，判别分析可以有效替代logistic回归，但是如果自变量和因变量关系很复杂时，判别分析表现不如logistic回归。</p>
+<div class="stat-viz" data-type="discriminant-workflow-guide" data-title="判别分析学习路线：从判别轴到错分评价"></div>
+<p>⬆ 上方先把本章的学习顺序串起来：判别分析既要看“类别是否分得开”，也要看“错分发生在哪些类别之间”。</p>
 <section id="fisher判别分析" class="level2" data-number="27.1">
 <h2 data-number="27.1" class="anchored" data-anchor-id="fisher判别分析"><span class="header-section-number">27.1</span> Fisher判别分析</h2>
 <div class="stat-viz" data-type="lda"></div>
 <p>📊 交互式LDA散点图演示（模拟两类判别边界）：</p>
 <div class="stat-viz" data-type="ldascatter" data-title="线性判别分析二类分类散点图（例20-1模拟数据）" data-x1="1.2,2.1,1.8,2.5,3.2,1.5,2.8,1.9,2.3,1.7,3.5,2.0" data-y1="2.3,3.1,2.8,3.9,4.5,2.5,3.8,2.7,3.2,2.4,4.1,2.9" data-x2="6.1,5.8,6.5,7.2,6.8,5.5,7.0,6.3,5.9,7.5,6.2,6.9" data-y2="5.2,6.1,5.5,6.8,7.2,5.0,6.5,5.8,6.0,7.3,5.7,6.4" data-label1="早期肝硬化" data-label2="晚期肝硬化"></div>
 <p>Fisher判别又称为典型判别（canonical discriminant）分析，适用于两类和多分类判别。</p>
-<p>Fisher判别使用贝叶斯定理确定每个观测属于某个类别的概率。如果你有两个类别，比如良性和恶性，判别分析会分别计算属于两个类别的概率，然后选择概率大的类别作为正确的类别。</p>
-<p>线性判别分析假设每个类中的观测服从多元正态分布，并且不同类别之间的协方差相等。二次判别假设观测服从正态分布，每种类别都有自己的协方差。</p>
+<p>Fisher 判别的核心是寻找能最大化组间差异、最小化组内差异的线性组合；后验概率来自 <code>predict()</code> 阶段的分类计算，而不是说拟合步骤本身“使用贝叶斯定理”。</p>
+<p>线性判别分析（LDA）通常假设每个类别中的观测近似服从多元正态分布，并且不同类别之间的协方差相等。二次判别分析（QDA）仍基于正态分布思想，但允许每种类别有自己的协方差矩阵。</p>
 <p>使用孙振球版《医学统计学》第4版<strong>例20-1</strong>的数据。电子版及配套数据已上传到QQ群，需要的加群下载即可。</p>
-<p>收集了22例肝硬化患者的3个指标，其中早期患者（用1表示）12例，晚期患者（用2表示），试做判别分析。</p>
+<p>收集了22例肝硬化患者的3个指标，其中早期患者（用1表示）12例，晚期患者（用2表示）10例，试做判别分析。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"datasets/例20-1.csv"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -563,9 +565,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="do">## x2 -0.1265698</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="do">## x3  0.1792631</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><code>Prior probabilities of groups</code>是先验概率，类别1的概率是0.5454545，类别2是0.4545455。</p>
-<p>然后给出了每个组在不同类别中的均值。</p>
-<p>最下面给出了线性判别系数，如果你的结果变量是3个类别，会给出两组判别系数，这里我的结果变量只有2分类，所以结果只有1组。</p>
+<div class="stat-viz" data-type="lda-output-guide" data-title="读懂 MASS::lda() 输出：先验、均值、判别轴"></div>
+<p>⬆ 上方把 <code>lda()</code> 输出拆成四块。这里类别1的先验概率是0.5454545，类别2是0.4545455；二分类只有 LD1，k 个类别最多得到 k-1 个判别函数。</p>
 <p>结果可以画出来：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit,<span class="at">type=</span><span class="st">"both"</span>)</span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -589,6 +590,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   2  2  8</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>可以看到有3个分类分错了，结果还是可以的。</p>
+<div class="stat-viz" data-type="lda-confusion-guide" data-title="例20-1 LDA 分类结果：3个错分样本怎么读"></div>
+<p>⬆ 上方把 <code>table(df$y, pred)</code> 转成读者更熟悉的混淆矩阵视角：对角线是分对，非对角线是错分。</p>
 <p>可以查看每个患者的后验概率：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 查看概率</span></span>
@@ -661,6 +664,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 -0.9381851</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>这样就得到新的结果。</p>
+<div class="stat-viz" data-type="lda-newdata-posterior-guide" data-title="新样本预测：class、posterior 和 LD1 分别回答什么"></div>
+<p>⬆ 上方提醒：预测新数据时不要只看最终类别，posterior 的大小能提示这个判断离边界有多近。</p>
 <p>我们再用一个<code>iris</code>鸢尾花数据集演示下线性判别分析的结果可视化，这个结果变量是3分类的。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(iris)</span>
@@ -731,7 +736,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>二次判别分析和线性判别分析用法一样。</p>
+<div class="stat-viz" data-type="qda-vs-lda-guide" data-title="LDA、QDA、Naive Bayes：先按假设和样本量选择"></div>
+<p>⬆ 上方对比了本章几种判别模型的适用场景。二次判别分析和线性判别分析的 R 调用方式相近，但统计假设不同：QDA 允许各组协方差不同，因此更灵活，也更容易在小样本中过拟合。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">qda</span>(y <span class="sc">~</span> x1<span class="sc">+</span>x2<span class="sc">+</span>x3, <span class="at">data =</span> df)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>fit</span>
@@ -851,6 +857,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a><span class="do">## attr(,"class")</span></span>
 <span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "NaiveBayes"</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="naivebayes-condist-guide" data-title="从 NaiveBayes 输出读条件分布：均值和标准差意味着什么"></div>
+<p>⬆ 上方用 <code>$tables</code> 中的均值和标准差说明：朴素 Bayes 是把每个变量在各类别下的条件分布组合起来，再乘以类别先验概率。</p>
 <p>获取预测结果，并查看混淆矩阵：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit)<span class="sc">$</span>class</span>
@@ -864,6 +872,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="do">##    3 0 1 5</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>只有两个分错了。</p>
+<div class="stat-viz" data-type="bayes-warning-guide" data-title="概率为 0 的 warning：保留、解释，而不是忽略"></div>
+<p>⬆ 上方解释了本章 <code>Numerical 0 probability for all classes</code> 警告的含义：它不一定让代码失败，但提示概率解释和异常值检查都要更谨慎。</p>
 <p>如果要预测新的数据，只需要<code>predict(fit, newdata = xxx)</code>即可。</p>
 
 

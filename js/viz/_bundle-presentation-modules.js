@@ -18,4 +18,5 @@ import './poisson-guides.js';
 import './codescheme-guides.js';
 import './survival-guides.js';
 import './survivalvis-guides.js';
+import './discriminant-guides.js';
 import './overrides.js';
