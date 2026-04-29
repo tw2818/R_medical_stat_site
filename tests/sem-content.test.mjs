@@ -60,8 +60,8 @@ test('chapter 34 section structure 34.1-34.4 preserved', () => {
   assert.ok(text.includes('34.4'), 'should include section 34.4');
 });
 
-// Test 3: original R code block anchors cb2-cb22 remain intact
-test('chapter 34 R code block anchors cb2-cb22 remain intact', () => {
+// Test 3: original R code block anchors cb6-cb22 remain intact
+test('chapter 34 R code block anchors cb6-cb22 remain intact', () => {
   const html = read(chapterPath);
   const ids = [...html.matchAll(/id=["'](cb\d+)["']/g)].map((match) => match[1]);
   const uniqueIds = [...new Set(ids)];
