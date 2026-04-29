@@ -25,4 +25,6 @@ import './pca-vis-guides.js';
 import './pcareg-guides.js';
 import './factoranalysis-guides.js';
 import './partialcorrelation-guides.js';
+import './finegray-guides.js';
+import './psm-guides.js';
 import './overrides.js';

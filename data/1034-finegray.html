@@ -520,6 +520,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>竞争风险模型(Competing Risk Model)适用于多个终点的生存数据，传统的生存分析(survival analysis) 一般只关心一个终点事件(即研究者感兴趣的结局)。将其他事件均按删失数据(Censored Data)处理，要求个体删失情况与个体终点事件相互独立，结局不存在竞争风险。</p>
 <p>竞争风险模型(Competing Risk Model) : 指的是在观察队列中，存在某种已知事件可能会影响另一种事件发生的概率或者是完全阻碍其发生,则可认为前者与后者存在竞争风险。</p>
 <p>比如我们研究某药物和肠癌复发的关系，感兴趣事件是<strong>肠癌复发</strong>，但是研究过程中病人因为心梗死了，这样就观察不到感兴趣事件了，那<strong>心梗死亡</strong>就可以被叫做竞争风险事件。</p>
+<div class="stat-viz" data-type="finegray-concept-guide" data-title="竞争风险模型的基本概念"></div>
 <section id="加载数据和r包" class="level2" data-number="37.1">
 <h2 data-number="37.1" class="anchored" data-anchor-id="加载数据和r包"><span class="header-section-number">37.1</span> 加载数据和R包</h2>
 <p>探讨骨髓移植和血液移植治疗白血病的疗效，结局事件定义为<strong>复发</strong>，某些患者因为移植不良反应死亡，定义为<strong>竞争风险事件</strong>。</p>
@@ -544,6 +545,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>Phase</code>: 不同阶段，4个水平，CR1，CR2，CR3，Relapse。</li>
 <li><code>Age</code>: 年龄。</li>
 <li><code>Status</code>: 结局变量，0=删失，1=复发，2=竞争风险事件。</li>
+</ul>
+<div class="stat-viz" data-type="finegray-competing-event-guide" data-title="竞争事件与删失的区别"></div>
 <li><code>Source</code>: 因子变量，2个水平：BM+PB(骨髓移植+血液移植)，PB(血液移植)。</li>
 <li><code>ftime</code>: 生存时间。</li>
 </ul>
@@ -555,6 +558,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="fine-gray检验单因素分析" class="level2" data-number="37.2">
 <h2 data-number="37.2" class="anchored" data-anchor-id="fine-gray检验单因素分析"><span class="header-section-number">37.2</span> Fine-Gray检验（单因素分析）</h2>
 <div class="stat-viz" data-type="survcomp" data-title="Fine-Gray 竞争风险生存曲线示例" data-labels="骨髓移植组,血液移植组"></div>
+<div class="stat-viz" data-type="finegray-cif-guide" data-title="累计发生函数 CIF 解读"></div>
 <p>在普通的生存分析中，可以用log-rank检验做单因素分析，在竞争风险模型中，使用Fine-Gray检验进行单因素分析。</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -566,6 +570,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>比如现在我们想要比较不同疾病类型（D）有没有差异，可以进行Fine-Gray检验：</p>
+<div class="stat-viz" data-type="finegray-fg-test-guide" data-title="Fine-Gray检验结果解读"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bmtcrr<span class="sc">$</span>Status <span class="ot">&lt;-</span> <span class="fu">factor</span>(bmtcrr<span class="sc">$</span>Status)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">cuminc</span>(bmtcrr<span class="sc">$</span>ftime, bmtcrr<span class="sc">$</span>Status, bmtcrr<span class="sc">$</span>D)</span>
@@ -665,6 +670,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="竞争风险模型多因素分析" class="level2" data-number="37.3">
 <h2 data-number="37.3" class="anchored" data-anchor-id="竞争风险模型多因素分析"><span class="header-section-number">37.3</span> 竞争风险模型（多因素分析）</h2>
 <p>做完了单因素分析，再看看竞争风险模型的多因素分析。</p>
+<div class="stat-viz" data-type="finegray-crr-guide" data-title="竞争风险回归 crr() 结果解读"></div>
 <p>首先要把自变量单独放在一个数据框里，使用中发现一个问题，这里如果把分类变量变为因子型不会自动进行哑变量编码，所以<strong>需要手动进行哑变量编码！</strong></p>
 <p><strong>但是我这里偷懒了，并没有进行哑变量设置！实际中是需要的哦！！</strong></p>
 <div class="cell">

@@ -536,6 +536,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>均衡性检验及模型评价；</li>
 <li>处理效应估计。</li>
 </ol>
+<div class="stat-viz" data-type="psm-concept-guide" data-title="倾向性评分的基本概念与工作流程"></div>
 <p>其中，PS 值的估计是<strong>以处理因素作为因变量，其他混杂因素作为自变量</strong>，通过建立一个模型（可以是传统的回归模型，也可以是机器学习方法）来估计每个研究对象接受处理因素的可能性。</p>
 <p>目前用于估计 PS 值的方法有 logistic 回归，Probit 回归、神经网络、支持向量机、分类与回归数、Boosting 算法、SuperLearner 等。其中 logistic 回归是目前最常用的方法。</p>
 <p>到底用什么方法，并没有标准，有些人喜欢复杂的机器学习方法，有的则喜欢传统的逻辑回归，并没有优劣之分，选择合适的就好。有的人觉得机器学习方法不好解释，比如神经网络，但是也有人认为计算PS只是一个小小的步骤，更多的精力应该放在计算出来的PS是否能完美的平衡数据上，PS的计算方法不好解释就不解释了，反正不是主要问题。</p>
@@ -813,6 +814,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><code>ratio</code>:设置匹配比例，干预组:对照组到底是1比几，默认为1:1。ratio=2即是干预组：对照组是1:2。所以一般要求数据的对照组数量多于干预组才行。如果对照组比干预组多出很多，完全可以设置1:n进行匹配，这样还能损失更少的样本信息，但是一般也不会超过1:4。</p></li>
 <li><p><code>reestimate</code>:如果是TRUE，丢掉没匹配上的样本，PS会使用剩下的样本重新计算PS，如果是FALSE或者不写就不会重新计算PS。</p></li>
 </ul>
+<div class="stat-viz" data-type="psm-matching-method-guide" data-title="matchIt() 匹配参数详解"></div>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -869,6 +871,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   831</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
+<div class="stat-viz" data-type="psm-balance-metrics-guide" data-title="SMD 与 VR 平衡性判断标准"></div>
 <section id="匹配后数据的平衡性检验" class="level2" data-number="38.4">
 <h2 data-number="38.4" class="anchored" data-anchor-id="匹配后数据的平衡性检验"><span class="header-section-number">38.4</span> 匹配后数据的平衡性检验</h2>
 <p>检查匹配后的数据，主要是看协变量在不同组间是否已经均衡了（是不是没有差异了）。</p>
@@ -956,6 +959,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cobalt包" class="level3" data-number="38.4.1">
 <h3 data-number="38.4.1" class="anchored" data-anchor-id="cobalt包"><span class="header-section-number">38.4.1</span> cobalt包</h3>
 <p>使用<code>cobalt</code>包进行平衡性指标的计算，这个包很专业，专门处理这类匹配问题的，大家可以去它的官网学习更多的细节！</p>
+<div class="stat-viz" data-type="psm-cobalt-guide" data-title="cobalt 包平衡性诊断"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cobalt)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1056,6 +1060,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="结果可视化" class="level2" data-number="38.5">
 <h2 data-number="38.5" class="anchored" data-anchor-id="结果可视化"><span class="header-section-number">38.5</span> 结果可视化</h2>
 <div class="stat-viz" data-type="psdist" data-title="倾向评分分布 (匹配前后对比)"></div>
+<div class="stat-viz" data-type="psm-visualization-guide" data-title="匹配结果可视化解读"></div>
 <p>默认提供3种图形，但是美观性太差，就不放图了，大家感兴趣的可以自己试试看。</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m.out) <span class="co"># 默认QQ图</span></span>
@@ -1088,6 +1093,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="不平衡怎么办" class="level2" data-number="38.6">
 <h2 data-number="38.6" class="anchored" data-anchor-id="不平衡怎么办"><span class="header-section-number">38.6</span> 不平衡怎么办？</h2>
+<div class="stat-viz" data-type="psm-imbalance-guide" data-title="不平衡时的处理策略"></div>
 <p>比如这里的<code>x.Gender</code>这个变量就是不平衡的。</p>
 <p>有非常多的方法可以尝试，这里提供5种方法，但是非常有可能你各种方法都试过了还是不平衡！</p>
 <p>首先可以换一种计算PS的方法，可以换算法，换公式（增加二次项、交互项等）。</p>
