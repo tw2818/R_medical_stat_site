@@ -114,8 +114,8 @@ cb1 through cb20 (no gaps in sequence)
 | 35.3 (after ICC explanation) | `multilevel-icc-guide` | ICC concept clarification |
 | 35.4 (after random intercept model) | `multilevel-random-intercept-guide` | Random intercept concept |
 | 35.6 (after random slope model) | `multilevel-random-slope-guide` | Random slope concept |
-| 35.7 (after cross-level interaction) | `multilevel-crosslevel-interaction-guide` | Interaction concept |
-| 35.8 (after repeated measures) | `multilevel-workflow-guide` | Reinforce hierarchy concept |
+| 35.5 (after model comparison output) | `multilevel-model-comparison-guide` | AIC/BIC, ICC, marginal/conditional R² interpretation |
+| 35.7 (after cross-level interaction) | `multilevel-crosslevel-interaction-guide` | Interaction concept plus borderline p-value/singular-fit caveat |
 
 ## Implementation Order
 
@@ -126,6 +126,10 @@ cb1 through cb20 (no gaps in sequence)
 5. Update `js/viz/_bundle-presentation-modules.js`
 6. Update `js/stats-viz.js`
 7. Run verification
+
+## Interactive Component Audit
+
+No interactive component was added for this chapter. The core learning goals are reading fixed/random-effect output, ICC, model comparison, singular-fit warnings, and cross-level interaction terms; these are better served by compact static guide cards tied to the surrounding R output. No threshold or scenario manipulation is needed beyond the fixed chapter examples.
 
 ## Verification Commands
 

@@ -102,3 +102,23 @@ test('known multilevel prose is preserved and uses course-site wording', () => {
   // ICC value should be present
   assert.ok(text.includes('0.138') || text.includes('13.8'));
 });
+
+test('chapter 35 review fixes statistical caveats and avoids overstatements', () => {
+  const html = read(chapterPath);
+  const text = plainText(html);
+  const renderer = read(rendererPath);
+
+  assert.ok(text.includes('boundary (singular) fit'));
+  assert.match(text, /不宜把\s*Corr\s*=\s*-1\s*直接解读为稳健的实质结论/);
+  assert.ok(text.includes('P值为0.0506，属于临界结果'));
+  assert.ok(text.includes('R²_marginal'));
+  assert.ok(text.includes('R²_conditional'));
+  assert.ok(html.indexOf('multilevel-model-comparison-guide') > html.indexOf('ses_l1_public_l2'));
+  assert.ok(html.indexOf('multilevel-model-comparison-guide') < html.indexOf('<section id="具有随机斜率的mlm"'));
+
+  assert.doesNotMatch(renderer, /交叉水平交互项用 1\|cluster \+ x\|cluster/);
+  assert.doesNotMatch(renderer, /必须用多水平模型/);
+  assert.doesNotMatch(renderer, /仍提供了有价值的教学信息/);
+  assert.match(renderer, /ses\*public/);
+  assert.match(renderer, /REML=FALSE/);
+});

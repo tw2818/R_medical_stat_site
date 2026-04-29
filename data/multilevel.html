@@ -674,7 +674,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>像这种只有随机截距，没有随机斜率（但是有自变量，不是“空模型”）的多水平模型被称为<strong>随机截距模型</strong>，又叫<strong>方差成分模型</strong>，相关概念的理解请参考本文开头推荐的几篇文章。</p>
 <p>用<code>lme4</code>拟合随机截距模型：</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RMEL表示限制性最大似然估计，这也是默认方法</span></span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># REML表示限制性最大似然估计，这也是默认方法</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>ses_l1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(math <span class="sc">~</span> ses <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>schcode), <span class="at">data =</span> data, <span class="at">REML =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ses_l1)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Linear mixed model fit by REML. t-tests use Satterthwaite's method [</span></span>
@@ -810,6 +810,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="do">## ses_l1_public_l2 | 48255.2 (0.012) |      0.167 |      0.121 | 0.053 | 7.810 | 7.925</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果发现，加入<code>public</code>后，AIC、BIC还变大了，R<sup>2</sup>没啥太大的变化，充分说明这个变量真的作用不大，可以不加。</p>
+<div class="stat-viz" data-type="multilevel-model-comparison-guide" data-title="多水平模型比较：AIC、BIC、ICC、R² 综合看"></div>
+<p>⬆ 多水平模型没有单一的 R²，需要综合 AIC/BIC、ICC、R²_marginal、R²_conditional 来评价模型表现。</p>
 </section>
 <section id="具有随机斜率的mlm" class="level2" data-number="35.6">
 <h2 data-number="35.6" class="anchored" data-anchor-id="具有随机斜率的mlm"><span class="header-section-number">35.6</span> 具有随机斜率的MLM</h2>
@@ -865,7 +867,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>上面的公式也可以写成<code>math~ses+(1+ses|schcode)</code>，1表示随机截距项，这是默认设置，也可以仅使用<code>(ses|schcode)</code>估计随机截距和随机斜率。如果你想从模型中排除随机截距，需要写成(0+ses|schcode)来覆盖默认设置。像这种既有随机截距又有随机斜率的模型又被称为<strong>随机系数模型</strong>。</p>
 <p>先看固定效应：<code>Intercept</code>的估计值为57.6959，表示当所有自变量都为0的时候，因变量的预测值；<code>ses</code>的估计值为3.9602，表示<code>ses</code>每增加一个单位，数学成绩可以提高3.9602分。固定效应的解读和普通的多元线性回归没有差别。</p>
-<p>再看随机效应：<code>schcode</code>（Intercept）的方差为3.2042，标准差是1.7900，它衡量的是不同学校之间截距的变异。中间的<code>ses</code>的方差为0.7794，标准差为0.8828，它衡量的不同学校之间斜率的变异，意思是不同学校的<code>ses</code>的斜率围绕总体平均斜率变化的方差为0.7794。残差的方差为62.5855，标准差为7.9111，它衡量的是模型无法解释的变异，可以发现在考虑了随机斜率后，残差的方差又变小了（62.807到62.5855）。<code>Corr</code>是-1表示随机截距和随机斜率的相关系数是-1，说明有些学校的截距越高，斜率就越低（结合上面的图看，是不是有这种趋势），也就是说：随着平均数学成绩的增加，<code>ses</code>与数学成绩之间的关系降低。</p>
+<p>再看随机效应：<code>schcode</code>（Intercept）的方差为3.2042，标准差是1.7900，它衡量的是不同学校之间截距的变异。中间的<code>ses</code>的方差为0.7794，标准差为0.8828，它衡量的不同学校之间斜率的变异，意思是不同学校的<code>ses</code>的斜率围绕总体平均斜率变化的方差为0.7794。残差的方差为62.5855，标准差为7.9111，它衡量的是模型无法解释的变异，可以发现在考虑了随机斜率后，残差的方差又变小了（62.807到62.5855）。但该模型同时给出<code>boundary (singular) fit</code>提示，且随机截距与随机斜率相关系数为-1，说明随机效应结构可能触及参数边界；这里最多提示截距与斜率可能呈负相关，不宜把<code>Corr = -1</code>直接解读为稳健的实质结论。</p>
 <p>如果想查看每个学校的截距和斜率，可以使用<code>ranef</code>：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">ranef</span>(ses_l1_random))</span>
@@ -1343,12 +1345,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>截距（Intercept）是57.72440，即：当学校为是私立学校（public=0）且<code>ses</code>也为0时的平均数学预期成绩；</li>
 <li><code>ses</code>的估计值为4.42383，即：对于私立学校（public=0）来说，<code>ses</code>每增加一个单位，数学成绩会增加4.42383分；</li>
 <li><code>public</code>的估计值为-0.02632，即：公立学校（public=1）相比于私立学校（public=0），平均数学成绩会减少0.02632分；</li>
-<li><code>ses:public</code>的估计值为-0.62520，即：<code>ses</code>对数学成绩的影响在公立学校（public=1）比在私立学校（public=0）平均减少0.62520分。</li>
+<li><code>ses:public</code>的估计值为-0.62520，即：<code>ses</code>对数学成绩的斜率在公立学校（public=1）比在私立学校（public=0）平均低0.62520分。</li>
 <li>借助这些系数，我们可以估算<code>ses</code>在公立学校（public=1）的预期斜率，即4.42383-0.62520=3.79863。因此公立学校中<code>ses</code>每增加一个单位，数学成绩会增加3.79863分，略小于私立学校（4.42383分）。</li>
 </ul>
+<p>需要注意，交互项的P值为0.0506，属于临界结果；并且该模型同样提示<code>boundary (singular) fit</code>，因此本例更适合作为交叉水平交互的读表演示，实际研究中应谨慎报告并考虑中心化、简化随机效应结构或增加数据支持。</p>
 <p>再看随机效应：（和上面<code>ses_l1_random</code>的结果解读基本类似，这里简单说一下）。<code>schcode</code>（Intercept）的方差为3.2144，标准差是1.7929，它衡量的是不同学校之间截距的变异。中间的<code>ses</code>的方差为0.8013，标准差为0.8951，它衡量的不同学校之间斜率的变异，意思是不同学校的<code>ses</code>的斜率围绕总体平均斜率变化的方差为0.8013。残差的方差为62.5555，标准差为7.9092，它衡量的是模型无法解释的变异。<code>Corr</code>是-1表示随机截距和随机斜率的相关系数是-1。</p>
 <div class="stat-viz" data-type="multilevel-crosslevel-interaction-guide" data-title="交叉水平交互：水平1×水平2变量的交互效应"></div>
-<p>⬆ 交叉水平交互检验的是水平2变量对水平1变量效应的调节作用。本例中 ses:public = -0.625 表示 SES 对成绩的影响在公立学校比私立学校弱。</p>
+<p>⬆ 交叉水平交互检验的是水平2变量对水平1变量效应的调节作用。本例中 ses:public = -0.625 表示 SES 对成绩的斜率在公立学校比私立学校低，但需结合临界 P 值和 singular fit 提示谨慎解读。</p>
 </section>
 <section id="重复测量数据的mlm" class="level2" data-number="35.8">
 <h2 data-number="35.8" class="anchored" data-anchor-id="重复测量数据的mlm"><span class="header-section-number">35.8</span> 重复测量数据的MLM</h2>
@@ -1442,8 +1445,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a><span class="do">## stat治疗后 -0.189</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>结果解读不再重复。</p>
-<div class="stat-viz" data-type="multilevel-model-comparison-guide" data-title="多水平模型比较：AIC、BIC、ICC、R² 综合看"></div>
-<p>⬆ 多水平模型没有单一的 R²，需要综合 AIC/BIC、ICC、R²_marginal、R²_conditional 来评价模型表现。</p>
 </section>
 <section id="广义混合效应模型" class="level2" data-number="35.9">
 <h2 data-number="35.9" class="anchored" data-anchor-id="广义混合效应模型"><span class="header-section-number">35.9</span> 广义混合效应模型</h2>
