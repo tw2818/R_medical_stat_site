@@ -516,6 +516,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>公众号后台回复<strong>主成分分析</strong>即可获取主成分相关分析和可视化合集。</p>
 <p>主成分回归的具体解释大家自己了解一下，简单来说就是先做主成分分析，然后用主成分作为自变量进行回归分析。</p>
 <p>今天给大家介绍2种实现主成分分析的方法。</p>
+<div class="stat-viz" data-type="pcreg-workflow-guide"></div>
 <section id="pls" class="level2" data-number="31.1">
 <h2 data-number="31.1" class="anchored" data-anchor-id="pls"><span class="header-section-number">31.1</span> pls</h2>
 <div class="stat-viz" data-type="scatter" data-title="主成分回归：mpg与排量关系" data-xlabel="mpg（英里/加仑）" data-ylabel="disp（排量立方英寸）" data-xs="21.0,21.0,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26.0,30.4,15.8,19.7,15.0,21.4" data-ys="160,160,108,258,360,360,225,141,168,168,168,276,276,276,276,276,276,121,121,79,120,318,304,350,400,79,120,95,351,145,301,121" data-regression="true"></div>
@@ -594,6 +595,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<div class="stat-viz" data-type="pcreg-ncomp-selection-guide"></div>
 <p>对新数据进行预测，可自由选择主成分个数，根据上面的图，我们选择2个主成分：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">head</span>(mtcars)</span>
@@ -608,6 +610,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Hornet Sportabout 186.7221</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Valiant           111.2443</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="stat-viz" data-type="pcreg-pls-tidymodels-guide"></div>
 </section>
 <section id="tidymodels" class="level2" data-number="31.2">
 <h2 data-number="31.2" class="anchored" data-anchor-id="tidymodels"><span class="header-section-number">31.2</span> tidymodels</h2>
@@ -624,6 +627,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>工作流；</li>
 <li>超参数调优</li>
 </ul>
+<div class="stat-viz" data-type="pcreg-coef-interpretation-guide"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 模型设定</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">994</span>)</span>
