@@ -28,6 +28,7 @@ import './partialcorrelation-guides.js';
 import './finegray-guides.js';
 import './psm-guides.js';
 import './pssc-guides.js';
+import './psw-guides.js';
 import './sem-guides.js';
 import './multilevel-guides.js';
 import './gee-guides.js';

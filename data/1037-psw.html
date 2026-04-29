@@ -517,6 +517,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>之前已经介绍过<strong>倾向性评分匹配（propensity score matching）</strong>、<strong>倾向性评分回归和分层</strong>。</p>
 <p>今天继续介绍倾向性评分最后一个重要的部分：<strong>倾向性评分加权</strong>。</p>
 <p>主要介绍两种加权方法：<strong>逆概率加权</strong>(inverse probability weighting, IPW)和<strong>重叠加权</strong>(overlap weighting)。</p>
+<div class="stat-viz" data-type="psw-workflow-guide" data-title="倾向性评分加权的工作流程"></div>
 <p>倾向性评分加权的方法有很多，常见的一些加权方法比较如下：</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -659,6 +660,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>干预组：1/ps</li>
 <li>对照组：1/(1-ps)</li>
 </ul>
+<div class="stat-viz" data-type="psw-iptw-guide" data-title="逆概率加权（IPTW）公式与人群选择"></div>
 <p>下面根据计算出的PS计算每一个样本的权重：</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>iptw <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(lindner<span class="sc">$</span>abcix <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span>ps, <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>ps))</span>
@@ -726,7 +728,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a><span class="do">## Adjusted    202.27  671.09</span></span></code><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>可以看到除了<code>lifepres</code>之外，其他全都均衡了，效果还是挺不错的。加权后，干预组和对照组的样本量已经变了哦！</p>
+<div class="stat-viz" data-type="psw-balance-guide" data-title="加权后平衡性检验的解读"></div>
 <p>如果想要画出加权后数据的基线资料表，可以借助<code>survey</code>包。</p>
+<div class="stat-viz" data-type="psw-survey-guide" data-title="加权数据的回归分析流程"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -812,9 +816,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>干预组：1-ps</li>
 <li>对照组：ps</li>
 </ul>
+<div class="stat-viz" data-type="psw-overlap-guide" data-title="重叠加权（Overlap Weighting）的原理与优势"></div>
 <p>重叠加权的优缺点可以看这篇文章：<a href="https://mp.weixin.qq.com/s/OgsRAuMFD9kuiT1Dsze62g">最强的倾向性评分方法—重叠加权</a></p>
 <p>使用<code>PSweight</code>包演示重叠加权，这个包不仅可以用于二分类，还可以用于多分类。</p>
 <p>还是使用<code>lindner</code>这个数据集。</p>
+<div class="stat-viz" data-type="psw-comparison-guide" data-title="IPTW 与重叠加权的选择"></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 数据准备</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
