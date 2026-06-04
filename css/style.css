@@ -542,12 +542,13 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
 
 /* ===== 侧边栏进度增强 ===== */
 .sidebar-footer {
-  padding: 12px 16px;
+  padding: 14px 16px 20px;  /* 增加底部内边距, 防止"重置进度"被裁切 */
   border-top: 1px solid rgba(255,255,255,0.1);
   background: rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;  /* 关键: footer 不被挤压, 始终在侧栏底部 */
 }
 .progress-ring-container {
   flex-shrink: 0;
@@ -568,17 +569,14 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
   stroke-linecap: round;
   transition: stroke-dashoffset 0.6s ease;
 }
+/* SVG 内嵌 <text> 进度百分比——和 SVG 坐标系融合, 强制居中 */
 .progress-ring-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.progress-pct {
-  font-size: 0.65rem;
+  font-size: 11px;
   font-weight: 700;
-  color: rgba(255,255,255,0.9);
+  fill: rgba(255,255,255,0.92);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  text-anchor: middle;
+  dominant-baseline: central;
 }
 .progress-meta { flex: 1; min-width: 0; }
 .progress-info {
@@ -639,15 +637,15 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
 
 .btn-reset-progress {
   font-size: 0.65rem;
-  padding: 2px 6px;
+  padding: 3px 8px;
+  margin-top: 4px;
   background: transparent;
   color: rgba(255,255,255,0.35);
   border: none;
   cursor: pointer;
-  width: 100%;
+  text-align: left;
+  align-self: flex-start;
   transition: color 0.2s;
-  margin-top: 4px;
-  text-align: right;
 }
 .btn-reset-progress:hover { color: rgba(255,255,255,0.65); }
 

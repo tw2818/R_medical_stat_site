@@ -58,10 +58,11 @@
           <svg class="progress-ring" width="52" height="52" viewBox="0 0 52 52">
             <circle class="progress-ring-track" cx="26" cy="26" r="22"/>
             <circle class="progress-ring-fill" id="progress-ring-fill" cx="26" cy="26" r="22"/>
+            <!-- 进度百分比文字:位于圆心 26,26; 独立 <g> 旋转 90° 抵消外层 SVG 的 -90°, 保证正立 -->
+            <g transform="rotate(90 26 26)">
+              <text class="progress-ring-text" id="progress-ring-text" x="26" y="26" text-anchor="middle" dominant-baseline="central">0%</text>
+            </g>
           </svg>
-          <div class="progress-ring-text">
-            <span class="progress-pct" id="progress-pct">0%</span>
-          </div>
         </div>
         <div class="progress-meta">
           <div class="progress-info">

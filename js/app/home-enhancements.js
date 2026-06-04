@@ -243,9 +243,9 @@ function createMethodFinder() {
     </div>
     <div class="method-finder-controls">
       ${FILTERS.map(filter => `
-        <div class="method-filter-row" data-filter="${filter.key}">
+        <div class="method-filter-row" data-filter="${filter.key}" data-cols="${filter.options.length}">
           <div class="method-filter-label">${filter.label}</div>
-          <div class="method-options">
+          <div class="method-options" data-cols="${filter.options.length}">
             ${filter.options.map(([value, label]) => `<button type="button" class="method-option" data-value="${value}">${label}</button>`).join('')}
           </div>
         </div>

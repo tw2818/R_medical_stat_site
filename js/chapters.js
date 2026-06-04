@@ -115,7 +115,7 @@ export function updateProgressBar() {
   });
 
   const ring = document.getElementById('progress-ring-fill');
-  const pctEl = document.getElementById('progress-pct');
+  const pctEl = document.getElementById('progress-ring-text') || document.getElementById('progress-pct');
   if (ring) {
     const r = 22;
     const circ = 2 * Math.PI * r;

@@ -95,18 +95,27 @@
   padding-top: 5px;
 }
 .method-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  gap: 6px;
+  align-items: stretch;
 }
+.method-options[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.method-options[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.method-options[data-cols="5"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.method-options[data-cols="6"] { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .method-option {
-  padding: 6px 11px;
+  padding: 6px 8px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--bg);
   color: var(--text);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1.2;
   transition: all var(--transition);
+  text-align: center;
+  min-width: 0;
+  white-space: normal;  /* 允许 chip 文字在窄列时换行, 不再被截断 */
+  word-break: keep-all;
 }
 .method-option:hover {
   border-color: var(--primary);
