@@ -37,18 +37,29 @@
 
 .method-finder {
   margin: 0 0 32px;
-  padding: 22px;
+  padding: 18px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) + 4px);
   box-shadow: var(--shadow);
 }
+.method-finder-header { margin-bottom: 14px; }
+.method-finder-controls { margin-bottom: 14px; }
+.method-finder .method-results {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.method-finder .method-results::-webkit-scrollbar { width: 6px; }
+.method-finder .method-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .method-finder-header {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
-  margin-bottom: 18px;
+  margin-bottom: 0;
 }
 .method-finder h2 {
   font-size: 1.15rem;
@@ -109,7 +120,7 @@
 }
 .method-results {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 8px;
 }
 @media (max-width: 1100px) {
@@ -119,7 +130,7 @@
 }
 .method-result-card {
   display: block;
-  padding: 13px 14px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg);
@@ -133,29 +144,29 @@
 }
 .method-result-title {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   color: var(--text);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
 }
 .method-result-reason {
   display: block;
   color: var(--text-muted);
-  font-size: 0.76rem;
-  line-height: 1.55;
+  font-size: 0.74rem;
+  line-height: 1.45;
 }
 .method-result-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 8px;
+  gap: 4px;
+  margin-top: 6px;
 }
 .method-result-tags span {
-  padding: 2px 7px;
+  padding: 1px 6px;
   border-radius: 999px;
   background: var(--surface);
   color: var(--text-muted);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
 }
 .method-empty {
   grid-column: 1 / -1;
