@@ -286,6 +286,65 @@ body.v2-active .nav-item.active {
   font-weight: 600;
 }
 
+/* v2 改版后 .chapter-link 是实际渲染的类（不是 .nav-item），
+   v1.css 写了硬编码 rgba(255,255,255,0.7) 假设 sidebar 永远深色，
+   light 模式下 v2 sidebar 变白 → 白字白底看不见。
+   这里用 v2 token 覆盖两种模式都清晰。
+   active 用 v1 一致的 #2563EB 蓝（保持用户视觉习惯）。 */
+body.v2-active a.chapter-link {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 16px);
+  margin: 0 8px;
+  padding: 6px 12px 6px 16px;
+  font-size: 0.83rem;
+  color: var(--v2-fg-secondary);
+  background: transparent;
+  border-radius: var(--v2-radius-sm);
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.12s ease;
+}
+
+body.v2-active a.chapter-link:hover {
+  background: var(--v2-bg-subtle);
+  color: var(--v2-fg);
+}
+
+body.v2-active a.chapter-link.active {
+  background: #2563EB;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+body.v2-active a.chapter-link .nav-num {
+  font-family: var(--v2-font-mono);
+  font-size: 0.7rem;
+  color: var(--v2-fg-subtle);
+  min-width: 20px;
+}
+
+body.v2-active a.chapter-link.active .nav-num {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 修 light 模式分组标题看不见：v1.css 硬编码 #fff，light 模式 sidebar 变白 → 看不见 */
+body.v2-active .nav-group-header {
+  color: var(--v2-fg) !important;
+  font-weight: 600;
+}
+body.v2-active .nav-group-header:hover {
+  background: var(--v2-bg-subtle);
+}
+body.v2-active .nav-group-header::after {
+  color: var(--v2-fg-muted);
+}
+
+/* 修 light 模式分组分割线看不见：v1.css rgba(255,255,255,0.06) 几乎透明 */
+body.v2-active .nav-group {
+  border-bottom: 1px solid var(--v2-border) !important;
+}
+
 body.v2-active .nav-group-header::after {
   content: "›";
   font-size: 1.1rem;
