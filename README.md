@@ -8,7 +8,7 @@
 
 ## 功能特点
 
-- **📖 46 个专题章节** — 从基础 t 检验到高级生存分析全覆盖
+- **📖 45 个统计专题章节 + 1 个附录** — 从基础 t 检验到高级生存分析全覆盖（分组：基础 13 / 高级 23 / 文献常见 9 / 附录 1）
 - **📋 代码可复制** — 所有 R 代码一键复制到剪贴板
 - **📊 多个交互式可视化/计算器组件** — 内置统计图形 + 实时参数调节
 - **📱 移动端适配** — 响应式布局，手机/平板可用
@@ -22,13 +22,16 @@
 ## 收录内容
 
 ### 基础统计分析（13章）
-t检验 · 方差分析 · 离散分布 · 卡方检验 · Cochran-Armitage检验 · 秩转换非参数检验 · 双变量回归与相关 · 三线表绘制 · 统计绘图 · 样本量计算 · 随机分组 · ROC曲线 · tidy流统计分析
+t检验 · 多样本均数比较的方差分析 · 几种离散型变量的分布及其应用 · 卡方检验 · Cochran-Armitage检验 · 秩转换的非参数检验 · 双变量回归与相关 · 三线表绘制 · 统计绘图 · 样本量计算 · 随机分组 · ROC曲线 · "tidy"流统计分析
 
 ### 高级统计分析（23章）
-多因素方差分析 · 球对称检验 · 重复测量方差分析 · 协方差分析 · 方差分析注意事项 · 多变量统计描述和统计推断 · 多元线性回归 · Logistic回归 · 对数线性模型 · 泊松回归 · 分类变量重编码 · 生存分析 · 生存曲线可视化 · 判别分析 · 聚类分析 · 主成分分析 · 主成分回归 · 探索性因子分析 · 偏相关和典型相关 · 结构方程模型 · 多水平模型 · 广义估计方程
+多因素方差分析 · 球对称检验 · 重复测量方差分析 · 协方差分析 · 方差分析注意事项 · 多变量数据的统计描述和统计推断 · 多元线性回归 · Logistic回归 · 多维列联表的对数线性模型 · 泊松回归和负二项回归 · 分类变量重编码 · 生存分析 · 生存曲线可视化 · 判别分析 · 聚类分析 · 主成分分析 · 主成分分析可视化 · 主成分回归 · 探索性因子分析 · 偏相关和典型相关分析 · 结构方程模型 · 多水平模型 · 广义估计方程
 
 ### 文献常见统计分析（9章）
-Fine-Gray检验和竞争风险模型 · 倾向性评分（匹配/回归和分层/加权）· p-for-trend · 多项式拟合 · 样条回归 · 亚组分析及森林图绘制
+Fine-Gray检验和竞争风险模型 · 倾向性评分：匹配 / 回归和分层 / 加权 · p-for-trend / p-for-interaction / per-1-sd · 多项式拟合 · 样条回归（限制性立方样条）· 亚组分析及森林图绘制 · 亚组分析 1 行代码实现
+
+### 附录（1章）
+其他合集（更新日志、维护记录、参考资料）
 
 ---
 
@@ -115,31 +118,45 @@ R_medical_stat_site/
 │       ├── overrides.js           # 对关键计算器的精度覆盖修复
 │       ├── ancova-guides.js        # 协方差分析教学指导
 │       ├── anova-attention-guides.js # ANOVA 注意事项教学指导
-│       ├── hotelling-guides.js     # Hotelling 统计教学指导
-│       ├── multireg-guides.js      # 多元回归教学指导
-│       ├── logistic-guides.js      # Logistic 回归教学指导
-│       ├── loglinear-guides.js     # 对数线性模型教学指导
-│       ├── poisson-guides.js       # 泊松回归教学指导
-│       ├── survival-guides.js      # 生存分析教学指导
-│       ├── survivalvis-guides.js   # 生存曲线可视化教学指导
-│       ├── roc-guides.js           # ROC 曲线教学指导
-│       ├── pca-guides.js           # 主成分分析教学指导
+│       ├── codescheme-guides.js    # 分类变量编码教学指导
 │       ├── cluster-guides.js       # 聚类分析教学指导
 │       ├── discriminant-guides.js  # 判别分析教学指导
-│       ├── codescheme-guides.js    # 分类变量编码教学指导
+│       ├── factoranalysis-guides.js# 探索性因子分析教学指导
 │       ├── factorial-design-guides.js # 析因设计教学指导
+│       ├── finegray-guides.js      # Fine-Gray 检验与竞争风险教学指导
+│       ├── gee-guides.js           # 广义估计方程教学指导
+│       ├── hotelling-guides.js     # Hotelling 统计教学指导
+│       ├── logistic-guides.js      # Logistic 回归教学指导
+│       ├── loglinear-guides.js     # 对数线性模型教学指导
+│       ├── multilevel-guides.js    # 多水平模型教学指导
+│       ├── multireg-guides.js      # 多元回归教学指导
+│       ├── nonlinear-guides.js     # 多项式拟合教学指导
+│       ├── p4trend-guides.js       # p-for-trend 教学指导
+│       ├── partialcorrelation-guides.js # 偏相关 / 典型相关教学指导
+│       ├── pca-guides.js           # 主成分分析教学指导
+│       ├── pca-vis-guides.js       # 主成分分析可视化教学指导
+│       ├── pcareg-guides.js        # 主成分回归教学指导
+│       ├── plotting-guides.js      # 统计绘图教学指导
+│       ├── poisson-guides.js       # 泊松回归教学指导
+│       ├── psm-guides.js           # 倾向性评分：匹配教学指导
+│       ├── pssc-guides.js          # 倾向性评分：回归和分层教学指导
+│       ├── psw-guides.js           # 倾向性评分：加权教学指导
+│       ├── randomization-guides.js # 随机分组教学指导
+│       ├── rcs-guides.js           # 限制性立方样条教学指导
 │       ├── repeated-anova-guides.js # 重复测量 ANOVA 教学指导
 │       ├── repeated-measures-guides.js # 重复测量教学指导
-│       ├── plotting-guides.js      # 统计绘图教学指导
+│       ├── roc-guides.js           # ROC 曲线教学指导
 │       ├── sample-size-guides.js   # 样本量计算教学指导
-│       ├── randomization-guides.js  # 随机分组教学指导
-│       ├── tidy-flow-guides.js     # tidy-flow 统计分析教学指导
+│       ├── sem-guides.js           # 结构方程模型教学指导
+│       ├── survival-guides.js      # 生存分析教学指导
+│       ├── survivalvis-guides.js   # 生存曲线可视化教学指导
 │       ├── table1-guides.js        # Table 1 教学指导
-│       ├── regression-correlation-tutorial.js # 回归相关教程
+│       ├── tidy-flow-guides.js     # tidy-flow 统计分析教学指导
 │       ├── anova-tutorial.js       # 方差分析教程
 │       ├── chisq-tutorial.js       # 卡方检验教程
 │       ├── paired-ttest-tutorial.js # 配对 t 检验教程
 │       ├── nonparametric-tutorial.js # 非参数检验教程
+│       ├── regression-correlation-tutorial.js # 回归相关教程
 │       ├── discrete-teaching.js     # 离散分布教学
 │       ├── rank-correlation.js      # 秩相关组件
 │       ├── regression.js           # 回归组件
@@ -155,15 +172,16 @@ R_medical_stat_site/
 │   ├── 1015-twocorrelation.html   # 双变量回归与相关
 │   ├── table3.html                # 三线表绘制
 │   ├── discrete.html              # 离散分布
-│   ├── *.html                     # 46 个章节 HTML 文件
+│   ├── *.html                     # 46 个章节 HTML 文件（含 9999-appendix.html）
 │   └── *_files/                   # 各章节关联图片
 ├── tests/                         # 轻量回归校验基线
 │   ├── README.md                  # 校验工作流说明
 │   ├── run_validation.js          # 零依赖可执行校验脚本
-│   └── stat_calculator_cases.json # 关键统计组件验证样例
+│   ├── stat_calculator_cases.json # 关键统计组件验证样例
+│   └── *.test.mjs                 # Node 内置测试运行器覆盖的纯函数单测（见优化手册）
 ├── figs/                          # 网站页面用到的独立图片资源
 │   └── *.png / *.jpg
-└── .vercel/                       # Vercel 部署配置（不上游）
+└── .vercel/                       # Vercel 部署配置（gitignore，不上游）
 ```
 
 ---
