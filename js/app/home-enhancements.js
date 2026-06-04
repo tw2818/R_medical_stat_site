@@ -188,7 +188,13 @@ function updateHeroCopy() {
 
   if (title) title.textContent = '不会选统计方法？从研究问题开始找 R 代码';
   if (lead) lead.textContent = '按结局类型、研究设计和论文场景，快速定位对应医学统计章节。';
-  if (leadSub) leadSub.textContent = 't 检验 · 方差分析 · 卡方检验 · Logistic 回归 · Cox 回归 · 倾向评分 · RCS · 森林图';
+  if (leadSub) {
+    // 重建 chip 化结构,避免 .textContent 覆盖把 HTML span 全部销毁
+    const keywords = ['t 检验', '方差分析', '卡方检验', 'Logistic 回归', 'Cox 回归', '倾向评分', 'RCS', '森林图'];
+    leadSub.innerHTML = keywords
+      .map(k => `<span class="v2-keyword-pill" style="display:inline-flex;align-items:center;padding:4px 10px;background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:9999px;font-size:0.78rem;color:var(--v2-fg-secondary);font-weight:500;margin-right:4px;">${k}</span>`)
+      .join('');
+  }
   if (primary) primary.textContent = '从 t 检验开始';
   if (secondary) secondary.textContent = '按问题选方法';
   if (ghost) ghost.textContent = '浏览 46 个专题';

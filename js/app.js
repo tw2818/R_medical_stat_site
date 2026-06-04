@@ -127,6 +127,7 @@ function initGlobalActions() {
 
   const resetBtn = $('btn-reset-progress');
   if (resetBtn) resetBtn.addEventListener('click', () => {
+    if (!window.confirm('确定要重置全部学习进度吗？此操作不可撤销。')) return;
     clearProgress();
     window.showToast('学习进度已重置');
   });

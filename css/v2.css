@@ -348,7 +348,8 @@ body.v2-active .last-chapter {
 body.v2-active .btn-continue {
   margin-top: 8px;
   width: 100%;
-  padding: 7px 10px;
+  min-height: 44px;
+  padding: 12px 16px;
   background: var(--v2-primary);
   color: var(--v2-primary-fg);
   border: none;
@@ -366,11 +367,12 @@ body.v2-active .btn-continue:hover {
 }
 
 body.v2-active .btn-reset-progress {
-  font-size: 0.68rem;
-  padding: 4px 8px;
+  font-size: 0.72rem;
+  min-height: 32px;
+  padding: 8px 10px;
   margin-top: 6px;
   background: transparent;
-  color: var(--v2-fg-muted);
+  color: var(--v2-fg-secondary);
   border: none;
   cursor: pointer;
   text-align: left;
@@ -1292,5 +1294,21 @@ body.v2-active :focus-visible {
   }
   body.v2-active #chapter-content {
     padding: 24px 20px;
+  }
+}
+
+/* ===== Accessibility: 尊重 prefers-reduced-motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  body.v2-active .btn-continue:hover,
+  body.v2-active .v2-category-card:hover,
+  body.v2-active .v2-path-card:hover,
+  body.v2-active .v2-feature-item:hover {
+    transform: none !important;
   }
 }
