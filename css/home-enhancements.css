@@ -109,7 +109,7 @@
 }
 .method-results {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 8px;
 }
 @media (max-width: 1100px) {
