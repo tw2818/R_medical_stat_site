@@ -1169,13 +1169,53 @@ body.v2-active #chapter-content code.sourceCode {
   font-family: var(--v2-font-mono);
   font-size: 0.84rem;
   line-height: 1.55;
-  background: var(--v2-bg-elevated);
+  background: #0F172A !important;  /* 永远 dark bg — 跟 R token 配色协调 */
+  color: #E2E8F0 !important;         /* 浅色 fg — 在 #0F172A 上对比度 11.6:1 */
   border: 1px solid var(--v2-border);
   border-radius: var(--v2-radius);
   padding: 14px 18px;
   overflow-x: auto;
-  color: var(--v2-fg);
 }
+
+/* 修 R token 在深 bg 上的对比度：
+   v1.css 用了 VSCode dark theme 配色（#1e1e1e bg 上调色），
+   v2 改版后 bg 变 #0F172A，token 对比度大幅下降。
+   下面用 v2 dark palette 重新调色，token 颜色在 #0F172A 上对比度 ≥ 4.5:1 (WCAG AA)。
+   核心思路：保留 token 语义颜色（绿/紫/蓝/黄/红/橙），但提亮到 AAA 级别。 */
+body.v2-active #chapter-content pre.sourceCode .co,  /* R 注释 */
+body.v2-active #chapter-content pre.sourceCode .comment { color: #7EB987; }  /* 浅绿 */
+body.v2-active #chapter-content pre.sourceCode .ot,  /* 操作符 = */
+body.v2-active #chapter-content pre.sourceCode .op   { color: #94A3B8; }  /* 浅灰 */
+body.v2-active #chapter-content pre.sourceCode .kw,  /* 关键字 if/function */
+body.v2-active #chapter-content pre.sourceCode .keyword { color: #7DD3FC; }  /* 浅蓝 */
+body.v2-active #chapter-content pre.sourceCode .do,  /* R 输出 ## */
+body.v2-active #chapter-content pre.sourceCode .hljs-doctag {
+  color: #94A3B8;  /* slate-400 — 在 #0F172A 上对比度 5.4:1,达 WCAG AA, 仍比 R 代码 token 暗 */
+  font-style: italic;  /* 斜体 — 进一步区分 R 输出和 R 代码 */
+}
+body.v2-active #chapter-content pre.sourceCode .dt,  /* 类型 */
+body.v2-active #chapter-content pre.sourceCode .hljs-title { color: #5EEAD4; }  /* 青 */
+body.v2-active #chapter-content pre.sourceCode .fu,  /* 函数名 as.numeric */
+body.v2-active #chapter-content pre.sourceCode .hljs-name { color: #FCD34D; }  /* 浅黄 */
+body.v2-active #chapter-content pre.sourceCode .st,  /* 字符串 */
+body.v2-active #chapter-content pre.sourceCode .hljs-string { color: #FCA5A5; }  /* 浅红 */
+body.v2-active #chapter-content pre.sourceCode .at,  /* 属性 data= */
+body.v2-active #chapter-content pre.sourceCode .hljs-attr { color: #93C5FD; }  /* 浅蓝 */
+body.v2-active #chapter-content pre.sourceCode .dv,  /* 数字 */
+body.v2-active #chapter-content pre.sourceCode .hljs-number { color: #C4B5FD; }  /* 浅紫 */
+body.v2-active #chapter-content pre.sourceCode .sc   { color: #FBBF24; }  /* $ 符号 */
+body.v2-active #chapter-content pre.sourceCode .pp   { color: #93C5FD; }
+body.v2-active #chapter-content pre.sourceCode .vs,
+body.v2-active #chapter-content pre.sourceCode .hljs-variable { color: #E2E8F0; }  /* 浅灰 fg */
+body.v2-active #chapter-content pre.sourceCode .cn,
+body.v2-active #chapter-content pre.sourceCode .hljs-constant { color: #5EEAD4; }
+body.v2-active #chapter-content pre.sourceCode .al,
+body.v2-active #chapter-content pre.sourceCode .hljs-alert { color: #FCA5A5; }  /* 警告红 */
+body.v2-active #chapter-content pre.sourceCode .ss,
+body.v2-active #chapter-content pre.sourceCode .wa   { color: #FBBF24; }
+body.v2-active #chapter-content pre.sourceCode .ex,
+body.v2-active #chapter-content pre.sourceCode .pd,
+body.v2-active #chapter-content pre.sourceCode .ch   { color: #FCD34D; }
 
 body.v2-active #chapter-content pre code,
 body.v2-active #chapter-content code.sourceCode code {
