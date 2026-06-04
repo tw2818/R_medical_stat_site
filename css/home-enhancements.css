@@ -36,52 +36,51 @@
 }
 
 .method-finder {
-  margin: 0 0 32px;
+  margin: 0;
   padding: 18px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) + 4px);
   box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: min(640px, calc(100vh - 160px));
+  overflow: hidden;
 }
-.method-finder-header { margin-bottom: 14px; }
-.method-finder-controls { margin-bottom: 14px; }
-.method-finder .method-results {
-  max-height: 320px;
-  overflow-y: auto;
-  padding-right: 6px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-.method-finder .method-results::-webkit-scrollbar { width: 6px; }
-.method-finder .method-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .method-finder-header {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-start;
-  margin-bottom: 0;
+  margin-bottom: 14px;
+  flex-shrink: 0;
 }
 .method-finder h2 {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   margin-bottom: 4px;
+  color: var(--text);
 }
 .method-finder-subtitle {
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
+  line-height: 1.5;
 }
 .method-finder-tip {
   flex-shrink: 0;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: 999px;
   background: rgba(37, 99, 235, 0.08);
   color: var(--primary);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 .method-finder-controls {
   display: grid;
-  gap: 14px;
-  margin-bottom: 18px;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
 }
 .method-filter-row {
   display: grid;
@@ -120,9 +119,18 @@
 }
 .method-results {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 8px;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  align-content: start;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
+.method-results::-webkit-scrollbar { width: 5px; }
+.method-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 @media (max-width: 1100px) {
   .method-results {
     grid-template-columns: 1fr;

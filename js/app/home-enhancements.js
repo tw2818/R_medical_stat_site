@@ -227,8 +227,8 @@ function renderResults(container, selected) {
 }
 
 function createMethodFinder() {
-  const taskNav = $('task-nav');
-  if (!taskNav || document.querySelector('.method-finder')) return;
+  const target = document.querySelector('.welcome-hero-right') || $('task-nav');
+  if (!target || document.querySelector('.method-finder')) return;
 
   const selected = { outcome: '', design: '', goal: '' };
   const section = document.createElement('section');
@@ -272,7 +272,7 @@ function createMethodFinder() {
   });
 
   renderResults(results, selected);
-  taskNav.insertAdjacentElement('beforebegin', section);
+  target.appendChild(section);
 }
 
 export function initHomeEnhancements() {
