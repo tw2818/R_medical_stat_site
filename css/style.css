@@ -1658,3 +1658,216 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
 .pw-toc-h3:hover {
   color: var(--primary, #3498db);
 }
+
+/* ===== Quarto 章节页全局样式统一 (A 风格医疗专业蓝) ===== */
+#quarto-document-content {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 4px;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+#quarto-document-content h1.title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 16px;
+}
+#quarto-document-content h1.title .chapter-number {
+  color: var(--primary);
+  font-size: 1.5rem;
+  margin-right: 6px;
+}
+
+#quarto-document-content h2,
+#quarto-document-content section.level2 > h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 36px 0 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border-soft);
+}
+#quarto-document-content h2 .header-section-number,
+#quarto-document-content h2 .chapter-number {
+  color: var(--primary);
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+#quarto-document-content h3,
+#quarto-document-content section.level3 > h3 {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 24px 0 10px;
+}
+#quarto-document-content h3 .header-section-number {
+  color: var(--primary);
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+#quarto-document-content h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 18px 0 8px;
+}
+
+#quarto-document-content p {
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+#quarto-document-content a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px dashed transparent;
+  transition: border-color var(--transition);
+}
+#quarto-document-content a:hover {
+  border-bottom-color: var(--primary);
+}
+
+#quarto-document-content ul,
+#quarto-document-content ol {
+  padding-left: 24px;
+  margin-bottom: 14px;
+}
+#quarto-document-content li {
+  margin-bottom: 6px;
+}
+
+#quarto-document-content blockquote {
+  border-left: 4px solid var(--primary);
+  background: var(--primary-soft);
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+}
+
+/* 表格统一风格 */
+#quarto-document-content table {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  background: var(--bg-elev);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+#quarto-document-content thead {
+  background: var(--primary-soft);
+}
+#quarto-document-content th,
+#quarto-document-content td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-soft);
+}
+#quarto-document-content th {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.82rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+#quarto-document-content tbody tr:hover {
+  background: rgba(37, 99, 235, 0.04);
+}
+
+/* R 代码块（覆盖 prism-tomorrow 主题用更协调的配色） */
+#quarto-document-content pre.sourceCode,
+#quarto-document-content div.sourceCode {
+  background: #0f172a !important;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin: 14px 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  border: 1px solid #1e293b;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+#quarto-document-content code.sourceCode,
+#quarto-document-content pre.sourceCode code {
+  color: #e2e8f0;
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+  background: transparent;
+  font-size: inherit;
+}
+/* 行内 code 样式（区别于代码块） */
+#quarto-document-content p > code,
+#quarto-document-content li > code,
+#quarto-document-content td > code {
+  background: var(--primary-soft);
+  color: var(--primary);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: "SF Mono", "JetBrains Mono", "Consolas", monospace;
+}
+
+/* 面包屑导航 */
+#quarto-document-content .quarto-page-breadcrumbs .breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+#quarto-document-content .quarto-page-breadcrumbs .breadcrumb-item a {
+  color: var(--text-muted);
+  border-bottom: none;
+}
+#quarto-document-content .quarto-page-breadcrumbs .breadcrumb-item a:hover {
+  color: var(--primary);
+}
+
+/* Callout 卡片（Quarto 自带 callout 块） */
+#quarto-document-content .callout {
+  border-radius: var(--radius-lg);
+  border-left-width: 4px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  background: var(--bg-elev);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-soft);
+}
+#quarto-document-content .callout-title {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* 公式块（mathjax / katex） */
+#quarto-document-content .math.display {
+  background: var(--bg-elev);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin: 12px 0;
+  border: 1px solid var(--border-soft);
+  overflow-x: auto;
+}
+
+/* 章节页移动端适配 */
+@media (max-width: 768px) {
+  #quarto-document-content h1.title { font-size: 1.55rem; }
+  #quarto-document-content h2,
+  #quarto-document-content section.level2 > h2 { font-size: 1.2rem; }
+  #quarto-document-content h3 { font-size: 1rem; }
+  #quarto-document-content pre.sourceCode,
+  #quarto-document-content div.sourceCode {
+    font-size: 0.78rem;
+    padding: 10px 12px;
+  }
+}
