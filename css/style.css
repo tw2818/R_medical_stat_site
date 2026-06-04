@@ -1659,8 +1659,12 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   color: var(--primary, #3498db);
 }
 
-/* ===== Quarto 章节页全局样式统一 (A 风格医疗专业蓝) ===== */
-#quarto-document-content {
+/* ===== Quarto 章节页全局样式统一 (A 风格医疗专业蓝) =====
+   注：SPA 模式下 chapter content 注入到 #chapter-content / .chapter-section，
+   父元素 id #quarto-document-content 已丢失。规则须用更通用的选择器。
+*/
+#chapter-content,
+.chapter-section {
   max-width: 920px;
   margin: 0 auto;
   padding: 0 4px;
@@ -1669,7 +1673,10 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   line-height: 1.75;
 }
 
-#quarto-document-content h1.title {
+#chapter-content h1.title,
+#chapter-content h1,
+.chapter-section h1.title,
+.chapter-section h1 {
   font-size: 2.4rem !important;
   font-weight: 800 !important;
   color: var(--text) !important;
@@ -1679,7 +1686,10 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   border-bottom: 2px solid var(--border-soft);
   padding-bottom: 18px;
 }
-#quarto-document-content h1.title .chapter-number {
+#chapter-content h1.title .chapter-number,
+#chapter-content h1 .chapter-number,
+.chapter-section h1.title .chapter-number,
+.chapter-section h1 .chapter-number {
   color: var(--primary) !important;
   font-size: 1.6rem !important;
   font-weight: 700 !important;
@@ -1687,8 +1697,10 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   vertical-align: baseline;
 }
 
-#quarto-document-content h2,
-#quarto-document-content section.level2 > h2 {
+#chapter-content h2,
+#chapter-content section.level2 > h2,
+.chapter-section h2,
+.chapter-section section.level2 > h2 {
   font-size: 1.55rem !important;
   font-weight: 700 !important;
   color: var(--text) !important;
@@ -1697,60 +1709,73 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   border-bottom: 1px solid var(--border-soft);
   line-height: 1.3;
 }
-#quarto-document-content h2 .header-section-number,
-#quarto-document-content h2 .chapter-number {
+#chapter-content h2 .header-section-number,
+#chapter-content h2 .chapter-number,
+.chapter-section h2 .header-section-number,
+.chapter-section h2 .chapter-number {
   color: var(--primary) !important;
   font-weight: 700 !important;
   margin-right: 10px;
 }
 
-#quarto-document-content h3,
-#quarto-document-content section.level3 > h3 {
+#chapter-content h3,
+#chapter-content section.level3 > h3,
+.chapter-section h3,
+.chapter-section section.level3 > h3 {
   font-size: 1.18rem !important;
   font-weight: 700 !important;
   color: var(--text) !important;
   margin: 28px 0 12px !important;
   line-height: 1.35;
 }
-#quarto-document-content h3 .header-section-number {
+#chapter-content h3 .header-section-number,
+.chapter-section h3 .header-section-number {
   color: var(--primary) !important;
   font-weight: 700 !important;
   margin-right: 8px;
 }
 
-#quarto-document-content h4 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  margin: 18px 0 8px;
+#chapter-content h4,
+.chapter-section h4 {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+  margin: 18px 0 8px !important;
 }
 
-#quarto-document-content p {
+#chapter-content p,
+.chapter-section p {
   margin-bottom: 14px;
   color: var(--text);
 }
 
-#quarto-document-content a {
-  color: var(--primary);
+#chapter-content a,
+.chapter-section a {
+  color: var(--primary) !important;
   text-decoration: none;
   font-weight: 500;
   border-bottom: 1px dashed transparent;
   transition: border-color var(--transition);
 }
-#quarto-document-content a:hover {
+#chapter-content a:hover,
+.chapter-section a:hover {
   border-bottom-color: var(--primary);
 }
 
-#quarto-document-content ul,
-#quarto-document-content ol {
+#chapter-content ul,
+#chapter-content ol,
+.chapter-section ul,
+.chapter-section ol {
   padding-left: 24px;
   margin-bottom: 14px;
 }
-#quarto-document-content li {
+#chapter-content li,
+.chapter-section li {
   margin-bottom: 6px;
 }
 
-#quarto-document-content blockquote {
+#chapter-content blockquote,
+.chapter-section blockquote {
   border-left: 4px solid var(--primary);
   background: var(--primary-soft);
   padding: 12px 16px;
@@ -1760,7 +1785,8 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
 }
 
 /* 表格统一风格 */
-#quarto-document-content table {
+#chapter-content table,
+.chapter-section table {
   width: 100%;
   margin: 16px 0;
   border-collapse: collapse;
@@ -1771,29 +1797,36 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
-#quarto-document-content thead {
+#chapter-content thead,
+.chapter-section thead {
   background: var(--primary-soft);
 }
-#quarto-document-content th,
-#quarto-document-content td {
+#chapter-content th,
+#chapter-content td,
+.chapter-section th,
+.chapter-section td {
   padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid var(--border-soft);
 }
-#quarto-document-content th {
+#chapter-content th,
+.chapter-section th {
   font-weight: 700;
   color: var(--primary);
   font-size: 0.82rem;
   text-transform: none;
   letter-spacing: 0.01em;
 }
-#quarto-document-content tbody tr:hover {
+#chapter-content tbody tr:hover,
+.chapter-section tbody tr:hover {
   background: rgba(37, 99, 235, 0.04);
 }
 
 /* R 代码块（覆盖 prism-tomorrow 主题用更协调的配色） */
-#quarto-document-content pre.sourceCode,
-#quarto-document-content div.sourceCode {
+#chapter-content pre.sourceCode,
+#chapter-content div.sourceCode,
+.chapter-section pre.sourceCode,
+.chapter-section div.sourceCode {
   background: #0f172a !important;
   border-radius: var(--radius-lg);
   padding: 14px 16px;
@@ -1804,43 +1837,33 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   box-shadow: var(--shadow);
   overflow-x: auto;
 }
-#quarto-document-content code.sourceCode,
-#quarto-document-content pre.sourceCode code {
-  color: #e2e8f0;
-  font-family: "SF Mono", "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
-  background: transparent;
+#chapter-content code.sourceCode,
+#chapter-content pre.sourceCode code,
+.chapter-section code.sourceCode,
+.chapter-section pre.sourceCode code {
+  color: #e2e8f0 !important;
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Code", "Consolas", monospace !important;
+  background: transparent !important;
   font-size: inherit;
 }
 /* 行内 code 样式（区别于代码块） */
-#quarto-document-content p > code,
-#quarto-document-content li > code,
-#quarto-document-content td > code {
-  background: var(--primary-soft);
-  color: var(--primary);
+#chapter-content p > code,
+#chapter-content li > code,
+#chapter-content td > code,
+.chapter-section p > code,
+.chapter-section li > code,
+.chapter-section td > code {
+  background: var(--primary-soft) !important;
+  color: var(--primary) !important;
   padding: 1px 6px;
   border-radius: 4px;
   font-size: 0.85em;
   font-family: "SF Mono", "JetBrains Mono", "Consolas", monospace;
 }
 
-/* 面包屑导航 */
-#quarto-document-content .quarto-page-breadcrumbs .breadcrumb {
-  background: transparent;
-  padding: 0;
-  margin: 0 0 12px;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-}
-#quarto-document-content .quarto-page-breadcrumbs .breadcrumb-item a {
-  color: var(--text-muted);
-  border-bottom: none;
-}
-#quarto-document-content .quarto-page-breadcrumbs .breadcrumb-item a:hover {
-  color: var(--primary);
-}
-
 /* Callout 卡片（Quarto 自带 callout 块） */
-#quarto-document-content .callout {
+#chapter-content .callout,
+.chapter-section .callout {
   border-radius: var(--radius-lg);
   border-left-width: 4px;
   padding: 12px 16px;
@@ -1849,13 +1872,15 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   box-shadow: var(--shadow);
   border: 1px solid var(--border-soft);
 }
-#quarto-document-content .callout-title {
+#chapter-content .callout-title,
+.chapter-section .callout-title {
   font-weight: 700;
   color: var(--text);
 }
 
 /* 公式块（mathjax / katex） */
-#quarto-document-content .math.display {
+#chapter-content .math.display,
+.chapter-section .math.display {
   background: var(--bg-elev);
   padding: 12px 16px;
   border-radius: var(--radius);
@@ -1864,14 +1889,35 @@ pre.sourceCode .ch, pre.sourceCode .hljs-char { color: #ce9178; }
   overflow-x: auto;
 }
 
+/* section.level2 卡片（appendix 用，章节页偶尔也用） */
+#chapter-content section.level2,
+.chapter-section section.level2 {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-elev);
+  border-left: 4px solid var(--primary);
+  box-shadow: var(--shadow);
+}
+
 /* 章节页移动端适配 */
 @media (max-width: 768px) {
-  #quarto-document-content h1.title { font-size: 1.55rem; }
-  #quarto-document-content h2,
-  #quarto-document-content section.level2 > h2 { font-size: 1.2rem; }
-  #quarto-document-content h3 { font-size: 1rem; }
-  #quarto-document-content pre.sourceCode,
-  #quarto-document-content div.sourceCode {
+  #chapter-content h1.title,
+  #chapter-content h1,
+  .chapter-section h1.title,
+  .chapter-section h1 { font-size: 1.55rem !important; }
+  #chapter-content h2,
+  #chapter-content section.level2 > h2,
+  .chapter-section h2,
+  .chapter-section section.level2 > h2 { font-size: 1.2rem !important; }
+  #chapter-content h3,
+  .chapter-content section.level3 > h3,
+  .chapter-section h3,
+  .chapter-section section.level3 > h3 { font-size: 1rem !important; }
+  #chapter-content pre.sourceCode,
+  #chapter-content div.sourceCode,
+  .chapter-section pre.sourceCode,
+  .chapter-section div.sourceCode {
     font-size: 0.78rem;
     padding: 10px 12px;
   }
