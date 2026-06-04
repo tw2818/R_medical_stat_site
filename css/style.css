@@ -280,18 +280,22 @@ a.chapter-link .nav-num { font-size: 0.7rem; opacity: 0.5; min-width: 16px; }
 }
 .welcome-hero-layout {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
   gap: 40px;
   align-items: start;
   text-align: left;
 }
 .welcome-hero h1 {
-  font-size: 2.2rem;
+  font-size: clamp(1.65rem, 1.4vw + 1.1rem, 2.4rem);
   font-weight: 800;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.2;
   color: var(--text);
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: none;
 }
 .welcome-hero h1 .accent {
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
