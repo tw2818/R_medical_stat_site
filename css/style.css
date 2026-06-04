@@ -33,13 +33,27 @@
 }
 [data-theme="dark"] {
   --bg: #0f172a;
+  --bg-elev: #1e293b;
   --surface: #1e293b;
   --text: #f1f5f9;
   --text-muted: #94a8b8;
+  --text-soft: #94a3b8;
   --border: #334155;
+  --border-soft: #1e293b;
+  --primary-soft: rgba(37, 99, 235, 0.15);
+  --primary-dark: #1d4ed8;
+  --primary-light: #60a5fa;
+  --primary-hover: #1e40af;
+  --accent-soft: rgba(245, 158, 11, 0.15);
+  --success-soft: rgba(16, 185, 129, 0.15);
+  --danger: #f87171;
   --sidebar-bg: #020617;
   --sidebar-text: #cbd5e1;
   --sidebar-hover: #1e293b;
+  --sidebar-active: #3b82f6;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; scroll-behavior: smooth; }
