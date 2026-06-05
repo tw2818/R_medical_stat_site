@@ -35,9 +35,14 @@
   }
 
   function applyTheme(theme) {
+    // data-theme 必须在 <html> 上才能让 [data-theme="dark"] 选择器生效
+    // <html> 永远存在,head script 阶段就能设
     document.documentElement.setAttribute('data-theme', theme);
-    document.body.classList.toggle('theme-dark', theme === 'dark');
-    document.body.classList.toggle('theme-light', theme === 'light');
+    // body class 是补充,body 可能还没解析
+    if (document.body) {
+      document.body.classList.toggle('theme-dark', theme === 'dark');
+      document.body.classList.toggle('theme-light', theme === 'light');
+    }
     // 更新按钮图标
     const btn = document.getElementById('v2-chapter-theme-toggle');
     if (btn) btn.innerHTML = theme === 'dark' ? '☀' : '🌙';
