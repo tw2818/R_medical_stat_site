@@ -1,0 +1,192 @@
+/* ===================================================================
+ * v2 Chapter Shell — 把 v2 主题应用到 Quarto 生成的章节页
+ * ===================================================================
+ *
+ * 设计原则：
+ *  - 不动 Quarto 默认的 main 内容区排版（代码块、表格、列表 Quarto 自己排得很好）
+ *  - 只覆盖 shell：body 背景色 / sidebar / 顶部 header / 字体 / dark 模式
+ *  - 用 body.quarto-light / body.quarto-dark 跟 Quarto 习惯对齐（不抢 data-theme）
+ *  - 配合 js/app/v2-bootstrap.js 自动启用（无需手动）
+ *
+ * 与 v2.css 关系：
+ *  - 复用 v2.css 的 --v2-* token（独立 fallback 兜底）
+ *  - 不重复定义颜色，确保单点修改
+ * =================================================================== */
+
+/* === Light tokens fallback（v2.css 加载失败时用） === */
+:root {
+  --v2-bg: #FAFAFA;
+  --v2-bg-elevated: #FFFFFF;
+  --v2-bg-subtle: #F4F4F5;
+  --v2-fg: #0A0A0A;
+  --v2-fg-secondary: #3F3F46;
+  --v2-fg-muted: #71717A;
+  --v2-border: #E4E4E7;
+  --v2-border-strong: #D4D4D8;
+  --v2-primary: #2563EB;
+  --v2-primary-fg: #FFFFFF;
+  --v2-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --v2-radius: 8px;
+  --v2-font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --v2-font-mono: "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+}
+
+/* === Dark tokens === */
+body.v2-active.quarto-dark {
+  --v2-bg: #09090B;
+  --v2-bg-elevated: #18181B;
+  --v2-bg-subtle: #27272A;
+  --v2-fg: #FAFAFA;
+  --v2-fg-secondary: #A1A1AA;
+  --v2-fg-muted: #71717A;
+  --v2-border: #27272A;
+  --v2-border-strong: #3F3F46;
+  --v2-primary: #3B82F6;
+  --v2-primary-fg: #FFFFFF;
+}
+
+/* === Body 背景 / 字体 === */
+body.v2-active {
+  background: var(--v2-bg);
+  color: var(--v2-fg);
+  font-family: var(--v2-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* === Quarto 顶部 header: 半透明 + 跟随 v2 主题 === */
+body.v2-active #quarto-header {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--v2-border);
+  color: var(--v2-fg);
+}
+
+body.v2-active.quarto-dark #quarto-header {
+  background: rgba(9, 9, 11, 0.85);
+}
+
+/* === Quarto sidebar: 跟随 v2 主题 === */
+body.v2-active #quarto-sidebar {
+  background: var(--v2-bg-elevated);
+  border-right: 1px solid var(--v2-border);
+  color: var(--v2-fg);
+  font-family: var(--v2-font-sans);
+}
+
+body.v2-active #quarto-sidebar .sidebar-item-text,
+body.v2-active #quarto-sidebar .sidebar-link,
+body.v2-active #quarto-sidebar a {
+  color: var(--v2-fg-secondary);
+}
+
+body.v2-active #quarto-sidebar a:hover,
+body.v2-active #quarto-sidebar .sidebar-item-text:hover {
+  color: var(--v2-fg);
+  background: var(--v2-bg-subtle);
+}
+
+body.v2-active #quarto-sidebar .sidebar-item-section .sidebar-item-text,
+body.v2-active #quarto-sidebar .sidebar-section-header {
+  color: var(--v2-fg) !important;
+  font-weight: 600;
+}
+
+body.v2-active #quarto-sidebar .sidebar-item.active > .sidebar-item-container .sidebar-item-text,
+body.v2-active #quarto-sidebar .sidebar-item-text.active {
+  color: var(--v2-primary) !important;
+  background: var(--v2-bg-subtle);
+  font-weight: 600;
+}
+
+/* === Main 内容区背景（不影响 Quarto 排版，只换底色） === */
+body.v2-active main.content,
+body.v2-active #quarto-content {
+  background: var(--v2-bg);
+  color: var(--v2-fg);
+}
+
+body.v2-active main.content h1,
+body.v2-active main.content h2,
+body.v2-active main.content h3,
+body.v2-active main.content h4 {
+  color: var(--v2-fg);
+}
+
+body.v2-active main.content a {
+  color: var(--v2-primary);
+}
+
+body.v2-active main.content a:hover {
+  text-decoration: underline;
+}
+
+/* === Code block:加 v2 边框 === */
+body.v2-active main.content pre.sourceCode {
+  border: 1px solid var(--v2-border);
+  border-radius: var(--v2-radius);
+}
+
+/* === Quarto title-block 顶部 banner === */
+body.v2-active .quarto-title-block .quarto-title-banner {
+  background: var(--v2-bg-elevated);
+  border-bottom: 1px solid var(--v2-border);
+  color: var(--v2-fg);
+}
+
+/* === 移动端 sidebar 折叠按钮 === */
+body.v2-active .quarto-btn-toggle {
+  color: var(--v2-fg-secondary);
+}
+
+/* === 主题切换按钮（章节页 v2 注入） === */
+body.v2-active #v2-chapter-theme-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--v2-bg-elevated);
+  color: var(--v2-fg);
+  border: 1px solid var(--v2-border);
+  box-shadow: var(--v2-shadow-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 9999;
+  transition: all 0.18s ease;
+  font-family: var(--v2-font-sans);
+}
+
+body.v2-active #v2-chapter-theme-toggle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body.v2-active #v2-chapter-theme-toggle:focus-visible {
+  outline: 2px solid var(--v2-primary);
+  outline-offset: 2px;
+}
+
+/* === 移动端响应式：sidebar 默认隐藏 === */
+@media (max-width: 900px) {
+  body.v2-active #quarto-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  body.v2-active.sidebar-open #quarto-sidebar {
+    transform: translateX(0);
+  }
+}
