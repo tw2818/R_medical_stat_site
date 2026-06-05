@@ -56,7 +56,7 @@ function renderRateCompare(el) {
           <label style="font-size:13px;">阳性数 x<br><input id="${id}-x" type="number" min="0" step="1" value="42" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">样本量 n<br><input id="${id}-n" type="number" min="1" step="1" value="100" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">比较值 p₀<br><input id="${id}-p0" type="number" min="0" max="1" step="0.01" value="0.30" style="width:88px;padding:6px;"></label>
-          <button id="${id}-calc1" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">计算</button>
+          <button id="${id}-calc1" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">计算</button>
         </div>
       </div>
       <div id="${id}-panel2" style="display:none;">
@@ -65,12 +65,12 @@ function renderRateCompare(el) {
           <label style="font-size:13px;">组1 样本量 n₁<br><input id="${id}-n1" type="number" min="1" step="1" value="100" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">组2 阳性 x₂<br><input id="${id}-x2" type="number" min="0" step="1" value="32" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">组2 样本量 n₂<br><input id="${id}-n2" type="number" min="1" step="1" value="100" style="width:88px;padding:6px;"></label>
-          <button id="${id}-calc2" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">计算</button>
+          <button id="${id}-calc2" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">计算</button>
         </div>
       </div>
       <canvas id="${id}-canvas" width="560" height="220" style="display:block;margin:0 auto;max-width:100%;"></canvas>
       <div id="${id}-result" style="margin-top:10px;font-size:14px;color:#2c3e50;line-height:1.7;"></div>
-      <div style="margin-top:8px;font-size:12px;color:#666;text-align:center;">结果为教学近似展示：单样本区间使用 Wilson 近似，两样本比较使用常见 z 近似。</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--v2-fg-muted);text-align:center;">结果为教学近似展示：单样本区间使用 Wilson 近似，两样本比较使用常见 z 近似。</div>
     </div>`;
 
   const canvas = document.getElementById(`${id}-canvas`);
@@ -96,7 +96,7 @@ function renderRateCompare(el) {
     const plotW = W - pad.l - pad.r;
     const plotH = H - pad.t - pad.b;
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(titleText, W / 2, 18);
@@ -110,7 +110,7 @@ function renderRateCompare(el) {
       ctx.stroke();
     }
 
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.beginPath();
     ctx.moveTo(pad.l, pad.t);
     ctx.lineTo(pad.l, pad.t + plotH);
@@ -125,9 +125,9 @@ function renderRateCompare(el) {
       const scaled = yMax > 0 ? Math.max(0, Math.min(yMax, v)) / yMax : 0;
       const h = scaled * plotH;
       const y = pad.t + plotH - h;
-      ctx.fillStyle = i === values.length - 1 && target !== null ? '#95a5a6' : '#3498db';
+      ctx.fillStyle = i === values.length - 1 && target !== null ? 'var(--v2-border-strong)' : '#3498db';
       ctx.fillRect(x, y, barW, h);
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = 'var(--v2-fg-secondary)';
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(labels[i], x + barW / 2, pad.t + plotH + 18);
@@ -222,7 +222,7 @@ function renderPoissonRateCompare(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
-      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">下方组件可切换单样本事件率与两样本事件率比较；这里比较的是按单位观察量标准化后的事件率，而不是原始事件数。</div>
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">下方组件可切换单样本事件率与两样本事件率比较；这里比较的是按单位观察量标准化后的事件率，而不是原始事件数。</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
         <button id="${id}-mode1" class="path-tab active" type="button">单样本事件率</button>
         <button id="${id}-mode2" class="path-tab" type="button">两样本事件率</button>
@@ -232,7 +232,7 @@ function renderPoissonRateCompare(el) {
           <label style="font-size:13px;">事件数 x<br><input id="${id}-x" type="number" min="0" step="1" value="86" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">观察量 T<br><input id="${id}-t" type="number" min="0.1" step="0.1" value="200" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">参考率 r₀<br><input id="${id}-r0" type="number" min="0" step="0.01" value="0.30" style="width:88px;padding:6px;"></label>
-          <button id="${id}-calc1" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">计算</button>
+          <button id="${id}-calc1" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">计算</button>
         </div>
       </div>
       <div id="${id}-panel2" style="display:none;">
@@ -241,12 +241,12 @@ function renderPoissonRateCompare(el) {
           <label style="font-size:13px;">组1 观察量 T₁<br><input id="${id}-t1" type="number" min="0.1" step="0.1" value="120" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">组2 事件数 x₂<br><input id="${id}-x2" type="number" min="0" step="1" value="28" style="width:88px;padding:6px;"></label>
           <label style="font-size:13px;">组2 观察量 T₂<br><input id="${id}-t2" type="number" min="0.1" step="0.1" value="140" style="width:88px;padding:6px;"></label>
-          <button id="${id}-calc2" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">计算</button>
+          <button id="${id}-calc2" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">计算</button>
         </div>
       </div>
       <canvas id="${id}-canvas" width="560" height="220" style="display:block;margin:0 auto;max-width:100%;"></canvas>
       <div id="${id}-result" style="margin-top:10px;font-size:14px;color:#2c3e50;line-height:1.7;"></div>
-      <div style="margin-top:8px;font-size:12px;color:#666;text-align:center;">结果为教学近似展示：区间优先使用 Garwood 精确区间；检验使用常见大样本近似。</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--v2-fg-muted);text-align:center;">结果为教学近似展示：区间优先使用 Garwood 精确区间；检验使用常见大样本近似。</div>
     </div>`;
 
   const canvas = document.getElementById(`${id}-canvas`);
@@ -273,7 +273,7 @@ function renderPoissonRateCompare(el) {
     const plotH = H - pad.t - pad.b;
     const ymax = Math.max(...values, target ?? 0) * 1.25 || 1;
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('事件率比较示意', W / 2, 18);
@@ -284,7 +284,7 @@ function renderPoissonRateCompare(el) {
       ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + plotW, y); ctx.stroke();
     }
 
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + plotH); ctx.lineTo(pad.l + plotW, pad.t + plotH); ctx.stroke();
 
     const barSpace = plotW / values.length;
@@ -293,9 +293,9 @@ function renderPoissonRateCompare(el) {
       const x = pad.l + barSpace * i + (barSpace - barW) / 2;
       const h = (v / ymax) * plotH;
       const y = pad.t + plotH - h;
-      ctx.fillStyle = i === values.length - 1 && target !== null ? '#95a5a6' : '#16a085';
+      ctx.fillStyle = i === values.length - 1 && target !== null ? 'var(--v2-border-strong)' : '#16a085';
       ctx.fillRect(x, y, barW, h);
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = 'var(--v2-fg-secondary)';
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(labels[i], x + barW / 2, pad.t + plotH + 18);

@@ -92,7 +92,7 @@ function drawRoundedLabel(ctx, text, x, y, color) {
   ctx.font = '12px sans-serif';
   const w = ctx.measureText(text).width + 16;
   const h = 22;
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = 'var(--v2-bg-elevated)';
   ctx.strokeStyle = color;
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -110,7 +110,7 @@ function renderPairedTTestTutorial(el) {
   const pairs = parsePairs(el);
   const title = el.dataset.title || '配对 t 检验可视化：看每一对的差值';
   if (pairs.length < 2) {
-    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ' + title + '</span></div><p style="padding:20px;color:#666;">请提供至少 2 对配对数据。</p></div>';
+    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ' + title + '</span></div><p style="padding:20px;color:var(--v2-fg-muted);">请提供至少 2 对配对数据。</p></div>';
     return;
   }
 
@@ -128,7 +128,7 @@ function renderPairedTTestTutorial(el) {
     <div class="viz-card">
       <div class="viz-header"><span>📊 ${title}</span></div>
       <canvas id="${id}" class="viz-canvas" width="${W}" height="${H}"></canvas>
-      <div style="padding:10px 14px;background:#f8fafc;border-top:1px solid rgba(148,163,184,.25);font-size:13px;line-height:1.7;color:#334155;">
+      <div style="padding:10px 14px;background:var(--v2-bg-elevated);border-top:1px solid rgba(148,163,184,.25);font-size:13px;line-height:1.7;color:var(--v2-fg-secondary);">
         <strong>配对 t 检验：</strong>
         先计算每一对差值 <code>D = 用药后 − 用药前</code>，再检验 <code>D</code> 的均值是否等于 0。
         <br>
@@ -170,7 +170,7 @@ function renderPairedTTestTutorial(el) {
       ctx.stroke();
     }
 
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(panel.x, panel.y);
@@ -178,7 +178,7 @@ function renderPairedTTestTutorial(el) {
     ctx.lineTo(panel.x + panel.w, panel.y + panel.h);
     ctx.stroke();
 
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
@@ -199,7 +199,7 @@ function renderPairedTTestTutorial(el) {
 
   function drawTopPanel() {
     drawAxes(topPanel, '测量值');
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('1. 配对连线图：每条线是一名受试者', topPanel.x + topPanel.w / 2, 24);
@@ -210,7 +210,7 @@ function renderPairedTTestTutorial(el) {
     pairs.forEach(p => {
       const yBefore = valueScale(p.before, topPanel);
       const yAfter = valueScale(p.after, topPanel);
-      const color = p.after < p.before ? '#2f855a' : (p.after > p.before ? '#c05621' : '#64748b');
+      const color = p.after < p.before ? '#2f855a' : (p.after > p.before ? '#c05621' : 'var(--v2-fg-muted)');
       ctx.strokeStyle = color;
       ctx.globalAlpha = 0.42;
       ctx.lineWidth = 1.6;
@@ -230,13 +230,13 @@ function renderPairedTTestTutorial(el) {
 
     const meanBeforeY = valueScale(stats.beforeMean, topPanel);
     const meanAfterY = valueScale(stats.afterMean, topPanel);
-    ctx.strokeStyle = '#0f172a';
+    ctx.strokeStyle = 'var(--v2-fg)';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(xBefore, meanBeforeY);
     ctx.lineTo(xAfter, meanAfterY);
     ctx.stroke();
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     [
       [xBefore, meanBeforeY],
       [xAfter, meanAfterY]
@@ -246,14 +246,14 @@ function renderPairedTTestTutorial(el) {
       ctx.fill();
     });
 
-    ctx.fillStyle = '#334155';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('用药前', xBefore, topPanel.y + topPanel.h + 24);
     ctx.fillText('用药后', xAfter, topPanel.y + topPanel.h + 24);
 
     drawRoundedLabel(ctx, '绿色线：用药后下降', topPanel.x + 118, topPanel.y + topPanel.h + 56, '#2f855a');
-    drawRoundedLabel(ctx, '黑粗线：组均值变化', topPanel.x + topPanel.w - 132, topPanel.y + topPanel.h + 56, '#0f172a');
+    drawRoundedLabel(ctx, '黑粗线：组均值变化', topPanel.x + topPanel.w - 132, topPanel.y + topPanel.h + 56, 'var(--v2-fg)');
   }
 
   function drawBottomPanel() {
@@ -266,7 +266,7 @@ function renderPairedTTestTutorial(el) {
     const sx = v => bottomPanel.x + ((v - xMin) / (xMax - xMin)) * bottomPanel.w;
     const centerY = bottomPanel.y + bottomPanel.h / 2;
 
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('2. 差值图：配对 t 检验检验 D̄ 是否等于 0', bottomPanel.x + bottomPanel.w / 2, bottomPanel.y - 32);
@@ -281,7 +281,7 @@ function renderPairedTTestTutorial(el) {
       ctx.stroke();
     }
 
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(bottomPanel.x, centerY);
@@ -301,14 +301,14 @@ function renderPairedTTestTutorial(el) {
 
     diffs.forEach((d, i) => {
       const jitter = ((i % 5) - 2) * 7;
-      ctx.fillStyle = d < 0 ? '#2f855a' : (d > 0 ? '#c05621' : '#64748b');
+      ctx.fillStyle = d < 0 ? '#2f855a' : (d > 0 ? '#c05621' : 'var(--v2-fg-muted)');
       ctx.beginPath();
       ctx.arc(sx(d), centerY + jitter, 5, 0, Math.PI * 2);
       ctx.fill();
     });
 
     const ciY = bottomPanel.y + bottomPanel.h + 34;
-    ctx.strokeStyle = '#0f172a';
+    ctx.strokeStyle = 'var(--v2-fg)';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(sx(stats.ciLow), ciY);
@@ -320,13 +320,13 @@ function renderPairedTTestTutorial(el) {
     ctx.moveTo(sx(stats.ciHigh), ciY - 7);
     ctx.lineTo(sx(stats.ciHigh), ciY + 7);
     ctx.stroke();
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.beginPath();
     ctx.arc(sx(stats.meanDiff), ciY, 6, 0, Math.PI * 2);
     ctx.fill();
-    drawRoundedLabel(ctx, 'D̄ 与 95% CI', sx(stats.meanDiff), ciY + 28, '#0f172a');
+    drawRoundedLabel(ctx, 'D̄ 与 95% CI', sx(stats.meanDiff), ciY + 28, 'var(--v2-fg)');
 
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';

@@ -22,7 +22,7 @@ import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="560" height="300" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;margin-top:6px;font-size:13px;color:#555;">
+      <div style="text-align:center;margin-top:6px;font-size:13px;color:var(--v2-fg-muted);">
         n=${n} | 均值=${mean.toFixed(1)} | 标准差=${sd.toFixed(1)} | 红色曲线为正态分布拟合
       </div>
     </div>`;
@@ -55,11 +55,11 @@ import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
     }
 
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
     // X tick labels
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     for (let i = 0; i <= nbins; i += Math.ceil(nbins / 8)) {
       const x = padL + (i / nbins) * plotW;
       ctx.fillText((minD + i * binWidth).toFixed(0), x, padT + plotH + 16);
@@ -99,10 +99,10 @@ import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
         ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
       }
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
       // X tick labels
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       for (let i = 0; i <= nbins; i += Math.ceil(nbins / 8)) {
         const x = padL + (i / nbins) * plotW;
         ctx.fillText((minD + i * binWidth).toFixed(0), x, padT + plotH + 16);
@@ -130,7 +130,7 @@ import { registerViz, mean, sd, ensureJStat, createTooltip } from './_core.js';
       }
       ctx.stroke();
       // Labels
-      ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('数值', padL + plotW / 2, H - 4);
       ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
       ctx.fillText('频数', 0, 0); ctx.restore();
@@ -210,7 +210,7 @@ registerViz('hist', renderHistogram);
     }
 
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
     const scaleY = v => padT + plotH - ((v - minD) / range) * plotH;
@@ -229,7 +229,7 @@ registerViz('hist', renderHistogram);
       const cx = padL + gap * (i + 1) + boxW * i + boxW / 2;
 
       // Whiskers
-      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'var(--v2-fg-muted)'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(cx, scaleY(lowerFence)); ctx.lineTo(cx, scaleY(q1)); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx, scaleY(q3)); ctx.lineTo(cx, scaleY(upperFence)); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx - boxW / 4, scaleY(lowerFence)); ctx.lineTo(cx + boxW / 4, scaleY(lowerFence)); ctx.stroke();
@@ -240,7 +240,7 @@ registerViz('hist', renderHistogram);
       ctx.globalAlpha = 0.7;
       ctx.fillRect(cx - boxW / 2, scaleY(q3), boxW, scaleY(q1) - scaleY(q3));
       ctx.globalAlpha = 1;
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 1.5;
       ctx.strokeRect(cx - boxW / 2, scaleY(q3), boxW, scaleY(q1) - scaleY(q3));
 
       // Median line
@@ -254,19 +254,19 @@ registerViz('hist', renderHistogram);
       });
 
       // Label
-      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(group.name, cx, padT + plotH + 16);
     });
 
     // Y labels
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
     for (let i = 0; i <= 5; i++) {
       ctx.fillText((minD + (i / 5) * range).toFixed(0), padL - 6, padT + (i / 5) * plotH + 4);
     }
 
     // Legend
     ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(padL + plotW - 60, padT + 12, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
     ctx.fillText('中位数', padL + plotW - 52, padT + 16);
   }
 registerViz('box', renderBoxplot);
@@ -301,7 +301,7 @@ registerViz('box', renderBoxplot);
     ctx.clearRect(0, 0, W, H);
 
     // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // Grid
@@ -312,17 +312,17 @@ registerViz('box', renderBoxplot);
     }
 
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
     // Y axis label
     ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('数值', 0, 0); ctx.restore();
 
     // Y tick labels
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
     for (let i = 0; i <= 5; i++) {
       const y = padT + (i / 5) * plotH;
       const v = Math.round(maxVal * (1 - i / 5));
@@ -339,10 +339,10 @@ registerViz('box', renderBoxplot);
       ctx.fillStyle = colors[i % colors.length];
       ctx.fillRect(x, y, barW, barH);
       // Value label
-      ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(val, x + barW / 2, y - 8);
       // X label
-      ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif';
       ctx.fillText(labels[i], x + barW / 2, padT + plotH + 18);
     });
 
@@ -352,20 +352,20 @@ registerViz('box', renderBoxplot);
 
     function drawBars(hlIdx) {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(title, W / 2, 22);
       ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
       for (let i = 0; i <= 5; i++) {
         const y = padT + (i / 5) * plotH;
         ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
       }
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
       ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-      ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('数值', 0, 0); ctx.restore();
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
       for (let i = 0; i <= 5; i++) {
         const y = padT + (i / 5) * plotH;
         const v = Math.round(maxVal * (1 - i / 5));
@@ -374,9 +374,9 @@ registerViz('box', renderBoxplot);
       barData.forEach((b, i) => {
         ctx.fillStyle = i === hlIdx ? '#2980b9' : colors[i % colors.length];
         ctx.fillRect(b.x, b.y, b.w, b.h);
-        ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(b.value, b.x + b.w / 2, b.y - 8);
-        ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+        ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif';
         ctx.fillText(b.label, b.x + b.w / 2, padT + plotH + 18);
       });
     }
@@ -443,7 +443,7 @@ registerViz('bar', renderBarChart);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">🗺️ ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:11px;color:#666;margin-top:6px;">表达水平: <span style="color:#2166ac">低▼</span> → <span style="color:#f5f5f5">中</span> → <span style="color:#b2182b">高▲</span></div>
+      <div style="text-align:center;font-size:11px;color:var(--v2-fg-muted);margin-top:6px;">表达水平: <span style="color:#2166ac">低▼</span> → <span style="color:#f5f5f5">中</span> → <span style="color:#b2182b">高▲</span></div>
     </div>`;
 
     const canvas = document.getElementById(id);
@@ -470,7 +470,7 @@ registerViz('bar', renderBarChart);
     }
 
     // Row labels
-    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
     rowNames.forEach((r, i) => {
       ctx.fillText(r, labelW - 5, labelH + i * cellH + cellH / 2 + 4);
     });
@@ -489,7 +489,7 @@ registerViz('bar', renderBarChart);
       row.forEach((val, j) => {
         ctx.fillStyle = colorScale(val);
         ctx.fillRect(labelW + j * cellW, labelH + i * cellH, cellW - 1, cellH - 1);
-        ctx.fillStyle = Math.abs(val - (minV + maxV) / 2) > (maxV - minV) * 0.3 ? '#fff' : '#333';
+        ctx.fillStyle = Math.abs(val - (minV + maxV) / 2) > (maxV - minV) * 0.3 ? 'var(--v2-bg-elevated)' : 'var(--v2-fg-secondary)';
         ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
         const txt = Number.isInteger(val) ? val.toString() : val.toFixed(1);
         ctx.fillText(txt, labelW + j * cellW + cellW / 2, labelH + i * cellH + cellH / 2 + 3);
@@ -532,7 +532,7 @@ registerViz('heatmap', renderHeatmap);
         if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.closePath();
-      ctx.strokeStyle = frac === 1 ? '#aaa' : '#ddd'; ctx.lineWidth = 1;
+      ctx.strokeStyle = frac === 1 ? 'var(--v2-fg-subtle)' : '#ddd'; ctx.lineWidth = 1;
       ctx.stroke();
       ctx.fillStyle = '#777'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText((maxVal * frac).toFixed(0), cx, cy + r * frac + 10);
@@ -545,7 +545,7 @@ registerViz('heatmap', renderHeatmap);
       ctx.beginPath();
       ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
       ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.8; ctx.stroke();
-      ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(l, px, py + 4);
     });
 
@@ -593,7 +593,7 @@ registerViz('radar', renderRadarChart);
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     const padL = 40, padR = 15, padT = 35, padB = 25;
@@ -637,7 +637,7 @@ registerViz('radar', renderRadarChart);
       ctx.stroke();
 
       // Label
-      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(labels[i], padL - 5, yBase - bandH / 2 + 4);
     });
   }
@@ -670,7 +670,7 @@ registerViz('ridgeline', renderRidgeline);
     ctx.clearRect(0, 0, W, H);
 
     // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 20);
 
     // Arc segments (green-yellow-red)
@@ -690,7 +690,7 @@ registerViz('ridgeline', renderRidgeline);
     });
 
     // Tick marks
-    ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'var(--v2-fg-muted)'; ctx.lineWidth = 1;
     for (let i = 0; i <= 10; i++) {
       const a = Math.PI - (i / 10) * Math.PI;
       const inner = radius - 12, outer = radius + 6;
@@ -700,19 +700,19 @@ registerViz('ridgeline', renderRidgeline);
       ctx.stroke();
       // Labels
       const v = Math.round(min + (i / 10) * (max - min));
-      ctx.fillStyle = '#555'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(v, cx + (outer + 12) * Math.cos(a), cy + (outer + 12) * Math.sin(a));
     }
 
     // Needle
     const norm = Math.max(0, Math.min(1, (value - min) / (max - min)));
     const needleAngle = Math.PI - norm * Math.PI;
-    ctx.strokeStyle = '#222'; ctx.lineWidth = 3;
+    ctx.strokeStyle = 'var(--v2-fg)'; ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(cx + (radius - 20) * Math.cos(needleAngle), cy + (radius - 20) * Math.sin(needleAngle));
     ctx.stroke();
-    ctx.fillStyle = '#222';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.beginPath();
     ctx.arc(cx, cy, 6, 0, Math.PI * 2);
     ctx.fill();
@@ -743,7 +743,7 @@ registerViz('gauge', renderGaugeChart);
     el.innerHTML = `<div class="viz-card" style="position:relative;">
       <div class="viz-header">📊 ${title}</div>
       <svg id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></svg>
-      <div id="${id}-tooltip" style="position:absolute;pointer-events:none;background:rgba(40,40,40,0.9);color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;line-height:1.4;display:none;z-index:100;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>
+      <div id="${id}-tooltip" style="position:absolute;pointer-events:none;background:rgba(40,40,40,0.9);color:var(--v2-bg-elevated);padding:8px 12px;border-radius:6px;font-size:12px;line-height:1.4;display:none;z-index:100;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>
     </div>`;
 
     const svg = document.getElementById(id);
@@ -888,7 +888,7 @@ registerViz('gauge', renderGaugeChart);
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('dominant-baseline', 'middle');
       text.setAttribute('font-size', '10');
-      text.setAttribute('fill', '#333');
+      text.setAttribute('fill', 'var(--v2-fg-secondary)');
       text.setAttribute('pointer-events', 'none');
       text.textContent = link.value;
       svg.appendChild(text);
@@ -901,7 +901,7 @@ registerViz('gauge', renderGaugeChart);
           const highlighted = i === idx;
           p.path.setAttribute('stroke-width', highlighted ? p.baseWidth + 4 : p.baseWidth);
           p.path.setAttribute('stroke-opacity', highlighted ? 1 : 0.15);
-          p.text.setAttribute('fill', highlighted ? '#000' : '#aaa');
+          p.text.setAttribute('fill', highlighted ? '#000' : 'var(--v2-fg-subtle)');
         });
         tooltip.innerHTML = `${nodes[link.source]} → ${nodes[link.target]}: <b>${link.value}人</b>`;
         tooltip.style.display = 'block';
@@ -919,7 +919,7 @@ registerViz('gauge', renderGaugeChart);
         linkPaths.forEach(p => {
           p.path.setAttribute('stroke-width', p.baseWidth);
           p.path.setAttribute('stroke-opacity', 0.75);
-          p.text.setAttribute('fill', '#333');
+          p.text.setAttribute('fill', 'var(--v2-fg-secondary)');
         });
         tooltip.style.display = 'none';
       });
@@ -931,7 +931,7 @@ registerViz('gauge', renderGaugeChart);
           linkPaths.forEach(p => {
             p.path.setAttribute('stroke-width', p.baseWidth);
             p.path.setAttribute('stroke-opacity', 0.75);
-            p.text.setAttribute('fill', '#333');
+            p.text.setAttribute('fill', 'var(--v2-fg-secondary)');
           });
         } else {
           lockedLink = idx;
@@ -940,7 +940,7 @@ registerViz('gauge', renderGaugeChart);
             const hl = i === idx;
             p.path.setAttribute('stroke-width', hl ? p.baseWidth + 4 : p.baseWidth);
             p.path.setAttribute('stroke-opacity', hl ? 1 : 0.15);
-            p.text.setAttribute('fill', hl ? '#000' : '#aaa');
+            p.text.setAttribute('fill', hl ? '#000' : 'var(--v2-fg-subtle)');
           });
         }
       });
@@ -972,7 +972,7 @@ registerViz('gauge', renderGaugeChart);
       text.setAttribute('text-anchor', ta);
       text.setAttribute('dominant-baseline', 'middle');
       text.setAttribute('font-size', '12');
-      text.setAttribute('fill', '#222');
+      text.setAttribute('fill', 'var(--v2-fg)');
       text.setAttribute('pointer-events', 'none');
       text.textContent = node;
       svg.appendChild(text);
@@ -985,7 +985,7 @@ registerViz('gauge', renderGaugeChart);
           const related = p.source === i || p.target === i;
           p.path.setAttribute('stroke-width', related ? p.baseWidth + 3 : p.baseWidth);
           p.path.setAttribute('stroke-opacity', related ? 1 : 0.15);
-          p.text.setAttribute('fill', related ? '#000' : '#aaa');
+          p.text.setAttribute('fill', related ? '#000' : 'var(--v2-fg-subtle)');
         });
         rect.setAttribute('fill', levelColors[nodeLevels[i]] === '#3498db' ? '#2980b9' :
           levelColors[nodeLevels[i]] === '#e67e22' ? '#d35400' : '#1e8449');
@@ -1005,7 +1005,7 @@ registerViz('gauge', renderGaugeChart);
         linkPaths.forEach(p => {
           p.path.setAttribute('stroke-width', p.baseWidth);
           p.path.setAttribute('stroke-opacity', 0.75);
-          p.text.setAttribute('fill', '#333');
+          p.text.setAttribute('fill', 'var(--v2-fg-secondary)');
         });
         rect.setAttribute('fill', levelColors[nodeLevels[i]]);
         tooltip.style.display = 'none';
@@ -1018,7 +1018,7 @@ registerViz('gauge', renderGaugeChart);
           linkPaths.forEach(p => {
             p.path.setAttribute('stroke-width', p.baseWidth);
             p.path.setAttribute('stroke-opacity', 0.75);
-            p.text.setAttribute('fill', '#333');
+            p.text.setAttribute('fill', 'var(--v2-fg-secondary)');
           });
         } else {
           lockedNode = i;
@@ -1027,7 +1027,7 @@ registerViz('gauge', renderGaugeChart);
             const related = p.source === i || p.target === i;
             p.path.setAttribute('stroke-width', related ? p.baseWidth + 3 : p.baseWidth);
             p.path.setAttribute('stroke-opacity', related ? 1 : 0.15);
-            p.text.setAttribute('fill', related ? '#000' : '#aaa');
+            p.text.setAttribute('fill', related ? '#000' : 'var(--v2-fg-subtle)');
           });
         }
       });
@@ -1044,7 +1044,7 @@ registerViz('gauge', renderGaugeChart);
         linkPaths.forEach(p => {
           p.path.setAttribute('stroke-width', p.baseWidth);
           p.path.setAttribute('stroke-opacity', 0.75);
-          p.text.setAttribute('fill', '#333');
+          p.text.setAttribute('fill', 'var(--v2-fg-secondary)');
         });
         rect.style.cursor = 'grabbing';
       });
@@ -1116,7 +1116,7 @@ registerViz('gauge', renderGaugeChart);
         linkPaths.forEach(p => {
           p.path.setAttribute('stroke-width', p.baseWidth);
           p.path.setAttribute('stroke-opacity', 0.75);
-          p.text.setAttribute('fill', '#333');
+          p.text.setAttribute('fill', 'var(--v2-fg-secondary)');
         });
       }
     });
@@ -1144,7 +1144,7 @@ registerViz('gauge', renderGaugeChart);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📈 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:11px;color:#555;flex-wrap:wrap;"></div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:11px;color:var(--v2-fg-muted);flex-wrap:wrap;"></div>
     </div>`;
 
     // Legend
@@ -1170,7 +1170,7 @@ registerViz('gauge', renderGaugeChart);
     const sy = v => padT + plotH - (v / yMax) * plotH;
 
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // Draw each series as a filled area
@@ -1206,17 +1206,17 @@ registerViz('gauge', renderGaugeChart);
     }
 
     // X axis labels
-    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     labels.forEach((l, i) => ctx.fillText(l, sx(i), H - 10));
     // Y axis
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.stroke();
     // Y ticks
     [0, yMax * 0.25, yMax * 0.5, yMax * 0.75, yMax].forEach(v => {
       const y = sy(v);
       ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5;
       ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
-      ctx.fillStyle = '#555'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.textAlign = 'right';
       ctx.fillText(Math.round(v), padL - 5, y + 4);
     });
   }
@@ -1265,18 +1265,18 @@ registerViz('area', renderAreaChart);
     ctx.clearRect(0, 0, W, H);
 
     // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // Y axis
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH);
     ctx.stroke();
 
     // Y axis label
     ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('95% CI', 0, 0); ctx.restore();
 
     // Grid
@@ -1287,7 +1287,7 @@ registerViz('area', renderAreaChart);
     }
 
     // Y tick labels
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
     for (let i = 0; i <= 5; i++) {
       const y = padT + (i / 5) * plotH;
       const v = (yMax - (i / 5) * (yMax - yMin)).toFixed(1);
@@ -1323,7 +1323,7 @@ registerViz('area', renderAreaChart);
       ctx.fill();
 
       // X label
-      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(label, x, padT + plotH + 18);
     });
   }
@@ -1353,7 +1353,7 @@ registerViz('errorbar', renderErrorBar);
       <div style="display:flex;justify-content:center;gap:20px;margin-top:8px;font-size:12px;">
         <span style="color:#e74c3c;">● ${label1} (n=${x1.length})</span>
         <span style="color:#2ecc71;">● ${label2} (n=${x2.length})</span>
-        <span style="color:#555;">— 判别边界线</span>
+        <span style="color:var(--v2-fg-muted);">— 判别边界线</span>
       </div>
     </div>`;
 
@@ -1366,7 +1366,7 @@ registerViz('errorbar', renderErrorBar);
     const sy = v => H - padB - ((v - yMin) / (yMax - yMin)) * (H - padT - padB);
 
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // Grid
@@ -1385,7 +1385,7 @@ registerViz('errorbar', renderErrorBar);
     const mx = (mX1 + mX2) / 2, my = (mY1 + mY2) / 2;
     const slope = -(mX2 - mX1) / (mY2 - mY1 + 0.0001);
     // Draw the boundary line across the plot area
-    ctx.setLineDash([6, 4]); ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]); ctx.strokeStyle = 'var(--v2-fg-muted)'; ctx.lineWidth = 1.5;
     const xExt = [xMin, xMax];
     const yExt = xExt.map(x => my + slope * (x - mx));
     ctx.beginPath();
@@ -1410,14 +1410,14 @@ registerViz('errorbar', renderErrorBar);
     // Mark group means
     ctx.fillStyle = '#c0392b'; ctx.beginPath(); ctx.arc(sx(mX1), sy(mY1), 8, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#27ae60'; ctx.beginPath(); ctx.arc(sx(mX2), sy(mY2), 8, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#333'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('★', sx(mX1), sy(mY1) + 3);
     ctx.fillText('★', sx(mX2), sy(mY2) + 3);
 
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB); ctx.stroke();
-    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif';
     ctx.textAlign = 'center'; ctx.fillText('判别函数1 (LD1)', W / 2, H - 5);
     ctx.save(); ctx.translate(12, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('判别函数2 (LD2)', 0, 0); ctx.restore();
   }
@@ -1441,7 +1441,7 @@ registerViz('ldascatter', renderLDAScatter);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="480" height="260" style="display:block;margin:0 auto;"></canvas>
-      <div id="${id}-legend" style="text-align:center;margin-top:8px;font-size:12px;color:#555;"></div>
+      <div id="${id}-legend" style="text-align:center;margin-top:8px;font-size:12px;color:var(--v2-fg-muted);"></div>
     </div>`;
 
     const canvas = document.getElementById(id);
@@ -1454,12 +1454,12 @@ registerViz('ldascatter', renderLDAScatter);
     ctx.clearRect(0, 0, W, H);
 
     // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // Y axis label
     ctx.save(); ctx.translate(14, padT + totalH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('累积比例', 0, 0); ctx.restore();
 
     // Grid
@@ -1490,16 +1490,16 @@ registerViz('ldascatter', renderLDAScatter);
       ctx.fillRect(barX, barY, barW, barH);
 
       // Category label (left)
-      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(cat, padL - 8, barY + barH / 2 + 4);
 
       // Proportion label
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-bg-elevated)'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       if (barW > 30) ctx.fillText((props[i] * 100).toFixed(1) + '%', barX + barW / 2, barY + barH / 2 + 4);
     });
 
     // Y axis ticks
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
     for (let i = 0; i <= 4; i++) {
       const y = padT + (i / 4) * totalH;
       ctx.fillText((i / 4 * 100).toFixed(0) + '%', padL - 6, y + 4);
@@ -1511,10 +1511,10 @@ registerViz('ldascatter', renderLDAScatter);
 
     function drawWithHighlight(idx) {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(title, W / 2, 22);
       ctx.save(); ctx.translate(14, padT + totalH / 2); ctx.rotate(-Math.PI / 2);
-      ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('累积比例', 0, 0); ctx.restore();
       ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
@@ -1534,12 +1534,12 @@ registerViz('ldascatter', renderLDAScatter);
         ctx.fillRect(barX, barY, trackW, barH);
         ctx.fillStyle = idx === i ? colors[i % colors.length] + 'dd' : colors[i % colors.length];
         ctx.fillRect(barX, barY, barW, barH);
-        ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
         ctx.fillText(cat, padL - 8, barY + barH / 2 + 4);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'var(--v2-bg-elevated)'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
         if (barW > 30) ctx.fillText((props[i] * 100).toFixed(1) + '%', barX + barW / 2, barY + barH / 2 + 4);
       });
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
       for (let i = 0; i <= 4; i++) {
         const y = padT + (i / 4) * totalH;
         ctx.fillText((i / 4 * 100).toFixed(0) + '%', padL - 6, y + 4);
@@ -1592,7 +1592,7 @@ registerViz('spine', renderSpinePlot);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="480" height="420" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;margin-top:6px;font-size:12px;color:#555;"></div>
+      <div style="text-align:center;margin-top:6px;font-size:12px;color:var(--v2-fg-muted);"></div>
     </div>`;
 
     const infoDiv = el.querySelector('div:last-child');
@@ -1613,7 +1613,7 @@ registerViz('spine', renderSpinePlot);
 
     ctx.clearRect(0, 0, W, H);
 
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 18);
 
     ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.5;
@@ -1622,7 +1622,7 @@ registerViz('spine', renderSpinePlot);
       const y = padT + (i / 6) * plotH; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
     }
 
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
     const refMin = Math.max(xMin, yMin), refMax = Math.min(xMax, yMax);
@@ -1630,7 +1630,7 @@ registerViz('spine', renderSpinePlot);
     ctx.setLineDash([6, 4]); ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     const midX = (x0 + x1) / 2, midY = (y0 + y1) / 2;
     ctx.save(); ctx.translate(midX - 30, midY - 10); ctx.rotate(-Math.PI / 4);
     ctx.fillText('理论分位数=样本分位数', 0, 0); ctx.restore();
@@ -1641,12 +1641,12 @@ registerViz('spine', renderSpinePlot);
     });
 
     const tickVals = [-2, -1, 0, 1, 2].filter(v => v >= xMin && v <= xMax);
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     tickVals.forEach(v => { ctx.fillText(v.toString(), sx(v), padT + plotH + 18); });
-    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('理论正态分位数', padL + plotW / 2, H - 6);
     ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('样本值', 0, 0); ctx.restore();
 
     ctx.fillStyle = '#888'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
@@ -1665,7 +1665,7 @@ registerViz('spine', renderSpinePlot);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="480" height="380" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;margin-top:6px;font-size:12px;color:#555;"></div>
+      <div style="text-align:center;margin-top:6px;font-size:12px;color:var(--v2-fg-muted);"></div>
     </div>`;
 
     const canvas = document.getElementById(id);
@@ -1691,7 +1691,7 @@ registerViz('spine', renderSpinePlot);
 
     ctx.clearRect(0, 0, W, H);
 
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 18);
 
     ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.5;
@@ -1700,7 +1700,7 @@ registerViz('spine', renderSpinePlot);
       const y = padT + (i / 5) * plotH; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
     }
 
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
     const zeroY = sy(0);
@@ -1730,7 +1730,7 @@ registerViz('spine', renderSpinePlot);
 
     means.forEach((m, i) => {
       const px = sx(m), py = sy(diffs[i]);
-      ctx.fillStyle = '#555'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
       pointData.push({ px, py, mean: m, diff: diffs[i] });
     });
 
@@ -1752,10 +1752,10 @@ registerViz('spine', renderSpinePlot);
 
     canvas.addEventListener('mouseleave', () => tip.hide());
 
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('两种方法测量均值', padL + plotW / 2, H - 6);
     ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('差值 (方法1 - 方法2)', 0, 0); ctx.restore();
   }
   registerViz('blandaltman', renderBlandAltman);
@@ -1808,13 +1808,13 @@ registerViz('spine', renderSpinePlot);
     canvas.height = H;
     ctx.clearRect(0, 0, W, H);
 
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     const padT = 35, padL = 15;
     const sepX = padL + stemW;
 
-    ctx.fillStyle = '#555'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('茎', padL + stemW / 2, padT - 8);
     ctx.fillText('叶', sepX + 15, padT - 8);
 
@@ -1825,7 +1825,7 @@ registerViz('spine', renderSpinePlot);
     rows.forEach((row, i) => {
       const y = padT + i * lineH + lineH / 2 + 4;
 
-      ctx.fillStyle = '#333'; ctx.font = `${fontSize}px monospace`; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = `${fontSize}px monospace`; ctx.textAlign = 'right';
       ctx.fillText(row.stem, sepX - 8, y);
 
       ctx.fillStyle = '#2c5aa0'; ctx.font = `${fontSize}px monospace`; ctx.textAlign = 'left';

@@ -70,24 +70,24 @@ function ensureStyles() {
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-    .logistic-guide-card{background:#f6f7fb;border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:#334155;}
+    .logistic-guide-card{background:var(--v2-bg-elevated);border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:var(--v2-fg-secondary);}
     .logistic-guide-head{display:flex;gap:14px;align-items:center;margin-bottom:12px;}
-    .logistic-guide-icon{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;box-shadow:0 8px 18px rgba(79,70,229,.25);}
-    .logistic-guide-title{font-size:18px;font-weight:800;color:#1e293b;margin:0;}
-    .logistic-guide-badge{display:inline-block;background:#e0e7ff;color:#4338ca;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
-    .logistic-guide-lead{margin:8px 0 14px;color:#475569;line-height:1.75;}
+    .logistic-guide-icon{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:var(--v2-bg-elevated);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;box-shadow:0 8px 18px rgba(79,70,229,.25);}
+    .logistic-guide-title{font-size:18px;font-weight:800;color:var(--v2-fg);margin:0;}
+    .logistic-guide-badge{display:inline-block;background:var(--v2-secondary-subtle);color:#4338ca;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
+    .logistic-guide-lead{margin:8px 0 14px;color:var(--v2-fg-secondary);line-height:1.75;}
     .logistic-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
-    .logistic-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;}
+    .logistic-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:12px;}
     .logistic-guide-item strong{display:block;color:#312e81;margin-bottom:6px;}
-    .logistic-guide-note{margin-top:12px;font-size:13px;color:#64748b;background:#fff;border-left:4px solid #818cf8;border-radius:10px;padding:10px 12px;}
+    .logistic-guide-note{margin-top:12px;font-size:13px;color:var(--v2-fg-muted);background:var(--v2-bg-elevated);border-left:4px solid #818cf8;border-radius:10px;padding:10px 12px;}
     .logistic-threshold-panel{display:grid;grid-template-columns:minmax(210px,1fr) 1.1fr;gap:16px;align-items:center;}
     .logistic-slider{width:100%;accent-color:#4f46e5;}
-    .logistic-metric{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e2e8f0;padding:8px 0;font-size:14px;}
-    .logistic-metric strong{color:#1e293b;}
-    .logistic-threshold-bars{display:flex;align-items:end;gap:12px;height:150px;padding:10px 4px;border-bottom:1px solid #cbd5e1;}
+    .logistic-metric{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--v2-border);padding:8px 0;font-size:14px;}
+    .logistic-metric strong{color:var(--v2-fg);}
+    .logistic-threshold-bars{display:flex;align-items:end;gap:12px;height:150px;padding:10px 4px;border-bottom:1px solid var(--v2-border);}
     .logistic-bar{flex:1;border-radius:10px 10px 0 0;background:linear-gradient(180deg,#818cf8,#4f46e5);min-height:18px;position:relative;}
     .logistic-bar.alt{background:linear-gradient(180deg,#f59e0b,#ea580c);}
-    .logistic-bar span{position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);font-size:12px;color:#475569;white-space:nowrap;}
+    .logistic-bar span{position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);font-size:12px;color:var(--v2-fg-secondary);white-space:nowrap;}
     @media(max-width:680px){.logistic-threshold-panel{grid-template-columns:1fr}.logistic-guide-card{padding:14px}}
   `;
   document.head.appendChild(style);

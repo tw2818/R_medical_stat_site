@@ -1,15 +1,15 @@
 import { registerViz } from './_core.js';
 
-const boxStyle = 'border:1px solid rgba(148,163,184,.35);border-radius:12px;background:#fff;padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);';
-const muted = 'color:#64748b;font-size:13px;line-height:1.6;';
-const badge = 'display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700;margin-right:6px;';
+const boxStyle = 'border:1px solid rgba(148,163,184,.35);border-radius:12px;background:var(--v2-bg-elevated);padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);';
+const muted = 'color:var(--v2-fg-muted);font-size:13px;line-height:1.6;';
+const badge = 'display:inline-block;padding:2px 8px;border-radius:999px;background:var(--v2-secondary-subtle);color:#3730a3;font-size:12px;font-weight:700;margin-right:6px;';
 const grid = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;align-items:stretch;';
 
 function card(title, body) {
   return `
     <div class="viz-card">
       <div class="viz-header"><span>📊 ${title}</span></div>
-      <div style="padding:14px;background:#f8fafc;">
+      <div style="padding:14px;background:var(--v2-bg-elevated);">
         ${body}
       </div>
     </div>
@@ -91,10 +91,10 @@ function renderChisqChoiceGuide(el) {
   const title = el.dataset.title || '卡方检验选择指南';
   el.innerHTML = card(title, `
     <div style="${grid}">
-      <div style="${boxStyle}"><span style="${badge}">独立 2×2 表</span><div style="font-weight:700;color:#0f172a;margin:8px 0;">两组独立样本率比较</div><div style="${muted}">常用 Pearson χ²；理论频数偏小时考虑连续性校正或 Fisher 确切概率法。</div></div>
-      <div style="${boxStyle}"><span style="${badge}">配对 2×2 表</span><div style="font-weight:700;color:#0f172a;margin:8px 0;">同一对象两次分类结果</div><div style="${muted}">使用 McNemar 检验，重点看两个不一致格子 b 和 c，而不是普通独立样本 χ²。</div></div>
-      <div style="${boxStyle}"><span style="${badge}">小样本 2×2 表</span><div style="font-weight:700;color:#0f172a;margin:8px 0;">理论频数过小</div><div style="${muted}">优先考虑 Fisher 确切概率法，尤其是样本量小或某些理论频数明显小于 5 时。</div></div>
-      <div style="${boxStyle}"><span style="${badge}">R×C 表</span><div style="font-weight:700;color:#0f172a;margin:8px 0;">多组率或构成比比较</div><div style="${muted}">总体 χ² 检验只说明分布不全相同；需要结合期望频数和残差判断主要贡献格子。</div></div>
+      <div style="${boxStyle}"><span style="${badge}">独立 2×2 表</span><div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">两组独立样本率比较</div><div style="${muted}">常用 Pearson χ²；理论频数偏小时考虑连续性校正或 Fisher 确切概率法。</div></div>
+      <div style="${boxStyle}"><span style="${badge}">配对 2×2 表</span><div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">同一对象两次分类结果</div><div style="${muted}">使用 McNemar 检验，重点看两个不一致格子 b 和 c，而不是普通独立样本 χ²。</div></div>
+      <div style="${boxStyle}"><span style="${badge}">小样本 2×2 表</span><div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">理论频数过小</div><div style="${muted}">优先考虑 Fisher 确切概率法，尤其是样本量小或某些理论频数明显小于 5 时。</div></div>
+      <div style="${boxStyle}"><span style="${badge}">R×C 表</span><div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">多组率或构成比比较</div><div style="${muted}">总体 χ² 检验只说明分布不全相同；需要结合期望频数和残差判断主要贡献格子。</div></div>
     </div>
   `);
 }
@@ -107,12 +107,12 @@ function renderChisq2x2(el) {
   el.innerHTML = card(title, `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;align-items:start;">
       <div style="${boxStyle}">
-        <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">输入 2×2 观察频数</div>
+        <div style="font-weight:700;color:var(--v2-fg);margin-bottom:8px;">输入 2×2 观察频数</div>
         <table style="border-collapse:collapse;width:100%;margin-bottom:10px;"><thead><tr><th></th><th>阳性</th><th>阴性</th></tr></thead><tbody>
           <tr><th style="text-align:left;">组1</th><td><input id="${id}-a" type="number" min="0" step="1" value="${init.a}" style="width:80px;padding:5px;"></td><td><input id="${id}-b" type="number" min="0" step="1" value="${init.b}" style="width:80px;padding:5px;"></td></tr>
           <tr><th style="text-align:left;">组2</th><td><input id="${id}-c" type="number" min="0" step="1" value="${init.c}" style="width:80px;padding:5px;"></td><td><input id="${id}-d" type="number" min="0" step="1" value="${init.d}" style="width:80px;padding:5px;"></td></tr>
         </tbody></table>
-        <button id="${id}-calc" type="button" style="padding:8px 14px;border:none;border-radius:6px;background:#2563eb;color:#fff;cursor:pointer;">计算</button>
+        <button id="${id}-calc" type="button" style="padding:8px 14px;border:none;border-radius:6px;background:#2563eb;color:var(--v2-bg-elevated);cursor:pointer;">计算</button>
       </div>
       <div id="${id}-summary" style="${boxStyle}"></div>
     </div>
@@ -136,15 +136,15 @@ function renderChisq2x2(el) {
     const r2 = obs[1][0] / rowTotals[1];
     const or = obs[0][1] * obs[1][0] === 0 ? NaN : (obs[0][0] * obs[1][1]) / (obs[0][1] * obs[1][0]);
     document.getElementById(`${id}-summary`).innerHTML = `
-      <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">结果解释</div>
+      <div style="font-weight:700;color:var(--v2-fg);margin-bottom:8px;">结果解释</div>
       <div style="${muted}">组1阳性率 = ${(100 * r1).toFixed(1)}%；组2阳性率 = ${(100 * r2).toFixed(1)}%。</div>
       <div style="${muted}">Pearson χ² = ${fmt(chisq)}，P = ${fmtP(p)}；连续性校正 χ² = ${fmt(yates)}，P = ${fmtP(py)}。</div>
       <div style="${muted}">最小理论频数 = ${fmt(minExp)}。${small ? '<strong style="color:#b45309;">理论频数偏小，建议结合 Fisher 确切概率法。</strong>' : '理论频数通常可支持 Pearson χ²。'}</div>
       <div style="${muted}">OR ≈ ${fmt(or)}。${!Number.isFinite(or) ? '某个格子为 0，普通 OR 不能直接计算，可考虑连续性修正或精确方法。' : ''}</div>`;
     const rows = ['组1', '组2'];
     const cols = ['阳性', '阴性'];
-    const tableRows = obs.map((row, i) => row.map((o, j) => `<td style="padding:8px;border:1px solid #cbd5e1;text-align:center;background:#fff;"><div><strong>O=${o}</strong></div><div style="font-size:12px;color:#64748b;">E=${fmt(exp[i][j])}</div><div style="font-size:12px;color:#64748b;">贡献=${fmt(contrib[i][j])}</div></td>`).join(''));
-    document.getElementById(`${id}-details`).innerHTML = `<div style="${boxStyle}"><div style="font-weight:700;color:#0f172a;margin-bottom:8px;">观察频数 O、理论频数 E 与 χ² 贡献</div><table style="border-collapse:collapse;width:100%;"><thead><tr><th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;"></th>${cols.map(c => `<th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">${c}</th>`).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr><th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;text-align:left;">${r}</th>${tableRows[i]}</tr>`).join('')}</tbody></table></div>`;
+    const tableRows = obs.map((row, i) => row.map((o, j) => `<td style="padding:8px;border:1px solid var(--v2-border);text-align:center;background:var(--v2-bg-elevated);"><div><strong>O=${o}</strong></div><div style="font-size:12px;color:var(--v2-fg-muted);">E=${fmt(exp[i][j])}</div><div style="font-size:12px;color:var(--v2-fg-muted);">贡献=${fmt(contrib[i][j])}</div></td>`).join(''));
+    document.getElementById(`${id}-details`).innerHTML = `<div style="${boxStyle}"><div style="font-weight:700;color:var(--v2-fg);margin-bottom:8px;">观察频数 O、理论频数 E 与 χ² 贡献</div><table style="border-collapse:collapse;width:100%;"><thead><tr><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);"></th>${cols.map(c => `<th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">${c}</th>`).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);text-align:left;">${r}</th>${tableRows[i]}</tr>`).join('')}</tbody></table></div>`;
   }
   ['a', 'b', 'c', 'd'].forEach(cell => document.getElementById(`${id}-${cell}`).addEventListener('input', calc));
   document.getElementById(`${id}-calc`).addEventListener('click', calc);
@@ -175,7 +175,7 @@ function renderMcNemarGuide(el) {
     const stat = discordant > 0 ? ((b - c) ** 2) / discordant : NaN;
     const yates = discordant > 0 ? ((Math.max(0, Math.abs(b - c) - 1)) ** 2) / discordant : NaN;
     const p = chiSquareP(stat, 1), py = chiSquareP(yates, 1), exact = exactMcNemarP(b, c);
-    document.getElementById(`${id}-result`).innerHTML = `<div style="font-weight:700;color:#0f172a;margin-bottom:8px;">读图重点</div><div style="${muted}">一致格子 a=${a}、d=${d} 不决定 McNemar 检验统计量；核心是不一致格子 b=${b} 与 c=${c} 是否对称。</div><div style="${muted}">不校正 χ² = ${fmt(stat)}，P = ${fmtP(p)}。</div><div style="${muted}">连续性校正 χ² = ${fmt(yates)}，P = ${fmtP(py)}。</div><div style="${muted}">精确二项检验 P = ${fmtP(exact)}。${discordant === 0 ? '<strong style="color:#b45309;">没有不一致对子，McNemar 检验不能提供有效差异证据。</strong>' : discordant < 25 ? '<strong style="color:#b45309;">不一致对子较少时更建议报告精确 P 值。</strong>' : ''}</div>`;
+    document.getElementById(`${id}-result`).innerHTML = `<div style="font-weight:700;color:var(--v2-fg);margin-bottom:8px;">读图重点</div><div style="${muted}">一致格子 a=${a}、d=${d} 不决定 McNemar 检验统计量；核心是不一致格子 b=${b} 与 c=${c} 是否对称。</div><div style="${muted}">不校正 χ² = ${fmt(stat)}，P = ${fmtP(p)}。</div><div style="${muted}">连续性校正 χ² = ${fmt(yates)}，P = ${fmtP(py)}。</div><div style="${muted}">精确二项检验 P = ${fmtP(exact)}。${discordant === 0 ? '<strong style="color:#b45309;">没有不一致对子，McNemar 检验不能提供有效差异证据。</strong>' : discordant < 25 ? '<strong style="color:#b45309;">不一致对子较少时更建议报告精确 P 值。</strong>' : ''}</div>`;
   }
   ['a', 'b', 'c', 'd'].forEach(cell => document.getElementById(`${id}-${cell}`).addEventListener('input', calc));
   calc();
@@ -192,6 +192,6 @@ function renderChisqResidualHeatmap(el) {
   const df = (observed.length - 1) * (observed[0].length - 1);
   const p = chiSquareP(chisq, df);
   function bg(r) { const a = Math.min(0.85, Math.abs(r) / 3 * 0.85); return r >= 0 ? `rgba(37,99,235,${a})` : `rgba(220,38,38,${a})`; }
-  el.innerHTML = card(title, `<div style="${boxStyle};margin-bottom:12px;${muted}">总体 χ² = ${fmt(chisq)}，df = ${df}，P = ${fmtP(p)}。总体检验说明分类分布是否不全相同；标准化残差用于判断哪些格子偏离期望最多。</div><div style="overflow-x:auto;"><table style="border-collapse:collapse;width:100%;min-width:520px;"><thead><tr><th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;"></th><th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">结局1</th><th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">结局2</th><th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">结局3</th></tr></thead><tbody>${observed.map((row, i) => `<tr><th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;text-align:left;">组${i + 1}</th>${row.map((o, j) => { const r = residuals[i][j]; return `<td style="padding:8px;border:1px solid #cbd5e1;text-align:center;background:${bg(r)};color:${Math.abs(r) > 1.6 ? '#fff' : '#0f172a'};"><div><strong>O=${o}</strong></div><div style="font-size:12px;">E=${fmt(expected[i][j])}</div><div style="font-size:12px;">残差=${fmt(r)}</div></td>`; }).join('')}</tr>`).join('')}</tbody></table></div><div style="${boxStyle};margin-top:12px;${muted}">残差为正：观察频数高于理论频数；残差为负：观察频数低于理论频数。绝对值越大，对总体 χ² 的贡献越大。</div>`);
+  el.innerHTML = card(title, `<div style="${boxStyle};margin-bottom:12px;${muted}">总体 χ² = ${fmt(chisq)}，df = ${df}，P = ${fmtP(p)}。总体检验说明分类分布是否不全相同；标准化残差用于判断哪些格子偏离期望最多。</div><div style="overflow-x:auto;"><table style="border-collapse:collapse;width:100%;min-width:520px;"><thead><tr><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);"></th><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">结局1</th><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">结局2</th><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">结局3</th></tr></thead><tbody>${observed.map((row, i) => `<tr><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);text-align:left;">组${i + 1}</th>${row.map((o, j) => { const r = residuals[i][j]; return `<td style="padding:8px;border:1px solid var(--v2-border);text-align:center;background:${bg(r)};color:${Math.abs(r) > 1.6 ? 'var(--v2-bg-elevated)' : 'var(--v2-fg)'};"><div><strong>O=${o}</strong></div><div style="font-size:12px;">E=${fmt(expected[i][j])}</div><div style="font-size:12px;">残差=${fmt(r)}</div></td>`; }).join('')}</tr>`).join('')}</tbody></table></div><div style="${boxStyle};margin-top:12px;${muted}">残差为正：观察频数高于理论频数；残差为负：观察频数低于理论频数。绝对值越大，对总体 χ² 的贡献越大。</div>`);
 }
 registerViz('chisqresidualheatmap', renderChisqResidualHeatmap);

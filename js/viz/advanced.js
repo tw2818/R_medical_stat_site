@@ -17,7 +17,7 @@ import { registerViz } from './_core.js';
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 Fisher 判别分析分类边界</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+      <div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">
         拖动两类数据中心调整判别边界 | 红色虚线为决策边界
       </div>
       <div style="text-align:center;margin-top:8px;">
@@ -33,7 +33,7 @@ import { registerViz } from './_core.js';
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#fafafa'; ctx.fillRect(padL, padT, plotW, plotH);
+      ctx.fillStyle = 'var(--v2-bg)'; ctx.fillRect(padL, padT, plotW, plotH);
 
       // Grid
       ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
@@ -43,9 +43,9 @@ import { registerViz } from './_core.js';
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('变量 X1', padL + plotW/2, H - 4);
       ctx.save(); ctx.translate(12, padT + plotH/2); ctx.rotate(-Math.PI/2); ctx.fillText('变量 X2', 0, 0); ctx.restore();
 
@@ -86,7 +86,7 @@ import { registerViz } from './_core.js';
 
       // Legend
       ctx.fillStyle = 'rgba(52,152,219,0.7)'; ctx.beginPath(); ctx.arc(padL + 20, padT + 18, 6, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#333'; ctx.textAlign = 'left'; ctx.font = '12px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.textAlign = 'left'; ctx.font = '12px sans-serif';
       ctx.fillText('组1', padL + 32, padT + 22);
       ctx.fillStyle = 'rgba(231,76,60,0.7)'; ctx.beginPath(); ctx.arc(padL + 80, padT + 18, 6, 0, Math.PI*2); ctx.fill();
       ctx.fillText('组2', padL + 92, padT + 22);
@@ -140,7 +140,7 @@ registerViz('lda', renderLDA);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+      <div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">
         颜色越深表示载荷越强 | 红色=正载荷，蓝色=负载荷
       </div>
     </div>`;
@@ -149,13 +149,13 @@ registerViz('lda', renderLDA);
     const ctx = canvas.getContext('2d');
 
     // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, (padL + nFactors * cellW) / 2 + padL / 2, 22);
 
     // Factor labels (top)
     factors.forEach((f, j) => {
       const x = padL + j * cellW + cellW / 2;
-      ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(f, x, padT - 10);
     });
 
@@ -165,15 +165,15 @@ registerViz('lda', renderLDA);
     const grad = ctx.createLinearGradient(0, padT, 0, padT + scaleH);
     grad.addColorStop(0, '#e74c3c'); grad.addColorStop(0.5, '#f8f8f8'); grad.addColorStop(1, '#3498db');
     ctx.fillStyle = grad; ctx.fillRect(scaleX, padT, scaleW, scaleH);
-    ctx.strokeStyle = '#999'; ctx.lineWidth = 1; ctx.strokeRect(scaleX, padT, scaleW, scaleH);
-    ctx.fillStyle = '#666'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1; ctx.strokeRect(scaleX, padT, scaleW, scaleH);
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('+1', scaleX + scaleW / 2, padT - 4);
     ctx.fillText('0', scaleX + scaleW / 2, padT + scaleH / 2 + 4);
     ctx.fillText('-1', scaleX + scaleW / 2, padT + scaleH + 14);
 
     items.forEach((item, i) => {
       const y = padT + i * cellH + cellH / 2;
-      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(item, padL - 8, y + 4);
       factors.forEach((f, j) => {
         const val = loads[i * nFactors + j] || 0;
@@ -182,7 +182,7 @@ registerViz('lda', renderLDA);
         if (val >= 0) ctx.fillStyle = `rgba(231,76,60,${alpha})`;
         else ctx.fillStyle = `rgba(52,152,219,${alpha})`;
         ctx.fillRect(x + 2, y - cellH / 2 + 2, cellW - 4, cellH - 4);
-        ctx.fillStyle = Math.abs(val) > 0.5 ? '#fff' : '#333';
+        ctx.fillStyle = Math.abs(val) > 0.5 ? 'var(--v2-bg-elevated)' : 'var(--v2-fg-secondary)';
         ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(val.toFixed(2), x + cellW / 2, y + 4);
       });
@@ -200,7 +200,7 @@ registerViz('factorload', renderFactorLoad);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+      <div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">
         蓝色: 处理组 | 红色: 对照组 | 重叠区域表示可匹配的样本
       </div>
       <div style="text-align:center;margin-top:8px;">
@@ -230,7 +230,7 @@ registerViz('factorload', renderFactorLoad);
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(title, W / 2, 18);
 
       // Grid
@@ -241,9 +241,9 @@ registerViz('factorload', renderFactorLoad);
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       for (let i = 0; i <= 5; i++) {
         ctx.textAlign = 'center'; ctx.fillText((i/5).toFixed(1), padL + (i/5)*plotW, padT + plotH + 16);
         ctx.textAlign = 'right'; ctx.fillText(Math.round((1 - i/5) * maxH), padL - 6, padT + (i/5)*plotH + 4);
@@ -273,7 +273,7 @@ registerViz('factorload', renderFactorLoad);
 
       // Legend
       ctx.fillStyle = 'rgba(52,152,219,0.7)'; ctx.beginPath(); ctx.arc(padL + 15, padT + 15, 7, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText('处理组', padL + 28, padT + 19);
       ctx.fillStyle = 'rgba(231,76,60,0.7)'; ctx.beginPath(); ctx.arc(padL + 100, padT + 15, 7, 0, Math.PI*2); ctx.fill();
       ctx.fillText('对照组', padL + 113, padT + 19);
@@ -315,7 +315,7 @@ registerViz('psdist', renderPSDist);
 
     function drawCurve() {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(title, W / 2, 18);
 
       const ic50 = parseFloat(document.getElementById(id + '-ic50v').textContent) / 100;
@@ -329,9 +329,9 @@ registerViz('psdist', renderPSDist);
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       for (let i = 0; i <= 5; i++) {
         ctx.textAlign = 'center'; ctx.fillText((i/5).toFixed(1), padL + (i/5)*plotW, padT + plotH + 16);
         ctx.textAlign = 'right'; ctx.fillText((1 - i/5).toFixed(1), padL - 6, padT + (i/5)*plotH + 4);
@@ -341,10 +341,10 @@ registerViz('psdist', renderPSDist);
 
       // IC50 reference
       const ic50X = padL + ic50 * plotW;
-      ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(ic50X, padT); ctx.lineTo(ic50X, padT + plotH); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-subtle)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('IC50=' + ic50.toFixed(2), ic50X, padT - 6);
 
       // Sigmoid curve
@@ -393,7 +393,7 @@ registerViz('dose', renderDoseResponse);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+      <div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">
         蓝色: 效应曲线 | 浅蓝: 95% CI | 红色虚线: 参考线 (OR=1)
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:8px;">
@@ -419,7 +419,7 @@ registerViz('dose', renderDoseResponse);
 
     function draw(k) {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(title, W / 2, 18);
 
       // Grid
@@ -430,9 +430,9 @@ registerViz('dose', renderDoseResponse);
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       for (let i = 0; i <= 5; i++) {
         ctx.textAlign = 'center'; ctx.fillText((i/5).toFixed(1), padL + (i/5)*plotW, padT + plotH + 16);
         ctx.fillText((1 - i/5).toFixed(1), padL - 6, padT + (i/5)*plotH + 4);

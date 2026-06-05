@@ -48,23 +48,23 @@ function ensureAnovaAttentionStyles() {
   const style = document.createElement('style');
   style.id = 'anova-attn-guide-styles';
   style.textContent = `
-    .anova-attn-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:980px;margin:22px 0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:#0f172a;}
-    .anova-attn-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;font-size:15px;font-weight:750;color:#0f172a;}
+    .anova-attn-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:980px;margin:22px 0;background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:var(--v2-fg);}
+    .anova-attn-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--v2-border);background:var(--v2-bg-elevated);font-size:15px;font-weight:750;color:var(--v2-fg);}
     .anova-attn-icon{font-size:18px;line-height:1;}
     .anova-attn-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px;}
-    .anova-attn-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:144px;}
-    .anova-attn-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
-    .anova-attn-title{font-size:16px;font-weight:750;line-height:1.35;color:#0f172a;margin:0 0 8px;}
-    .anova-attn-desc{font-size:13.5px;line-height:1.7;color:#64748b;margin:0;}
+    .anova-attn-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:144px;}
+    .anova-attn-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--v2-secondary-subtle);color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
+    .anova-attn-title{font-size:16px;font-weight:750;line-height:1.35;color:var(--v2-fg);margin:0 0 8px;}
+    .anova-attn-desc{font-size:13.5px;line-height:1.7;color:var(--v2-fg-muted);margin:0;}
     .anova-attn-demo{display:grid;grid-template-columns:minmax(300px,1.1fr) minmax(240px,.9fr);gap:14px;padding:14px;}
-    .anova-attn-panel,.anova-attn-note{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,.035);padding:14px;}
-    .anova-attn-control{display:flex;gap:10px;align-items:center;margin:4px 0 14px;color:#475569;font-size:13px;}
+    .anova-attn-panel,.anova-attn-note{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,.035);padding:14px;}
+    .anova-attn-control{display:flex;gap:10px;align-items:center;margin:4px 0 14px;color:var(--v2-fg-secondary);font-size:13px;}
     .anova-attn-control input[type="range"]{flex:1;accent-color:#4f46e5;}
     .anova-attn-value{font-weight:800;color:#3730a3;min-width:44px;text-align:right;}
-    .anova-attn-table{width:100%;border-collapse:collapse;border-top:2px solid #334155;border-bottom:2px solid #334155;}
-    .anova-attn-table th,.anova-attn-table td{font-size:12.5px;text-align:left;padding:8px;border-bottom:1px solid #e2e8f0;color:#475569;}
-    .anova-attn-table th{color:#334155;background:#f8fafc;font-weight:750;}
-    .anova-attn-ssbar{height:18px;border-radius:999px;background:#e2e8f0;overflow:hidden;display:flex;margin:12px 0;}
+    .anova-attn-table{width:100%;border-collapse:collapse;border-top:2px solid var(--v2-fg-secondary);border-bottom:2px solid var(--v2-fg-secondary);}
+    .anova-attn-table th,.anova-attn-table td{font-size:12.5px;text-align:left;padding:8px;border-bottom:1px solid var(--v2-border);color:var(--v2-fg-secondary);}
+    .anova-attn-table th{color:var(--v2-fg-secondary);background:var(--v2-bg-elevated);font-weight:750;}
+    .anova-attn-ssbar{height:18px;border-radius:999px;background:var(--v2-border);overflow:hidden;display:flex;margin:12px 0;}
     .anova-attn-ssbar span{display:block;height:100%;}
     @media (max-width:980px){.anova-attn-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.anova-attn-demo{grid-template-columns:1fr;}}
     @media (max-width:640px){.anova-attn-grid{grid-template-columns:1fr;}.anova-attn-item{min-height:auto;}}
@@ -99,7 +99,7 @@ function renderTypeResultDemo(el) {
       <div class="anova-attn-demo">
         <div class="anova-attn-panel">
           <label class="anova-attn-control">非均衡/相关强度 <input type="range" id="${id}-slider" min="0" max="1" step="0.05" value="0"><span id="${id}-value" class="anova-attn-value">0.00</span></label>
-          <div class="anova-attn-ssbar" aria-label="平方和分配示意"><span id="${id}-a" style="background:#4f46e5;width:34%"></span><span id="${id}-b" style="background:#0891b2;width:33%"></span><span id="${id}-r" style="background:#cbd5e1;width:33%"></span></div>
+          <div class="anova-attn-ssbar" aria-label="平方和分配示意"><span id="${id}-a" style="background:#4f46e5;width:34%"></span><span id="${id}-b" style="background:#0891b2;width:33%"></span><span id="${id}-r" style="background:var(--v2-border);width:33%"></span></div>
           <table class="anova-attn-table"><thead><tr><th>类型</th><th>问题</th><th>教学结论</th></tr></thead><tbody id="${id}-rows"></tbody></table>
         </div>
         <div class="anova-attn-note">

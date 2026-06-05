@@ -63,24 +63,24 @@ function ensureHotellingStyles() {
   const style = document.createElement('style');
   style.id = 'hotelling-guide-styles';
   style.textContent = `
-    .hotelling-card{margin:1.2rem 0;padding:1.1rem;border:1px solid #dbe4f0;border-radius:18px;background:linear-gradient(135deg,#f8fafc,#eef2ff);box-shadow:0 12px 28px rgba(15,23,42,.08);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#334155;}
-    .hotelling-head{display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem;font-weight:800;color:#1e293b;font-size:1.05rem;}
-    .hotelling-icon{display:inline-flex;width:2rem;height:2rem;align-items:center;justify-content:center;border-radius:999px;background:#e0e7ff;}
-    .hotelling-lead{margin:.25rem 0 .85rem;color:#475569;line-height:1.75;}
+    .hotelling-card{margin:1.2rem 0;padding:1.1rem;border:1px solid #dbe4f0;border-radius:18px;background:linear-gradient(135deg,var(--v2-bg-elevated),var(--v2-secondary-subtle));box-shadow:0 12px 28px rgba(15,23,42,.08);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--v2-fg-secondary);}
+    .hotelling-head{display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem;font-weight:800;color:var(--v2-fg);font-size:1.05rem;}
+    .hotelling-icon{display:inline-flex;width:2rem;height:2rem;align-items:center;justify-content:center;border-radius:999px;background:var(--v2-secondary-subtle);}
+    .hotelling-lead{margin:.25rem 0 .85rem;color:var(--v2-fg-secondary);line-height:1.75;}
     .hotelling-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;}
-    .hotelling-mini{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:.85rem;min-height:7rem;}
-    .hotelling-mini strong{display:inline-flex;margin-bottom:.35rem;color:#3730a3;background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:.18rem .55rem;font-size:.82rem;}
-    .hotelling-mini p{margin:0;color:#475569;line-height:1.65;font-size:.92rem;}
-    .hotelling-note{margin:.8rem 0 0;padding:.7rem .85rem;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;line-height:1.7;}
+    .hotelling-mini{background:white;border:1px solid var(--v2-border);border-radius:14px;padding:.85rem;min-height:7rem;}
+    .hotelling-mini strong{display:inline-flex;margin-bottom:.35rem;color:#3730a3;background:var(--v2-secondary-subtle);border:1px solid #c7d2fe;border-radius:999px;padding:.18rem .55rem;font-size:.82rem;}
+    .hotelling-mini p{margin:0;color:var(--v2-fg-secondary);line-height:1.65;font-size:.92rem;}
+    .hotelling-note{margin:.8rem 0 0;padding:.7rem .85rem;border-radius:12px;background:var(--v2-accent-subtle);border:1px solid #fed7aa;color:#9a3412;line-height:1.7;}
     .hotelling-demo{display:grid;grid-template-columns:minmax(260px,1.15fr) minmax(220px,.85fr);gap:1rem;align-items:center;}
-    .hotelling-panel{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:1rem;}
-    .hotelling-control{display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;font-weight:700;color:#334155;margin-bottom:.75rem;}
+    .hotelling-panel{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:16px;padding:1rem;}
+    .hotelling-control{display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;font-weight:700;color:var(--v2-fg-secondary);margin-bottom:.75rem;}
     .hotelling-control input{accent-color:#4f46e5;min-width:180px;}
-    .hotelling-value{font-variant-numeric:tabular-nums;color:#4f46e5;background:#eef2ff;border-radius:999px;padding:.15rem .5rem;}
-    .hotelling-svg{width:100%;max-width:420px;display:block;margin:0 auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;}
+    .hotelling-value{font-variant-numeric:tabular-nums;color:#4f46e5;background:var(--v2-secondary-subtle);border-radius:999px;padding:.15rem .5rem;}
+    .hotelling-svg{width:100%;max-width:420px;display:block;margin:0 auto;background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;}
     .hotelling-axis{stroke:#94a3b8;stroke-width:1.3;stroke-dasharray:5 5;}
     .hotelling-proj{stroke:#4f46e5;stroke-width:3;stroke-linecap:round;}
-    .hotelling-caption{font-size:.9rem;color:#475569;line-height:1.65;margin:.55rem 0 0;}
+    .hotelling-caption{font-size:.9rem;color:var(--v2-fg-secondary);line-height:1.65;margin:.55rem 0 0;}
     .hotelling-badge{display:inline-flex;border-radius:999px;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;padding:.16rem .55rem;font-size:.82rem;font-weight:800;}
     @media (max-width:720px){.hotelling-demo{grid-template-columns:1fr}.hotelling-control input{width:100%;}}
   `;
@@ -119,8 +119,8 @@ function renderUnivarMultivarDemo(el) {
             <g fill="#4f46e5"><circle cx="118" cy="150" r="5"/><circle cx="146" cy="128" r="5"/><circle cx="172" cy="139" r="5"/><circle cx="130" cy="107" r="5"/><circle cx="160" cy="161" r="5"/></g>
             <g fill="#0891b2"><circle cx="185" cy="118" r="5"/><circle cx="216" cy="101" r="5"/><circle cx="232" cy="125" r="5"/><circle cx="202" cy="76" r="5"/><circle cx="191" cy="145" r="5"/></g>
             <line id="${id}-line" x1="180" y1="120" x2="260" y2="76" class="hotelling-proj"></line>
-            <text x="282" y="213" font-size="12" fill="#64748b">变量1</text>
-            <text x="18" y="42" font-size="12" fill="#64748b">变量2</text>
+            <text x="282" y="213" font-size="12" fill="var(--v2-fg-muted)">变量1</text>
+            <text x="18" y="42" font-size="12" fill="var(--v2-fg-muted)">变量2</text>
           </svg>
         </div>
         <div class="hotelling-panel">

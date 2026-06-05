@@ -38,14 +38,14 @@ function ensureTable1GuideStyles() {
   const style = document.createElement('style');
   style.id = 'table1-guide-styles';
   style.textContent = `
-    .t1-guide-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:960px;margin:22px 0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:#0f172a;}
-    .t1-guide-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;font-size:15px;font-weight:750;color:#0f172a;}
+    .t1-guide-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:960px;margin:22px 0;background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:var(--v2-fg);}
+    .t1-guide-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--v2-border);background:var(--v2-bg-elevated);font-size:15px;font-weight:750;color:var(--v2-fg);}
     .t1-guide-icon{font-size:18px;line-height:1;}
     .t1-guide-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px;}
-    .t1-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:128px;}
-    .t1-guide-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
-    .t1-guide-title{font-size:16px;font-weight:750;line-height:1.35;color:#0f172a;margin:0 0 8px;}
-    .t1-guide-desc{font-size:13.5px;line-height:1.7;color:#64748b;margin:0;}
+    .t1-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:128px;}
+    .t1-guide-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--v2-secondary-subtle);color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
+    .t1-guide-title{font-size:16px;font-weight:750;line-height:1.35;color:var(--v2-fg);margin:0 0 8px;}
+    .t1-guide-desc{font-size:13.5px;line-height:1.7;color:var(--v2-fg-muted);margin:0;}
     @media (max-width:980px){.t1-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
     @media (max-width:640px){.t1-guide-grid{grid-template-columns:1fr;}.t1-guide-item{min-height:auto;}}
   `;

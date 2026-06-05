@@ -87,7 +87,7 @@ import { registerViz, ensureJStat } from './_core.js';
         { value: oneSigmaRight, label: (muV + sigmaV).toFixed(1) },
         { value: twoSigmaRight, label: (muV + 2 * sigmaV).toFixed(1) },
       ];
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
       tickDefs.forEach(({ value, label }) => {
@@ -280,7 +280,7 @@ registerViz('normal', renderNormalDistribution);
       }
       ctx.stroke();
 
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
       for (let tick = -3; tick <= 3; tick += 1) {
@@ -459,7 +459,7 @@ registerViz('tcompare', renderTCompare);
       }
       ctx.stroke();
 
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
       for (let tick = -6; tick <= 6; tick += 2) {
@@ -620,7 +620,7 @@ registerViz('pvalue', renderPValue);
       }
       ctx.stroke();
 
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
       for (let tick = 0; tick <= tickMax; tick += Math.max(1, Math.ceil(tickMax / 5))) {
@@ -725,7 +725,7 @@ registerViz('fdist', renderFDist);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:600px;height:260px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:#f8f9fa;border-top:1px solid #eee;">
+        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:var(--v2-bg-elevated);border-top:1px solid #eee;">
           <label>df = <span data-for="df" class="val-label">${initialDf}</span>
             <input type="range" class="viz-slider" data-param="df" min="1" max="30" value="${initialDf}" style="width:140px;">
           </label>
@@ -737,7 +737,7 @@ registerViz('fdist', renderFDist);
             </select>
           </label>
         </div>
-        <div class="viz-result" style="text-align:center;font-size:13px;padding:6px;color:#555;"></div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:6px;color:var(--v2-fg-muted);"></div>
       </div>
     `;
 
@@ -891,7 +891,7 @@ registerViz('chidist', renderChiDist);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:640px;height:280px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:#f8f9fa;border-top:1px solid #eee;">
+        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:var(--v2-bg-elevated);border-top:1px solid #eee;">
           <label>n = <span class="val-label">${n}</span>
             <input type="range" class="binom-n" min="1" max="50" value="${n}" style="width:120px;">
           </label>
@@ -899,7 +899,7 @@ registerViz('chidist', renderChiDist);
             <input type="range" class="binom-p" min="0.01" max="0.99" step="0.01" value="${p}" style="width:120px;">
           </label>
         </div>
-        <div class="viz-result" style="text-align:center;font-size:13px;padding:4px;color:#555;"></div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:4px;color:var(--v2-fg-muted);"></div>
       </div>
     `;
 
@@ -931,12 +931,12 @@ registerViz('chidist', renderChiDist);
 
       // Axes
       ctx.clearRect(0, 0, W, H);
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.fillStyle = '#333';
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2; ctx.fillStyle = 'var(--v2-fg-secondary)';
       ctx.beginPath();
       ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b);
       ctx.stroke();
       // X axis label
-      ctx.fillStyle = '#555'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('X = k', W/2, H-8);
       // Y axis label
       ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2); ctx.fillText('P(X=k)', 0, 0); ctx.restore();
@@ -995,12 +995,12 @@ registerViz('binom', renderBinomial);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:640px;height:280px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:#f8f9fa;border-top:1px solid #eee;">
+        <div class="viz-controls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;background:var(--v2-bg-elevated);border-top:1px solid #eee;">
           <label>λ = <span class="val-label">${lambda}</span>
             <input type="range" class="poisson-lambda" min="0.5" max="30" step="0.5" value="${lambda}" style="width:140px;">
           </label>
         </div>
-        <div class="viz-result" style="text-align:center;font-size:13px;padding:4px;color:#555;"></div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:4px;color:var(--v2-fg-muted);"></div>
       </div>
     `;
 
@@ -1027,11 +1027,11 @@ registerViz('binom', renderBinomial);
       const maxP = Math.max(...probs);
 
       ctx.clearRect(0, 0, W, H);
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b);
       ctx.stroke();
-      ctx.fillStyle = '#555'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('X = k', W/2, H-8);
       ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2); ctx.fillText('P(X=k)', 0, 0); ctx.restore();
 
@@ -1083,7 +1083,7 @@ registerViz('poisson-ci', renderPoissonCI);
     el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">🎯 ${title}</div>
-      <div style="margin:6px 0 8px;text-align:center;font-size:12px;color:#666;">拖动蓝色滑块设置成功次数 x 和试验次数 n，观察 95% 置信区间的变化。蓝色区间为 Clopper-Pearson 精确区间，灰色竖条为正态近似区间。</div>
+      <div style="margin:6px 0 8px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">拖动蓝色滑块设置成功次数 x 和试验次数 n，观察 95% 置信区间的变化。蓝色区间为 Clopper-Pearson 精确区间，灰色竖条为正态近似区间。</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
         <div style="text-align:center;">
           <div style="font-size:13px;color:#2c3e50;margin-bottom:4px;">成功次数 x = <span id="${uid}-xv" style="font-weight:bold;color:#2980b9;">${defaultX}</span></div>
@@ -1146,13 +1146,13 @@ registerViz('poisson-ci', renderPoissonCI);
       ctx.fillText('二项率 p̂ = x/n  的 95% 置信区间', W / 2, 18);
 
       // Axis
-      ctx.strokeStyle = '#555';
+      ctx.strokeStyle = 'var(--v2-fg-muted)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(pad.l, pad.t + 20);
       ctx.lineTo(W - pad.r, pad.t + 20);
       ctx.stroke();
-      ctx.fillStyle = '#555';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'center';
       for (let v = 0; v <= 1; v += 0.2) {
@@ -1186,11 +1186,11 @@ registerViz('poisson-ci', renderPoissonCI);
       ctx.fill();
 
       // Legend
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillRect(pad.l, H - 16, 10, 8); ctx.fillStyle = 'rgba(52,152,219,0.6)'; ctx.fillRect(pad.l, H - 16, 10, 8); ctx.fillStyle = '#555'; ctx.fillText('Clopper-Pearson 精确区间', pad.l + 14, H - 9);
-      ctx.fillRect(pad.l + 160, H - 16, 10, 8); ctx.fillStyle = 'rgba(150,150,150,0.5)'; ctx.fillRect(pad.l + 160, H - 16, 10, 8); ctx.fillStyle = '#555'; ctx.fillText('正态近似区间', pad.l + 174, H - 9);
+      ctx.fillRect(pad.l, H - 16, 10, 8); ctx.fillStyle = 'rgba(52,152,219,0.6)'; ctx.fillRect(pad.l, H - 16, 10, 8); ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.fillText('Clopper-Pearson 精确区间', pad.l + 14, H - 9);
+      ctx.fillRect(pad.l + 160, H - 16, 10, 8); ctx.fillStyle = 'rgba(150,150,150,0.5)'; ctx.fillRect(pad.l + 160, H - 16, 10, 8); ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.fillText('正态近似区间', pad.l + 174, H - 9);
 
       result.innerHTML = `<strong>x=${x}, n=${n}, p̂=${p.toFixed(4)}</strong> &nbsp;|&nbsp; Clopper-Pearson: (${lo.toFixed(4)}, ${hi.toFixed(4)}) &nbsp;|&nbsp; 正态近似: (${normLo.toFixed(4)}, ${normHi.toFixed(4)})`;
     }
@@ -1229,7 +1229,7 @@ registerViz('poisson-ci', renderPoissonCI);
     el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">🎯 ${title}</div>
-      <div style="margin:6px 0 8px;text-align:center;font-size:12px;color:#666;">拖动蓝色滑块设置事件数 x，观察 95% Poisson 置信区间（基于 γ 分布的精确区间）。</div>
+      <div style="margin:6px 0 8px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">拖动蓝色滑块设置事件数 x，观察 95% Poisson 置信区间（基于 γ 分布的精确区间）。</div>
       <div style="text-align:center;margin-bottom:8px;">
         <div style="font-size:13px;color:#2c3e50;margin-bottom:4px;">事件数 x = <span id="${uid}-xv" style="font-weight:bold;color:#27ae60;">${defaultX}</span></div>
         <input type="range" class="ci-x" min="0" max="100" value="${defaultX}" style="width:60%;">
@@ -1279,13 +1279,13 @@ registerViz('poisson-ci', renderPoissonCI);
       ctx.textAlign = 'center';
       ctx.fillText(`Poisson(λ=x)  事件数 x=${x}  的 95% 置信区间`, W / 2, 18);
 
-      ctx.strokeStyle = '#555';
+      ctx.strokeStyle = 'var(--v2-fg-muted)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(pad.l, pad.t + 20);
       ctx.lineTo(W - pad.r, pad.t + 20);
       ctx.stroke();
-      ctx.fillStyle = '#555';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'center';
       for (let v = 0; v <= xMax; v += Math.ceil(xMax / 5)) {
@@ -1311,7 +1311,7 @@ registerViz('poisson-ci', renderPoissonCI);
       ctx.textAlign = 'center';
       ctx.fillText(`x=${x}`, toX(x), pad.t + 30);
 
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(`95% CI: (${lo.toFixed(2)}, ${hi.toFixed(2)})    点估计 λ̂ = ${x}`, pad.l, H - 10);

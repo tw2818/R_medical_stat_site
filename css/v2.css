@@ -1298,6 +1298,82 @@ body.v2-active #chapter-content th {
   font-weight: 700;
 }
 
+body.v2-active #chapter-content td {
+  /* Browser UA default for <td> is white — override with token so dark mode flips */
+  background: var(--v2-bg-elevated);
+}
+
+body.v2-active #chapter-content input[type="text"],
+body.v2-active #chapter-content input[type="number"],
+body.v2-active #chapter-content input[type="range"],
+body.v2-active #chapter-content select,
+body.v2-active #chapter-content textarea {
+  background: var(--v2-bg-elevated);
+  color: var(--v2-fg);
+  border: 1px solid var(--v2-border);
+  border-radius: var(--v2-radius-sm);
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.v2-active #chapter-content input[type="text"]:focus,
+body.v2-active #chapter-content input[type="number"]:focus,
+body.v2-active #chapter-content select:focus,
+body.v2-active #chapter-content textarea:focus {
+  outline: none;
+  border-color: var(--v2-ring);
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.08);
+}
+
+/* Range slider (viz-slider) — track + thumb need explicit dark-mode styling */
+body.v2-active #chapter-content input[type="range"] {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--v2-bg-subtle);
+}
+
+body.v2-active #chapter-content input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--v2-primary);
+  border: 2px solid var(--v2-bg-elevated);
+  cursor: pointer;
+  box-shadow: var(--v2-shadow-sm);
+}
+
+body.v2-active #chapter-content input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--v2-primary);
+  border: 2px solid var(--v2-bg-elevated);
+  cursor: pointer;
+  box-shadow: var(--v2-shadow-sm);
+}
+
+body.v2-active #chapter-content .viz-controls {
+  background: var(--v2-bg-subtle);
+  border: 1px solid var(--v2-border);
+  border-radius: var(--v2-radius-sm);
+  padding: 12px;
+  margin: 12px 0;
+}
+
+body.v2-active #chapter-content .viz-sliders {
+  background: transparent;
+  padding: 0;
+}
+
 body.v2-active #chapter-content a {
   color: var(--v2-secondary);
   text-decoration: underline;

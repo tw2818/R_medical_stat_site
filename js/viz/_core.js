@@ -58,7 +58,7 @@ function makeCanvas(container, w, h) {
 function createTooltip(parent) {
   const el = document.createElement('div');
   el.className = 'viz-tooltip';
-  el.style.cssText = 'position:absolute;pointer-events:none;background:rgba(40,40,40,0.9);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;line-height:1.4;display:none;z-index:100;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+  el.style.cssText = 'position:absolute;pointer-events:none;background:rgba(40,40,40,0.9);color:var(--v2-bg-elevated);padding:6px 10px;border-radius:6px;font-size:12px;line-height:1.4;display:none;z-index:100;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
   parent.appendChild(el);
   return {
     el,

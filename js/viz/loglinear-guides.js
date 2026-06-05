@@ -70,24 +70,24 @@ function ensureStyles() {
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-    .loglinear-guide-card{background:#f6f7fb;border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:#334155;}
+    .loglinear-guide-card{background:var(--v2-bg-elevated);border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:var(--v2-fg-secondary);}
     .loglinear-guide-head{display:flex;gap:14px;align-items:center;margin-bottom:12px;}
-    .loglinear-guide-icon{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#475569,#6366f1);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 18px rgba(71,85,105,.22);}
-    .loglinear-guide-title{font-size:18px;font-weight:800;color:#1e293b;margin:0;}
-    .loglinear-guide-badge{display:inline-block;background:#e0e7ff;color:#4338ca;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
-    .loglinear-guide-lead{margin:8px 0 14px;color:#475569;line-height:1.75;}
+    .loglinear-guide-icon{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,var(--v2-fg-secondary),#6366f1);color:var(--v2-bg-elevated);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 18px rgba(71,85,105,.22);}
+    .loglinear-guide-title{font-size:18px;font-weight:800;color:var(--v2-fg);margin:0;}
+    .loglinear-guide-badge{display:inline-block;background:var(--v2-secondary-subtle);color:#4338ca;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
+    .loglinear-guide-lead{margin:8px 0 14px;color:var(--v2-fg-secondary);line-height:1.75;}
     .loglinear-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;}
-    .loglinear-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;}
+    .loglinear-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:12px;}
     .loglinear-guide-item strong{display:block;color:#312e81;margin-bottom:6px;}
-    .loglinear-guide-note{margin-top:12px;font-size:13px;color:#64748b;background:#fff;border-left:4px solid #818cf8;border-radius:10px;padding:10px 12px;}
+    .loglinear-guide-note{margin-top:12px;font-size:13px;color:var(--v2-fg-muted);background:var(--v2-bg-elevated);border-left:4px solid #818cf8;border-radius:10px;padding:10px 12px;}
     .loglinear-strata{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;align-items:stretch;}
-    .loglinear-mini-table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;}
+    .loglinear-mini-table{width:100%;border-collapse:collapse;background:var(--v2-bg-elevated);border-radius:14px;overflow:hidden;border:1px solid var(--v2-border);}
     .loglinear-mini-table th,.loglinear-mini-table td{padding:8px 10px;text-align:right;border-bottom:1px solid #eef2f7;font-size:13px;}
     .loglinear-mini-table th:first-child,.loglinear-mini-table td:first-child{text-align:left;}
-    .loglinear-pill{display:inline-block;border-radius:999px;padding:3px 9px;background:#ede9fe;color:#5b21b6;font-weight:700;font-size:12px;}
-    .loglinear-signal{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;}
-    .loglinear-signal-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed #e2e8f0;padding-bottom:7px;}
-    .loglinear-signal-row strong{color:#1e293b;}
+    .loglinear-pill{display:inline-block;border-radius:999px;padding:3px 9px;background:var(--v2-secondary-subtle);color:#5b21b6;font-weight:700;font-size:12px;}
+    .loglinear-signal{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;}
+    .loglinear-signal-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--v2-border);padding-bottom:7px;}
+    .loglinear-signal-row strong{color:var(--v2-fg);}
     @media(max-width:760px){.loglinear-strata{grid-template-columns:1fr}.loglinear-guide-card{padding:14px}}
   `;
   document.head.appendChild(style);

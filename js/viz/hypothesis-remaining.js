@@ -48,7 +48,7 @@ function renderANOVA(el) {
   const labels = parseLabelAttribute(el.dataset.labels);
 
   if (!means.length) {
-    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA 组间差异比较</span></div><p style="padding:20px;color:#666;">请提供组数据</p></div>';
+    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 ANOVA 组间差异比较</span></div><p style="padding:20px;color:var(--v2-fg-muted);">请提供组数据</p></div>';
     return;
   }
   if (means.some((m, i) => ns[i] < 1 || isNaN(ns[i]) || !Number.isFinite(sds[i]))) {
@@ -98,7 +98,7 @@ function renderANOVA(el) {
       const x = sx(i) + barW/2;
       const ciLow = m - 1.96 * se[i];
       const ciHigh = m + 1.96 * se[i];
-      ctx.strokeStyle = '#333';
+      ctx.strokeStyle = 'var(--v2-fg-secondary)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(x, sy(ciLow)); ctx.lineTo(x, sy(ciHigh));
@@ -108,14 +108,14 @@ function renderANOVA(el) {
       const color = `hsl(${200 + i * 30}, 60%, 55%)`;
       ctx.fillStyle = color;
       ctx.fillRect(sx(i), sy(m), barW, sy(0) - sy(m));
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = 'var(--v2-fg-secondary)';
       ctx.font = 'bold 13px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(`\u0078\u0304=${m.toFixed(2)}`, sx(i) + barW/2, sy(m) - 10);
       ctx.font = '11px sans-serif';
       ctx.fillText(labels[i] || `组${i+1}`, sx(i) + barW/2, pad.top + plotH + 18);
     });
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + plotH); ctx.lineTo(pad.left + plotW, pad.top + plotH);
@@ -227,7 +227,7 @@ function renderScatterPlot(el) {
   function draw(highlightIdx) {
     ctx.clearRect(0, 0, W, H);
     if (allPoints.length < 2) {
-      ctx.fillStyle = '#666'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('请提供至少2个数据点', W/2, H/2); return;
     }
     const allX = allPoints.map(p=>p.x).concat(groupCentroids.map(g=>g.x));
@@ -247,9 +247,9 @@ function renderScatterPlot(el) {
       const yPos = pad.top + (plotH / 5) * i;
       ctx.beginPath(); ctx.moveTo(pad.left, yPos); ctx.lineTo(pad.left + plotW, yPos); ctx.stroke();
     }
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + plotH); ctx.lineTo(pad.left + plotW, pad.top + plotH); ctx.stroke();
-    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     for (let i = 0; i <= 5; i++) {
       const val = xMin - xPad + ((xMax - xMin) + 2*xPad) * (i / 5);
       const xPos = sx(val);
@@ -266,7 +266,7 @@ function renderScatterPlot(el) {
     ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(xlabel, pad.left + plotW/2, H - 8);
     ctx.save(); ctx.translate(14, pad.top + plotH/2); ctx.rotate(-Math.PI/2); ctx.fillText(ylabel, 0, 0); ctx.restore();
-    ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = '#222'; ctx.textAlign = 'center';
+    ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = 'var(--v2-fg)'; ctx.textAlign = 'center';
     ctx.fillText(title, pad.left + plotW/2, 20);
     if (el.dataset.ellipse === 'true' && points.length >= 3) {
       const ell = computeEllipse(points, 't');
@@ -305,7 +305,7 @@ function renderScatterPlot(el) {
         }
         // 图例
         ctx.fillStyle = colors[gi]; ctx.beginPath(); ctx.arc(pad.left + gi*120, pad.top - 12, 5, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
         ctx.fillText(labels[gi] || ('组'+(gi+1)), pad.left + gi*120 + 9, pad.top - 8);
       });
     } else {
@@ -426,7 +426,7 @@ function renderScatterPlot(el) {
       `;
       if (!statsDiv) {
         statsDiv = document.createElement('div');
-        statsDiv.style.cssText = 'margin-top:10px;padding:10px 14px;background:#f8f9fa;border-radius:6px;font-size:12px;color:#444;line-height:1.8;';
+        statsDiv.style.cssText = 'margin-top:10px;padding:10px 14px;background:var(--v2-bg-elevated);border-radius:6px;font-size:12px;color:#444;line-height:1.8;';
         card.querySelector('.viz-r-display') ?
           card.querySelector('.viz-r-display').insertAdjacentElement('afterend', statsDiv) :
           card.appendChild(statsDiv);
@@ -486,7 +486,7 @@ function renderScreePlot(el) {
     eigenvalues = eigenData.split(',').map(v => parseFloat(v.trim())).filter(v => isFinite(v));
   }
   if (!eigenvalues.length) {
-    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 PCA 碎石图</span></div><p style="padding:20px;color:#666;">请提供特征值数据 (data-eigenvalues)</p></div>';
+    el.innerHTML = '<div class="viz-card"><div class="viz-header"><span>📊 PCA 碎石图</span></div><p style="padding:20px;color:var(--v2-fg-muted);">请提供特征值数据 (data-eigenvalues)</p></div>';
     return;
   }
   const W = 600, H = 300;
@@ -532,7 +532,7 @@ function renderScreePlot(el) {
       const x = sx(i), colorIntensity = 0.3 + 0.7 * (cumPct[i] / 100);
       ctx.fillStyle = `rgba(86, 156, 214, ${colorIntensity})`;
       ctx.fillRect(x, syEv(ev), barW, syEv(0) - syEv(ev));
-      ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(`PC${i+1}`, x + barW/2, pad.top + plotH + 18);
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(`PC${i+1}`, x + barW/2, pad.top + plotH + 18);
       ctx.font = '10px sans-serif'; ctx.fillText(ev.toFixed(2), x + barW/2, syEv(ev) - 4);
       ctx.fillStyle = '#c586c0'; ctx.fillText(`${cumPct[i].toFixed(0)}%`, x + barW/2, syCum(cumPct[i]) - 4);
       if (ev > 1) { ctx.fillStyle = '#4ec9b0'; ctx.beginPath(); ctx.arc(x + barW/2, syEv(ev) - 10, 4, 0, Math.PI*2); ctx.fill(); }
@@ -555,7 +555,7 @@ function renderNormTest(el) {
   const data = rawData.split(',').map(Number).filter(v => Number.isFinite(v)).sort((a, b) => a - b);
   const n = data.length;
   if (n < 3 || !window.jStat?.normal?.inv) {
-    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><p style="padding:20px;color:#666;">至少需要 3 个有效数据点，且需成功加载 jStat 才能绘制 Q-Q 图。</p></div>';
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><p style="padding:20px;color:var(--v2-fg-muted);">至少需要 3 个有效数据点，且需成功加载 jStat 才能绘制 Q-Q 图。</p></div>';
     return;
   }
   const mu = data.reduce((a, b) => a + b, 0) / n;
@@ -566,12 +566,12 @@ function renderNormTest(el) {
   el.innerHTML = `<div class="viz-card">
     <div class="viz-header">📊 ${title}</div>
     <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-    <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;" id="${id}-stats"></div>
+    <div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;" id="${id}-stats"></div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:8px;">
       <label style="font-size:13px;">添加扰动:
         <input type="range" id="${id}-skew" min="0" max="10" value="0" step="1" style="width:100px;">
       </label>
-      <button id="${id}-reset" style="padding:4px 14px;background:#95a5a6;color:white;border:none;border-radius:4px;cursor:pointer;">重置</button>
+      <button id="${id}-reset" style="padding:4px 14px;background:var(--v2-border-strong);color:white;border:none;border-radius:4px;cursor:pointer;">重置</button>
     </div>
   </div>`;
   const canvas = document.getElementById(id);
@@ -581,15 +581,15 @@ function renderNormTest(el) {
   const minD = Math.min(...data), maxD = Math.max(...data);
   function draw(skew) {
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 18);
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 18);
     ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
     for (let i = 0; i <= 5; i++) {
       ctx.beginPath(); ctx.moveTo(padL + (i/5)*plotW, padT); ctx.lineTo(padL + (i/5)*plotW, padT + plotH); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(padL, padT + (i/5)*plotH); ctx.lineTo(padL + plotW, padT + (i/5)*plotH); ctx.stroke();
     }
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
     for (let i = 0; i <= 5; i++) {
       ctx.textAlign = 'center'; ctx.fillText((minQ + (i/5)*(maxQ - minQ)).toFixed(0), padL + (i/5)*plotW, padT + plotH + 16);
       ctx.textAlign = 'right'; ctx.fillText((maxD - (i/5)*(maxD - minD)).toFixed(0), padL - 6, padT + (i/5)*plotH + 4);
@@ -645,27 +645,27 @@ function renderFactorialInteraction(el) {
   }
   const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 20);
+  ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 20);
   ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
     const yVal = yMin + (yMax - yMin) * i / 4, yPx = yOf(yVal);
     ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W - pad.r, yPx); ctx.stroke();
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(yVal.toFixed(0), pad.l - 5, yPx + 4);
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(yVal.toFixed(0), pad.l - 5, yPx + 4);
   }
-  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+  ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
   const n1 = factor1.length;
   const groupW = iW / n1;
   factor1.forEach((f1, fi) => {
     const groupCenterX = pad.l + (fi + 0.5) * groupW;
-    ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(f1, groupCenterX, H - pad.b + 20);
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(f1, groupCenterX, H - pad.b + 20);
     const n2 = factor2.length, offsetStep = groupW * 0.2, f2OffsetStart = -(n2 - 1) * offsetStep / 2;
     means[fi].forEach((mv, fi2) => {
       const x = groupCenterX + f2OffsetStart + fi2 * offsetStep, y = yOf(mv);
       ctx.fillStyle = fi2 === 0 ? '#2980b9' : '#e67e22';
       ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'var(--v2-bg-elevated)'; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
       if (fi === 0) {
         const xNext = pad.l + (fi + 1.5) * groupW + f2OffsetStart + fi2 * offsetStep;
         const yNext = yOf(means[fi + 1][fi2]);
@@ -677,9 +677,9 @@ function renderFactorialInteraction(el) {
   factor2.forEach((label, i) => {
     const lx = W - pad.r + 10, ly = pad.t + i * 22;
     ctx.fillStyle = i === 0 ? '#2980b9' : '#e67e22'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(label, lx + 12, ly + 4);
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(label, lx + 12, ly + 4);
   });
-  ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.fillText('均值', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.fillText('均值', 0, 0); ctx.restore();
 }
 registerViz('interaction', renderFactorialInteraction);
 
@@ -698,12 +698,12 @@ function renderBlandAltman(el) {
   meanVals = meanVals.filter(v => Number.isFinite(v));
   const n = Math.min(delta.length, meanVals.length);
   if (n < 3) {
-    el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><p style="padding:20px;color:#666;">Bland-Altman 图至少需要 3 对有效数据。</p></div>`;
+    el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><p style="padding:20px;color:var(--v2-fg-muted);">Bland-Altman 图至少需要 3 对有效数据。</p></div>`;
     return;
   }
   delta = delta.slice(0, n); meanVals = meanVals.slice(0, n);
   const W = 520, H = 340;
-  el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div id="${id}-stats" style="text-align:center;font-size:12px;color:#555;margin-top:4px;"></div></div>`;
+  el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div id="${id}-stats" style="text-align:center;font-size:12px;color:var(--v2-fg-muted);margin-top:4px;"></div></div>`;
   const canvas = document.getElementById(id);
   const ctx = canvas.getContext('2d');
   const pad = {t: 30, r: 25, b: 45, l: 55};
@@ -715,9 +715,9 @@ function renderBlandAltman(el) {
   const xOf = v => pad.l + ((v - xMin) / (xMax - xMin)) * iW;
   const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 20);
+  ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 20);
   const zeroY = yOf(0);
-  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+  ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
   ctx.beginPath(); ctx.moveTo(pad.l, zeroY); ctx.lineTo(pad.l + iW, zeroY); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('零差值线', pad.l + iW / 2, zeroY - 5);
   const meanY = yOf(meanVal);
@@ -733,13 +733,13 @@ function renderBlandAltman(el) {
   ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) { const yv = yMin + (yMax - yMin) * i / 4; ctx.beginPath(); ctx.moveTo(pad.l, yOf(yv)); ctx.lineTo(pad.l + iW, yOf(yv)); ctx.stroke(); }
   for (let i = 0; i <= 4; i++) { const xv = xMin + (xMax - xMin) * i / 4; ctx.beginPath(); ctx.moveTo(xOf(xv), pad.t); ctx.lineTo(xOf(xv), pad.t + iH); ctx.stroke(); }
-  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+  ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
-  ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+  ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
   for (let i = 0; i <= 4; i++) { const yv = yMin + (yMax - yMin) * i / 4; ctx.textAlign = 'right'; ctx.fillText(yv.toFixed(0), pad.l - 5, yOf(yv) + 4); }
   for (let i = 0; i <= 4; i++) { const xv = xMin + (xMax - xMin) * i / 4; ctx.textAlign = 'center'; ctx.fillText(xv.toFixed(0), xOf(xv), pad.t + iH + 15); }
-  ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.fillText('差值 (A - B)', 0, 0); ctx.restore();
-  ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.fillText('两方法均值', pad.l + iW / 2, H - 4);
+  ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.fillText('差值 (A - B)', 0, 0); ctx.restore();
+  ctx.textAlign = 'center'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.fillText('两方法均值', pad.l + iW / 2, H - 4);
   delta.forEach((d, i) => { const x = xOf(meanVals[i]), y = yOf(d); ctx.fillStyle = Math.abs(d) > 1.96 * sd ? '#e74c3c' : '#3498db'; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); });
   document.getElementById(id + '-stats').textContent = 'mean=' + meanVal.toFixed(2) + '  |  SD=' + sd.toFixed(2) + '  |  95%LoA: [' + (meanVal - 1.96 * sd).toFixed(2) + ', ' + (meanVal + 1.96 * sd).toFixed(2) + ']';
 }
@@ -777,10 +777,10 @@ function renderBlandAltman(el) {
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:520px;height:240px !important;display:block;margin:0 auto;"></canvas>
         </div>
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:#f8f9fa;border-top:1px solid #eee;font-size:12px;color:#555;">
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:6px 12px;background:var(--v2-bg-elevated);border-top:1px solid #eee;font-size:12px;color:var(--v2-fg-muted);">
           <span>格内：<strong>实测 (期望)</strong>，颜色深浅 = 观测-期望 差值</span>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:var(--v2-fg-muted);">
           <span style="background:#ffd0d0;padding:2px 8px;border-radius:4px;">■ 正偏差（实测&gt;期望）</span>
           <span style="background:#c8e6ff;padding:2px 8px;border-radius:4px;">■ 负偏差（实测&lt;期望）</span>
           <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;">■ 无偏差</span>
@@ -835,7 +835,7 @@ function renderBlandAltman(el) {
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 2, y + 2, cellW - 4, cellH - 4);
 
-        ctx.fillStyle = '#1e293b';
+        ctx.fillStyle = 'var(--v2-fg)';
         ctx.font = `bold ${Math.round(36 * scale)}px JetBrains Mono, monospace`;
         ctx.textAlign = 'center';
         ctx.fillText(obs[i][j], x + cellW / 2, y + cellH / 2 - 8);
@@ -886,7 +886,7 @@ registerViz('contingency', renderContingency);
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:520px;height:250px !important;display:block;margin:0 auto;"></canvas>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:#666;">
+        <div style="display:flex;gap:8px;justify-content:center;padding:4px;font-size:11px;color:var(--v2-fg-muted);">
           <span style="background:#aed6f1;padding:2px 8px;border-radius:4px;">■ 有效</span>
           <span style="background:#fadbd8;padding:2px 8px;border-radius:4px;">■ 无效</span>
         </div>
@@ -950,7 +950,7 @@ registerViz('contingency', renderContingency);
     ctx.fillRect(pad.l + col1W, pad.t + row1H2, col2W, row2H2);
 
     // 边框
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = 'var(--v2-bg-elevated)';
     ctx.lineWidth = 2;
     // 垂直分隔（列合计边界）
     ctx.beginPath();
@@ -972,14 +972,14 @@ registerViz('contingency', renderContingency);
       { v: c, x: pad.l + col1W / 2, y: pad.t + row1H1 + row2H1 / 2 },
       { v: d, x: pad.l + col1W + col2W / 2, y: pad.t + row1H2 + row2H2 / 2 },
     ];
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = 'var(--v2-fg)';
     cells2.forEach(({ v, x, y }) => {
       ctx.fillText(v, x, y + 5);
     });
 
     // 列标签
     ctx.font = `bold ${Math.round(24 * scale)}px sans-serif`;
-    ctx.fillStyle = '#555';
+    ctx.fillStyle = 'var(--v2-fg-muted)';
     ctx.fillText(colLabels[0] || '有效', pad.l + col1W / 2, pad.t + innerH + 14);
     ctx.fillText(colLabels[1] || '无效', pad.l + col1W + col2W / 2, pad.t + innerH + 14);
 

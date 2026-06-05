@@ -68,14 +68,14 @@ function ensureRepeatedAnovaStyles() {
   const style = document.createElement('style');
   style.id = 'rm-anova-guide-styles';
   style.textContent = `
-    .rm-anova-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:980px;margin:22px 0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:#0f172a;}
-    .rm-anova-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;font-size:15px;font-weight:750;color:#0f172a;}
+    .rm-anova-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:980px;margin:22px 0;background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:var(--v2-fg);}
+    .rm-anova-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--v2-border);background:var(--v2-bg-elevated);font-size:15px;font-weight:750;color:var(--v2-fg);}
     .rm-anova-icon{font-size:18px;line-height:1;}
     .rm-anova-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px;}
-    .rm-anova-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:144px;}
-    .rm-anova-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
-    .rm-anova-title{font-size:16px;font-weight:750;line-height:1.35;color:#0f172a;margin:0 0 8px;}
-    .rm-anova-desc{font-size:13.5px;line-height:1.7;color:#64748b;margin:0;}
+    .rm-anova-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:144px;}
+    .rm-anova-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--v2-secondary-subtle);color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
+    .rm-anova-title{font-size:16px;font-weight:750;line-height:1.35;color:var(--v2-fg);margin:0 0 8px;}
+    .rm-anova-desc{font-size:13.5px;line-height:1.7;color:var(--v2-fg-muted);margin:0;}
     @media (max-width:980px){.rm-anova-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
     @media (max-width:640px){.rm-anova-grid{grid-template-columns:1fr;}.rm-anova-item{min-height:auto;}}
   `;

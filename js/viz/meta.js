@@ -29,7 +29,7 @@ import { registerViz } from './_core.js';
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+      <div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">
         OR/效应量采用对数坐标展示 | 垂直虚线为总体效应
       </div>
     </div>`;
@@ -38,7 +38,7 @@ import { registerViz } from './_core.js';
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, W, H);
 
-    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     const allVals = values.concat(lower).concat(upper);
@@ -49,7 +49,7 @@ import { registerViz } from './_core.js';
 
     // Overall ref line (first effect value)
     const overallX = scaleX(values[0]);
-    ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(overallX, padT); ctx.lineTo(overallX, H - padB); ctx.stroke();
     ctx.setLineDash([]);
 
@@ -57,7 +57,7 @@ import { registerViz } from './_core.js';
       const y = padT + i * rowH + rowH * 0.25;
       const value = values[i], lo = lower[i], up = upper[i];
 
-      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(label, padL - 8, y + barH / 2 + 4);
 
       // CI
@@ -77,12 +77,12 @@ import { registerViz } from './_core.js';
       }
 
       // Effect text
-      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText(value.toFixed(2) + ' (' + lo.toFixed(2) + '-' + up.toFixed(2) + ')', W - padR + 5, y + barH / 2 + 4);
     });
 
     // X labels
-    ctx.fillStyle = '#666'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
     [0.25, 0.5, 1, 2, 3].forEach(v => {
       if (v >= minV && v <= maxV) ctx.fillText(v.toFixed(v === 1 ? 0 : 2), scaleX(v), H - 8);
     });
@@ -112,7 +112,7 @@ registerViz('subgroupforest', renderSubgroupForest);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:12px;color:#555;margin-top:6px;">
+      <div style="text-align:center;font-size:12px;color:var(--v2-fg-muted);margin-top:6px;">
         HR&lt;1 表示有利 | 权重(%)显示在右侧 | 钻石为汇总效应
       </div>
     </div>`;
@@ -121,7 +121,7 @@ registerViz('subgroupforest', renderSubgroupForest);
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, W, H);
 
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 20);
 
     const allVals = hrs.concat(lower).concat(upper);
@@ -132,7 +132,7 @@ registerViz('subgroupforest', renderSubgroupForest);
 
     // Vertical ref line at HR=1
     const refX = scaleX(1);
-    ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(refX, padT - 15); ctx.lineTo(refX, H - padB + 10); ctx.stroke();
     ctx.setLineDash([]);
 
@@ -142,7 +142,7 @@ registerViz('subgroupforest', renderSubgroupForest);
       const isOverall = i === n - 1;
 
       // Label
-      ctx.fillStyle = '#333'; ctx.font = isOverall ? 'bold 12px sans-serif' : '12px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = isOverall ? 'bold 12px sans-serif' : '12px sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(label, padL - 8, y + barH / 2 + 4);
 
@@ -170,7 +170,7 @@ registerViz('subgroupforest', renderSubgroupForest);
       }
 
       // HR text
-      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText(hr.toFixed(2) + ' (' + lo.toFixed(2) + '-' + up.toFixed(2) + ')', W - padR + 5, y + barH / 2 + 4);
 
       // Weight
@@ -179,7 +179,7 @@ registerViz('subgroupforest', renderSubgroupForest);
     });
 
     // X axis ticks
-    ctx.fillStyle = '#666'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
     [0.2, 0.5, 0.75, 1, 1.5, 2].forEach(v => {
       if (v >= minV && v <= maxV) ctx.fillText(v.toFixed(v === 1 ? 0 : 2), scaleX(v), H - 5);
     });
@@ -202,7 +202,7 @@ registerViz('metaforest', renderMetaForest);
     ses = ses.filter(v => Number.isFinite(v) && v > 0);
     const n = Math.min(effects.length, ses.length);
     if (n < 3) {
-      el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><p style="padding:20px;color:#666;">漏斗图至少需要 3 个有效研究点。</p></div>';
+      el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><p style="padding:20px;color:var(--v2-fg-muted);">漏斗图至少需要 3 个有效研究点。</p></div>';
       return;
     }
     effects = effects.slice(0, n);
@@ -222,7 +222,7 @@ registerViz('metaforest', renderMetaForest);
     const xOf = v => pad.l + ((v - xMin) / (xMax - xMin)) * iW;
     const yOf = v => pad.t + ((v - yMin) / (yMax - yMin)) * iH;
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
     // 95% CI funnel boundaries (pseudo-significance threshold)
     const topSE = maxSE;
@@ -241,7 +241,7 @@ registerViz('metaforest', renderMetaForest);
     ctx.fillStyle = '#27ae60'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('合并效应', xOf(meanEffect), pad.t - 8);
     // Pseudo-confidence limits
-    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
     for (const mult of [1, 1.5, 2]) {
       const seRef = topSE / mult;
       const left = meanEffect - 1.96 * seRef;
@@ -250,12 +250,12 @@ registerViz('metaforest', renderMetaForest);
     }
     ctx.setLineDash([]);
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
     ctx.textAlign = 'center'; ctx.fillText('效应量 (OR/RR)', pad.l + iW / 2, H - 4);
     ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif';
     ctx.fillText('标准误 (精度↑)', 0, 0); ctx.restore();
     for (let i = 0; i <= 4; i++) {
       const vv = xMin + (xMax - xMin) * i / 4;

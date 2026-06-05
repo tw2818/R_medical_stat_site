@@ -134,9 +134,9 @@ function renderTableLayoutDemo(el) {
     .table-demo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;}
     .ctrl-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
     .ctrl-label{font-size:12px;font-weight:600;color:#374151;margin-right:2px;}
-    .path-tab{padding:4px 12px;border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#374151;font-size:12px;cursor:pointer;transition:all .15s;}
+    .path-tab{padding:4px 12px;border:1px solid #d1d5db;border-radius:6px;background:var(--v2-bg-elevated);color:#374151;font-size:12px;cursor:pointer;transition:all .15s;}
     .path-tab:hover{background:#f3f4f6;}
-    .path-tab.active{background:#2c7874;color:#fff;border-color:#2c7874;font-weight:500;}
+    .path-tab.active{background:#2c7874;color:var(--v2-bg-elevated);border-color:#2c7874;font-weight:500;}
     .table-demo-body{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:start;}
     .table-demo-summary{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;padding:14px;}
     .summary-title{font-weight:600;color:#1f2937;margin-bottom:10px;font-size:13px;}
@@ -146,22 +146,22 @@ function renderTableLayoutDemo(el) {
     .summary-val{font-weight:600;color:#1f2937;}
     .summary-footer{margin-top:12px;padding-top:10px;border-top:1px dashed #d1d5db;font-size:11px;color:#9ca3af;line-height:1.7;}
     .table-demo-preview{overflow:hidden;}
-    .table-demo-shell{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;}
+    .table-demo-shell{background:var(--v2-bg-elevated);border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;}
     .table-demo-title{font-weight:600;color:#1f2937;text-align:center;margin-bottom:12px;font-size:14px;}
     .table-demo{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
-    .table-demo thead th{padding:7px 10px;text-align:center;border-top:2px solid #222;border-bottom:1.5px solid #222;background:#fafafa;font-weight:600;color:#1f2937;}
-    .table-demo thead th.th-var{text-align:left;border-left:2px solid #222;border-right:2px solid #222;}
+    .table-demo thead th{padding:7px 10px;text-align:center;border-top:2px solid var(--v2-fg);border-bottom:1.5px solid var(--v2-fg);background:var(--v2-bg);font-weight:600;color:#1f2937;}
+    .table-demo thead th.th-var{text-align:left;border-left:2px solid var(--v2-fg);border-right:2px solid var(--v2-fg);}
     .table-demo thead th.th-group{border-right:1px solid #e5e7eb;}
-    .table-demo thead th.th-group:last-of-type{border-right:2px solid #222;}
+    .table-demo thead th.th-group:last-of-type{border-right:2px solid var(--v2-fg);}
     .table-demo tbody td{padding:7px 10px;border-bottom:1px solid #ececec;border-right:1px solid #ececec;text-align:center;}
     .table-demo tbody td:first-child{border-left:2px solid #ececec;}
     .table-demo tbody td.td-var{text-align:left;font-weight:500;color:#1f2937;border-left:2px solid #ececec;}
-    .table-demo tbody tr:last-child td{border-bottom:2px solid #222;}
-    .table-demo tbody tr:last-child td:first-child{border-bottom:2px solid #222;}
+    .table-demo tbody tr:last-child td{border-bottom:2px solid var(--v2-fg);}
+    .table-demo tbody tr:last-child td:first-child{border-bottom:2px solid var(--v2-fg);}
     .table-demo .td-var{color:#1f2937;}
     .table-demo .td-psig{color:#c0392b;font-weight:600;}
     .table-demo .td-pns{color:#6b7280;}
-    .table-demo-note{margin-top:12px;font-size:12px;color:#555;line-height:1.75;background:#f8f9fb;border-left:3px solid #60a5fa;padding:8px 12px;border-radius:0 6px 6px 0;}
+    .table-demo-note{margin-top:12px;font-size:12px;color:var(--v2-fg-muted);line-height:1.75;background:#f8f9fb;border-left:3px solid #60a5fa;padding:8px 12px;border-radius:0 6px 6px 0;}
     .table-demo-card code{background:#eef2f7;padding:1px 5px;border-radius:4px;font-size:11px;}
     @media(max-width:640px){
       .table-demo-body{grid-template-columns:1fr;}
@@ -186,7 +186,7 @@ function injectChapter8Widgets() {
   if (!root.querySelector('.stat-viz[data-type="baseline-table"]')) {
     const note1 = document.createElement('p');
     note1.textContent = '下方先直接展示一个更贴近论文 Table 1 的三线表成品。它的作用不是再做统计检验，而是让读者先看到“最终交付物应该长什么样”。';
-    note1.style.color = '#555';
+    note1.style.color = 'var(--v2-fg-muted)';
     note1.style.fontSize = '0.95em';
 
     const table1 = document.createElement('div');
@@ -205,7 +205,7 @@ function injectChapter8Widgets() {
     const anchor = root.querySelector('.stat-viz[data-type="baseline-table"]') || detailHeading;
     const note2 = document.createElement('p');
     note2.textContent = '再往下这个组件演示：同一份结果在“两组/三组”“是否保留 Total”“是否显示 P 值”“是否保留脚注”之间切换后，三线表成品会怎样变化。';
-    note2.style.color = '#555';
+    note2.style.color = 'var(--v2-fg-muted)';
     note2.style.fontSize = '0.95em';
 
     const demo = document.createElement('div');

@@ -99,10 +99,10 @@ function renderRegression(el) {
       const yp = pad.top + (plotH/5)*i; ctx.beginPath(); ctx.moveTo(pad.left, yp); ctx.lineTo(pad.left+plotW, yp); ctx.stroke();
     }
     // 坐标轴
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+plotH); ctx.lineTo(pad.left+plotW, pad.top+plotH); ctx.stroke();
     // 刻度标签
-    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     for (let i = 0; i <= 5; i++) {
       const val = xMin - xPad + ((xMax-xMin)+2*xPad)*(i/5);
       const xp = sx(val); ctx.beginPath(); ctx.moveTo(xp, pad.top+plotH); ctx.lineTo(xp, pad.top+plotH+4); ctx.stroke();
@@ -119,7 +119,7 @@ function renderRegression(el) {
     ctx.fillText(xlabel, pad.left+plotW/2, H-6);
     ctx.save(); ctx.translate(14, pad.top+plotH/2); ctx.rotate(-Math.PI/2); ctx.fillText(ylabel, 0, 0); ctx.restore();
     // 标题
-    ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = '#222';
+    ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = 'var(--v2-fg)';
     ctx.fillText(title, pad.left+plotW/2, 20);
     // 散点
     ctx.fillStyle = '#569cd6';
@@ -142,16 +142,16 @@ function renderRegression(el) {
   const style = document.createElement('style');
   style.textContent = `
     .reg-canvas-wrap{display:block;text-align:center;}
-    .reg-placeholder{height:200px;display:flex;align-items:center;justify-content:center;color:#999;font-size:14px;}
-    .reg-eq{background:#f8f9fa;border-left:4px solid #f9826c;padding:10px 14px;margin:10px 0;font-size:14px;}
-    .reg-eq-label{font-weight:600;color:#555;margin-right:8px;}
+    .reg-placeholder{height:200px;display:flex;align-items:center;justify-content:center;color:var(--v2-fg-subtle);font-size:14px;}
+    .reg-eq{background:var(--v2-bg-elevated);border-left:4px solid #f9826c;padding:10px 14px;margin:10px 0;font-size:14px;}
+    .reg-eq-label{font-weight:600;color:var(--v2-fg-muted);margin-right:8px;}
     .reg-eq code{font-size:15px;color:#c0392b;font-family:monospace;}
     .reg-stats-row{display:flex;gap:0;flex-wrap:wrap;margin-bottom:8px;}
     .reg-stat{flex:1;min-width:80px;background:#f5f8ff;border:1px solid #e0e8f8;padding:8px 10px;text-align:center;}
     .reg-stat-label{display:block;font-size:11px;color:#888;margin-bottom:3px;}
     .reg-stat-val{display:block;font-size:16px;font-weight:700;color:#2c3e50;}
-    .reg-stat-sub{display:block;font-size:10px;color:#aaa;}
-    .reg-footer{margin-top:10px;padding:10px 14px;background:#f8f9fa;border-radius:4px;font-size:12px;color:#666;}
+    .reg-stat-sub{display:block;font-size:10px;color:var(--v2-fg-subtle);}
+    .reg-footer{margin-top:10px;padding:10px 14px;background:var(--v2-bg-elevated);border-radius:4px;font-size:12px;color:var(--v2-fg-muted);}
     .reg-footer p{margin:3px 0;}
   `;
   card.appendChild(style);

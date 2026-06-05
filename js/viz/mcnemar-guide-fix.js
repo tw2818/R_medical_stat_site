@@ -1,7 +1,7 @@
 import { registerViz } from './_core.js';
 
-const boxStyle = 'border:1px solid rgba(148,163,184,.35);border-radius:12px;background:#fff;padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);';
-const muted = 'color:#64748b;font-size:13px;line-height:1.6;';
+const boxStyle = 'border:1px solid rgba(148,163,184,.35);border-radius:12px;background:var(--v2-bg-elevated);padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);';
+const muted = 'color:var(--v2-fg-muted);font-size:13px;line-height:1.6;';
 
 function erfApprox(x) {
   const sign = x >= 0 ? 1 : -1;
@@ -64,33 +64,33 @@ function renderMcNemarGuideFixed(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header"><span>📊 ${title}</span></div>
-      <div style="padding:14px;background:#f8fafc;">
+      <div style="padding:14px;background:var(--v2-bg-elevated);">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px;align-items:start;">
           <div style="${boxStyle}">
-            <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">输入配对 2×2 表</div>
+            <div style="font-weight:700;color:var(--v2-fg);margin-bottom:8px;">输入配对 2×2 表</div>
             <table style="border-collapse:collapse;width:100%;margin-bottom:10px;">
               <thead><tr><th></th><th>方法B +</th><th>方法B −</th></tr></thead>
               <tbody>
                 <tr>
                   <th style="text-align:left;">方法A +</th>
-                  <td style="background:#e2e8f0;padding:6px;"><input id="${id}-a" type="number" min="0" step="1" value="${init.a}" style="width:80px;padding:5px;"><div style="font-size:11px;color:#64748b;">a 一致+</div></td>
-                  <td style="background:#fee2e2;padding:6px;"><input id="${id}-b" type="number" min="0" step="1" value="${init.b}" style="width:80px;padding:5px;"><div style="font-size:11px;color:#991b1b;">b: A+ / B−</div></td>
+                  <td style="background:var(--v2-border);padding:6px;"><input id="${id}-a" type="number" min="0" step="1" value="${init.a}" style="width:80px;padding:5px;"><div style="font-size:11px;color:var(--v2-fg-muted);">a 一致+</div></td>
+                  <td style="background:var(--v2-accent-subtle);padding:6px;"><input id="${id}-b" type="number" min="0" step="1" value="${init.b}" style="width:80px;padding:5px;"><div style="font-size:11px;color:#991b1b;">b: A+ / B−</div></td>
                 </tr>
                 <tr>
                   <th style="text-align:left;">方法A −</th>
-                  <td style="background:#fee2e2;padding:6px;"><input id="${id}-c" type="number" min="0" step="1" value="${init.c}" style="width:80px;padding:5px;"><div style="font-size:11px;color:#991b1b;">c: A− / B+</div></td>
-                  <td style="background:#e2e8f0;padding:6px;"><input id="${id}-d" type="number" min="0" step="1" value="${init.d}" style="width:80px;padding:5px;"><div style="font-size:11px;color:#64748b;">d 一致−</div></td>
+                  <td style="background:var(--v2-accent-subtle);padding:6px;"><input id="${id}-c" type="number" min="0" step="1" value="${init.c}" style="width:80px;padding:5px;"><div style="font-size:11px;color:#991b1b;">c: A− / B+</div></td>
+                  <td style="background:var(--v2-border);padding:6px;"><input id="${id}-d" type="number" min="0" step="1" value="${init.d}" style="width:80px;padding:5px;"><div style="font-size:11px;color:var(--v2-fg-muted);">d 一致−</div></td>
                 </tr>
               </tbody>
             </table>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button id="${id}-swap" type="button" style="padding:7px 12px;border:none;border-radius:6px;background:#64748b;color:#fff;cursor:pointer;">交换 b / c</button>
-              <button id="${id}-reset" type="button" style="padding:7px 12px;border:none;border-radius:6px;background:#94a3b8;color:#fff;cursor:pointer;">重置</button>
+              <button id="${id}-swap" type="button" style="padding:7px 12px;border:none;border-radius:6px;background:var(--v2-fg-muted);color:var(--v2-bg-elevated);cursor:pointer;">交换 b / c</button>
+              <button id="${id}-reset" type="button" style="padding:7px 12px;border:none;border-radius:6px;background:#94a3b8;color:var(--v2-bg-elevated);cursor:pointer;">重置</button>
             </div>
           </div>
           <div id="${id}-result" style="${boxStyle}"></div>
         </div>
-        <div style="font-size:12px;color:#64748b;text-align:center;margin-top:10px;">
+        <div style="font-size:12px;color:var(--v2-fg-muted);text-align:center;margin-top:10px;">
           McNemar 检验只使用不一致对子 b 和 c。a、d 可描述一致性，但不进入检验统计量。
         </div>
       </div>
@@ -130,7 +130,7 @@ function renderMcNemarGuideFixed(el) {
       : (discordant < 25 ? '<strong style="color:#b45309;">不一致对子较少时更建议报告精确二项 P 值。</strong>' : '不一致对子数较多时，χ² 近似通常更稳定。');
 
     out.innerHTML = `
-      <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">结果解释</div>
+      <div style="font-weight:700;color:var(--v2-fg);margin-bottom:8px;">结果解释</div>
       <div style="${muted}">总配对数 = ${total}；一致对子 a+d = ${agree}；不一致对子 b+c = ${discordant}。</div>
       <div style="${muted}">A 阳性率 = ${(100 * rateA).toFixed(1)}%；B 阳性率 = ${(100 * rateB).toFixed(1)}%。${direction}</div>
       <div style="${muted}">未校正 McNemar χ² = ${fmt(stat)}，P = ${fmtP(p)}。</div>

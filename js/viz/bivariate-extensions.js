@@ -149,13 +149,13 @@ function renderRankCorrelation(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">📈 ${title}</div>
-      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">可切换“原始值视图”和“秩次视图”，帮助区分 Pearson 线性相关与 Spearman 单调相关。</div>
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">可切换“原始值视图”和“秩次视图”，帮助区分 Pearson 线性相关与 Spearman 单调相关。</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:10px;align-items:end;">
         <label style="font-size:13px;">X（逗号分隔）<br><input id="${id}-xs" type="text" value="${defaultXs}" style="width:100%;padding:6px;"></label>
         <label style="font-size:13px;">Y（逗号分隔）<br><input id="${id}-ys" type="text" value="${defaultYs}" style="width:100%;padding:6px;"></label>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
-        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">更新相关分析</button>
+        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">更新相关分析</button>
         <button id="${id}-raw" class="path-tab active" type="button">原始值视图</button>
         <button id="${id}-rank" class="path-tab" type="button">秩次视图</button>
       </div>
@@ -192,7 +192,7 @@ function renderRankCorrelation(el) {
     const sx = x => pad.left + ((x - (xMin - xPad)) / ((xMax - xMin) + 2 * xPad)) * plotW;
     const sy = y => pad.top + plotH - ((y - (yMin - yPad)) / ((yMax - yMin) + 2 * yPad)) * plotH;
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(titleText, W / 2, 18);
@@ -205,7 +205,7 @@ function renderRankCorrelation(el) {
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + plotW, y); ctx.stroke();
     }
 
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(pad.left, pad.top);
@@ -229,7 +229,7 @@ function renderRankCorrelation(el) {
     ctx.lineTo(sx(x2), sy(reg.intercept + reg.slope * x2));
     ctx.stroke();
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 12px sans-serif';
     ctx.fillText(labelX, pad.left + plotW / 2, H - 10);
     ctx.save();
@@ -288,13 +288,13 @@ function renderCurveFit(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">📉 ${title}</div>
-      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">比较线性、二次和对数拟合，帮助判断“非线性关系是否明显”。</div>
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">比较线性、二次和对数拟合，帮助判断“非线性关系是否明显”。</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:10px;align-items:end;">
         <label style="font-size:13px;">X（逗号分隔）<br><input id="${id}-xs" type="text" value="${defaultXs}" style="width:100%;padding:6px;"></label>
         <label style="font-size:13px;">Y（逗号分隔）<br><input id="${id}-ys" type="text" value="${defaultYs}" style="width:100%;padding:6px;"></label>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
-        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">更新拟合</button>
+        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">更新拟合</button>
         <button id="${id}-linear" class="path-tab active" type="button">线性</button>
         <button id="${id}-quad" class="path-tab" type="button">二次</button>
         <button id="${id}-log" class="path-tab" type="button">对数</button>
@@ -334,7 +334,7 @@ function renderCurveFit(el) {
     const sx = x => pad.left + ((x - (xMin - xPad)) / ((xMax - xMin) + 2 * xPad)) * plotW;
     const sy = y => pad.top + plotH - ((y - (yMin - yPad)) / ((yMax - yMin) + 2 * yPad)) * plotH;
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('散点与拟合曲线', W / 2, 18);
@@ -347,7 +347,7 @@ function renderCurveFit(el) {
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + plotW, y); ctx.stroke();
     }
 
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(pad.left, pad.top);
@@ -443,7 +443,7 @@ function injectChapter7Widgets() {
   if (rankHeading && !root.querySelector('.stat-calc[data-type="rankcorrelation"]')) {
     const note = document.createElement('p');
     note.textContent = '下方组件把 Pearson 线性相关和 Spearman 秩相关放在同一界面中比较，并支持切换到秩次视图，帮助区分“线性关系”和“单调关系”。';
-    note.style.color = '#555';
+    note.style.color = 'var(--v2-fg-muted)';
     note.style.fontSize = '0.95em';
     const widget = document.createElement('div');
     widget.className = 'stat-calc';
@@ -459,7 +459,7 @@ function injectChapter7Widgets() {
   if (curveHeading && !root.querySelector('.stat-calc[data-type="curvefit"]')) {
     const note = document.createElement('p');
     note.textContent = '下方组件用于比较不同曲线形式的拟合效果。它不是替代正式建模，而是帮助读者先直观看出：什么时候“直线”已经不够，什么时候需要考虑非线性。';
-    note.style.color = '#555';
+    note.style.color = 'var(--v2-fg-muted)';
     note.style.fontSize = '0.95em';
     const widget = document.createElement('div');
     widget.className = 'stat-calc';

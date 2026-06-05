@@ -1,15 +1,15 @@
 import { registerViz } from './_core.js';
 
-const boxStyle = 'border:1px solid rgba(148,163,184,.35);border-radius:12px;background:#fff;padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);';
-const muted = 'color:#64748b;font-size:13px;line-height:1.6;';
-const badge = 'display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700;margin-right:6px;';
+const boxStyle = 'border:1px solid rgba(148,163,184,.35);border-radius:12px;background:var(--v2-bg-elevated);padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);';
+const muted = 'color:var(--v2-fg-muted);font-size:13px;line-height:1.6;';
+const badge = 'display:inline-block;padding:2px 8px;border-radius:999px;background:var(--v2-secondary-subtle);color:#3730a3;font-size:12px;font-weight:700;margin-right:6px;';
 const grid = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:stretch;';
 
 function card(title, body) {
   return `
     <div class="viz-card">
       <div class="viz-header"><span>📊 ${title}</span></div>
-      <div style="padding:14px;background:#f8fafc;">${body}</div>
+      <div style="padding:14px;background:var(--v2-bg-elevated);">${body}</div>
     </div>`;
 }
 
@@ -65,22 +65,22 @@ function renderTrendChoiceGuide(el) {
     <div style="${grid}">
       <div style="${boxStyle}">
         <span style="${badge}">普通 R×C χ²</span>
-        <div style="font-weight:700;color:#0f172a;margin:8px 0;">多组率是否不全相同</div>
+        <div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">多组率是否不全相同</div>
         <div style="${muted}">适用于无序或有序多组的总体差异检验；显著只说明分布不全相同，不直接说明线性趋势。</div>
       </div>
       <div style="${boxStyle}">
         <span style="${badge}">Cochran-Armitage</span>
-        <div style="font-weight:700;color:#0f172a;margin:8px 0;">二分类结局是否随有序等级线性变化</div>
+        <div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">二分类结局是否随有序等级线性变化</div>
         <div style="${muted}">适用于 2×k 有序列联表，例如剂量等级、暴露等级、病情等级与阳性/阴性结局。</div>
       </div>
       <div style="${boxStyle}">
         <span style="${badge}">CMH 检验</span>
-        <div style="font-weight:700;color:#0f172a;margin:8px 0;">控制一个分层混杂因素</div>
+        <div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">控制一个分层混杂因素</div>
         <div style="${muted}">用于分层 2×2 表的关联检验，不等同于本章的线性趋势检验。</div>
       </div>
       <div style="${boxStyle}">
         <span style="${badge}">Logistic 回归</span>
-        <div style="font-weight:700;color:#0f172a;margin:8px 0;">需要调整多个协变量</div>
+        <div style="font-weight:700;color:var(--v2-fg);margin:8px 0;">需要调整多个协变量</div>
         <div style="${muted}">可把等级变量按有序分值进入模型，得到趋势 P 值；适合多因素调整场景。</div>
       </div>
     </div>`);
@@ -94,19 +94,19 @@ function renderOrdinalTrendStructure(el) {
       Cochran-Armitage 检验不是直接对百分比做线性回归，而是使用每个有序组的阳性数 x、总数 n 和预先设定的有序分值 score。
     </div>
     <div style="overflow-x:auto;">
-      <table style="border-collapse:collapse;width:100%;min-width:560px;background:#fff;">
+      <table style="border-collapse:collapse;width:100%;min-width:560px;background:var(--v2-bg-elevated);">
         <thead>
           <tr>
-            <th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">资料结构</th>
-            <th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">低剂量</th>
-            <th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">中剂量</th>
-            <th style="padding:8px;border:1px solid #cbd5e1;background:#f1f5f9;">高剂量</th>
+            <th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">资料结构</th>
+            <th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">低剂量</th>
+            <th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">中剂量</th>
+            <th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-subtle);">高剂量</th>
           </tr>
         </thead>
         <tbody>
-          <tr><th style="padding:8px;border:1px solid #cbd5e1;background:#f8fafc;text-align:left;">有效</th><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">x₁</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">x₂</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">x₃</td></tr>
-          <tr><th style="padding:8px;border:1px solid #cbd5e1;background:#f8fafc;text-align:left;">无效</th><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">n₁ − x₁</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">n₂ − x₂</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">n₃ − x₃</td></tr>
-          <tr><th style="padding:8px;border:1px solid #cbd5e1;background:#f8fafc;text-align:left;">score</th><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">1</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">2</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">3</td></tr>
+          <tr><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-elevated);text-align:left;">有效</th><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">x₁</td><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">x₂</td><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">x₃</td></tr>
+          <tr><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-elevated);text-align:left;">无效</th><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">n₁ − x₁</td><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">n₂ − x₂</td><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">n₃ − x₃</td></tr>
+          <tr><th style="padding:8px;border:1px solid var(--v2-border);background:var(--v2-bg-elevated);text-align:left;">score</th><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">1</td><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">2</td><td style="padding:8px;border:1px solid var(--v2-border);text-align:center;">3</td></tr>
         </tbody>
       </table>
     </div>
@@ -127,7 +127,7 @@ function renderCochranTrend(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header"><span>📊 ${title}</span><button id="${id}-reset" class="viz-reset" type="button" title="重置">↺</button></div>
-      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">输入各组阳性数 / 总数和预先设定的有序分值，计算二分类结局的线性趋势。</div>
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">输入各组阳性数 / 总数和预先设定的有序分值，计算二分类结局的线性趋势。</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:10px;align-items:end;">
         <label style="font-size:13px;">组别标签（逗号分隔）<br><input id="${id}-labels" type="text" value="${defaultLabels}" style="width:100%;padding:6px;"></label>
         <label style="font-size:13px;">阳性数 x（非负整数）<br><input id="${id}-successes" type="text" value="${defaultSuccesses}" style="width:100%;padding:6px;"></label>
@@ -135,13 +135,13 @@ function renderCochranTrend(el) {
         <label style="font-size:13px;">有序分值 score<br><input id="${id}-scores" type="text" value="${defaultScores}" style="width:100%;padding:6px;"></label>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
-        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">计算趋势检验</button>
-        <button id="${id}-equal" type="button" style="padding:8px 16px;background:#95a5a6;color:#fff;border:none;border-radius:6px;cursor:pointer;">改为等距分值 1..k</button>
+        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">计算趋势检验</button>
+        <button id="${id}-equal" type="button" style="padding:8px 16px;background:var(--v2-border-strong);color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">改为等距分值 1..k</button>
       </div>
       <canvas id="${id}-canvas" width="640" height="330" style="display:block;margin:0 auto;max-width:100%;"></canvas>
       <div id="${id}-result" style="margin-top:10px;font-size:14px;color:#2c3e50;line-height:1.7;"></div>
       <div id="${id}-table" style="margin-top:10px;overflow:auto;"></div>
-      <div style="margin-top:8px;font-size:12px;color:#666;text-align:center;">教学实现采用常用正态近似统计量；正式分析请结合教材/软件输出确认 score 设定和单侧/双侧假设。</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--v2-fg-muted);text-align:center;">教学实现采用常用正态近似统计量；正式分析请结合教材/软件输出确认 score 设定和单侧/双侧假设。</div>
     </div>`;
 
   const labelsInput = document.getElementById(`${id}-labels`);
@@ -168,7 +168,7 @@ function renderCochranTrend(el) {
     const barSpace = plotW / labels.length;
     const barW = Math.min(72, barSpace * 0.5);
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('各组率与线性趋势示意', W / 2, 18);
@@ -182,13 +182,13 @@ function renderCochranTrend(el) {
       ctx.lineTo(pad.l + plotW, y);
       ctx.stroke();
       const pct = 1 - i / 5;
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText((pct * 100).toFixed(0) + '%', pad.l - 6, y + 4);
     }
 
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(pad.l, pad.t);
@@ -207,7 +207,7 @@ function renderCochranTrend(el) {
       ctx.fillRect(x, y, barW, h);
       const cx = x + barW / 2;
       points.push({ x: cx, y });
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = 'var(--v2-fg-secondary)';
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(labels[i], cx, pad.t + plotH + 18);

@@ -65,7 +65,7 @@ function renderMcNemar(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
-      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">配对四格表的关键不是四格都同等参与，而是重点看两格“不一致配对” b 与 c。</div>
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">配对四格表的关键不是四格都同等参与，而是重点看两格“不一致配对” b 与 c。</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:10px;align-items:end;">
         <label style="font-size:13px;">a：A+ / B+<br><input id="${id}-a" type="number" min="0" step="1" value="${defaults.a}" style="width:100%;padding:6px;"></label>
         <label style="font-size:13px;">b：A+ / B−<br><input id="${id}-b" type="number" min="0" step="1" value="${defaults.b}" style="width:100%;padding:6px;"></label>
@@ -73,12 +73,12 @@ function renderMcNemar(el) {
         <label style="font-size:13px;">d：A− / B−<br><input id="${id}-d" type="number" min="0" step="1" value="${defaults.d}" style="width:100%;padding:6px;"></label>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
-        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">计算 McNemar</button>
-        <button id="${id}-swap" type="button" style="padding:8px 16px;background:#95a5a6;color:#fff;border:none;border-radius:6px;cursor:pointer;">交换 b / c</button>
+        <button id="${id}-calc" type="button" style="padding:8px 16px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">计算 McNemar</button>
+        <button id="${id}-swap" type="button" style="padding:8px 16px;background:var(--v2-border-strong);color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">交换 b / c</button>
       </div>
       <canvas id="${id}-canvas" width="560" height="300" style="display:block;margin:0 auto;max-width:100%;"></canvas>
       <div id="${id}-result" style="margin-top:10px;font-size:14px;color:#2c3e50;line-height:1.7;"></div>
-      <div style="margin-top:8px;font-size:12px;color:#666;text-align:center;">同时报告未校正、连续性校正和精确二项法 P 值，方便和不同教材/软件口径对照。</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--v2-fg-muted);text-align:center;">同时报告未校正、连续性校正和精确二项法 P 值，方便和不同教材/软件口径对照。</div>
     </div>`;
 
   const aInput = document.getElementById(`${id}-a`);
@@ -95,7 +95,7 @@ function renderMcNemar(el) {
     const cellW = 130, cellH = 84;
     const x0 = 150, y0 = 70;
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('配对四格表：重点高亮不一致配对', W / 2, 24);
@@ -110,16 +110,16 @@ function renderMcNemar(el) {
     cells.forEach(cell => {
       ctx.fillStyle = cell.fill;
       ctx.fillRect(cell.x, cell.y, cellW - 4, cellH - 4);
-      ctx.strokeStyle = '#555';
+      ctx.strokeStyle = 'var(--v2-fg-muted)';
       ctx.strokeRect(cell.x, cell.y, cellW - 4, cellH - 4);
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = 'var(--v2-fg-secondary)';
       ctx.font = 'bold 16px sans-serif';
       ctx.fillText(String(cell.val), cell.x + (cellW - 4) / 2, cell.y + 42);
       ctx.font = '12px sans-serif';
       ctx.fillText(cell.label, cell.x + (cellW - 4) / 2, cell.y + 62);
     });
 
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = '12px sans-serif';
     ctx.fillText('B：阳性', x0 + cellW / 2, y0 - 12);
     ctx.fillText('B：阴性', x0 + cellW + cellW / 2, y0 - 12);

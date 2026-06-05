@@ -162,7 +162,7 @@ function renderMosaic(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">🧩 ${title}</div>
-      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">
         横向宽度 ∝ 行合计；每个行块内部高度 ∝ 该行内构成比，因此每个矩形面积 ∝ 观察频数。颜色 = Pearson 残差（红=观察&gt;期望，蓝=观察&lt;期望）。
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:10px;align-items:end;">
@@ -171,7 +171,7 @@ function renderMosaic(el) {
         <label style="font-size:13px;grid-column:1 / -1;">列联表矩阵（行内逗号分隔，行间分号分隔）<br><input id="${id}-matrix" type="text" value="${matrixDefault}" style="width:100%;padding:6px;"></label>
       </div>
       <div style="text-align:center;margin-bottom:10px;">
-        <button id="${id}-calc" type="button" style="padding:8px 20px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">重绘马赛克图</button>
+        <button id="${id}-calc" type="button" style="padding:8px 20px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">重绘马赛克图</button>
       </div>
       <canvas id="${id}-canvas" style="display:block;margin:0 auto;max-width:100%;"></canvas>
       <div id="${id}-result" style="margin-top:10px;font-size:14px;color:#2c3e50;line-height:1.7;"></div>
@@ -210,14 +210,14 @@ function renderMosaic(el) {
         const fill = residualColor(residuals[i][j], maxAbsRes);
         ctx.fillStyle = fill;
         ctx.fillRect(x + 1, y + 1, Math.max(0, blockW - 2), Math.max(0, cellH - 2));
-        ctx.strokeStyle = '#fff';
+        ctx.strokeStyle = 'var(--v2-bg-elevated)';
         ctx.lineWidth = 1.5;
         ctx.strokeRect(x + 1, y + 1, Math.max(0, blockW - 2), Math.max(0, cellH - 2));
 
         if (blockW > 45 && cellH > 24) {
           const cx = x + blockW / 2;
           const cy = y + cellH / 2;
-          ctx.fillStyle = '#222';
+          ctx.fillStyle = 'var(--v2-fg)';
           ctx.font = 'bold 12px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -235,7 +235,7 @@ function renderMosaic(el) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       ctx.fillText(rowLabels[i], x + blockW / 2, pad.t + plotH + 6);
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.font = '11px sans-serif';
       ctx.fillText(`n=${rowTotals[i]}`, x + blockW / 2, pad.t + plotH + 23);
       x += blockW;
@@ -263,7 +263,7 @@ function renderMosaic(el) {
     result.innerHTML = `
       <strong>Pearson χ²</strong> = ${stats.chisq.toFixed(4)}，df = ${stats.df}，P ≈ ${formatP(stats.p)} &nbsp;|&nbsp;
       <strong>最大 |残差|</strong> = ${maxAbs.toFixed(3)}<br>
-      <span style="color:#64748b;font-size:12px;">注意：矩形面积使用观察频数；颜色使用独立性模型下的 Pearson 残差。</span>`;
+      <span style="color:var(--v2-fg-muted);font-size:12px;">注意：矩形面积使用观察频数；颜色使用独立性模型下的 Pearson 残差。</span>`;
   }
 
   document.getElementById(`${id}-calc`).addEventListener('click', compute);
@@ -285,7 +285,7 @@ function renderContingencyHeatmap(el) {
   el.innerHTML = `
     <div class="viz-card">
       <div class="viz-header">🔥 ${title}</div>
-      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:#666;">
+      <div style="margin:6px 0 10px;text-align:center;font-size:12px;color:var(--v2-fg-muted);">
         三种视图：<strong>残差</strong>（观察−期望）最适合发现哪些单元格对整体 χ² 贡献较大；观察频数 / 期望频数用于辅助核对。
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:10px;align-items:end;">
@@ -294,7 +294,7 @@ function renderContingencyHeatmap(el) {
         <label style="font-size:13px;grid-column:1 / -1;">列联表矩阵（行内逗号分隔，行间分号分隔）<br><input id="${id}-matrix" type="text" value="${matrixDefault}" style="width:100%;padding:6px;"></label>
       </div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
-        <button id="${id}-calc" type="button" style="padding:7px 14px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">重绘热力图</button>
+        <button id="${id}-calc" type="button" style="padding:7px 14px;background:#3498db;color:var(--v2-bg-elevated);border:none;border-radius:6px;cursor:pointer;">重绘热力图</button>
         <button id="${id}-res" class="path-tab active" type="button">Pearson 残差</button>
         <button id="${id}-obs" class="path-tab" type="button">观察频数</button>
         <button id="${id}-exp" class="path-tab" type="button">期望频数</button>
@@ -345,7 +345,7 @@ function renderContingencyHeatmap(el) {
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(titleMap[mode], W / 2, 22);
 
-    ctx.fillStyle = '#555';
+    ctx.fillStyle = 'var(--v2-fg-muted)';
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
     for (let j = 0; j < colLabels.length; j++) {
@@ -379,10 +379,10 @@ function renderContingencyHeatmap(el) {
 
         ctx.fillStyle = fill;
         ctx.fillRect(x + 1, y + 1, Math.max(0, cellW - 2), Math.max(0, cellH - 2));
-        ctx.strokeStyle = '#fff';
+        ctx.strokeStyle = 'var(--v2-bg-elevated)';
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 1, y + 1, Math.max(0, cellW - 2), Math.max(0, cellH - 2));
-        ctx.fillStyle = '#222';
+        ctx.fillStyle = 'var(--v2-fg)';
         ctx.font = 'bold 13px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -394,7 +394,7 @@ function renderContingencyHeatmap(el) {
     ctx.lineWidth = 1;
     ctx.strokeRect(pad.l, pad.t, plotW, plotH);
 
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = 'var(--v2-fg-muted)';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';

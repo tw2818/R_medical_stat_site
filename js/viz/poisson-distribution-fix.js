@@ -66,7 +66,7 @@ function renderPoissonDistributionFixed(el) {
         </label>
       </div>
       <div id="${id}-stats" class="viz-stats" style="line-height:1.7;"></div>
-      <div style="font-size:12px;color:#64748b;text-align:center;margin-top:8px;">
+      <div style="font-size:12px;color:var(--v2-fg-muted);text-align:center;margin-top:8px;">
         泊松分布中 E(X)=Var(X)=λ。拖动 λ 时会自动调整建议显示范围；阴影为 P(X≤k)，红柱为当前 k。
       </div>
     </div>`;
@@ -113,7 +113,7 @@ function renderPoissonDistributionFixed(el) {
     ctx.fillStyle = 'rgba(248,250,252,1)';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(`X ~ Poisson(${lambda.toFixed(1)})`, W / 2, 22);
@@ -128,7 +128,7 @@ function renderPoissonDistributionFixed(el) {
       ctx.stroke();
     }
 
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.moveTo(pad.l, pad.t);
@@ -152,7 +152,7 @@ function renderPoissonDistributionFixed(el) {
 
     const lambdaX = sx(Math.min(lambda, maxK));
     ctx.save();
-    ctx.strokeStyle = '#0f172a';
+    ctx.strokeStyle = 'var(--v2-fg)';
     ctx.setLineDash([5, 4]);
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -160,7 +160,7 @@ function renderPoissonDistributionFixed(el) {
     ctx.lineTo(lambdaX, pad.t + plotH);
     ctx.stroke();
     ctx.restore();
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('均数 λ', clamp(lambdaX, pad.l + 30, W - pad.r - 30), pad.t + 14);
@@ -173,7 +173,7 @@ function renderPoissonDistributionFixed(el) {
     ctx.lineTo(kX, pad.t + plotH + 4);
     ctx.stroke();
 
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     const tickCount = Math.min(10, maxK);

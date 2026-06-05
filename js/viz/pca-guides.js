@@ -121,23 +121,23 @@ function ensureStyles() {
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-    .pca-guide-card{background:#f6f7fb;border:1px solid #dbe3ef;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:#334155;}
+    .pca-guide-card{background:var(--v2-bg-elevated);border:1px solid #dbe3ef;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:var(--v2-fg-secondary);}
     .pca-guide-head{display:flex;gap:14px;align-items:center;margin-bottom:12px;}
-    .pca-guide-icon{min-width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;box-shadow:0 8px 18px rgba(79,70,229,.22);padding:0 8px;}
-    .pca-guide-title{font-size:18px;font-weight:800;color:#1e293b;margin:0;}
-    .pca-guide-badge{display:inline-block;background:#ede9fe;color:#5b21b6;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
-    .pca-guide-lead{margin:8px 0 14px;color:#475569;line-height:1.75;}
+    .pca-guide-icon{min-width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:var(--v2-bg-elevated);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;box-shadow:0 8px 18px rgba(79,70,229,.22);padding:0 8px;}
+    .pca-guide-title{font-size:18px;font-weight:800;color:var(--v2-fg);margin:0;}
+    .pca-guide-badge{display:inline-block;background:var(--v2-secondary-subtle);color:#5b21b6;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
+    .pca-guide-lead{margin:8px 0 14px;color:var(--v2-fg-secondary);line-height:1.75;}
     .pca-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
-    .pca-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;line-height:1.65;}
+    .pca-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:12px;line-height:1.65;}
     .pca-guide-item strong{display:block;color:#5b21b6;margin-bottom:6px;}
-    .pca-guide-note{margin-top:12px;font-size:13px;color:#64748b;background:#fff;border-left:4px solid #7c3aed;border-radius:10px;padding:10px 12px;}
+    .pca-guide-note{margin-top:12px;font-size:13px;color:var(--v2-fg-muted);background:var(--v2-bg-elevated);border-left:4px solid #7c3aed;border-radius:10px;padding:10px 12px;}
     .pca-choice-panel{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(280px,1.15fr);gap:14px;align-items:stretch;}
-    .pca-choice-control,.pca-choice-output{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;}
+    .pca-choice-control,.pca-choice-output{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:14px;}
     .pca-choice-control label{display:block;font-weight:700;color:#5b21b6;margin-bottom:8px;}
-    .pca-choice-control select{width:100%;accent-color:#7c3aed;border:1px solid #cbd5e1;border-radius:10px;padding:8px;background:#fff;}
-    .pca-choice-label{font-size:13px;color:#64748b;line-height:1.65;}
-    .pca-choice-metric{font-size:21px;font-weight:800;color:#0f172a;margin:6px 0;line-height:1.35;}
-    .pca-code-pill{display:block;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:10px;margin:8px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:normal;}
+    .pca-choice-control select{width:100%;accent-color:#7c3aed;border:1px solid var(--v2-border);border-radius:10px;padding:8px;background:var(--v2-bg-elevated);}
+    .pca-choice-label{font-size:13px;color:var(--v2-fg-muted);line-height:1.65;}
+    .pca-choice-metric{font-size:21px;font-weight:800;color:var(--v2-fg);margin:6px 0;line-height:1.35;}
+    .pca-code-pill{display:block;background:var(--v2-fg);color:var(--v2-border);border-radius:12px;padding:10px;margin:8px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:normal;}
     @media(max-width:720px){.pca-choice-panel{grid-template-columns:1fr}.pca-guide-card{padding:14px}.pca-guide-head{align-items:flex-start}}
   `;
   document.head.appendChild(style);

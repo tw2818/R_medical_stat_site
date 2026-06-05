@@ -53,7 +53,7 @@ import { registerViz, ensureJStat } from './_core.js';
       ctx.clearRect(0, 0, W, H);
       const testType = document.getElementById(id + '-type').value;
       const testLabel = testTypes[testType] || '两样本t检验';
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('功效曲线 (' + testLabel + ')', W / 2, 20);
 
       const d = parseFloat(document.getElementById(id + '-dval').textContent);
@@ -68,7 +68,7 @@ import { registerViz, ensureJStat } from './_core.js';
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
       // Power curve (simplified: power increases with n for fixed effect size)
@@ -78,7 +78,7 @@ import { registerViz, ensureJStat } from './_core.js';
 
       // Reference lines at power=0.8 and alpha
       ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+      ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(padL, scaleY(0.8)); ctx.lineTo(padL + plotW, scaleY(0.8)); ctx.stroke();
       ctx.setLineDash([]);
 
@@ -102,7 +102,7 @@ import { registerViz, ensureJStat } from './_core.js';
       ctx.stroke();
 
       // Labels
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       for (let i = 0; i <= 5; i++) {
         ctx.textAlign = 'center';
         ctx.fillText(Math.round((i / 5) * maxN) + '', padL + (i / 5) * plotW, padT + plotH + 16);
@@ -116,7 +116,7 @@ import { registerViz, ensureJStat } from './_core.js';
 
       // Annotate power reference line
       const selPower = parseFloat(document.getElementById(id + '-pwrval').textContent);
-      ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-subtle)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText('power=' + selPower.toFixed(2), padL + plotW + 2, scaleY(selPower) + 4);
     }
 
@@ -190,7 +190,7 @@ registerViz('power', renderPower);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">
+      <div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">
         垂直虚线 β=0 表示无效线 | 误差线为 95% CI
       </div>
     </div>`;
@@ -199,7 +199,7 @@ registerViz('power', renderPower);
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, W, H);
 
-    ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // Ref line at 0
@@ -207,14 +207,14 @@ registerViz('power', renderPower);
     const minV = Math.min(...allVals), maxV = Math.max(...allVals);
     const scaleX = v => padL + ((v - minV) / (maxV - minV + 0.01)) * (W - padL - padR);
     const refX = scaleX(0);
-    ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(refX, padT); ctx.lineTo(refX, H - padB); ctx.stroke();
     ctx.setLineDash([]);
 
     betas.forEach((beta, i) => {
       const y = padT + i * rowH + rowH * 0.3;
       // Label
-      ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(labels[i], padL - 8, y + barH / 2 + 4);
       // CI line
       ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
@@ -250,7 +250,7 @@ registerViz('coefci', renderCoefCI);
         <div>
           <label style="font-size:13px;display:block;margin-bottom:6px;">效应量 d / w:</label>
           <input type="range" id="${id}-d" min="1" max="30" value="10" step="1" style="width:100%;">
-          <span id="${id}-dv" style="font-size:12px;color:#555;">0.5</span>
+          <span id="${id}-dv" style="font-size:12px;color:var(--v2-fg-muted);">0.5</span>
         </div>
         <div>
           <label style="font-size:13px;display:block;margin-bottom:6px;">显著性水平 α:</label>
@@ -280,7 +280,7 @@ registerViz('coefci', renderCoefCI);
         <div>
           <label style="font-size:13px;display:block;margin-bottom:6px;">组数比例:</label>
           <input type="range" id="${id}-r" min="1" max="3" value="1" step="0.1" style="width:100%;">
-          <span id="${id}-rv" style="font-size:12px;color:#555;">1:1</span>
+          <span id="${id}-rv" style="font-size:12px;color:var(--v2-fg-muted);">1:1</span>
         </div>
       </div>
       <div style="text-align:center;padding:0 12px 12px;">
@@ -340,7 +340,7 @@ registerViz('samplesizecalc', renderSampleSizeCalc);
     el.innerHTML = `<div class="viz-card">
       <div class="viz-header">📊 ${title}</div>
       <canvas id="${id}" width="420" height="260" style="display:block;margin:0 auto;"></canvas>
-      <div style="text-align:center;margin-top:8px;font-size:13px;color:#555;">
+      <div style="text-align:center;margin-top:8px;font-size:13px;color:var(--v2-fg-muted);">
         NNT = <strong style="color:#2980b9;font-size:16px;">${nnt}</strong>
         &nbsp;(95% CI: ${ciLower} - ${ciUpper})
       </div>
@@ -355,7 +355,7 @@ registerViz('samplesizecalc', renderSampleSizeCalc);
     ctx.clearRect(0, 0, W, H);
 
     // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 20);
 
     // Draw arrow/bar representing NNT scale
@@ -374,7 +374,7 @@ registerViz('samplesizecalc', renderSampleSizeCalc);
 
     // Tick marks
     const maxVal = Math.max(nnt * 1.5, ciUpper * 1.2);
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
     for (let i = 0; i <= 5; i++) {
       const x = startX + (i / 5) * arrowLen;
       const v = (i / 5) * maxVal;
@@ -387,7 +387,7 @@ registerViz('samplesizecalc', renderSampleSizeCalc);
     const nntX = startX + (nnt / maxVal) * arrowLen;
     ctx.fillStyle = '#e74c3c';
     ctx.beginPath(); ctx.arc(nntX, barY, 8, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-bg-elevated)'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(nnt, nntX, barY + 4);
 
     // CI range
@@ -399,7 +399,7 @@ registerViz('samplesizecalc', renderSampleSizeCalc);
     ctx.setLineDash([]);
 
     // Labels
-    ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
     ctx.fillText('需治人数越低，治疗效果越好', padL, H - 10);
     ctx.textAlign = 'right'; ctx.fillStyle = '#e74c3c';
     ctx.fillText('● NNT', W - 10, H - 10);
@@ -426,7 +426,7 @@ registerViz('nnt', renderNNT);
     const predLabels = ['预测阳性', '预测阴性'];
     const cellW = 90, cellH = 70, padL = 80, padT = 50;
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
     // Draw cells
     mat.forEach((row, i) => {
@@ -436,14 +436,14 @@ registerViz('nnt', renderNNT);
         const intensity = Math.floor(frac * 510);
         ctx.fillStyle = i === j ? `rgb(${Math.min(255, intensity * 2)}, ${Math.max(100, 255 - intensity)}, 100)` : `rgb(${Math.min(255, intensity * 2)}, 100, ${Math.max(100, 255 - intensity)})`;
         ctx.fillRect(cx, cy, cellW - 4, cellH - 4);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'var(--v2-bg-elevated)'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(val, cx + cellW / 2 - 2, cy + cellH / 2 + 6);
         ctx.font = '10px sans-serif'; ctx.fillStyle = '#ddd';
         ctx.fillText(((val / (tp + fp + fn + tn)) * 100).toFixed(1) + '%', cx + cellW / 2 - 2, cy + cellH / 2 + 20);
       });
     });
     // Axis labels
-    ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
     predLabels.forEach((l, j) => ctx.fillText(l, padL + j * cellW + cellW / 2, padT - 8));
     ctx.save(); ctx.translate(padL - 38, padT + cellH);
     ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('实际', 0, 0); ctx.restore();
@@ -476,7 +476,7 @@ registerViz('confusionmatrix', renderConfusionMatrix);
     const Z2 = parseArray(el.dataset.z2, [0.5, 0.9, 1.2, 1.5, 1.8]);
     const N = parseArray(el.dataset.n, [20, 40, 60, 80, 100]);
     const W = 520, H = 360;
-    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">红色虚线：有效边界 | 绿色虚线：无效边界 | 蓝/橙线：两条期中分析轨迹</div></div>';
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:12px;color:var(--v2-fg-muted);margin-top:6px;">红色虚线：有效边界 | 绿色虚线：无效边界 | 蓝/橙线：两条期中分析轨迹</div></div>';
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
     const pad = {t: 35, r: 30, b: 50, l: 55};
@@ -488,7 +488,7 @@ registerViz('confusionmatrix', renderConfusionMatrix);
     const zAlpha = 1.96, zBeta = 1.28;
 
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // Grid and zero line
@@ -497,7 +497,7 @@ registerViz('confusionmatrix', renderConfusionMatrix);
       const zv = zMin + (zMax - zMin) * i / 4;
       ctx.beginPath(); ctx.moveTo(pad.l, yOf(zv)); ctx.lineTo(pad.l + iW, yOf(zv)); ctx.stroke();
     }
-    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pad.l, yOf(0)); ctx.lineTo(pad.l + iW, yOf(0)); ctx.stroke();
 
     // Visible simplified stopping boundaries.
@@ -513,9 +513,9 @@ registerViz('confusionmatrix', renderConfusionMatrix);
     ctx.fillText('无效边界 Z=-1.28', pad.l + iW * 0.56, yOf(-zBeta) + 14);
 
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     for (let i = 0; i <= 4; i++) {
       const nv = nMin + (nMax - nMin) * i / 4;
@@ -526,7 +526,7 @@ registerViz('confusionmatrix', renderConfusionMatrix);
       ctx.textAlign = 'right'; ctx.fillText(zv.toFixed(1), pad.l - 5, yOf(zv) + 4);
     }
     ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif';
     ctx.fillText('累计Z值', 0, 0); ctx.restore();
     ctx.textAlign = 'center'; ctx.fillText('样本量 n', pad.l + iW / 2, H - 4);
 
@@ -545,7 +545,7 @@ registerViz('confusionmatrix', renderConfusionMatrix);
         const crossed = z >= zAlpha || z <= -zBeta;
         ctx.fillStyle = crossed ? '#e74c3c' : color;
         ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'var(--v2-bg-elevated)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(i + 1, px, py + 3);
       });
       ctx.fillStyle = color; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
@@ -584,7 +584,7 @@ registerViz('sequential', renderSequentialAnalysis);
     ctx.clearRect(0, 0, W, H);
 
     // Title
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
 
     // X axis: 0 to 1 (probability)
@@ -616,19 +616,19 @@ registerViz('sequential', renderSequentialAnalysis);
     }
 
     // X axis
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     for (let i = 0; i <= 10; i++) {
       const v = i / 10;
       ctx.fillText(v.toFixed(1), scaleX(v), padT + plotH + 15);
     }
-    ctx.fillStyle = '#333'; ctx.font = '12px sans-serif';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif';
     ctx.fillText('预测概率', padL + plotW / 2, H - 8);
 
     // Y axis
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.stroke();
-    ctx.textAlign = 'right'; ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
     for (let i = 0; i <= 4; i++) {
       const v = Math.round((i / 4) * maxCount);
       const y = scaleY(v);
@@ -733,7 +733,7 @@ registerViz('riskdist', renderRiskScoreDist);
 
     function drawPowerCurve() {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('功效曲线 (两组率比较)', W / 2, 20);
 
       const { p1, p2, alpha, power } = getParams();
@@ -748,7 +748,7 @@ registerViz('riskdist', renderRiskScoreDist);
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
       const maxN = 500;
@@ -757,7 +757,7 @@ registerViz('riskdist', renderRiskScoreDist);
 
       // Reference line at power
       ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+      ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(padL, scaleY(power)); ctx.lineTo(padL + plotW, scaleY(power)); ctx.stroke();
       ctx.setLineDash([]);
 
@@ -774,7 +774,7 @@ registerViz('riskdist', renderRiskScoreDist);
       ctx.stroke();
 
       // Labels
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       for (let i = 0; i <= 5; i++) {
         ctx.textAlign = 'center';
         ctx.fillText(Math.round((i / 5) * maxN) + '', padL + (i / 5) * plotW, padT + plotH + 16);
@@ -787,9 +787,9 @@ registerViz('riskdist', renderRiskScoreDist);
       ctx.fillText('功效 (1-β)', 0, 0); ctx.restore();
 
       // Annotate
-      ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-subtle)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText('power=' + power.toFixed(2), padL + plotW + 2, scaleY(power) + 4);
-      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       ctx.fillText(`p₁=${p1.toFixed(2)}, p₂=${p2.toFixed(2)}, Δ=${diff.toFixed(2)}`, padL + 5, padT + 15);
     }
 
@@ -873,7 +873,7 @@ registerViz('proppower', renderPropPower);
 
     function drawPowerCurve() {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('功效曲线 (相关性分析)', W / 2, 20);
 
       const { r, alpha } = getParams();
@@ -887,7 +887,7 @@ registerViz('proppower', renderPropPower);
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
       const maxN = 200;
@@ -896,7 +896,7 @@ registerViz('proppower', renderPropPower);
 
       // Reference line at power=0.8
       ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+      ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(padL, scaleY(0.8)); ctx.lineTo(padL + plotW, scaleY(0.8)); ctx.stroke();
       ctx.setLineDash([]);
 
@@ -916,7 +916,7 @@ registerViz('proppower', renderPropPower);
       ctx.stroke();
 
       // Labels
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       for (let i = 0; i <= 5; i++) {
         ctx.textAlign = 'center';
         ctx.fillText(Math.round((i / 5) * maxN) + '', padL + (i / 5) * plotW, padT + plotH + 16);
@@ -929,9 +929,9 @@ registerViz('proppower', renderPropPower);
       ctx.fillText('功效 (1-β)', 0, 0); ctx.restore();
 
       // Annotate
-      ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-subtle)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText('power=0.8', padL + plotW + 2, scaleY(0.8) + 4);
-      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       ctx.fillText(`r=${r.toFixed(2)}, α=${alpha.toFixed(2)}`, padL + 5, padT + 15);
     }
 
@@ -984,22 +984,22 @@ registerViz('corrpower', renderCorrPower);
         <div>
           <label style="font-size:13px;display:block;margin-bottom:4px;">组数 k:</label>
           <input type="range" id="${id}-k" min="2" max="10" value="3" step="1" style="width:100%;">
-          <span id="${id}-kval" style="font-size:12px;color:#555;">3</span>
+          <span id="${id}-kval" style="font-size:12px;color:var(--v2-fg-muted);">3</span>
         </div>
         <div>
           <label style="font-size:13px;display:block;margin-bottom:4px;">每组样本量 n:</label>
           <input type="range" id="${id}-n" min="5" max="100" value="30" step="1" style="width:100%;">
-          <span id="${id}-nval" style="font-size:12px;color:#555;">30</span>
+          <span id="${id}-nval" style="font-size:12px;color:var(--v2-fg-muted);">30</span>
         </div>
         <div>
           <label style="font-size:13px;display:block;margin-bottom:4px;">组间方差 σ²<sub>b</sub>:</label>
           <input type="range" id="${id}-vb" min="1" max="100" value="25" step="1" style="width:100%;">
-          <span id="${id}-vbval" style="font-size:12px;color:#555;">2.50</span>
+          <span id="${id}-vbval" style="font-size:12px;color:var(--v2-fg-muted);">2.50</span>
         </div>
         <div>
           <label style="font-size:13px;display:block;margin-bottom:4px;">组内方差 σ²<sub>w</sub>:</label>
           <input type="range" id="${id}-vw" min="1" max="100" value="75" step="1" style="width:100%;">
-          <span id="${id}-vwval" style="font-size:12px;color:#555;">7.50</span>
+          <span id="${id}-vwval" style="font-size:12px;color:var(--v2-fg-muted);">7.50</span>
         </div>
       </div>
       <div style="text-align:center;padding:0 12px 12px;">
@@ -1054,7 +1054,7 @@ registerViz('corrpower', renderCorrPower);
       ];
 
       // Title
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('ANOVA 效应量 (k=' + k + ', n=' + n + ')', W / 2, 18);
 
       // Grid
@@ -1066,7 +1066,7 @@ registerViz('corrpower', renderCorrPower);
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
       // Draw bars
@@ -1087,7 +1087,7 @@ registerViz('corrpower', renderCorrPower);
         const y = padT + plotH - t * normScale;
         if (y > padT) {
           ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
-          ctx.fillStyle = '#aaa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillStyle = 'var(--v2-fg-subtle)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
           ctx.fillText(interpretation[i].label, padL + 4, y - 3);
         }
       });
@@ -1102,19 +1102,19 @@ registerViz('corrpower', renderCorrPower);
         ctx.fillRect(x, y, barW * 0.6, barHeight);
 
         // Value label
-        ctx.fillStyle = '#333'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(m.label.replace('<sub>', '').replace('</sub>', ''), x + barW * 0.3, y - 5);
         ctx.fillText(m.value.toFixed(3), x + barW * 0.3, y + barHeight + 14);
 
         // Interpretation badge
         let interp = m.value < 0 ? '~0' : m.value < 0.01 ? '极小' : m.value < 0.06 ? '小' : m.value < 0.14 ? '中' : '大';
 
-        ctx.fillStyle = '#666'; ctx.font = '10px sans-serif';
+        ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '10px sans-serif';
         ctx.fillText('(' + interp + ')', x + barW * 0.3, y + barHeight + 26);
       });
 
       // Y-axis label
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('效应量大小', padL + plotW / 2, H - 5);
       ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);

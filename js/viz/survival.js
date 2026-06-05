@@ -19,7 +19,7 @@ import { registerViz } from './_core.js';
         <div class="viz-body">
           <canvas class="viz-canvas" style="width:100%;max-width:640px;height:300px;display:block;margin:0 auto;"></canvas>
         </div>
-        <div class="viz-result" style="text-align:center;font-size:13px;padding:6px;color:#555;background:#f8f9fa;border-top:1px solid #eee;"></div>
+        <div class="viz-result" style="text-align:center;font-size:13px;padding:6px;color:var(--v2-fg-muted);background:var(--v2-bg-elevated);border-top:1px solid #eee;"></div>
       </div>
     `;
 
@@ -69,11 +69,11 @@ import { registerViz } from './_core.js';
       }
 
       // Axes
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b);
       ctx.stroke();
-      ctx.fillStyle = '#555'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('生存时间', W / 2, H - 6);
       ctx.save(); ctx.translate(16, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('生存概率 S(t)', 0, 0); ctx.restore();
 
@@ -82,7 +82,7 @@ import { registerViz } from './_core.js';
       for (let i = 0; i <= 4; i++) {
         const y = pad.t + (i / 4) * ih;
         ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-        ctx.fillStyle = '#666'; ctx.font = '18px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '18px sans-serif'; ctx.textAlign = 'right';
         ctx.fillText((1 - i * 0.25).toFixed(2), pad.l - 6, y + 6);
       }
 
@@ -129,11 +129,11 @@ import { registerViz } from './_core.js';
 
       // Legend
       ctx.fillStyle = '#2980b9'; ctx.fillRect(pad.l + 10, pad.t + 8, 20, 3);
-      ctx.fillStyle = '#555'; ctx.font = '18px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '18px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText('生存曲线', pad.l + 38, pad.t + 12);
       ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(pad.l + 10, pad.t + 24); ctx.lineTo(pad.l + 30, pad.t + 24); ctx.stroke();
-      ctx.fillStyle = '#555';
+      ctx.fillStyle = 'var(--v2-fg-muted)';
       ctx.fillText('截尾', pad.l + 38, pad.t + 28);
 
       // Result text
@@ -172,7 +172,7 @@ let survivalCompCounter = 0;
       <div style="text-align:center;margin-top:8px;">
         <span style="display:inline-block;width:20px;height:3px;background:#e74c3c;vertical-align:middle;margin-right:4px;"></span> ${label1}
         <span style="display:inline-block;width:20px;height:3px;background:#2980b9;vertical-align:middle;margin-left:16px;margin-right:4px;"></span> ${label2}
-        <span style="margin-left:16px;font-size:13px;color:#555;">中位生存时间: <strong id="${id}-med1">--</strong> vs <strong id="${id}-med2">--</strong></span>
+        <span style="margin-left:16px;font-size:13px;color:var(--v2-fg-muted);">中位生存时间: <strong id="${id}-med1">--</strong> vs <strong id="${id}-med2">--</strong></span>
       </div>
     </div>`;
 
@@ -224,10 +224,10 @@ let survivalCompCounter = 0;
     }
 
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
 
-    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('时间', padL + plotW / 2, H - 4);
     ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
     ctx.fillText('生存概率 S(t)', 0, 0); ctx.restore();
@@ -282,13 +282,13 @@ registerViz('survcomp', renderSurvivalComp);
     let pred = el.dataset.pred ? JSON.parse(el.dataset.pred) : [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
     let obs = el.dataset.obs ? JSON.parse(el.dataset.obs) : [0.12, 0.18, 0.28, 0.38, 0.52, 0.65, 0.72, 0.82, 0.88];
     const W = 480, H = 380;
-    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div id="' + id + '-info" style="text-align:center;font-size:12px;color:#555;margin-top:4px;"></div></div>';
+    el.innerHTML = '<div class="viz-card"><div class="viz-header">📊 ' + title + '</div><canvas id="' + id + '" width="' + W + '" height="' + H + '" style="display:block;margin:0 auto;"></canvas><div id="' + id + '-info" style="text-align:center;font-size:12px;color:var(--v2-fg-muted);margin-top:4px;"></div></div>';
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
     const pad = {t: 35, r: 30, b: 50, l: 55};
     const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(title, W / 2, 22);
     // Grid
     ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
@@ -298,10 +298,10 @@ registerViz('survcomp', renderSurvivalComp);
       ctx.beginPath(); ctx.moveTo(pad.l, yv); ctx.lineTo(pad.l + iW, yv); ctx.stroke();
     }
     // Perfect calibration line (45°)
-    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#aaa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'var(--v2-fg-subtle)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
     ctx.fillText('完美校准', pad.l + iW * 0.65, pad.t + iH * 0.3);
     // LOESS/line of best fit through points
     const xOf = v => pad.l + v * iW;
@@ -319,9 +319,9 @@ registerViz('survcomp', renderSurvivalComp);
       ctx.fillStyle = '#2980b9'; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
     });
     // Axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + iH); ctx.lineTo(pad.l + iW, pad.t + iH); ctx.stroke();
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     for (let i = 0; i <= 5; i++) {
       const v = i / 5;
@@ -329,9 +329,9 @@ registerViz('survcomp', renderSurvivalComp);
       ctx.textAlign = 'right'; ctx.fillText(v.toFixed(1), pad.l - 5, yOf(v) + 4);
     }
     ctx.save(); ctx.translate(14, pad.t + iH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif';
     ctx.fillText('预测概率', 0, 0); ctx.restore();
-    ctx.textAlign = 'center'; ctx.fillStyle = '#555'; ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif';
     ctx.fillText('实际发生率', pad.l + iW / 2, H - 4);
     // Stats: Hosmer-Lemeshow approximation
     let hlChi2 = 0;

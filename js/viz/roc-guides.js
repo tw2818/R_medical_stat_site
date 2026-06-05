@@ -48,26 +48,26 @@ function ensureRocGuideStyles() {
   const style = document.createElement('style');
   style.id = 'roc-guide-styles';
   style.textContent = `
-    .roc-guide-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:960px;margin:22px 0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:#0f172a;}
-    .roc-guide-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;font-size:15px;font-weight:750;color:#0f172a;}
+    .roc-guide-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:960px;margin:22px 0;background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:var(--v2-fg);}
+    .roc-guide-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--v2-border);background:var(--v2-bg-elevated);font-size:15px;font-weight:750;color:var(--v2-fg);}
     .roc-guide-icon{font-size:18px;line-height:1;}
     .roc-guide-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px;}
-    .roc-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:130px;}
-    .roc-guide-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
-    .roc-guide-title{font-size:16px;font-weight:750;line-height:1.35;color:#0f172a;margin:0 0 8px;}
-    .roc-guide-desc{font-size:13.5px;line-height:1.7;color:#64748b;margin:0;}
+    .roc-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:130px;}
+    .roc-guide-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--v2-secondary-subtle);color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
+    .roc-guide-title{font-size:16px;font-weight:750;line-height:1.35;color:var(--v2-fg);margin:0 0 8px;}
+    .roc-guide-desc{font-size:13.5px;line-height:1.7;color:var(--v2-fg-muted);margin:0;}
     .roc-trade-body{display:grid;grid-template-columns:280px 1fr;gap:14px;padding:14px;}
-    .roc-trade-controls,.roc-trade-panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;}
-    .roc-trade-controls label{display:block;margin:0 0 12px;color:#334155;font-size:13px;font-weight:700;}
+    .roc-trade-controls,.roc-trade-panel{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;padding:14px;}
+    .roc-trade-controls label{display:block;margin:0 0 12px;color:var(--v2-fg-secondary);font-size:13px;font-weight:700;}
     .roc-trade-controls input[type="range"]{width:100%;margin-top:8px;}
     .roc-trade-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px;}
-    .roc-stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px;text-align:center;}
-    .roc-stat b{display:block;color:#0f172a;font-size:15px;margin-bottom:3px;}
-    .roc-stat span{font-size:12px;color:#64748b;}
-    .roc-threshold-table{width:100%;border-collapse:collapse;font-size:13px;color:#334155;}
-    .roc-threshold-table th,.roc-threshold-table td{border-bottom:1px solid #e2e8f0;padding:7px 8px;text-align:center;}
-    .roc-threshold-table th{background:#f8fafc;color:#475569;font-weight:750;}
-    .roc-note{font-size:13px;line-height:1.65;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin:10px 0 0;}
+    .roc-stat{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:10px;padding:9px;text-align:center;}
+    .roc-stat b{display:block;color:var(--v2-fg);font-size:15px;margin-bottom:3px;}
+    .roc-stat span{font-size:12px;color:var(--v2-fg-muted);}
+    .roc-threshold-table{width:100%;border-collapse:collapse;font-size:13px;color:var(--v2-fg-secondary);}
+    .roc-threshold-table th,.roc-threshold-table td{border-bottom:1px solid var(--v2-border);padding:7px 8px;text-align:center;}
+    .roc-threshold-table th{background:var(--v2-bg-elevated);color:var(--v2-fg-secondary);font-weight:750;}
+    .roc-note{font-size:13px;line-height:1.65;color:var(--v2-fg-muted);background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:10px;padding:10px;margin:10px 0 0;}
     @media (max-width:980px){.roc-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.roc-trade-body{grid-template-columns:1fr;}}
     @media (max-width:640px){.roc-guide-grid{grid-template-columns:1fr;}.roc-guide-item{min-height:auto;}.roc-trade-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
   `;

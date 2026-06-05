@@ -115,7 +115,7 @@ function renderBinomialCIFixed(el) {
         </label>
       </div>
       <div id="${id}-stats" class="viz-stats" style="line-height:1.7;"></div>
-      <div style="font-size:12px;color:#64748b;text-align:center;margin-top:8px;">
+      <div style="font-size:12px;color:var(--v2-fg-muted);text-align:center;margin-top:8px;">
         拖动 n 时会自动约束 x ≤ n；x = 0 或 x = n 时精确区间可给出边界，正态近似会退化。
       </div>
     </div>`;
@@ -146,13 +146,13 @@ function renderBinomialCIFixed(el) {
 
   function drawAxis(pad, W, H) {
     const y = H - pad.b;
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(pad.l, y);
     ctx.lineTo(W - pad.r, y);
     ctx.stroke();
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     for (let i = 0; i <= 5; i++) {
@@ -181,7 +181,7 @@ function renderBinomialCIFixed(el) {
       ctx.arc(sx(v), y, 5, 0, Math.PI * 2);
       ctx.fill();
     });
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(label, sx(0) - 12, y + 4);
@@ -213,13 +213,13 @@ function renderBinomialCIFixed(el) {
 
     drawAxis(pad, W, H);
 
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(`样本率 p̂ = ${x}/${n} = ${pct(pHat)}`, W / 2, 22);
 
     ctx.save();
-    ctx.strokeStyle = '#64748b';
+    ctx.strokeStyle = 'var(--v2-fg-muted)';
     ctx.setLineDash([5, 4]);
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -227,7 +227,7 @@ function renderBinomialCIFixed(el) {
     ctx.lineTo(sx(pHat), H - pad.b + 2);
     ctx.stroke();
     ctx.restore();
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = 'var(--v2-fg-muted)';
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('p̂', sx(pHat), pad.t + 4);

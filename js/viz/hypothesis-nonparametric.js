@@ -10,7 +10,7 @@ function renderWilcoxonSignedRank(el) {
   el.innerHTML = `<div class="viz-card">
     <div class="viz-header">📊 ${title}</div>
     <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-    <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:#333;"></div>
+    <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:var(--v2-fg-secondary);"></div>
   </div>`;
   const canvas = document.getElementById(id);
   const ctx = canvas.getContext('2d');
@@ -55,7 +55,7 @@ function renderWilcoxonSignedRank(el) {
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#f0f0f0';
     ctx.fillRect(pad.l, pad.t, iW, iH);
-    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
     const yTicks = 5;
@@ -65,7 +65,7 @@ function renderWilcoxonSignedRank(el) {
       ctx.strokeStyle = '#ddd'; ctx.setLineDash([2,2]);
       ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(yVal, pad.l - 5, yPx + 4);
     }
     barData.forEach((bar, idx) => {
@@ -74,9 +74,9 @@ function renderWilcoxonSignedRank(el) {
       const hlColor = bar.item.d > 0 ? '#4da6ff' : '#e74c3c';
       ctx.fillStyle = isHl ? hlColor : baseColor;
       ctx.fillRect(bar.x, bar.barY, bar.barW, bar.barH);
-      ctx.fillStyle = '#222'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg)'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('T=' + bar.item.rank.toFixed(0), bar.x + bar.barW/2, bar.item.d > 0 ? bar.barY - 4 : bar.barY + bar.barH + 14);
-      ctx.fillStyle = '#555'; ctx.font = '10px sans-serif';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '10px sans-serif';
       ctx.fillText(bar.item.d.toFixed(0), bar.x + bar.barW/2, bar.item.d > 0 ? bar.barY + 14 : bar.barY - 4);
     });
   }
@@ -141,7 +141,7 @@ function renderKruskalWallis(el) {
   el.innerHTML = `<div class="viz-card">
     <div class="viz-header">📊 ${title}</div>
     <canvas id="${id}" width="${W}" height="${canvasH}" style="display:block;margin:0 auto;"></canvas>
-    <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:#333;"></div>
+    <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:var(--v2-fg-secondary);"></div>
   </div>`;
   const canvas = document.getElementById(id);
   const ctx = canvas.getContext('2d');
@@ -173,7 +173,7 @@ function renderKruskalWallis(el) {
 
   function drawChart(hlIndex) {
     ctx.clearRect(0, 0, W, canvasH);
-    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, canvasH-pad.b); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(pad.l, canvasH-pad.b); ctx.lineTo(W-pad.r, canvasH-pad.b); ctx.stroke();
     const yTicks = 5;
@@ -183,7 +183,7 @@ function renderKruskalWallis(el) {
       ctx.strokeStyle = '#eee'; ctx.setLineDash([3,3]);
       ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(yVal.toFixed(1), pad.l - 5, yPx + 4);
     }
     groupMeta.forEach((gm, i) => {
@@ -200,7 +200,7 @@ function renderKruskalWallis(el) {
       ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2.5;
       ctx.beginPath(); ctx.moveTo(gm.cx - gm.boxW/2, yOf(q.med)); ctx.lineTo(gm.cx + gm.boxW/2, yOf(q.med)); ctx.stroke();
       ctx.fillStyle = hlColor; ctx.beginPath(); ctx.arc(gm.cx, yOf(gm.mean), 5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(gm.name, gm.cx, canvasH - pad.b + 18);
       ctx.fillStyle = hlColor; ctx.font = '11px sans-serif';
       ctx.fillText('μ=' + gm.mean.toFixed(1), gm.cx, pad.t - 8);
@@ -284,7 +284,7 @@ function renderFriedman(el) {
   el.innerHTML = `<div class="viz-card">
     <div class="viz-header">📊 ${title}</div>
     <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-    <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:#333;"></div>
+    <div id="${id}-result" style="text-align:center;font-size:13px;margin-top:8px;color:var(--v2-fg-secondary);"></div>
   </div>`;
   const canvas = document.getElementById(id);
   const ctx = canvas.getContext('2d');
@@ -311,7 +311,7 @@ function renderFriedman(el) {
 
   function drawChart(hlIndex) {
     ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
     const yTicks = 4;
@@ -321,7 +321,7 @@ function renderFriedman(el) {
       ctx.strokeStyle = '#eee'; ctx.setLineDash([3,3]);
       ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
       ctx.fillText(yVal.toFixed(0), pad.l - 5, yPx + 4);
     }
     data.forEach((blockData, bi) => {
@@ -345,14 +345,14 @@ function renderFriedman(el) {
         ctx.beginPath(); ctx.moveTo(x1, yOf(blockData[ti])); ctx.lineTo(x2, yOf(blockData[ti+1])); ctx.stroke();
         ctx.setLineDash([]);
       }
-      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(blocks[bi], bx, H - pad.b + 15);
     });
     const legendSpacing = iW / (nTreat + 1);
     treatments.forEach((t, ti) => {
       const lx = pad.l + legendSpacing * (ti + 1);
       ctx.fillStyle = colors[ti % colors.length]; ctx.beginPath(); ctx.arc(lx, pad.t - 15, 5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
       ctx.fillText(t, lx + 8, pad.t - 11);
     });
   }
@@ -425,7 +425,7 @@ function renderRepeatedMeasuresInteraction(el) {
   el.innerHTML = `<div class="viz-card">
     <div class="viz-header">📊 ${title}</div>
     <canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas>
-    <div style="text-align:center;font-size:12px;color:#666;margin-top:6px;">
+    <div style="text-align:center;font-size:12px;color:var(--v2-fg-muted);margin-top:6px;">
       两因素两水平：时间(治疗前/治疗后) × 组别(处理组/对照组)<br>交互效应：两组血压均下降，但对照组下降幅度更大
     </div>
   </div>`;
@@ -442,7 +442,7 @@ function renderRepeatedMeasuresInteraction(el) {
   const yMin = 95, yMax = 132;
   const xOf = ti => pad.l + iW * (ti / (timePoints.length - 1));
   const yOf = v => pad.t + iH - ((v - yMin) / (yMax - yMin)) * iH;
-  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(pad.l, H-pad.b); ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
   for (let y = 0; y <= 4; y++) {
@@ -451,12 +451,12 @@ function renderRepeatedMeasuresInteraction(el) {
     ctx.strokeStyle = '#eee'; ctx.setLineDash([3,3]);
     ctx.beginPath(); ctx.moveTo(pad.l, yPx); ctx.lineTo(W-pad.r, yPx); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
     ctx.fillText(yVal.toFixed(1), pad.l - 5, yPx + 4);
   }
   timePoints.forEach((tp, ti) => {
     const x = pad.l + (ti / (timePoints.length-1)) * iW;
-    ctx.fillStyle = '#555'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(tp, x, H - pad.b + 20);
   });
   groups.forEach(g => {
@@ -466,7 +466,7 @@ function renderRepeatedMeasuresInteraction(el) {
     ctx.beginPath(); ctx.moveTo(xs[0], ys[0]); ctx.lineTo(xs[1], ys[1]); ctx.stroke();
     xs.forEach((x, ti) => {
       ctx.fillStyle = g.color; ctx.beginPath(); ctx.arc(x, ys[ti], 6, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, ys[ti], 3, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'var(--v2-bg-elevated)'; ctx.beginPath(); ctx.arc(x, ys[ti], 3, 0, Math.PI*2); ctx.fill();
     });
     ctx.fillStyle = g.color; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
     ctx.fillText(g.name, xs[1] + 8, ys[1]);

@@ -78,23 +78,23 @@ function ensureAncovaGuideStyles() {
   const style = document.createElement('style');
   style.id = 'ancova-guide-styles';
   style.textContent = `
-    .ancova-guide-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:980px;margin:22px 0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:#0f172a;}
-    .ancova-guide-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;font-size:15px;font-weight:750;color:#0f172a;}
+    .ancova-guide-card{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:980px;margin:22px 0;background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.055);overflow:hidden;color:var(--v2-fg);}
+    .ancova-guide-header{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--v2-border);background:var(--v2-bg-elevated);font-size:15px;font-weight:750;color:var(--v2-fg);}
     .ancova-guide-icon{font-size:18px;line-height:1;}
     .ancova-guide-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px;}
-    .ancova-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:144px;}
-    .ancova-guide-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
-    .ancova-guide-title{font-size:16px;font-weight:750;line-height:1.35;color:#0f172a;margin:0 0 8px;}
-    .ancova-guide-desc{font-size:13.5px;line-height:1.7;color:#64748b;margin:0;}
+    .ancova-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(15,23,42,.035);min-height:144px;}
+    .ancova-guide-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--v2-secondary-subtle);color:#3730a3;font-size:12px;font-weight:750;margin-bottom:11px;}
+    .ancova-guide-title{font-size:16px;font-weight:750;line-height:1.35;color:var(--v2-fg);margin:0 0 8px;}
+    .ancova-guide-desc{font-size:13.5px;line-height:1.7;color:var(--v2-fg-muted);margin:0;}
     .ancova-demo-wrap{display:grid;grid-template-columns:minmax(300px,1.25fr) minmax(220px,.75fr);gap:14px;padding:14px;align-items:stretch;}
-    .ancova-demo-panel,.ancova-demo-note{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,.035);padding:14px;}
+    .ancova-demo-panel,.ancova-demo-note{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,.035);padding:14px;}
     .ancova-demo-svg{width:100%;height:auto;display:block;}
-    .ancova-demo-control{display:flex;gap:10px;align-items:center;margin:12px 0 4px;color:#475569;font-size:13px;}
+    .ancova-demo-control{display:flex;gap:10px;align-items:center;margin:12px 0 4px;color:var(--v2-fg-secondary);font-size:13px;}
     .ancova-demo-control input[type="range"]{flex:1;accent-color:#4f46e5;}
     .ancova-demo-value{font-weight:800;color:#3730a3;min-width:46px;text-align:right;}
-    .ancova-demo-table{width:100%;border-collapse:collapse;margin-top:10px;border-top:2px solid #334155;border-bottom:2px solid #334155;}
-    .ancova-demo-table th,.ancova-demo-table td{font-size:12.5px;text-align:left;padding:7px 8px;border-bottom:1px solid #e2e8f0;color:#475569;}
-    .ancova-demo-table th{color:#334155;background:#f8fafc;font-weight:750;}
+    .ancova-demo-table{width:100%;border-collapse:collapse;margin-top:10px;border-top:2px solid var(--v2-fg-secondary);border-bottom:2px solid var(--v2-fg-secondary);}
+    .ancova-demo-table th,.ancova-demo-table td{font-size:12.5px;text-align:left;padding:7px 8px;border-bottom:1px solid var(--v2-border);color:var(--v2-fg-secondary);}
+    .ancova-demo-table th{color:var(--v2-fg-secondary);background:var(--v2-bg-elevated);font-weight:750;}
     @media (max-width:980px){.ancova-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.ancova-demo-wrap{grid-template-columns:1fr;}}
     @media (max-width:640px){.ancova-guide-grid{grid-template-columns:1fr;}.ancova-guide-item{min-height:auto;}}
   `;
@@ -131,13 +131,13 @@ function renderAdjustedMeansDemo(el) {
       <div class="ancova-demo-wrap">
         <div class="ancova-demo-panel">
           <svg class="ancova-demo-svg" viewBox="0 0 420 280" role="img" aria-label="调整后均值随协变量取值变化">
-            <line x1="42" y1="230" x2="382" y2="230" stroke="#cbd5e1"></line>
-            <line x1="42" y1="35" x2="42" y2="230" stroke="#cbd5e1"></line>
-            <text x="210" y="264" text-anchor="middle" font-size="12" fill="#64748b">协变量 x（基线）</text>
-            <text x="16" y="136" text-anchor="middle" font-size="12" fill="#64748b" transform="rotate(-90 16 136)">结局 y</text>
+            <line x1="42" y1="230" x2="382" y2="230" stroke="var(--v2-border)"></line>
+            <line x1="42" y1="35" x2="42" y2="230" stroke="var(--v2-border)"></line>
+            <text x="210" y="264" text-anchor="middle" font-size="12" fill="var(--v2-fg-muted)">协变量 x（基线）</text>
+            <text x="16" y="136" text-anchor="middle" font-size="12" fill="var(--v2-fg-muted)" transform="rotate(-90 16 136)">结局 y</text>
             ${groups.map(g => `<path d="${linePath(g.intercept, slope)}" stroke="${g.color}" stroke-width="3" fill="none" stroke-linecap="round"></path>`).join('')}
-            <line id="${id}-vline" x1="0" y1="35" x2="0" y2="230" stroke="#334155" stroke-dasharray="4 4"></line>
-            ${groups.map((g, i) => `<circle id="${id}-pt-${i}" r="6" fill="${g.color}" stroke="#fff" stroke-width="2"></circle>`).join('')}
+            <line id="${id}-vline" x1="0" y1="35" x2="0" y2="230" stroke="var(--v2-fg-secondary)" stroke-dasharray="4 4"></line>
+            ${groups.map((g, i) => `<circle id="${id}-pt-${i}" r="6" fill="${g.color}" stroke="var(--v2-bg-elevated)" stroke-width="2"></circle>`).join('')}
             ${groups.map((g, i) => `<text x="390" y="${70 + i * 22}" font-size="12" fill="${g.color}" font-weight="700">${g.name}</text>`).join('')}
           </svg>
           <label class="ancova-demo-control">协变量固定到 x = <input id="${id}-slider" type="range" min="8" max="12" step="0.1" value="10"><span id="${id}-value" class="ancova-demo-value">10.0</span></label>
@@ -186,10 +186,10 @@ function renderParallelSlopesDemo(el) {
       <div class="ancova-demo-wrap">
         <div class="ancova-demo-panel">
           <svg class="ancova-demo-svg" viewBox="0 0 420 280" role="img" aria-label="平行斜率与交互项示意">
-            <line x1="42" y1="230" x2="382" y2="230" stroke="#cbd5e1"></line>
-            <line x1="42" y1="35" x2="42" y2="230" stroke="#cbd5e1"></line>
-            <text x="210" y="264" text-anchor="middle" font-size="12" fill="#64748b">协变量 x</text>
-            <text x="16" y="136" text-anchor="middle" font-size="12" fill="#64748b" transform="rotate(-90 16 136)">结局 y</text>
+            <line x1="42" y1="230" x2="382" y2="230" stroke="var(--v2-border)"></line>
+            <line x1="42" y1="35" x2="42" y2="230" stroke="var(--v2-border)"></line>
+            <text x="210" y="264" text-anchor="middle" font-size="12" fill="var(--v2-fg-muted)">协变量 x</text>
+            <text x="16" y="136" text-anchor="middle" font-size="12" fill="var(--v2-fg-muted)" transform="rotate(-90 16 136)">结局 y</text>
             ${groups.map((g, i) => `<path id="${id}-line-${i}" stroke="${g.color}" stroke-width="3" fill="none" stroke-linecap="round"></path>`).join('')}
             ${groups.map((g, i) => `<text x="390" y="${70 + i * 22}" font-size="12" fill="${g.color}" font-weight="700">${g.name}</text>`).join('')}
           </svg>

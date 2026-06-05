@@ -58,25 +58,25 @@ function ensureStyles() {
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-    .survival-guide-card{background:#f6f7fb;border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:#334155;}
+    .survival-guide-card{background:var(--v2-bg-elevated);border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:var(--v2-fg-secondary);}
     .survival-guide-head{display:flex;gap:14px;align-items:center;margin-bottom:12px;}
-    .survival-guide-icon{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#0f766e,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 18px rgba(15,118,110,.22);}
-    .survival-guide-title{font-size:18px;font-weight:800;color:#1e293b;margin:0;}
-    .survival-guide-badge{display:inline-block;background:#ccfbf1;color:#0f766e;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
-    .survival-guide-lead{margin:8px 0 14px;color:#475569;line-height:1.75;}
+    .survival-guide-icon{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#0f766e,#2563eb);color:var(--v2-bg-elevated);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 18px rgba(15,118,110,.22);}
+    .survival-guide-title{font-size:18px;font-weight:800;color:var(--v2-fg);margin:0;}
+    .survival-guide-badge{display:inline-block;background:var(--v2-accent-subtle);color:#0f766e;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
+    .survival-guide-lead{margin:8px 0 14px;color:var(--v2-fg-secondary);line-height:1.75;}
     .survival-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;}
-    .survival-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;}
+    .survival-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:12px;}
     .survival-guide-item strong{display:block;color:#115e59;margin-bottom:6px;}
-    .survival-guide-note{margin-top:12px;font-size:13px;color:#64748b;background:#fff;border-left:4px solid #14b8a6;border-radius:10px;padding:10px 12px;}
+    .survival-guide-note{margin-top:12px;font-size:13px;color:var(--v2-fg-muted);background:var(--v2-bg-elevated);border-left:4px solid #14b8a6;border-radius:10px;padding:10px 12px;}
     .survival-demo-panel{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(260px,1.15fr);gap:14px;align-items:stretch;}
-    .survival-demo-control,.survival-demo-output{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;}
+    .survival-demo-control,.survival-demo-output{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:14px;}
     .survival-demo-control label{display:block;font-weight:700;color:#115e59;margin-bottom:8px;}
     .survival-demo-control input[type="range"]{width:100%;accent-color:#0f766e;}
-    .survival-demo-metric{font-size:24px;font-weight:800;color:#0f172a;}
-    .survival-demo-small{font-size:13px;color:#64748b;line-height:1.65;}
+    .survival-demo-metric{font-size:24px;font-weight:800;color:var(--v2-fg);}
+    .survival-demo-small{font-size:13px;color:var(--v2-fg-muted);line-height:1.65;}
     .survival-split-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0;}
-    .survival-split-cell{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px;text-align:center;font-size:13px;}
-    .survival-split-head{font-weight:800;color:#0f766e;background:#ecfeff;}
+    .survival-split-cell{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:10px;padding:8px;text-align:center;font-size:13px;}
+    .survival-split-head{font-weight:800;color:#0f766e;background:var(--v2-accent-subtle);}
     @media(max-width:720px){.survival-demo-panel{grid-template-columns:1fr}.survival-guide-card{padding:14px}.survival-guide-head{align-items:flex-start}.survival-split-row{grid-template-columns:1fr 1fr}}
   `;
   document.head.appendChild(style);

@@ -58,7 +58,7 @@ function renderBinomialDistributionFixed(el) {
         </label>
       </div>
       <div id="${id}-stats" class="viz-stats" style="line-height:1.7;"></div>
-      <div style="font-size:12px;color:#64748b;text-align:center;margin-top:8px;">
+      <div style="font-size:12px;color:var(--v2-fg-muted);text-align:center;margin-top:8px;">
         拖动 n 时会自动同步 k 的最大值，保持 0 ≤ k ≤ n。柱高为 P(X = x)，阴影为 P(X ≤ k)。
       </div>
     </div>`;
@@ -109,7 +109,7 @@ function renderBinomialDistributionFixed(el) {
     ctx.fillStyle = 'rgba(248,250,252,1)';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(`X ~ B(${n}, ${p.toFixed(2)})`, W / 2, 22);
@@ -124,7 +124,7 @@ function renderBinomialDistributionFixed(el) {
       ctx.stroke();
     }
 
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.moveTo(pad.l, pad.t);
@@ -149,7 +149,7 @@ function renderBinomialDistributionFixed(el) {
     // Mean reference line
     const meanX = sx(mean);
     ctx.save();
-    ctx.strokeStyle = '#0f172a';
+    ctx.strokeStyle = 'var(--v2-fg)';
     ctx.setLineDash([5, 4]);
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -157,7 +157,7 @@ function renderBinomialDistributionFixed(el) {
     ctx.lineTo(meanX, pad.t + plotH);
     ctx.stroke();
     ctx.restore();
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('均数 np', clamp(meanX, pad.l + 30, W - pad.r - 30), pad.t + 14);
@@ -171,7 +171,7 @@ function renderBinomialDistributionFixed(el) {
     ctx.lineTo(kX, pad.t + plotH + 4);
     ctx.stroke();
 
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     const tickCount = Math.min(10, n);

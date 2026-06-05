@@ -88,10 +88,10 @@ function renderRankCorrelation(el) {
       const yp = pad.top + (plotH / 4) * i; ctx.beginPath(); ctx.moveTo(pad.left, yp); ctx.lineTo(pad.left + plotW, yp); ctx.stroke();
     }
     // axes
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'var(--v2-fg-secondary)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + plotH); ctx.lineTo(pad.left + plotW, pad.top + plotH); ctx.stroke();
     // tick labels
-    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     for (let i = 0; i <= 4; i++) {
       const val = xMin - xPad + ((xMax - xMin) + 2 * xPad) * (i / 4);
       const xp = sx(val); ctx.beginPath(); ctx.moveTo(xp, pad.top + plotH); ctx.lineTo(xp, pad.top + plotH + 4); ctx.stroke();
@@ -146,7 +146,7 @@ function renderRankCorrelation(el) {
       &nbsp; P = ${stats.p}
       &nbsp; 95%CI: [${stats.rLower.toFixed(4)}, ${stats.rUpper.toFixed(4)}]
       &nbsp; n = ${n}
-      <div style="margin-top:6px;font-size:12px;color:#555;">
+      <div style="margin-top:6px;font-size:12px;color:var(--v2-fg-muted);">
         ${Math.abs(stats.r) >= 0.7 ? '📌 强相关' : stats.r >= 0.4 ? '📌 中等相关' : '📌 弱相关'}
         &nbsp;|&nbsp;秩转换：将原始数据替换为秩次（1,2,3…），消除异常值影响，适合偏态数据
       </div>

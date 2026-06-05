@@ -150,7 +150,7 @@ function renderPoissonCIFixed(el) {
         </label>
       </div>
       <div id="${id}-stats" class="viz-stats" style="line-height:1.7;"></div>
-      <div style="font-size:12px;color:#64748b;text-align:center;margin-top:8px;">
+      <div style="font-size:12px;color:var(--v2-fg-muted);text-align:center;margin-top:8px;">
         T=1 时区间就是泊松均数 λ 的区间；T 为人年、时间或面积时，区间表示单位观察量事件率。x=0 时正态近似会退化，Garwood 精确区间仍有上限。
       </div>
     </div>`;
@@ -180,13 +180,13 @@ function renderPoissonCIFixed(el) {
 
   function drawAxis(pad, W, H, maxX) {
     const y = H - pad.b;
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = 'var(--v2-fg-secondary)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(pad.l, y);
     ctx.lineTo(W - pad.r, y);
     ctx.stroke();
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = 'var(--v2-fg-secondary)';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     for (let i = 0; i <= 5; i++) {
@@ -215,7 +215,7 @@ function renderPoissonCIFixed(el) {
       ctx.arc(sx(v), y, 5, 0, Math.PI * 2);
       ctx.fill();
     });
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(label, sx(0) - 12, y + 4);
@@ -248,13 +248,13 @@ function renderPoissonCIFixed(el) {
 
     drawAxis(pad, W, H, maxX);
 
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'var(--v2-fg)';
     ctx.font = 'bold 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(`观察事件率 = ${x}/${fmt(exposure, 1)} = ${fmt(rate, 3)}`, W / 2, 22);
 
     ctx.save();
-    ctx.strokeStyle = '#64748b';
+    ctx.strokeStyle = 'var(--v2-fg-muted)';
     ctx.setLineDash([5, 4]);
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -262,7 +262,7 @@ function renderPoissonCIFixed(el) {
     ctx.lineTo(sx(rate), H - pad.b + 2);
     ctx.stroke();
     ctx.restore();
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = 'var(--v2-fg-muted)';
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('估计值', sx(rate), pad.t + 4);

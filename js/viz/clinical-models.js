@@ -15,31 +15,31 @@ function renderLogisticOR(el) {
   const barH = 36, padL = 120, padR = 60, padT = 50, padB = 30;
   const rowH = barH + 8;
   const W = 560, H = padT + n * rowH + padB + 20;
-  el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">垂直虚线 OR=1 表示无效线 | 误差线为 95% CI</div></div>`;
+  el.innerHTML = `<div class="viz-card"><div class="viz-header">📊 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">垂直虚线 OR=1 表示无效线 | 误差线为 95% CI</div></div>`;
   const canvas = document.getElementById(id);
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 22);
+  ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 22);
   const logVals = values.concat(lower).concat(upper).map(v => Math.log(v));
   const minLog = Math.min(...logVals) - 0.5;
   const maxLog = Math.max(...logVals) + 0.5;
   const scaleX = v => padL + ((Math.log(v) - minLog) / (maxLog - minLog)) * (W - padL - padR);
   const refX = scaleX(1);
-  ctx.setLineDash([4, 4]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]); ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(refX, padT); ctx.lineTo(refX, H - padB); ctx.stroke(); ctx.setLineDash([]);
   values.forEach((or, i) => {
     const y = padT + i * rowH + barH / 2;
     const x = scaleX(or), xLow = scaleX(Math.max(lower[i], Math.pow(10, minLog))), xHigh = scaleX(Math.min(upper[i], Math.pow(10, maxLog)));
-    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(labels[i] || ('V' + (i + 1)), padL - 8, y + 4);
-    ctx.strokeStyle = '#666'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(xLow, y); ctx.lineTo(xHigh, y); ctx.stroke();
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(labels[i] || ('V' + (i + 1)), padL - 8, y + 4);
+    ctx.strokeStyle = 'var(--v2-fg-muted)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(xLow, y); ctx.lineTo(xHigh, y); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(xLow, y - 5); ctx.lineTo(xLow, y + 5); ctx.stroke(); ctx.beginPath(); ctx.moveTo(xHigh, y - 5); ctx.lineTo(xHigh, y + 5); ctx.stroke();
     const sig = lower[i] > 1 || upper[i] < 1 ? '#e74c3c' : '#3498db'; ctx.fillStyle = sig; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#333'; ctx.font = '12px monospace'; ctx.textAlign = 'left'; ctx.fillText(or.toFixed(2), x + 8, y + 4);
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px monospace'; ctx.textAlign = 'left'; ctx.fillText(or.toFixed(2), x + 8, y + 4);
   });
   const logTicks = [0.1, 0.5, 1, 5, 10, 50, 500];
-  ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
   logTicks.filter(v => v >= Math.pow(10, minLog) && v <= Math.pow(10, maxLog)).forEach(v => { ctx.fillText(v.toString(), scaleX(v), H - 10); ctx.beginPath(); ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5; ctx.moveTo(scaleX(v), padT); ctx.lineTo(scaleX(v), H - padB); ctx.stroke(); });
-  ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Odds Ratio (log scale)', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Odds Ratio (log scale)', 0, 0); ctx.restore();
 }
 registerViz('logistic', renderLogisticOR);
 
@@ -84,9 +84,9 @@ function drawRocAxes(ctx, W, H, padL, padR, padT, padB) {
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
   }
-  ctx.setLineDash([5, 5]); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 5]); ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
   ctx.fillText('1 - 特异度 (False Positive Rate)', W / 2, H - 6);
   ctx.save(); ctx.translate(14, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('灵敏度 (True Positive Rate)', 0, 0); ctx.restore();
@@ -116,7 +116,7 @@ function renderROC(el) {
   const id = 'roc-' + Math.random().toString(36).slice(2, 8);
   const title = el.dataset.title || 'ROC 曲线 & AUC';
   const W = 560, H = 340;
-  el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:#333;">AUC = <strong id="${id}-auc">0.00</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">灵敏度 = <strong id="${id}-sens">--</strong></span><span style="margin-left:16px;font-size:13px;color:#555;">特异度 = <strong id="${id}-spec">--</strong></span></div><div style="text-align:center;margin-top:6px;"><span style="font-size:12px;color:#888;">点击曲线查看对应 cutoff 点的灵敏度和特异度</span></div></div>`;
+  el.innerHTML = `<div class="viz-card"><div class="viz-header">📈 ${title}</div><canvas id="${id}" width="${W}" height="${H}" style="display:block;margin:0 auto;"></canvas><div style="text-align:center;margin-top:8px;"><span style="font-size:14px;color:var(--v2-fg-secondary);">AUC = <strong id="${id}-auc">0.00</strong></span><span style="margin-left:16px;font-size:13px;color:var(--v2-fg-muted);">灵敏度 = <strong id="${id}-sens">--</strong></span><span style="margin-left:16px;font-size:13px;color:var(--v2-fg-muted);">特异度 = <strong id="${id}-spec">--</strong></span></div><div style="text-align:center;margin-top:6px;"><span style="font-size:12px;color:#888;">点击曲线查看对应 cutoff 点的灵敏度和特异度</span></div></div>`;
   const canvas = document.getElementById(id);
   const ctx = canvas.getContext('2d');
   const disease = [], healthy = [];
@@ -241,11 +241,11 @@ function renderCoxHR(el) {
   const W = 760, H = padT + n * rowH + padB + 24;
   const safeTitle = escapeHtml(title);
   const ariaLabel = `${title}: ${values.map((hr, i) => `${labels[i] || 'V' + (i + 1)} HR=${hr.toFixed(3)} 95% CI ${lower[i].toFixed(3)}–${upper[i].toFixed(3)} p=${pvals[i].toPrecision(3)}`).join('; ')}`;
-  el.innerHTML = `<div class="viz-card"><div class="viz-header">🏥 ${safeTitle}</div><canvas id="${id}" width="${W}" height="${H}" role="img" aria-label="${escapeHtml(ariaLabel)}" style="width:100%;max-width:${W}px;height:auto;display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:13px;color:#555;margin-top:6px;">垂直虚线 HR=1 表示无效线 | ● 表示点估计值 | 误差线为 95% CI | Female 为 sex 变量参考组</div><table aria-label="${safeTitle} 数据表" style="position:absolute;left:-9999px;"><thead><tr><th>Variable</th><th>HR</th><th>95% CI</th><th>p</th></tr></thead><tbody>${values.map((hr, i) => `<tr><td>${escapeHtml(labels[i] || 'V' + (i + 1))}</td><td>${hr.toFixed(3)}</td><td>${lower[i].toFixed(3)}–${upper[i].toFixed(3)}</td><td>${pvals[i].toPrecision(3)}</td></tr>`).join('')}</tbody></table></div>`;
+  el.innerHTML = `<div class="viz-card"><div class="viz-header">🏥 ${safeTitle}</div><canvas id="${id}" width="${W}" height="${H}" role="img" aria-label="${escapeHtml(ariaLabel)}" style="width:100%;max-width:${W}px;height:auto;display:block;margin:0 auto;"></canvas><div style="text-align:center;font-size:13px;color:var(--v2-fg-muted);margin-top:6px;">垂直虚线 HR=1 表示无效线 | ● 表示点估计值 | 误差线为 95% CI | Female 为 sex 变量参考组</div><table aria-label="${safeTitle} 数据表" style="position:absolute;left:-9999px;"><thead><tr><th>Variable</th><th>HR</th><th>95% CI</th><th>p</th></tr></thead><tbody>${values.map((hr, i) => `<tr><td>${escapeHtml(labels[i] || 'V' + (i + 1))}</td><td>${hr.toFixed(3)}</td><td>${lower[i].toFixed(3)}–${upper[i].toFixed(3)}</td><td>${pvals[i].toPrecision(3)}</td></tr>`).join('')}</tbody></table></div>`;
 
   const canvas = document.getElementById(id), ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#333'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 22);
+  ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, W / 2, 22);
 
   const logVals = values.concat(lower).concat(upper).map((value) => Math.log(value));
   const minLog = Math.min(...logVals) - 0.5;
@@ -256,15 +256,15 @@ function renderCoxHR(el) {
   const scaleX = (value) => padL + ((Math.log(value) - minLog) / (maxLog - minLog)) * plotW;
 
   const logTicks = [0.2, 0.5, 1, 2, 5];
-  ctx.fillStyle = '#666'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
   logTicks.filter((value) => value >= minBound && value <= maxBound).forEach((value) => {
     const tickX = scaleX(value);
     ctx.beginPath(); ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5; ctx.moveTo(tickX, padT); ctx.lineTo(tickX, H - padB); ctx.stroke();
-    ctx.fillStyle = '#666'; ctx.fillText(value.toString(), tickX, H - 12);
+    ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.fillText(value.toString(), tickX, H - 12);
   });
 
   const refX = scaleX(1);
-  ctx.setLineDash([4, 4]); ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]); ctx.strokeStyle = 'var(--v2-fg-subtle)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(refX, padT); ctx.lineTo(refX, H - padB); ctx.stroke(); ctx.setLineDash([]);
 
   values.forEach((hr, i) => {
@@ -276,11 +276,11 @@ function renderCoxHR(el) {
     const pText = pvals[i] < 0.001 ? 'p<0.001' : 'p=' + pvals[i].toFixed(3);
     const label = labels[i] || ('V' + (i + 1));
 
-    ctx.fillStyle = '#333'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
     const labelText = label.length > 22 ? label.slice(0, 20) + '…' : label;
     ctx.fillText(labelText, padL - 8, y + 4);
 
-    ctx.strokeStyle = '#666'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'var(--v2-fg-muted)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xLow, y); ctx.lineTo(xHigh, y); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(xLow, y - 5); ctx.lineTo(xLow, y + 5); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(xHigh, y - 5); ctx.lineTo(xHigh, y + 5); ctx.stroke();
@@ -290,7 +290,7 @@ function renderCoxHR(el) {
 
     const annotation = `HR=${hr.toFixed(3)} (95% CI ${lower[i].toFixed(3)}–${upper[i].toFixed(3)}), ${pText}`;
     const annotationX = W - padR + 12;
-    ctx.fillStyle = '#333'; ctx.font = '12px monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'var(--v2-fg-secondary)'; ctx.font = '12px monospace'; ctx.textAlign = 'left';
     if (ctx.measureText(annotation).width + annotationX > W - 8) {
       ctx.textAlign = 'right';
       ctx.fillText(annotation, W - 8, y + 4);
@@ -299,7 +299,7 @@ function renderCoxHR(el) {
     }
   });
 
-  ctx.fillStyle = '#666'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'var(--v2-fg-muted)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
   ctx.fillText('Hazard Ratio (log scale)', padL + plotW / 2, H - 2);
 }
 registerViz('cox', renderCoxHR);
@@ -308,6 +308,6 @@ function renderNomogram(el) {
   const id = 'nom-' + Math.random().toString(36).slice(2, 8); const title = el.dataset.title || '列线图 (Nomogram) 示例'; const svgW = 540, svgH = 260; const pointsMax = 100; const padL = 60, padR = 60, padT = 30; const scaleH = 180;
   const vars = [{ name: '年龄', unit: '岁', min: 20, max: 80, points: pointsMax, tickStep: 20 }, { name: '血压', unit: 'mmHg', min: 90, max: 200, points: pointsMax, tickStep: 22 }, { name: '胆固醇', unit: 'mmol/L', min: 3, max: 8, points: pointsMax, tickStep: 1 }];
   const totalWidth = svgW - padL - padR, varWidth = totalWidth / vars.length, scaleTop = padT + 30, scaleBottom = scaleTop + scaleH, varPositions = vars.map((v, i) => padL + i * varWidth + varWidth / 2);
-  el.innerHTML = `<div style="font-family:sans-serif"><div style="background:#f8f9fa;border-radius:8px;padding:12px"><div style="font-size:13px;font-weight:bold;color:#333;margin-bottom:8px">${title}</div><svg width="${svgW}" height="${svgH}" style="display:block;margin:0 auto"><style>.nom-text { font-size:11px fill:#333 }.nom-label { font-size:10px fill:#666 }.nom-tick { font-size:9px fill:#999 }</style>${vars.map((v, i) => `<text x="${varPositions[i]}" y="${scaleTop - 10}" text-anchor="middle" class="nom-text" font-weight="bold">${v.name}</text><text x="${varPositions[i]}" y="${scaleTop - 22}" text-anchor="middle" class="nom-label">(${v.unit})</text>`).join('')}<line x1="${padL}" y1="${scaleTop}" x2="${padL}" y2="${scaleBottom}" stroke="#333" stroke-width="2"/><line x1="${padL - 5}" y1="${scaleTop}" x2="${padL + 5}" y2="${scaleTop}" stroke="#333" stroke-width="1.5"/><line x1="${padL - 5}" y1="${scaleBottom}" x2="${padL + 5}" y2="${scaleBottom}" stroke="#333" stroke-width="1.5"/><line x1="${padL - 5}" y1="${scaleTop + scaleH/2}" x2="${padL + 5}" y2="${scaleTop + scaleH/2}" stroke="#333" stroke-width="1"/><text x="${padL - 8}" y="${scaleTop + 4}" text-anchor="end" class="nom-tick">0</text><text x="${padL - 8}" y="${scaleBottom + 4}" text-anchor="end" class="nom-tick">${pointsMax * 3}</text><text x="${padL - 8}" y="${scaleTop + scaleH/2 + 4}" text-anchor="end" class="nom-tick">${pointsMax * 1.5}</text><text x="${padL + 10}" y="${scaleTop - 5}" class="nom-label">总分</text>${vars.map((v, i) => { const x = varPositions[i]; const ticks = []; for (let val = v.min; val <= v.max; val += v.tickStep) { const ratio = (val - v.min) / (v.max - v.min); const y = scaleBottom - ratio * scaleH; const isMajor = val === v.min || val === v.max || val === (v.min + v.max) / 2; ticks.push(`<line x1="${x - (isMajor ? 8 : 5)}" y1="${y}" x2="${x + (isMajor ? 8 : 5)}" y2="${y}" stroke="#666" stroke-width="${isMajor ? 1.5 : 1}"/><text x="${x + 12}" y="${y + 4}" class="nom-tick">${val}</text>`); } return `<line x1="${x}" y1="${scaleTop}" x2="${x}" y2="${scaleBottom}" stroke="#666" stroke-width="1"/>${ticks.join('')}`; }).join('')}<line x1="${varPositions[0]}" y1="${scaleTop + scaleH * 0.6}" x2="${varPositions[1]}" y2="${scaleTop + scaleH * 0.4}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/><line x1="${varPositions[1]}" y1="${scaleTop + scaleH * 0.4}" x2="${varPositions[2]}" y2="${scaleTop + scaleH * 0.5}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/><line x1="${varPositions[2]}" y1="${scaleTop + scaleH * 0.5}" x2="${padL}" y2="${scaleTop + scaleH * 0.8}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/><line x1="${svgW - padR}" y1="${scaleTop}" x2="${svgW - padR}" y2="${scaleBottom}" stroke="#333" stroke-width="2"/><text x="${svgW - padR + 8}" y="${scaleTop - 5}" class="nom-label">风险概率</text><text x="${svgW - padR + 8}" y="${scaleTop + 4}" class="nom-tick">0.1</text><text x="${svgW - padR + 8}" y="${scaleTop + scaleH * 0.33 + 4}" class="nom-tick">0.3</text><text x="${svgW - padR + 8}" y="${scaleTop + scaleH * 0.67 + 4}" class="nom-tick">0.6</text><text x="${svgW - padR + 8}" y="${scaleBottom + 4}" class="nom-tick">0.9</text><line x1="${svgW - padR - 5}" y1="${scaleTop}" x2="${svgW - padR + 5}" y2="${scaleTop}" stroke="#333"/><line x1="${svgW - padR - 5}" y1="${scaleBottom}" x2="${svgW - padR + 5}" y2="${scaleBottom}" stroke="#333"/><line x1="${svgW - padR - 5}" y1="${scaleTop + scaleH/2}" x2="${svgW - padR + 5}" y2="${scaleTop + scaleH/2}" stroke="#333"/><line x1="${padL}" y1="${scaleTop + scaleH * 0.5}" x2="${svgW - padR}" y2="${scaleTop + scaleH * 0.33}" stroke="#d32f2f" stroke-width="2"/></svg><div style="margin-top:8px;font-size:11px;color:#666;text-align:center">示意列线图：各变量取值映射到顶部总分尺，通过总分在风险尺上读取预测概率</div></div></div>`;
+  el.innerHTML = `<div style="font-family:sans-serif"><div style="background:var(--v2-bg-elevated);border-radius:8px;padding:12px"><div style="font-size:13px;font-weight:bold;color:var(--v2-fg-secondary);margin-bottom:8px">${title}</div><svg width="${svgW}" height="${svgH}" style="display:block;margin:0 auto"><style>.nom-text { font-size:11px fill:var(--v2-fg-secondary) }.nom-label { font-size:10px fill:var(--v2-fg-muted) }.nom-tick { font-size:9px fill:var(--v2-fg-subtle) }</style>${vars.map((v, i) => `<text x="${varPositions[i]}" y="${scaleTop - 10}" text-anchor="middle" class="nom-text" font-weight="bold">${v.name}</text><text x="${varPositions[i]}" y="${scaleTop - 22}" text-anchor="middle" class="nom-label">(${v.unit})</text>`).join('')}<line x1="${padL}" y1="${scaleTop}" x2="${padL}" y2="${scaleBottom}" stroke="var(--v2-fg-secondary)" stroke-width="2"/><line x1="${padL - 5}" y1="${scaleTop}" x2="${padL + 5}" y2="${scaleTop}" stroke="var(--v2-fg-secondary)" stroke-width="1.5"/><line x1="${padL - 5}" y1="${scaleBottom}" x2="${padL + 5}" y2="${scaleBottom}" stroke="var(--v2-fg-secondary)" stroke-width="1.5"/><line x1="${padL - 5}" y1="${scaleTop + scaleH/2}" x2="${padL + 5}" y2="${scaleTop + scaleH/2}" stroke="var(--v2-fg-secondary)" stroke-width="1"/><text x="${padL - 8}" y="${scaleTop + 4}" text-anchor="end" class="nom-tick">0</text><text x="${padL - 8}" y="${scaleBottom + 4}" text-anchor="end" class="nom-tick">${pointsMax * 3}</text><text x="${padL - 8}" y="${scaleTop + scaleH/2 + 4}" text-anchor="end" class="nom-tick">${pointsMax * 1.5}</text><text x="${padL + 10}" y="${scaleTop - 5}" class="nom-label">总分</text>${vars.map((v, i) => { const x = varPositions[i]; const ticks = []; for (let val = v.min; val <= v.max; val += v.tickStep) { const ratio = (val - v.min) / (v.max - v.min); const y = scaleBottom - ratio * scaleH; const isMajor = val === v.min || val === v.max || val === (v.min + v.max) / 2; ticks.push(`<line x1="${x - (isMajor ? 8 : 5)}" y1="${y}" x2="${x + (isMajor ? 8 : 5)}" y2="${y}" stroke="var(--v2-fg-muted)" stroke-width="${isMajor ? 1.5 : 1}"/><text x="${x + 12}" y="${y + 4}" class="nom-tick">${val}</text>`); } return `<line x1="${x}" y1="${scaleTop}" x2="${x}" y2="${scaleBottom}" stroke="var(--v2-fg-muted)" stroke-width="1"/>${ticks.join('')}`; }).join('')}<line x1="${varPositions[0]}" y1="${scaleTop + scaleH * 0.6}" x2="${varPositions[1]}" y2="${scaleTop + scaleH * 0.4}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/><line x1="${varPositions[1]}" y1="${scaleTop + scaleH * 0.4}" x2="${varPositions[2]}" y2="${scaleTop + scaleH * 0.5}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/><line x1="${varPositions[2]}" y1="${scaleTop + scaleH * 0.5}" x2="${padL}" y2="${scaleTop + scaleH * 0.8}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/><line x1="${svgW - padR}" y1="${scaleTop}" x2="${svgW - padR}" y2="${scaleBottom}" stroke="var(--v2-fg-secondary)" stroke-width="2"/><text x="${svgW - padR + 8}" y="${scaleTop - 5}" class="nom-label">风险概率</text><text x="${svgW - padR + 8}" y="${scaleTop + 4}" class="nom-tick">0.1</text><text x="${svgW - padR + 8}" y="${scaleTop + scaleH * 0.33 + 4}" class="nom-tick">0.3</text><text x="${svgW - padR + 8}" y="${scaleTop + scaleH * 0.67 + 4}" class="nom-tick">0.6</text><text x="${svgW - padR + 8}" y="${scaleBottom + 4}" class="nom-tick">0.9</text><line x1="${svgW - padR - 5}" y1="${scaleTop}" x2="${svgW - padR + 5}" y2="${scaleTop}" stroke="var(--v2-fg-secondary)"/><line x1="${svgW - padR - 5}" y1="${scaleBottom}" x2="${svgW - padR + 5}" y2="${scaleBottom}" stroke="var(--v2-fg-secondary)"/><line x1="${svgW - padR - 5}" y1="${scaleTop + scaleH/2}" x2="${svgW - padR + 5}" y2="${scaleTop + scaleH/2}" stroke="var(--v2-fg-secondary)"/><line x1="${padL}" y1="${scaleTop + scaleH * 0.5}" x2="${svgW - padR}" y2="${scaleTop + scaleH * 0.33}" stroke="#d32f2f" stroke-width="2"/></svg><div style="margin-top:8px;font-size:11px;color:var(--v2-fg-muted);text-align:center">示意列线图：各变量取值映射到顶部总分尺，通过总分在风险尺上读取预测概率</div></div></div>`;
 }
 registerViz('nomogram', renderNomogram);

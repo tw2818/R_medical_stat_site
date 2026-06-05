@@ -82,16 +82,16 @@ function ensureStyles() {
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-    .poisson-guide-card{background:#f6f7fb;border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:#334155;}
+    .poisson-guide-card{background:var(--v2-bg-elevated);border:1px solid #d9e0ea;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 10px 28px rgba(31,41,55,.08);color:var(--v2-fg-secondary);}
     .poisson-guide-head{display:flex;gap:14px;align-items:center;margin-bottom:12px;}
-    .poisson-guide-icon{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 18px rgba(37,99,235,.24);}
-    .poisson-guide-title{font-size:18px;font-weight:800;color:#1e293b;margin:0;}
-    .poisson-guide-badge{display:inline-block;background:#e0e7ff;color:#4338ca;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
-    .poisson-guide-lead{margin:8px 0 14px;color:#475569;line-height:1.75;}
+    .poisson-guide-icon{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:var(--v2-bg-elevated);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 18px rgba(37,99,235,.24);}
+    .poisson-guide-title{font-size:18px;font-weight:800;color:var(--v2-fg);margin:0;}
+    .poisson-guide-badge{display:inline-block;background:var(--v2-secondary-subtle);color:#4338ca;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:4px;}
+    .poisson-guide-lead{margin:8px 0 14px;color:var(--v2-fg-secondary);line-height:1.75;}
     .poisson-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;}
-    .poisson-guide-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;}
+    .poisson-guide-item{background:var(--v2-bg-elevated);border:1px solid var(--v2-border);border-radius:14px;padding:12px;}
     .poisson-guide-item strong{display:block;color:#1e3a8a;margin-bottom:6px;}
-    .poisson-guide-note{margin-top:12px;font-size:13px;color:#64748b;background:#fff;border-left:4px solid #818cf8;border-radius:10px;padding:10px 12px;}
+    .poisson-guide-note{margin-top:12px;font-size:13px;color:var(--v2-fg-muted);background:var(--v2-bg-elevated);border-left:4px solid #818cf8;border-radius:10px;padding:10px 12px;}
     @media(max-width:680px){.poisson-guide-card{padding:14px}.poisson-guide-head{align-items:flex-start}}
   `;
   document.head.appendChild(style);
