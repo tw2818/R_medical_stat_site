@@ -16,8 +16,12 @@
 (function () {
   'use strict';
 
-  // === 1. 加 v2-active class（立即，CSS 选择器依赖）===
-  document.body.classList.add('v2-active');
+  // === 1. 加 v2-active class（必须等 body 解析后）===
+  function addV2ActiveClass() {
+    if (document.body) {
+      document.body.classList.add('v2-active');
+    }
+  }
 
   // === 2. 主题同步 ===
   // 优先级: localStorage > system prefers-color-scheme > 不设
@@ -96,12 +100,18 @@
   }
 
   // === 启动顺序：CSS 立即同步加载以避免 FOUC，UI 增强稍后 ===
-  loadShellCSS();
-  injectThemeToggle();
-
+  // 必须在 DOMContentLoaded 后才能改 body class（script 在 head 中加载时 body 还没解析）
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', enhanceMobileSidebar);
+    document.addEventListener('DOMContentLoaded', function () {
+      addV2ActiveClass();
+      loadShellCSS();
+      injectThemeToggle();
+      enhanceMobileSidebar();
+    });
   } else {
+    addV2ActiveClass();
+    loadShellCSS();
+    injectThemeToggle();
     enhanceMobileSidebar();
   }
 
