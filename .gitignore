@@ -1,3 +1,5 @@
 .hermes-meta-tmp.jsonl
 scripts/__pycache__/
 *.pyc
+data/datasets/
+.vercel/
