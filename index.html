@@ -15,7 +15,7 @@
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.loli.net/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=2">
-  <link rel="stylesheet" href="css/v2.css?v=11">
+  <link rel="stylesheet" href="css/v2.css?v=12">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
   <script src="https://cdn.jsdelivr.net/npm/jstat@1.9.6/dist/jstat.min.js"></script>
@@ -30,15 +30,13 @@
   </script>
 </head>
 <body class="v2-active">
+  <a href="#main-content" class="skip-link">跳到主内容</a>
   <div id="app">
     <aside id="sidebar">
       <div class="sidebar-header">
         <h1><span style="color:var(--v2-accent);font-weight:900;">R</span> 语言实战医学统计</h1>
         <p class="subtitle">交互式教程 · 阿越版</p>
-        <div class="search-box">
-          <input type="text" id="search-input" placeholder="搜索章节或关键词..." autocomplete="off" aria-label="搜索章节或关键词">
-          <div id="search-results" role="listbox" aria-label="搜索结果"></div>
-        </div>
+        <!-- search-box 移到 topbar 之外,避免移动端 transform 影响 fixed 定位 -->
       </div>
       <nav id="chapter-nav">
         <div class="nav-group">
@@ -92,10 +90,14 @@
       </div>
     </aside>
 
-    <main id="main-content">
+    <main id="main-content" tabindex="-1">
       <header id="topbar">
         <button id="menu-toggle" aria-label="打开章节导航">☰</button>
         <span id="current-chapter-title">R语言实战医学统计</span>
+        <div class="search-box" id="topbar-search">
+          <input type="text" id="search-input" placeholder="搜索章节或关键词..." autocomplete="off" aria-label="搜索章节或关键词">
+          <div id="search-results" role="listbox" aria-label="搜索结果"></div>
+        </div>
         <button class="btn-home-topbar" id="home-btn" style="display:none" aria-label="返回首页">🏠</button>
         <button id="theme-toggle" aria-label="切换深色模式">🌙</button>
       </header>

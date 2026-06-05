@@ -1467,6 +1467,26 @@ body.v2-active :focus-visible {
   border-radius: var(--v2-radius-sm);
 }
 
+/* ===== Skip link (a11y: 键盘用户 Tab 一次跳过 sidebar) ===== */
+body.v2-active .skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--v2-accent);
+  color: white;
+  padding: 8px 16px;
+  z-index: 9999;
+  font-weight: 600;
+  border-radius: 0 0 var(--v2-radius) 0;
+  transition: top 0.2s ease;
+  text-decoration: none;
+}
+body.v2-active .skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--v2-ring);
+  outline-offset: 2px;
+}
+
 /* ===== Responsive v2 ===== */
 @media (max-width: 900px) {
   body.v2-active #app {
@@ -1487,6 +1507,20 @@ body.v2-active :focus-visible {
   body.v2-active #chapter-content {
     padding: 24px 20px;
   }
+  /* 移动端把搜索框脱离 sidebar, 放主视图顶部 (a11y + UX) */
+  body.v2-active .search-box {
+    position: fixed !important;
+    top: 8px;
+    left: 60px;
+    right: 60px;
+    z-index: 50;
+    background: var(--v2-bg);
+    border-radius: var(--v2-radius);
+    box-shadow: 0 1px 4px rgba(0,0,0,.1);
+    max-width: 360px;
+  }
+  /* topbar 内的 search 在移动端, 仍然用上面的 fixed 规则 (在 #topbar 之外的位置) */
+  /* desktop: search-box 在 #topbar 内, 用 topbar 布局, 不需要 absolute */
 }
 
 /* ===== Accessibility: 尊重 prefers-reduced-motion ===== */
