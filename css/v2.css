@@ -1521,6 +1521,11 @@ body.v2-active .skip-link:focus {
   }
   /* topbar 内的 search 在移动端, 仍然用上面的 fixed 规则 (在 #topbar 之外的位置) */
   /* desktop: search-box 在 #topbar 内, 用 topbar 布局, 不需要 absolute */
+
+  /* 移动端隐藏 stats-strip (装饰性, 避免 CLS; desktop 仍显示 4 个统计卡) */
+  body.v2-active .v2-stats-strip {
+    display: none;
+  }
 }
 
 /* ===== Accessibility: 尊重 prefers-reduced-motion ===== */
