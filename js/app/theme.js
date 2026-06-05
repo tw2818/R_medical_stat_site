@@ -1,7 +1,7 @@
 export function updateThemeToggle({ root, button }) {
   if (!button) return;
   const isDark = root.getAttribute('data-theme') === 'dark';
-  button.textContent = isDark ? '🌙' : '☀️';
+  button.textContent = isDark ? '☀️' : '🌙';
   button.setAttribute('aria-label', isDark ? '切换浅色模式' : '切换深色模式');
 }
 
