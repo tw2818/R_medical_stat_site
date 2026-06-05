@@ -583,10 +583,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>路径图是用于描述变量之间关系的示意图，是SEM和验证性因子分析中必须了解的图形。其实就是<strong>用图形化的方式展示潜变量和显变量、潜变量和潜变量之间的关系</strong>，以及关系的大小（载荷）和方向等。由于SEM和CFA中通常涉及多个变量之间的复杂关系，只看数字或者文字描述很难直接理清他们的关系，但是图形可以直接反映，毕竟<strong>一图胜千言！</strong></p>
 <p>其他常用的做SEM的软件，比如AMOS，是以图形界面为核心的，所以在使用这种软件进行SEM第一步就是要建立路径图，使用路径图假设各个变量之间的关系。但是R语言是以代码为核心的，直接使用代码表示多个变量之间的关系即可（即直接建立多个模型（在R中就是建立多个公式）），路径图更多是作为结果呈现的内容，而不是必须第一步就要做的。</p>
 <p>在之前的<a href="https://mp.weixin.qq.com/s/dwpIvzeEghnfA2gEWPcTRA">探索性因子分析</a>中出现过一个简单的路径图：</p>
-<p><img src="figs/PixPin_2025-02-26_20-14-04.png" class="img-fluid"></p>
+<p><img src="figs/PixPin_2025-02-26_20-14-04.png" class="img-fluid" alt="图:sem 医学统计可视化,详见正文"></p>
 <p>这个图就是一个简单的路径图，展示了4个潜变量和各自的显变量之间的关系，并且标注了因子载荷以及正负，看起来很直观。</p>
 <p>在CFA和SEM中，变量之间的关系比这个要复杂的多，为了规范，<strong>路径图中的圆圈、方框、箭头等都有明确的含义</strong>，以下是简单说明：</p>
-<p><img src="figs/sem_path_symbol.jpg" class="img-fluid"></p>
+<p><img src="figs/sem_path_symbol.jpg" class="img-fluid" alt="图:sem 医学统计可视化,详见正文"></p>
 </section>
 <section id="sem和cfa" class="level3" data-number="34.1.5">
 <h3 data-number="34.1.5" class="anchored" data-anchor-id="sem和cfa"><span class="header-section-number">34.1.5</span> SEM和CFA</h3>
@@ -658,7 +658,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>对模型整体拟合效果的评价指标主要是<strong>拟合指数</strong>，拟合指数有很多，每个指数的计算及意义不尽相同。绝大多数的拟合指数是基于拟合函数计算出来的，卡方值是反映模型与数据拟合程度最直接的指标，卡方值越大，模型与数据拟合效果越不好。因为卡方值容易受到样本含量N影响，即在N较大时，卡方值也很大：N较小时，卡方值则很小，也就是说，卡方值往往不能很好地反映模型与数据的实际拟合程度。为了弥补卡方值的缺陷，许多学者先后提出了儿十个拟合指数。这些拟合指数大致可以分为：绝对拟合指数（absolute fit index）、相对拟合指数（comparative fit index）、信息标准指数（information criteria fit index）、节俭拟合指数（parsimony fit index）。</p>
 <p>一个比较理想的拟合指数应该具有这样的特点：①不受样本含量的影响；②惩罚复杂模型（自由参数较多的模型）；③对误设模型敏感。</p>
 <p>验证性因子分析与结构方程模型的拟合指标基本相同，下表列出了部分常用的拟合指标。</p>
-<p><img src="figs/PixPin_2025-02-24_13-38-02.png" class="img-fluid"></p>
+<p><img src="figs/PixPin_2025-02-24_13-38-02.png" class="img-fluid" alt="图:sem 医学统计可视化,详见正文"></p>
 <div class="stat-viz" data-type="sem-fit-index-guide" data-title="SEM拟合指标解读"></div>
 <p>⬆ 上方展示了绝对拟合、相对拟合、信息标准、节俭拟合等常用拟合指标及其阈值判断标准。</p>
 <p>上表中没有的几个指标补充：</p>
@@ -692,10 +692,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 data-number="34.3.2" class="anchored" data-anchor-id="数据简介"><span class="header-section-number">34.3.2</span> 数据简介</h3>
 <p>结合一个具体的例子说明（孙振球医学统计学第5版例23-1）。</p>
 <p>某课题组采用脑卒中患者报告临床结局量表（下文简述Stroke-PRO量表）调查了295例脑卒中患者，用于评估其治疗结局。Stroke-PRO量表中，生理领域包含4个维度、20个条目；心理领域包含3个维度、14个条目；社会领域包含2个维度、7个条目；治疗领域包含1个维度、5个条目。量表结构如下：</p>
-<p><img src="figs/PixPin_2025-02-25_21-46-42.png" class="img-fluid"></p>
+<p><img src="figs/PixPin_2025-02-25_21-46-42.png" class="img-fluid" alt="图:sem 医学统计可视化,详见正文"></p>
 <p>上表中每个条目是一个观测变量，每个维度是一个潜变量。</p>
 <p>以生理领域中躯体症状（SOS）这一维度为例，患者的躯体症状无法直接测量，需通过一些相关条目获取，如采用Likert5级计分，维度与条目信息如下：</p>
-<p><img src="figs/PixPin_2025-02-25_21-47-45.png" class="img-fluid"></p>
+<p><img src="figs/PixPin_2025-02-25_21-47-45.png" class="img-fluid" alt="图:sem 医学统计可视化,详见正文"></p>
 <p>假如我们需要探讨脑卒中患者生理领域的躯体症状、认知能力和心理领域的焦虑、抑郁、回避之间的相互作用关系，将上述维度作为潜变量，各条目作为观测变量，可以从以下两方面着手分析：</p>
 <ol type="1">
 <li>采用验证性因子分析评价量表的结构效度；</li>
@@ -962,7 +962,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data/结构方程模型_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="480"></p>
+<p><img src="data/结构方程模型_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="480" alt="图:sem 医学统计可视化,详见正文"></p>
 </figure>
 </div>
 </div>
@@ -1116,7 +1116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data/结构方程模型_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="data/结构方程模型_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672" alt="图:sem 医学统计可视化,详见正文"></p>
 </figure>
 </div>
 </div>
@@ -1290,7 +1290,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data/结构方程模型_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="data/结构方程模型_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672" alt="图:sem 医学统计可视化,详见正文"></p>
 </figure>
 </div>
 </div>

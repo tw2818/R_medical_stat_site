@@ -18,7 +18,7 @@
 
 <section id="site-positioning" class="level2" data-number="A.1">
   <h2 data-number="A.1" class="anchored" data-anchor-id="site-positioning"><span class="header-section-number">A.1</span> 站点定位</h2>
-  <p>本站是一个面向医学科研与临床研究场景的 <strong>R 语言统计学习站</strong>。它的核心目标不是替代教材，也不是替代统计软件，而是把常见医学统计方法整理成：</p>
+  <p>本站是一个面向医学科研与临床研究场景的 <strong>R&nbsp;语言统计学习站</strong>。它的核心目标不是替代教材，也不是替代统计软件，而是把常见医学统计方法整理成：</p>
   <ul>
     <li>可直接阅读的中文教程；</li>
     <li>可复制的 R 代码；</li>
@@ -121,7 +121,7 @@
   </ul>
   <h3>2026-04-23 — 计算器增强与数据修正</h3>
   <ul>
-    <li><strong>t 检验计算器增强</strong>：新增第三 tab「配对 t 检验」，支持等长校验和差值单样本 t 检验；修复因缺少 <code>parseNumbers</code> 导入导致的计算器 <code>ReferenceError</code></li>
+    <li><strong>t&nbsp;检验计算器增强</strong>：新增第三 tab「配对 t 检验」，支持等长校验和差值单样本 t 检验；修复因缺少 <code>parseNumbers</code> 导入导致的计算器 <code>ReferenceError</code></li>
     <li><strong>ANOVA 数据修正</strong>：组件 mean/SD 修正为经实测验证的正确值（means: 3.4303/2.7153/2.698/1.9663，sds: 0.7151/0.6382/0.4972/0.7464）；删去 2.5 节格式错误的重复 ANOVA 组件</li>
     <li><strong>正文多处修正</strong>：区组间 F 值 5.798 → 5.978；拉丁方残差 SS "0.0683.2" → 683.2；2.4 导语药物均值描述及 p 值解释修正；变量描述改为正确名称</li>
     <li><strong>第一章正文修正</strong>：方差齐性表述改为"未见显著证据反对方差相等假设"；1.4 节标题改为「方差齐性检验」</li>
@@ -184,7 +184,7 @@
   <h3>2026-04-22 — 移除 t 检验计算器中方向不明确的单侧 P 值</h3>
   <ul>
     <li><strong>修复范围</strong>：<code>ttest</code> 计算器结果表</li>
-    <li><strong>修复内容</strong>：两样本 t 检验结果中不再显示 <code>P 值（单侧）</code></li>
+    <li><strong>修复内容</strong>：两样本 t 检验结果中不再显示 <code>P&nbsp;值（单侧）</code></li>
     <li><strong>原因</strong>：原实现没有提供备择假设方向选择，却显示了单侧 P 值，容易导致结果解释不严谨</li>
     <li><strong>效果</strong>：保留双侧 P 值、均数差和 95% CI，使单样本与两样本输出口径更一致</li>
   </ul>
@@ -312,7 +312,7 @@
   </ul>
   <h3>2026-04-22 — 计算器精度修复 + 移动端返回首页按钮调整</h3>
   <ul>
-    <li><strong>t 检验计算器</strong>：95% CI 改为优先使用精确 t 临界值；Welch t 检验不再先四舍五入自由度再计算 p 值；两样本结果增加均数差与 95% CI</li>
+    <li><strong>t&nbsp;检验计算器</strong>：95% CI 改为优先使用精确 t 临界值；Welch t 检验不再先四舍五入自由度再计算 p 值；两样本结果增加均数差与 95% CI</li>
     <li><strong>卡方 / Fisher 计算器</strong>：修正 Fisher 双侧精确检验求和逻辑，增加最小期望频数显示，对 2×2 且期望频数较小的情况提示优先参考 Fisher</li>
     <li><strong>实现方式</strong>：新增 <code>js/viz/overrides.js</code>，通过 registry 覆盖 <code>ttest</code> / <code>chisq</code> 组件，避免直接硬改超长的 <code>hypothesis.js</code></li>
     <li><strong>移动端可用性</strong>：将"返回首页"按钮从侧边栏底部移到顶部栏，避免抽屉式侧边栏下方遮挡</li>
@@ -329,8 +329,8 @@
     <li><strong>Kruskal-Wallis H 检验</strong>：原输出 H=9.74 / P≈0.008 为硬编码，已替换为完整动态计算（含并列校正秩次、chi-square 近似 P 值）</li>
     <li><strong>Friedman M 检验</strong>：原输出 M=9.34 / P≈0.025 为硬编码，已替换为完整动态计算（区块内编秩 + tie 校正因子）</li>
     <li><strong>Kaplan-Meier 生存曲线</strong>：<code>survival.js</code> — 原公式与标准 product-limit estimator 不符，已重写为按时间点聚合 + 正确维护 at-risk 集合</li>
-    <li><strong>t 分布 fallback</strong>：<code>distributions.js</code> — 原 fallback 分支引用未定义的 <code>lgamma()</code>，已替换为 Stirling 近似 <code>logΓ</code></li>
-    <li><strong>F 分布 fallback</strong>：<code>distributions.js</code> — 修正 beta normalizing constant 的调用逻辑</li>
+    <li><strong>t&nbsp;分布 fallback</strong>：<code>distributions.js</code> — 原 fallback 分支引用未定义的 <code>lgamma()</code>，已替换为 Stirling 近似 <code>logΓ</code></li>
+    <li><strong>F&nbsp;分布 fallback</strong>：<code>distributions.js</code> — 修正 beta normalizing constant 的调用逻辑</li>
     <li><strong><code>pad.left</code> 未定义</strong>：<code>distributions.js</code> — 替换为正确属性名 <code>pad.l</code></li>
   </ul>
     </div>
