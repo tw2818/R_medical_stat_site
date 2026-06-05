@@ -1167,14 +1167,18 @@ body.v2-active #chapter-content p {
 body.v2-active #chapter-content pre,
 body.v2-active #chapter-content code.sourceCode {
   font-family: var(--v2-font-mono);
-  font-size: 0.84rem;
-  line-height: 1.55;
+  font-size: 0.95rem;  /* 加大 13.44 → 15.2px 解决"白线"视觉错觉(小字号 anti-aliasing) */
+  line-height: 1.7;
   background: #0F172A !important;  /* 永远 dark bg — 跟 R token 配色协调 */
   color: #E2E8F0 !important;         /* 浅色 fg — 在 #0F172A 上对比度 11.6:1 */
   border: 1px solid var(--v2-border);
   border-radius: var(--v2-radius);
-  padding: 14px 18px;
+  padding: 18px 22px;
   overflow-x: auto;
+  font-synthesis: none;  /* 禁掉浏览器合成 bold/italic,用真实字形 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* 修 R token 在深 bg 上的对比度：
@@ -1190,8 +1194,8 @@ body.v2-active #chapter-content pre.sourceCode .kw,  /* 关键字 if/function */
 body.v2-active #chapter-content pre.sourceCode .keyword { color: #7DD3FC; }  /* 浅蓝 */
 body.v2-active #chapter-content pre.sourceCode .do,  /* R 输出 ## */
 body.v2-active #chapter-content pre.sourceCode .hljs-doctag {
-  color: #94A3B8;  /* slate-400 — 在 #0F172A 上对比度 5.4:1,达 WCAG AA, 仍比 R 代码 token 暗 */
-  font-style: italic;  /* 斜体 — 进一步区分 R 输出和 R 代码 */
+  color: #CBD5E1;  /* slate-300 — 在 #0F172A 上对比度 9.7:1 (AAA), 提亮 R 输出可读性 */
+  font-weight: 500;  /* medium 加重, 不依赖 italic 也能区分 R 输出 vs R 代码 */
 }
 body.v2-active #chapter-content pre.sourceCode .dt,  /* 类型 */
 body.v2-active #chapter-content pre.sourceCode .hljs-title { color: #5EEAD4; }  /* 青 */
