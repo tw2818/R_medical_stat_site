@@ -1164,8 +1164,7 @@ body.v2-active #chapter-content p {
   margin: 0 0 14px 0;
 }
 
-body.v2-active #chapter-content pre,
-body.v2-active #chapter-content code.sourceCode {
+body.v2-active #chapter-content pre {
   font-family: var(--v2-font-mono);
   font-size: 0.95rem;  /* 加大 13.44 → 15.2px 解决"白线"视觉错觉(小字号 anti-aliasing) */
   line-height: 1.7;
@@ -1179,6 +1178,20 @@ body.v2-active #chapter-content code.sourceCode {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* code.sourceCode 在 pre 内部，不能再有 border — 否则会在 pre 内部画 1px 边线 = "白线" bug! */
+body.v2-active #chapter-content code.sourceCode {
+  font-family: var(--v2-font-mono);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  background: transparent;  /* 透明 — 让 pre bg 透出 */
+  color: inherit;            /* 继承 pre color */
+  border: 0 !important;      /* 关键:不画 border,避免在 pre 内部出现"白线" */
+  border-radius: 0;
+  padding: 0;                /* 不要 padding — padding 由 pre 提供 */
+  display: block;
+  white-space: pre;
 }
 
 /* 修 R token 在深 bg 上的对比度：
