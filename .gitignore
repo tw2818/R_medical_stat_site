@@ -1,20 +1,3 @@
-# Vercel
-.vercel/
-
-# Node (if used)
-node_modules/
-
-# macOS
-.DS_Store
-
-# Editor
-.vscode/
-.idea/
-*.swp
-
-# Empty placeholder dirs
-chapters/
-data/datasets/
-
-# Local/private optimization notes
-优化手册.md
+.hermes-meta-tmp.jsonl
+scripts/__pycache__/
+*.pyc
